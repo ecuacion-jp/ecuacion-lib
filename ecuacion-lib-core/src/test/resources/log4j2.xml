@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xml>
+<configuration>
+  <appenders>
+    <Console name="console">
+      <PatternLayout
+        pattern="[%-5level]%d{yyyy/MM/dd HH:mm:ss.SSS} %msg%n" />
+    </Console>
+  </appenders>
+  <loggers>
+    <root level="off" />
+    <logger name="detail-logger" level="trace">
+      <appender-ref ref="console" />
+    </logger>
+  </loggers>
+</configuration>
