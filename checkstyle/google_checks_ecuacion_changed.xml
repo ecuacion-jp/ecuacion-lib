@@ -55,7 +55,7 @@
            default="checkstyle-suppressions.xml" />
     <property name="optional" value="true"/>
      -->
-    <property name="file" value="${config_loc}/../../ecuacion-lib/ecuacion-lib-maven-parent/checkstyle/ecuacion_suppression_filter_for_google_checks_ecuacion_changed.xml" />
+    <property name="file" value="${config_loc}/../../ecuacion-lib/checkstyle/ecuacion_suppression_filter_for_google_checks_ecuacion_changed.xml" />
   </module>
 
   <!-- https://checkstyle.org/filters/suppresswithnearbytextfilter.html -->
