@@ -19,7 +19,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jp.ecuacion.lib</groupId>
-	<artifactId>ecuacion-lib-maven-parent</artifactId>
+	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>13.0.0</version>
 	<organization>
@@ -286,7 +286,7 @@
 	</dependencyManagement>
 
 	<modules>
-		<module>ecuacion-lib-maven-parent-jakartaee</module>
+		<module>ecuacion-lib-dependency-jakartaee</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-jpa</module>
 	</modules>
