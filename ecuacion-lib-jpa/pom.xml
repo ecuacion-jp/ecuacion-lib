@@ -22,10 +22,29 @@
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
-		<artifactId>ecuacion-lib-maven-parent-jakartaee</artifactId>
-		<version>13.0.0</version>
-		<relativePath>../ecuacion-lib-maven-parent-jakartaee</relativePath>
+		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
+		<version>13.0.1</version>
+		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
 	</parent>
+
+	<build>
+		<plugins>
+		
+			<!-- checkstyle -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			
+			<!-- spotbugs -->
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+			</plugin>
+
+		</plugins>
+	</build>
+
 	<dependencies>
 
 			<!-- jakarta ee -->
