@@ -19,15 +19,15 @@
 # NO NEED TO OVERWRITE ANYTHING. DON'T TOUCH!!!
 # for PROJECTS repository!
 
-. ./params.sh
+#. ./params.sh
 . ../ecuacion-internal-lib/ecuacion-internal-lib-tools/scripts/common.sh $1
 
 export command=$1
 abendIfVarIsEmpty "$command" "1st arg(command) is required. exitting..."
 
-export script_root_dir=../ecuacion-internal-lib/ecuacion-internal-lib-tools/scripts/projects-repository-commands
+export script_root_dir=../ecuacion-internal-lib/ecuacion-internal-lib-tools/scripts/projects-with-parent-pom-xml-commands
 if [ ! -f $script_path ]; then
-  abendWithMessage "ecuacion-lib-tools project not placed properly."
+  abendWithMessage "ecuacion-internal-lib-tools project not placed properly."
 fi
 
 export command_file=${command/-/\/}.sh

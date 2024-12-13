@@ -65,7 +65,7 @@
 		
 		<pluginManagement>
 			<plugins>
-			
+
 				<!-- checkstyle -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -222,12 +222,13 @@
 							<excludes>
 								<exclude>src/test/resources/**</exclude>
 								<exclude>src/main/resources/**</exclude>
+								<exclude>**/*.css</exclude>
 							</excludes>
 						</licenseSet>
 					</licenseSets>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 	<dependencyManagement>
