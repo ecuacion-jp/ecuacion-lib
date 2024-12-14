@@ -23,13 +23,19 @@
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
 		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
-		<version>13.0.2</version>
+		<version>13.0.3</version>
 		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
 	</parent>
 	
 	<build>
 		<plugins>
 		
+			<!-- wagon to upload javadoc.jar -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+			</plugin>
+
 			<!-- checkstyle -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -41,7 +47,7 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 

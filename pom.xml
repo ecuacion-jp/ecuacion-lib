@@ -21,7 +21,7 @@
 	<groupId>jp.ecuacion.lib</groupId>
 	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>13.0.2</version>
+	<version>13.0.3</version>
 	<organization>
 		<name>ecuacion.jp</name>
 	</organization>
@@ -37,7 +37,8 @@
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
-		<ecuacion.lib.version>13.0.2</ecuacion.lib.version>
+		<ecuacion.lib.version>13.0.3</ecuacion.lib.version>
+		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
 	</properties>
 	<distributionManagement>
 		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
@@ -66,6 +67,27 @@
 		<pluginManagement>
 			<plugins>
 
+				<!-- wagon to upload javadoc.jar -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>wagon-maven-plugin</artifactId>
+					<version>2.0.2</version>
+					<configuration>
+						<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
+						<url>${remote-location.javadoc}/work</url>
+						<serverId>ecuacion-repo-sftp</serverId>
+					</configuration>
+					<executions>
+						<execution>
+							<id>upload-javadoc-to-server</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>upload-single</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			
 				<!-- checkstyle -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
