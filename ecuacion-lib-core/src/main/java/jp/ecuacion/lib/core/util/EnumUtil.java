@@ -246,7 +246,8 @@ public class EnumUtil {
         Method codeMethod = enumClass.getMethod("getCode", (Class<?>[]) null);
         String code = (String) codeMethod.invoke(enumValue, (Object[]) null);
 
-        Method displayNameMethod = enumClass.getMethod("getDisplayName", (Class<?>[]) null);
+        Method displayNameMethod =
+            enumClass.getMethod("getDisplayName", (Class<?>[]) new Class<?>[] {Locale.class});
         String displayName = (String) displayNameMethod.invoke(enumValue, locale);
 
         valueList
