@@ -23,7 +23,7 @@
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
 		<artifactId>ecuacion-lib-parent</artifactId>
-		<version>13.0.2</version>
+		<version>13.0.3</version>
 		<relativePath>../</relativePath>
 	</parent>
 
