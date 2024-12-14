@@ -76,7 +76,6 @@
 						<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
 						<url>${remote-location.javadoc}/work</url>
 						<serverId>ecuacion-repo-sftp</serverId>
-						<toFile></toFile>
 					</configuration>
 					<executions>
 						<execution>
