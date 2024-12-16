@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Provides the parent of jpa entities.
+ * Provides the customized jpa entity.
  */
 public abstract class AbstractEntity {
 
