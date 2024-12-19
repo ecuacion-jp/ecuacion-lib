@@ -21,6 +21,7 @@
  * sinse it is used in wide variation of projects.</p>
  */
 module jp.ecuacion.lib.core {
+  exports jp.ecuacion.lib.core.annotation;
   exports jp.ecuacion.lib.core.beanvalidation.validator;
   exports jp.ecuacion.lib.core.constant;
   exports jp.ecuacion.lib.core.exception.checked;

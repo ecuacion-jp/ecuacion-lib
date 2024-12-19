@@ -24,6 +24,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.MessageFormat;
 import java.util.Locale;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
 
@@ -204,7 +205,7 @@ public class PropertyFileUtil {
    * @return the message corresponding to the message ID
    */
   @Nonnull
-  public static String getMsg(@Nonnull String key, @Nullable String... args) {
+  public static String getMsg(@RequireNonnull String key, @Nullable String... args) {
     return getMsg(Locale.getDefault(), key, args);
   }
 
