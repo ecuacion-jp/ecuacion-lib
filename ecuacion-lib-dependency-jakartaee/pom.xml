@@ -23,9 +23,21 @@
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
 		<artifactId>ecuacion-lib-parent</artifactId>
-		<version>14.0.1</version>
+		<version>14.0.2</version>
 		<relativePath>../</relativePath>
 	</parent>
+	
+	<build>
+		<plugins>
+
+			<!-- mycila license-maven-plugin -->
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+
+		</plugins>
+	</build>
 
 	<!-- springframeworkのpomでバージョン管理しているものはこちらに記載 -->
 	<dependencyManagement>

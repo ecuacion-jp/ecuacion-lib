@@ -21,7 +21,7 @@ The following public library is introduced by default. (Basically the usage of a
 
 ## introduction
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` of the page.  
+Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page.  
 dependency description is as follows.
 
 ```xml
