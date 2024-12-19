@@ -26,7 +26,8 @@ import java.lang.annotation.Retention;
  * <p>This is almost equal to {@code jakarta.annotation.Nonnull}, 
  *     but {@code @Nonnull} is analyzed by the IDE and IDE warns the nullable parameter.
  *     If you want to show that the method throws NullPointerException 
- *     when the annotated arguments is null, but NO IDE warning needed, use {@RequireNonnull}.</p>
+ *     when the annotated arguments is null, but NO IDE warning needed, 
+ *     use {@code RequireNonnull}.</p>
  * 
  * <p>This annnotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
