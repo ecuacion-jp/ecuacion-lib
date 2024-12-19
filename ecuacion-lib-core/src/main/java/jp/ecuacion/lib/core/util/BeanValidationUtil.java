@@ -1,17 +1,15 @@
 /*
  * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package jp.ecuacion.lib.core.util;
 
@@ -27,6 +25,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
@@ -45,7 +44,7 @@ public class BeanValidationUtil {
    * @param object object to validate
    * @throws MultipleAppException MultipleAppException
    */
-  public <T> void validateThenThrow(@Nonnull T object) throws MultipleAppException {
+  public <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
     MultipleAppException exList = validateThenReturn(object);
     if (exList != null && exList.getList().size() > 0) {
       throw exList;
@@ -61,7 +60,7 @@ public class BeanValidationUtil {
    *     which is treated as {@code Locale.getDefault()}.
    * @throws MultipleAppException MultipleAppException
    */
-  public <T> void validateThenThrow(@Nonnull T object, @Nullable Locale locale)
+  public <T> void validateThenThrow(@RequireNonnull T object, @Nullable Locale locale)
       throws MultipleAppException {
     MultipleAppException exList = validateThenReturn(object, locale);
     if (exList != null && exList.getList().size() > 0) {
@@ -77,7 +76,7 @@ public class BeanValidationUtil {
    * @return MultipleAppException
    */
   @Nullable
-  public <T> MultipleAppException validateThenReturn(@Nonnull T object) {
+  public <T> MultipleAppException validateThenReturn(@RequireNonnull T object) {
     return validateThenReturn(object, Locale.getDefault());
   }
 
@@ -91,7 +90,8 @@ public class BeanValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nullable
-  public <T> MultipleAppException validateThenReturn(@Nonnull T object, @Nullable Locale locale) {
+  public <T> MultipleAppException validateThenReturn(@RequireNonnull T object,
+      @Nullable Locale locale) {
     Set<ConstraintViolation<T>> set = validate(object, locale);
 
     MultipleAppException exList = null;
@@ -122,10 +122,11 @@ public class BeanValidationUtil {
    * @see jakarta.validation.Validator
    */
   @Nonnull
-  public <T> Set<ConstraintViolation<T>> validate(@Nonnull T object, @Nullable Locale locale) {
+  public <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object,
+      @Nullable Locale locale) {
     ObjectsUtil.paramRequireNonNull(object);
     locale = (locale == null) ? Locale.getDefault() : locale;
-    
+
     // Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     Validator validator = validatorCache.computeIfAbsent(locale,
         (keyLocale) -> Validation.byDefaultProvider().configure()
