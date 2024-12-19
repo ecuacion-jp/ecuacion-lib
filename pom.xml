@@ -88,6 +88,41 @@
 					</executions>
 				</plugin>
 			
+				<!-- mycila license-maven-plugin -->
+				<plugin>
+					<groupId>com.mycila</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>4.6</version>
+					<executions>
+					<execution>
+						<id>license</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+					</executions>
+					<configuration>
+						<properties>
+							<owner>ecuacion.jp</owner>
+							<email>info@ecuacion.jp</email>
+							<year>2012</year>
+						</properties>
+						<licenseSets>
+							<licenseSet>
+								<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+								<excludes>
+									<exclude>src/test/resources/**</exclude>
+									<exclude>src/main/resources/**</exclude>
+									<exclude>**/*.css</exclude>
+									<exclude>**/*.txt</exclude>
+									<exclude>**/*.md</exclude>
+								</excludes>
+							</licenseSet>
+						</licenseSets>
+					</configuration>
+				</plugin>
+			
 				<!-- checkstyle -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -222,35 +257,6 @@
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>4.6</version>
-				<executions>
-				<execution>
-					<id>license</id>
-					<phase>generate-sources</phase>
-					<goals>
-						<goal>format</goal>
-					</goals>
-				</execution>
-				</executions>
-				<configuration>
-					<properties>
-						<owner>ecuacion.jp</owner>
-						<email>info@ecuacion.jp</email>
-						<year>2012</year>
-					</properties>
-					<licenseSets>
-						<licenseSet>
-							<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
-							<excludes>
-								<exclude>src/test/resources/**</exclude>
-								<exclude>src/main/resources/**</exclude>
-								<exclude>**/*.css</exclude>
-								<exclude>**/*.txt</exclude>
-								<exclude>**/*.md</exclude>
-							</excludes>
-						</licenseSet>
-					</licenseSets>
-				</configuration>
 			</plugin>
 
 		</plugins>
