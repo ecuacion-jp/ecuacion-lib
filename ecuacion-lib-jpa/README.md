@@ -15,7 +15,7 @@ It offers customized entity class for jakarta persistence-api.
 
 ## introduction
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` of the page.  
+Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page.  
 dependency description is as follows.
 
 ```xml
