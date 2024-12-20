@@ -23,13 +23,25 @@
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
 		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
-		<version>14.0.3</version>
+		<version>14.0.4</version>
 		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
 	</parent>
 
 	<build>
 		<plugins>
-		
+
+			<!-- maven-source-plugin (outputs a jar of source) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<!-- maven-javadoc-plugin (outputs a jar of javadocs) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
 			<!-- wagon to upload javadoc.jar -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
