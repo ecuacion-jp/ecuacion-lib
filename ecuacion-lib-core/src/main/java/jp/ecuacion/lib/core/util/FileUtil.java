@@ -120,7 +120,7 @@ public class FileUtil {
     return concatPath;
   }
 
-  /**
+  /*
    * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br>
    * 区切り位置が存在しない場合は-1を返す
    */
@@ -253,16 +253,17 @@ public class FileUtil {
   }
 
   /**
-   * パス文字列中にワイルドカードが含まれるかどうかをチェック.
+   * Returns true if the argument path contains wildcard strings.
    */
   public boolean containsWildCard(String path) {
     return (path.contains("?") || path.contains("*"));
   }
 
   /**
-   * wildcardつきfullPathを引数にとり、そのfullPathに当てはまるfullPathのリストを返す.<br>
-   * 「*」と「?」はサポートしているが、サブディレクトリを含めて検索する「**」はサポートしていない<br>
-   * ワイルドカードを扱う場合は、区切り文字が「/」と「\」の2種類があると煩雑なため、「/」に統一して処理を行う
+   * Returns a list of paths which match the path passed by the argument path with wildcards.
+   * 
+   * <p>"*", "?" are supported, but "**" not supported.<br>
+   * The separator of returning Paths is "/"</p>
    */
   public List<String> getPathListFromPathWithWildcard(String path) throws BizLogicAppException {
 
