@@ -29,7 +29,19 @@
 	
 	<build>
 		<plugins>
-		
+
+			<!-- maven-source-plugin (outputs a jar of source) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<!-- maven-javadoc-plugin (outputs a jar of javadocs) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
 			<!-- wagon to upload javadoc.jar -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
