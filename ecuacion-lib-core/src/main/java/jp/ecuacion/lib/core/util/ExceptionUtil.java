@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
@@ -57,7 +58,7 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public List<String> getExceptionMessage(@Nonnull Throwable throwable,
+  public List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
       boolean needsDetails) {
     return getExceptionMessage(throwable, Locale.getDefault(), needsDetails);
   }
@@ -82,8 +83,8 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public List<String> getExceptionMessage(@Nonnull Throwable throwable, @Nullable Locale locale,
-      boolean needsDetails) {
+  public List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+      @Nullable Locale locale, boolean needsDetails) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
     ObjectsUtil.paramRequireNonNull(needsDetails);
@@ -175,7 +176,7 @@ public class ExceptionUtil {
    * @return a list of throables
    */
   @Nonnull
-  private List<Throwable> serializeExceptions(@Nonnull Throwable throwable) {
+  private List<Throwable> serializeExceptions(@RequireNonnull Throwable throwable) {
     List<Throwable> list = new ArrayList<>();
     recursivelySerializeException(throwable, list);
     return ObjectsUtil.returnRequireNonNull(list);
@@ -190,7 +191,8 @@ public class ExceptionUtil {
    * 
    * @param arr 最終的に「階層のない単純なList」がこれになる。
    */
-  private void recursivelySerializeException(Throwable throwable, List<Throwable> arr) {
+  private void recursivelySerializeException(@RequireNonnull Throwable throwable,
+      List<Throwable> arr) {
     // 自分をadd
     arr.add(throwable);
 
@@ -235,7 +237,8 @@ public class ExceptionUtil {
    * @return list of SingleAppException
    */
   @Nonnull
-  public List<SingleAppException> getSingleAppExceptionList(@Nonnull AppException appException) {
+  public List<SingleAppException> getSingleAppExceptionList(
+      @RequireNonnull AppException appException) {
     ObjectsUtil.paramRequireNonNull(appException);
 
     List<SingleAppException> rtnList = new ArrayList<>();
@@ -268,7 +271,7 @@ public class ExceptionUtil {
    * @return list of SingleAppException
    */
   @Nonnull
-  public List<String> getAppExceptionMessageList(@Nonnull AppException appException,
+  public List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
       @Nullable Locale locale) {
     // 呼び出し先でnullcheckをしているためここでは不要。
 
@@ -290,8 +293,8 @@ public class ExceptionUtil {
    * @return error log string
    */
   @Nonnull
-  public String getErrLogString(@Nonnull Throwable throwable, @Nullable String additionalMessage,
-      @Nullable Locale locale) {
+  public String getErrLogString(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = (locale == null) ? Locale.getDefault() : locale;
 
