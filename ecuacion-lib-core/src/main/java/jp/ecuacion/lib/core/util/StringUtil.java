@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Collection;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -150,7 +151,7 @@ public class StringUtil {
    * @return csv with spaces after commas.
    */
   @Nonnull
-  public String getCsvWithSpace(@Nonnull String[] collection) {
+  public String getCsvWithSpace(@RequireNonnull String[] collection) {
     boolean isFirstTime = true;
     StringBuffer sb = new StringBuffer();
     for (String str : collection) {

@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
@@ -34,7 +35,7 @@ public class AppExceptionFields {
    * @param fields the fields related to an exception.
    *     An array of length zero is acceptable.
    */
-  public AppExceptionFields(@Nonnull String... fields) {
+  public AppExceptionFields(@RequireNonnull String... fields) {
     this.fields = fields;
 
     ObjectsUtil.paramRequireNonNull(fields);
