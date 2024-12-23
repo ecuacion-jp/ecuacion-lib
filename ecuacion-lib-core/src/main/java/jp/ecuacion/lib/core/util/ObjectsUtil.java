@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.ConstantsInLibCore;
 
 /**
@@ -43,7 +44,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T paramRequireNonNull(@Nonnull T object) {
+  public static <T> T paramRequireNonNull(@RequireNonnull T object) {
     return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
         + "the argument: " + object.getClass().getName() + "is null.");
   }
@@ -64,6 +65,20 @@ public class ObjectsUtil {
   public static <T> T returnRequireNonNull(@Nonnull T object) {
     return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
         + "the return value: " + object.getClass().getName() + "is null.");
+  }
+
+  /**
+   * Validates the variable is not {@code null} and throws {@code NullPointerException} 
+   * if {@code null}.
+   * 
+   * @param <T> The class of the argument
+   * @param object Any object
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T requireNonNull(@RequireNonnull T object) {
+    return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
+        + "the variable: " + object.getClass().getName() + "is null.");
   }
 
   /**

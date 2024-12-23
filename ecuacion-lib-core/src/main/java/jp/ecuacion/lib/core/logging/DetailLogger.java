@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jakarta.annotation.Nonnull;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
@@ -57,7 +58,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param message message to log
    */
-  public void trace(@Nonnull String message) {
+  public void trace(@RequireNonnull String message) {
     log(message, LogLevel.trace);
   }
 
@@ -66,7 +67,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param message message to log
    */
-  public void debug(@Nonnull String message) {
+  public void debug(@RequireNonnull String message) {
     log(message, LogLevel.debug);
   }
 
@@ -75,7 +76,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param message message to log
    */
-  public void info(@Nonnull String message) {
+  public void info(@RequireNonnull String message) {
     log(message, LogLevel.info);
   }
 
@@ -84,7 +85,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param message message to log
    */
-  public void warn(@Nonnull String message) {
+  public void warn(@RequireNonnull String message) {
     log(message, LogLevel.warn);
   }
 
@@ -93,7 +94,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param message message to log
    */
-  public void error(@Nonnull String message) {
+  public void error(@RequireNonnull String message) {
     log(message, LogLevel.error);
   }
 
@@ -102,7 +103,7 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param th exception to log
    */
-  public void error(@Nonnull Throwable th) {
+  public void error(@RequireNonnull Throwable th) {
     logThrowable(th);
   }
 }

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,7 +39,7 @@ public class FileUtil {
    * Changes argument filename into file-savable name.
    */
   @Nonnull
-  public String getFileSavableName(@Nonnull String origName) {
+  public String getFileSavableName(@RequireNonnull String origName) {
     String rtn = origName;
     if (origName.indexOf("\\") >= 0) {
       rtn = rtn.replaceAll("\\\\", "__yen__");
@@ -78,16 +79,19 @@ public class FileUtil {
 
     return rtn;
   }
-  
+
   /*
    * Concatenates two paths.
    * 
    * @param path1 path1
+   * 
    * @param path2 path2
+   * 
    * @return
    */
-  @Nonnull 
-  private String concatTwoFilePaths(@Nonnull String path1, @Nonnull String path2) {
+  @Nonnull
+  private String concatTwoFilePaths(@RequireNonnull String path1, @RequireNonnull String path2) {
+
     if (path1.endsWith("/")) {
       path1 = path1.substring(0, path1.length() - 1);
     }
@@ -120,11 +124,10 @@ public class FileUtil {
     return concatPath;
   }
 
-  /**
-   * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br>
-   * 区切り位置が存在しない場合は-1を返す
+  /*
+   * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br> 区切り位置が存在しない場合は-1を返す
    */
-  private int getFirstPathSeparatorIndex(String path) {
+  private int getFirstPathSeparatorIndex(@RequireNonnull String path) {
     int firstSlashIndex = path.indexOf("/");
     int firstBackSlashIndex = path.indexOf("\\");
 
@@ -156,7 +159,7 @@ public class FileUtil {
    * @return the cleaned path
    */
   @Nonnull
-  public String cleanPathStrWithSlash(@Nonnull String path) {
+  public String cleanPathStrWithSlash(@RequireNonnull String path) {
     String rtnStr = null;
     // 併せて、区切り文字を「/」に統一する
     rtnStr = path.replaceAll("\\\\", "/");
@@ -189,7 +192,7 @@ public class FileUtil {
    * @throws IOException IOException
    */
   @SuppressWarnings("resource")
-  public boolean isLocked(@Nonnull String path) throws IOException {
+  public boolean isLocked(@RequireNonnull String path) throws IOException {
     File file = new File(path);
     // FileLockによる実装がうまくいかない。ロックがかかっている状態でFileOutputStreamを取得しようとすると、
     // その時点でIOExceptionが発生してしまう。（なんでだろう・・）
@@ -253,16 +256,17 @@ public class FileUtil {
   }
 
   /**
-   * パス文字列中にワイルドカードが含まれるかどうかをチェック.
+   * Returns true if the argument path contains wildcard strings.
    */
   public boolean containsWildCard(String path) {
     return (path.contains("?") || path.contains("*"));
   }
 
   /**
-   * wildcardつきfullPathを引数にとり、そのfullPathに当てはまるfullPathのリストを返す.<br>
-   * 「*」と「?」はサポートしているが、サブディレクトリを含めて検索する「**」はサポートしていない<br>
-   * ワイルドカードを扱う場合は、区切り文字が「/」と「\」の2種類があると煩雑なため、「/」に統一して処理を行う
+   * Returns a list of paths which match the path passed by the argument path with wildcards.
+   * 
+   * <p>"*", "?" are supported, but "**" not supported.<br>
+   * The separator of returning Paths is "/"</p>
    */
   public List<String> getPathListFromPathWithWildcard(String path) throws BizLogicAppException {
 
