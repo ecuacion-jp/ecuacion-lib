@@ -224,7 +224,7 @@
 					</executions>
 					<configuration>
 						<excludeFilterFile>../../ecuacion-lib/spotbugs/exclude.xml</excludeFilterFile>
-						<failOnError>false</failOnError>
+						<failOnError>true</failOnError>
 					</configuration>
 				</plugin>
 			</plugins>
