@@ -30,7 +30,9 @@ import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import jp.ecuacion.lib.core.exception.unchecked.RuntimeAppException;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeExceptionWithMessageId;
+import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -221,11 +223,26 @@ public class ExceptionUtil {
    * @return a list of Throwables
    */
   @Nonnull
-  public List<Throwable> getExceptionListWithMessages(@Nonnull Throwable throwable) {
+  public List<Throwable> getExceptionListWithMessages(@RequireNonnull Throwable throwable) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
-    return serializeExceptions(throwable).stream()
-        .filter(t -> t.getMessage() != null && !t.getMessage().equals("")).toList();
+    List<Throwable> rtnList = new ArrayList<>();
+    // return serializeExceptions(throwable).stream()
+    // .filter(t -> t.getMessage() != null && !t.getMessage().equals("")).toList();
+
+    for (Throwable th : serializeExceptions(throwable)) {
+
+      if (th instanceof RuntimeAppException) {
+        rtnList.add(((RuntimeAppException) th).getCause());
+
+      } else if (th instanceof SingleAppException || th instanceof RuntimeExceptionWithMessageId
+          || th instanceof RuntimeSystemException
+          || (th.getMessage() != null && !th.getMessage().equals(""))) {
+        rtnList.add(th);
+      }
+    }
+
+    return rtnList;
   }
 
   /**
