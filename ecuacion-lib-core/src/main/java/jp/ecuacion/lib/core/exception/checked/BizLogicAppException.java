@@ -39,14 +39,14 @@ public class BizLogicAppException extends SingleAppException {
   @Nonnull
   private AppExceptionFields fields;
 
-  /**
-   * Constructs a new instance with {@code messageId}.
-   * 
-   * @param messageId message ID
-   */
-  public BizLogicAppException(@Nonnull String messageId) {
-    this(messageId, new String[] {});
-  }
+  // /**
+  // * Constructs a new instance with {@code messageId}.
+  // *
+  // * @param messageId message ID
+  // */
+  // public BizLogicAppException(@RequireNonnull String messageId) {
+  // this(messageId, new String[] {});
+  // }
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -58,15 +58,16 @@ public class BizLogicAppException extends SingleAppException {
     this(Locale.getDefault(), messageId, messageArgs);
   }
 
-  /**
-   * Constructs a new instance with {@code fields} and {@code messageId}.
-   *
-   * @param fields the fields related to the exeception
-   * @param messageId message ID
-   */
-  public BizLogicAppException(@Nonnull AppExceptionFields fields, @Nonnull String messageId) {
-    this(fields, messageId, new String[] {});
-  }
+  // /**
+  // * Constructs a new instance with {@code fields} and {@code messageId}.
+  // *
+  // * @param fields the fields related to the exeception
+  // * @param messageId message ID
+  // */
+  // public BizLogicAppException(@Nonnull AppExceptionFields fields,
+  // @RequireNonnull String messageId) {
+  // this(fields, messageId, new String[] {});
+  // }
 
   /**
    * Constructs a new instance with {@code fields}, {@code messageId} and {@code messageArgs}.
@@ -80,15 +81,15 @@ public class BizLogicAppException extends SingleAppException {
     this(Locale.getDefault(), fields, messageId, messageArgs);
   }
 
-  /**
-   * Constructs a new instance with {@code locale} and {@code messageId}.
-   *
-   * @param locale locale
-   * @param messageId message ID
-   */
-  public BizLogicAppException(@Nonnull Locale locale, @Nonnull String messageId) {
-    this(locale, messageId, new String[] {});
-  }
+  // /**
+  // * Constructs a new instance with {@code locale} and {@code messageId}.
+  // *
+  // * @param locale locale
+  // * @param messageId message ID
+  // */
+  // public BizLogicAppException(@Nonnull Locale locale, @RequireNonnull String messageId) {
+  // this(locale, messageId, new String[] {});
+  // }
 
   /**
    * Constructs a new instance with {@code locale}, {@code messageId} and {@code messageArgs}.
@@ -103,17 +104,17 @@ public class BizLogicAppException extends SingleAppException {
   }
 
 
-  /**
-   * Constructs a new instance with {@code locale}, {@code fields} and {@code messageId}.
-   *
-   * @param locale locale
-   * @param fields the fields related to the exeception
-   * @param messageId message ID
-   */
-  public BizLogicAppException(@Nonnull Locale locale, @Nonnull AppExceptionFields fields,
-      @Nonnull String messageId) {
-    this(locale, fields, messageId, new String[] {});
-  }
+  // /**
+  // * Constructs a new instance with {@code locale}, {@code fields} and {@code messageId}.
+  // *
+  // * @param locale locale
+  // * @param fields the fields related to the exeception
+  // * @param messageId message ID
+  // */
+  // public BizLogicAppException(@Nonnull Locale locale, @Nonnull AppExceptionFields fields,
+  // @RequireNonnull String messageId) {
+  // this(locale, fields, messageId, new String[] {});
+  // }
 
   /**
    * Constructs a new instance with {@code locale},  {@code fields},
@@ -124,10 +125,10 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(Locale locale, AppExceptionFields fields, String messageId,
-      String... messageArgs) {
+  public BizLogicAppException(@Nonnull Locale locale, @Nonnull AppExceptionFields fields,
+      @Nonnull String messageId, @Nonnull String... messageArgs) {
     super();
-    
+
     this.locale = ObjectsUtil.paramRequireNonNull(locale);
     this.fields = ObjectsUtil.paramRequireNonNull(fields);
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
