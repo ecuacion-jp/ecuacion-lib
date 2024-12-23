@@ -68,6 +68,20 @@ public class ObjectsUtil {
   }
 
   /**
+   * Validates the variable is not {@code null} and throws {@code NullPointerException} 
+   * if {@code null}.
+   * 
+   * @param <T> The class of the argument
+   * @param object Any object
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T requireNonNull(@RequireNonnull T object) {
+    return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
+        + "the variable: " + object.getClass().getName() + "is null.");
+  }
+
+  /**
    * Validates the length of the param array is not zero 
    * and throws {@code IllegalArgumentException} if zero.
    * 
