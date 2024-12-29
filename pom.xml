@@ -39,6 +39,7 @@
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
 		<ecuacion-lib.version>14.0.7</ecuacion-lib.version>
 		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
+		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
 	</properties>
 	<distributionManagement>
 		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
@@ -186,16 +187,13 @@
 						<failOnViolation>false</failOnViolation>
 						<failsOnError>false</failsOnError>
 						<violationSeverity>info</violationSeverity>
-						<configLocation>https://ecuacion-jp.github.io/config/common/checkstyle/google_checks.xml</configLocation>
-						<suppressionsLocation>https://ecuacion-jp.github.io/config/common/checkstyle/suppression-filter-for-libs-and-utils.xml</suppressionsLocation>
+						<configLocation>${checkstyle.config.site}/google_checks.xml</configLocation>
+						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-libs-and-utils.properties</propertiesLocation>
 					</configuration>
 					<executions>
 						<execution>
 							<id>checkstyle</id>
 							<phase>validate</phase>
-							<configuration>
-								<propertyExpansion>config_loc=${basedir}</propertyExpansion>
-							</configuration>
 							<goals>
 								<goal>check</goal>
 							</goals>
