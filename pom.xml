@@ -186,7 +186,8 @@
 						<failOnViolation>false</failOnViolation>
 						<failsOnError>false</failsOnError>
 						<violationSeverity>info</violationSeverity>
-						<configLocation>https://ecuacion-jp.github.io/config/common/checkstyle/google_checks_ecuacion_changed.xml</configLocation>
+						<configLocation>https://ecuacion-jp.github.io/config/common/checkstyle/google_checks.xml</configLocation>
+						<suppressionsLocation>https://ecuacion-jp.github.io/config/common/checkstyle/suppression-filter-for-libs-and-utils.xml</suppressionsLocation>
 					</configuration>
 					<executions>
 						<execution>
