@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.Locale;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeAppException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
@@ -65,7 +66,7 @@ public class LogUtil {
    * 
    * @param throwable throwable
    */
-  public void logError(@Nonnull Throwable throwable) {
+  public void logError(@RequireNonnull Throwable throwable) {
     logError(throwable, (String) null);
   }
 
@@ -76,7 +77,7 @@ public class LogUtil {
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
    */
-  public void logError(@Nonnull Throwable throwable, @Nullable Locale locale) {
+  public void logError(@RequireNonnull Throwable throwable, @Nullable Locale locale) {
     logError(throwable, null, locale);
   }
 
@@ -88,7 +89,7 @@ public class LogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case o {@code null} no additional message is output.
    */
-  public void logError(@Nonnull Throwable throwable, @Nullable String additionalMessage) {
+  public void logError(@RequireNonnull Throwable throwable, @Nullable String additionalMessage) {
     logError(throwable, additionalMessage, null);
   }
 
@@ -102,7 +103,7 @@ public class LogUtil {
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
    */
-  public void logError(@Nonnull Throwable throwable, @Nullable String additionalMessage,
+  public void logError(@RequireNonnull Throwable throwable, @Nullable String additionalMessage,
       @Nullable Locale locale) {
     ObjectsUtil.paramRequireNonNull(throwable);
 

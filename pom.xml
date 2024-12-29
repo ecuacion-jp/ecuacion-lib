@@ -21,7 +21,7 @@
 	<groupId>jp.ecuacion.lib</groupId>
 	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>14.0.6</version>
+	<version>14.0.7</version>
 	<organization>
 		<name>ecuacion.jp</name>
 	</organization>
@@ -37,8 +37,9 @@
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
-		<ecuacion-lib.version>14.0.6</ecuacion-lib.version>
+		<ecuacion-lib.version>14.0.7</ecuacion-lib.version>
 		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
+		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
 	</properties>
 	<distributionManagement>
 		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
@@ -186,15 +187,13 @@
 						<failOnViolation>false</failOnViolation>
 						<failsOnError>false</failsOnError>
 						<violationSeverity>info</violationSeverity>
-						<configLocation>../../ecuacion-lib/checkstyle/google_checks_ecuacion_changed.xml</configLocation>
+						<configLocation>${checkstyle.config.site}/google_checks.xml</configLocation>
+						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-libs-and-utils.properties</propertiesLocation>
 					</configuration>
 					<executions>
 						<execution>
 							<id>checkstyle</id>
 							<phase>validate</phase>
-							<configuration>
-								<propertyExpansion>config_loc=${basedir}</propertyExpansion>
-							</configuration>
 							<goals>
 								<goal>check</goal>
 							</goals>
@@ -223,7 +222,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<excludeFilterFile>../../ecuacion-lib/spotbugs/exclude.xml</excludeFilterFile>
+						<excludeFilterFile>https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml</excludeFilterFile>
 						<failOnError>true</failOnError>
 					</configuration>
 				</plugin>
