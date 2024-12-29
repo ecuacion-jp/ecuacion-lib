@@ -186,7 +186,7 @@
 						<failOnViolation>false</failOnViolation>
 						<failsOnError>false</failsOnError>
 						<violationSeverity>info</violationSeverity>
-						<configLocation>../../ecuacion-lib/checkstyle/google_checks_ecuacion_changed.xml</configLocation>
+						<configLocation>https://ecuacion-jp.github.io/config/common/checkstyle/google_checks_ecuacion_changed.xml</configLocation>
 					</configuration>
 					<executions>
 						<execution>
@@ -223,7 +223,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<excludeFilterFile>../../ecuacion-lib/spotbugs/exclude.xml</excludeFilterFile>
+						<excludeFilterFile>https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml</excludeFilterFile>
 						<failOnError>true</failOnError>
 					</configuration>
 				</plugin>
