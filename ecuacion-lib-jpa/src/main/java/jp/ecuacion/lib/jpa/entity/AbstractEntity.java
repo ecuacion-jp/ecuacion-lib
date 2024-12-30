@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 
 /**
  * Provides the customized jpa entity.
@@ -42,7 +43,7 @@ public abstract class AbstractEntity {
    * @return value. May be null when the value is null.
    */
   @Nullable
-  public Object getValue(@Nonnull String fieldName) {
+  public Object getValue(@RequireNonnull String fieldName) {
     try {
       Field field = this.getClass().getDeclaredField(fieldName);
       Object value = field.get(this);
@@ -100,7 +101,7 @@ public abstract class AbstractEntity {
    * @param fieldName fieldName.
    * @return field is auto-increment
    */
-  public boolean isAutoIncrement(@Nonnull String fieldName) {
+  public boolean isAutoIncrement(@RequireNonnull String fieldName) {
     return getAutoIncrementFieldNameSet().contains(fieldName);
   }
 
