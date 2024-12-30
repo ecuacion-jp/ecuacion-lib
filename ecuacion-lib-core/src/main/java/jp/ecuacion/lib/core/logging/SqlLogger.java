@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.annotation.Nonnull;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 
 /**
@@ -42,7 +42,7 @@ public class SqlLogger extends AbstractLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void trace(@Nonnull String message) {
+  public void trace(@RequireNonnull String message) {
     log(message, LogLevel.trace);
   }
 
@@ -51,7 +51,7 @@ public class SqlLogger extends AbstractLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void debug(@Nonnull String message) {
+  public void debug(@RequireNonnull String message) {
     log(message, LogLevel.debug);
   }
 }
