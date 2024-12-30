@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.annotation.Nonnull;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 
 /**
@@ -49,7 +49,7 @@ public class ErrorLogger extends AbstractLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void info(@Nonnull String message) {
+  public void info(@RequireNonnull String message) {
     log(message, LogLevel.info);
   }
 
@@ -58,7 +58,7 @@ public class ErrorLogger extends AbstractLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void warn(@Nonnull String message) {
+  public void warn(@RequireNonnull String message) {
     log(message, LogLevel.warn);
   }
 
@@ -68,7 +68,7 @@ public class ErrorLogger extends AbstractLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void error(@Nonnull String message) {
+  public void error(@RequireNonnull String message) {
     log(message, LogLevel.error);
   }
 }
