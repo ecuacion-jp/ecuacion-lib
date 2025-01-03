@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.Locale;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
@@ -37,24 +38,25 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
 public class AppWarningException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  private String messageId;
+  /**
+   * message ID.
+   */
+  protected String messageId;
 
-  private String[] messageArgs;
+  /**
+   * message Arguments.
+   */
+  protected String[] messageArgs;
 
-  private Locale locale;
+  /**
+   * locale.
+   */
+  protected Locale locale;
 
-  private AppExceptionFields fields;
-
-  private String buttonId;
-
-  // /**
-  // * Constructs a new instance with {@code messageId}.
-  // *
-  // * @param messageId message ID
-  // */
-  // public AppWarningException(@RequireNonnull String messageId) {
-  // this(messageId, new String[] {});
-  // }
+  /**
+   * fields.
+   */
+  protected AppExceptionFields fields;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -66,101 +68,23 @@ public class AppWarningException extends Exception {
     this(Locale.getDefault(), messageId, messageArgs);
   }
 
-  // /**
-  // * Constructs a new instance with warn fields and messageId.
-  // *
-  // * @param warnFields fields related to the exeception. May be null, which means no fields
-  // * designated.
-  // * @param messageId messageId. Cannot be {@code null}.
-  // */
-  // public AppWarningException(@Nonnull AppExceptionFields warnFields,
-  // @RequireNonnull String messageId) {
-  // this(warnFields, messageId, new String[] {});
-  // }
-
-  /**
-   * Constructs a new instance with warn fields, messageId and message Arguments.
-   *
-   * @param warnFields fields related to the exeception. May be null, which means no fields
-   *        designated.
-   * @param messageId messageId. Cannot be {@code null}.
-   * @param messageArgs message Arguments. May be null, which means no message arguments designated.
-   */
-  public AppWarningException(@Nonnull AppExceptionFields warnFields,
-      @Nonnull String messageId, @Nonnull String... messageArgs) {
-    this(Locale.getDefault(), warnFields, messageId, messageArgs);
-  }
-
-  // /**
-  // * Constructs a new instance with locale and messageId.
-  // *
-  // * @param locale locale. May be null, which means default locale is used.
-  // * @param messageId messageId. Cannot be {@code null}.
-  // */
-  // public AppWarningException(@Nonnull Locale locale, @RequireNonnull String messageId) {
-  // this(locale, messageId, new String[] {});
-  // }
-
-  /**
-   * Constructs a new instance with locale, messageId and message Arguments.
-   *
-   * @param locale locale. May be null, which means default locale is used.
-   * @param messageId messageId. Cannot be {@code null}.
-   * @param messageArgs message Arguments. May be null, which means no message arguments designated.
-   */
-  public AppWarningException(@Nonnull Locale locale, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
-    this(locale, new AppExceptionFields(new String[] {}), messageId, messageArgs);
-  }
-
-  // /**
-  // * Constructs a new instance with locale, warn fields and messageId.
-  // *
-  // * @param locale locale. May be null, which means default locale is used.
-  // * @param warnFields fields related to the exeception. May be null, which means no fields
-  // * designated.
-  // * @param messageId messageId. Cannot be {@code null}.
-  // */
-  // public AppWarningException(@Nonnull Locale locale, @Nonnull AppExceptionFields warnFields,
-  // @RequireNonnull String messageId) {
-  // this(locale, warnFields, messageId, new String[] {});
-  // }
-
-  /**
-   * Constructs a new instance with locale, warn fields, messageId and message Arguments.
-   *
-   * @param locale locale. May be null, which means default locale is used.
-   * @param warnFields fields related to the exeception. May be null, which means no fields
-   *        designated.
-   * @param messageId messageId. Cannot be {@code null}.
-   * @param messageArgs message Arguments. May be null, which means no message arguments designated.
-   */
-  public AppWarningException(@Nonnull Locale locale, @Nonnull AppExceptionFields warnFields,
-      @Nonnull String messageId, @Nonnull String... messageArgs) {
-    this(locale, null, warnFields, messageId, messageArgs);
-  }
-
   /**
    * Constructs a new instance with warn fields, messageId and message Arguments.
    *
    * @param locale locale. May be null, which means default locale is used.
-   * @param buttonId button ID.
-   * @param warnFields fields related to the exeception. May be null, which means no fields
    *        designated.
    * @param messageId messageId. Cannot be {@code null}.
    * @param messageArgs message Arguments. May be null, which means no message arguments designated.
    */
-  public AppWarningException(@Nonnull Locale locale, @Nullable String buttonId,
-      @Nullable AppExceptionFields warnFields, @Nonnull String messageId,
+  public AppWarningException(@RequireNonnull Locale locale, @Nonnull String messageId,
       @Nonnull String... messageArgs) {
-
     super();
 
     this.locale = ObjectsUtil.paramRequireNonNull(locale);
-    this.buttonId = buttonId;
-    this.fields = ObjectsUtil.paramRequireNonNull(warnFields);
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
+    
+    this.fields = new AppExceptionFields();
   }
 
   /**
@@ -170,15 +94,6 @@ public class AppWarningException extends Exception {
    */
   public @Nonnull Locale getLocale() {
     return locale;
-  }
-
-  /**
-   * Returns fields.
-  
-   * @return warn fields
-   */
-  public @Nonnull AppExceptionFields getWarnFields() {
-    return fields;
   }
 
   /**
@@ -200,11 +115,27 @@ public class AppWarningException extends Exception {
   }
 
   /**
-   * Returns buttonId.
-   * 
-   * @return button　ID
+   * Returns fields.
+  
+   * @return fields
    */
-  public @Nullable String getButtonId() {
-    return buttonId;
+  public @Nonnull AppExceptionFields fields() {
+    return fields;
+  }
+
+  /**
+   * Sets fields and return this instance to realize the method chain.
+   *
+   * @return AppWarningException
+   */
+  public @Nonnull AppWarningException fields(@Nullable AppExceptionFields fields) {
+    if (fields != null) {
+      this.fields = fields;
+
+    } else {
+      this.fields = new AppExceptionFields();
+    }
+    
+    return this;
   }
 }
