@@ -49,7 +49,7 @@ public class FileLockUtil {
    * 
    * @param lockFile lockFile
    * @param version the version, may be {@code null} 
-   *     when you don't have to check the version for optimistic exclusive control.
+   *     when you don't have to validate the version from the optimistic exclusive control.
    * @return The {@code Pair} tuple which have {@code FileChannel} and {@code FileLock}.
    * @throws IOException IOException
    */
