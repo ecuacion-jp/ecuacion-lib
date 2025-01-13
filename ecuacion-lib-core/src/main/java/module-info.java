@@ -22,6 +22,7 @@
  */
 module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.annotation;
+  exports jp.ecuacion.lib.core.beanvalidation.bean;
   exports jp.ecuacion.lib.core.beanvalidation.validator;
   exports jp.ecuacion.lib.core.constant;
   exports jp.ecuacion.lib.core.exception.checked;

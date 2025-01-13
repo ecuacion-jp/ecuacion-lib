@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
@@ -126,11 +127,12 @@ public class ExceptionUtil {
           // messageに {0} があったら entity.field に置き換える
           // ResourceBundle bundle = ResourceBundle.getBundle("ValidationMessages", locale);
           // message = bundle.getString(ex.getMessageTemplate());
-          message = ex.getMessage();
+          BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+          message = bean.getMessage();
           if (message.contains("{0}")) {
             String className =
-                ex.getRootClassName().substring(ex.getRootClassName().lastIndexOf(".") + 1);
-            String itemName = StringUtils.uncapitalize(className) + "." + ex.getPropertyPath();
+                bean.getRootClassName().substring(bean.getRootClassName().lastIndexOf(".") + 1);
+            String itemName = StringUtils.uncapitalize(className) + "." + bean.getPropertyPath();
             // itemNameの中に"."が2つ以上ある場合は不要に長いので上位のパスを削除
             if (itemName.split("\\.").length > 2) {
               while (true) {
