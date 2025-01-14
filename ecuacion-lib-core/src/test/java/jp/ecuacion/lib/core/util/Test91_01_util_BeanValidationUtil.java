@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
@@ -68,10 +69,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -95,10 +97,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -134,10 +137,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -162,10 +166,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -224,10 +229,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -263,10 +269,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -314,10 +321,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
@@ -354,10 +362,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
