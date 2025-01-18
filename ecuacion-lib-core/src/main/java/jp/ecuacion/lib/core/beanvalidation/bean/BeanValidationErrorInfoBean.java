@@ -35,8 +35,6 @@ public class BeanValidationErrorInfoBean {
   private String leafClassName;
   private String invalidValue;
   private Object instance;
-  
-  private String itemName;
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -190,32 +188,5 @@ public class BeanValidationErrorInfoBean {
    */
   public Object getInstance() {
     return instance;
-  }
-
-  /**
-   * Gets itemName.
-   * 
-   * <p>{@code itemName} is used to identify the error item on the screen 
-   * and obtain the item name to put it in the message.</p>
-   * 
-   * <p>The format of {@code itemName} is {@code <recordName>.<fieldName>} 
-   * like {@code account.name}, or when you use JPA relation, 
-   * it can be {@code <recordName>.<relationRecordName>.<fieldName>}.</p>
-   * 
-   * @return itemName
-   */
-  public String getItemName() {
-    return itemName;
-  }
-
-  /**
-   * Sets itemName.
-   * 
-   * <p>See {@link #getItemName()}.</p>
-   * 
-   * @param itemName itemName
-   */
-  public void setItemName(String itemName) {
-    this.itemName = itemName;
   }
 }
