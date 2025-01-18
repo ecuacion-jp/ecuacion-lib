@@ -17,8 +17,8 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
-import java.util.HashMap;
-import java.util.Map;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
@@ -27,141 +27,50 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
 public class BeanValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  private String annotation;
-  private Map<String, Object> annotationAttributes;
-  private String message;
-  private String messageTemplate;
-  private String rootClassName;
-  private String leafClassName;
-  private String propertyPath;
-  private String invalidValue;
-  private Object instance;
+  private BeanValidationErrorInfoBean bean;
 
   /**
    * Constructs a new instance with bean validation violation.
    *
-   * @param <T> The class applying validation.
    * @param violation violation result
    */
-  public <T> BeanValidationAppException(@Nonnull ConstraintViolation<T> violation) {
+  public BeanValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
     super();
-
-    ObjectsUtil.paramRequireNonNull(violation);
-    
-    // annotationをそのままmeeesageIdとして使用する
-    annotation =
-        violation.getConstraintDescriptor().getAnnotation().annotationType().getCanonicalName();
-    annotationAttributes = violation.getConstraintDescriptor().getAttributes();
-    message = violation.getMessage();
-    messageTemplate = violation.getMessageTemplate();
-    // 値が{jakarta.validation.constraints.Pattern.message} のように{}に囲まれているので外す
-    if (messageTemplate.startsWith("{")) {
-      messageTemplate = messageTemplate.replace("{", "").replace("}", "");
-    }
-
-    rootClassName = violation.getRootBeanClass().getName();
-    leafClassName = violation.getLeafBean().getClass().getName();
-    propertyPath = violation.getPropertyPath().toString();
-    invalidValue =
-        (violation.getInvalidValue() == null) ? "null" : violation.getInvalidValue().toString();
-    instance = violation.getLeafBean();
+    this.bean = new BeanValidationErrorInfoBean(ObjectsUtil.paramRequireNonNull(violation));
   }
 
   /**
-   * Gets annotationAttributes.
+   * Constructs a new instance with {@code BeanValidationErrorInfoBean}.
    * 
-   * @return annotationAttributes
+   * <p>This makes possible to treat exceptions
+   *     wchich are not created from {@code ConstraintViolation}
+   *     as {@code BeanValidationAppException}.</p>
+   * 
+   * @param bean BeanValidationErrorInfoBean
    */
-  public Map<String, Object> getAnnotationAttributes() {
-    return new HashMap<>(annotationAttributes);
+  public BeanValidationAppException(@RequireNonnull BeanValidationErrorInfoBean bean) {
+    this.bean = ObjectsUtil.paramRequireNonNull(bean);
   }
 
   /**
-   * Gets annotation.
-   * 
-   * @return annotation
-   */
-  public @Nonnull String getAnnotation() {
-    return annotation;
+  * Gets BeanValidationErrorInfoBean.
+  *
+  * @return BeanValidationErrorInfoBean
+  */
+  public BeanValidationErrorInfoBean getBeanValidationErrorInfoBean() {
+    return bean;
   }
 
-  /**
-   * Gets message.
+  /** 
+   * Outputs a string for logs. 
    * 
-   * @return message
+  * @return String
    */
-  public @Nonnull String getMessage() {
-    return message;
-  }
-
-  /**
-   * Gets messageTemplate.
-   * 
-   * @return messageTemplate
-   */
-  public @Nonnull String getMessageTemplate() {
-    return messageTemplate;
-  }
-
-  /**
-   * Gets rootClassName.
-   * 
-   * @return rootClassName
-   */
-  public @Nonnull String getRootClassName() {
-    return rootClassName;
-  }
-
-  /**
-   * Gets leafClassName.
-   * 
-   * @return leafClassName
-   */
-  public @Nonnull String getLeafClassName() {
-    return leafClassName;
-  }
-
-  /**
-   * Gets propertyPath.
-   * 
-   * @return propertyPath
-   */
-  public @Nonnull String getPropertyPath() {
-    return propertyPath;
-  }
-
-  /**
-   * Gets invalidValue.
-   * 
-   * @return invalidValue
-   */
-  public @Nonnull String getInvalidValue() {
-    return invalidValue;
-  }
-
-  /**
-   * Gets instance.
-   * 
-   * @return instance
-   */
-  public @Nonnull Object getInstance() {
-    return instance;
-  }
-
-  /**
-   * Gets annotation.
-   * 
-   * @return annotation
-   */
-  public @Nonnull String getMessageId() {
-    return annotation;
-  }
-
-  /** Outputs a string for logs. */
   @Override
   public @Nonnull String toString() {
-    return "message:" + message + "\n" + "annotation:" + annotation + "\n" + "rootClassName:"
-        + rootClassName + "\n" + "leafClassName:" + leafClassName + "\n" + "propertyPath:"
-        + propertyPath + "\n" + "invalidValue:" + invalidValue;
+    return "message:" + bean.getMessage() + "\n" + "annotation:" + bean.getAnnotation() + "\n"
+        + "rootClassName:" + bean.getRootClassName() + "\n" + "leafClassName:"
+        + bean.getLeafClassName() + "\n" + "propertyPath:" + bean.getPropertyPath() + "\n"
+        + "invalidValue:" + bean.getInvalidValue();
   }
 }

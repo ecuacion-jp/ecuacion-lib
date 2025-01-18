@@ -23,6 +23,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
     try {
       // NPEが起きるのが正解
       @SuppressWarnings("unused")
-      BeanValidationAppException ex = new BeanValidationAppException(null);
+      BeanValidationAppException ex = new BeanValidationAppException((ConstraintViolation<?>) null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -76,22 +77,24 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
         + "Test21_11_exception_BeanValidationAppException$SampleObj";
 
     BeanValidationAppException ex = new BeanValidationAppException(violation);
-    Assertions.assertThat(ex.getAnnotation()).isEqualTo("jakarta.validation.constraints.NotNull");
-    Assertions.assertThat(ex.getMessage()).isEqualTo("null は許可されていません");
-    Assertions.assertThat(ex.getMessageTemplate())
+    BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    Assertions.assertThat(bean.getAnnotation()).isEqualTo("jakarta.validation.constraints.NotNull");
+    Assertions.assertThat(bean.getMessage()).isEqualTo("null は許可されていません");
+    Assertions.assertThat(bean.getMessageTemplate())
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
-    Assertions.assertThat(ex.getRootClassName()).isEqualTo(className);
-    Assertions.assertThat(ex.getLeafClassName()).isEqualTo(className);
-    Assertions.assertThat(ex.getPropertyPath()).isEqualTo("str1");
-    Assertions.assertThat(ex.getInvalidValue()).isEqualTo("null");
-    assertTrue(ex.getInstance() != null);
-    assertTrue(ex.getAnnotationAttributes().size() == 3);
+    Assertions.assertThat(bean.getRootClassName()).isEqualTo(className);
+    Assertions.assertThat(bean.getLeafClassName()).isEqualTo(className);
+    Assertions.assertThat(bean.getPropertyPath()).isEqualTo("str1");
+    Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
+    assertTrue(bean.getInstance() != null);
+    assertTrue(bean.getAnnotationAttributes().size() == 3);
   }
 
   @Test
   public void test11_messageIdの取得() {
     BeanValidationAppException ex = new BeanValidationAppException(violation);
-    Assertions.assertThat(ex.getMessageId()).isEqualTo("jakarta.validation.constraints.NotNull");
+    BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    Assertions.assertThat(bean.getMessageId()).isEqualTo("jakarta.validation.constraints.NotNull");
   }
 
   @Test

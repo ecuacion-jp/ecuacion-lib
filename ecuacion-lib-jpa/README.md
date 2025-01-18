@@ -22,6 +22,7 @@ dependency description is as follows.
 <dependency>
     <groupId>jp.ecuacion.lib</groupId>
     <artifactId>ecuacion-lib-jpa</artifactId>
-    <version>14.0.0</version>
+    <!-- Put the latest release version -->
+    <version>x.x.x</version>
 </dependency>
 ```

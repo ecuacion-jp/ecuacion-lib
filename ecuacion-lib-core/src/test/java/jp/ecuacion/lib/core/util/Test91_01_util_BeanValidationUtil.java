@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
@@ -68,21 +69,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     Assertions.assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    Assertions.assertThat(exNotNull.getMessage()).isEqualTo("must not be null");
+    Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must not be null");
 
     Assertions.assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getMessage()).isEqualTo("must be greater than or equal to 3");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -95,21 +99,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     Assertions.assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    Assertions.assertThat(exNotNull.getMessage()).isEqualTo("null は許可されていません");
+    Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("null は許可されていません");
 
     Assertions.assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getMessage()).isEqualTo("3 以上の値にしてください");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("3 以上の値にしてください");
   }
 
   @Test
@@ -134,21 +141,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     Assertions.assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    Assertions.assertThat(exNotNull.getMessage()).isEqualTo("must not be null");
+    Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must not be null");
 
     Assertions.assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getMessage()).isEqualTo("must be greater than or equal to 3");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -162,21 +172,23 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    assertThat(exNotNull.getMessage()).isEqualTo("null は許可されていません");
+    assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("null は許可されていません");
 
     assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    assertThat(exMin.getMessage()).isEqualTo("3 以上の値にしてください");
+    assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("3 以上の値にしてください");
   }
 
   @Test
@@ -224,21 +236,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    assertThat(exNotNull.getMessage()).isEqualTo("must not be null");
+    assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must not be null");
 
     assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    assertThat(exMin.getMessage()).isEqualTo("must be greater than or equal to 3");
+    assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -263,21 +278,23 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    assertThat(exNotNull.getMessage()).isEqualTo("null は許可されていません");
+    assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("null は許可されていません");
 
     assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    assertThat(exMin.getMessage()).isEqualTo("3 以上の値にしてください");
+    assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("3 以上の値にしてください");
   }
 
   @Test
@@ -314,21 +331,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    assertThat(exNotNull.getMessage()).isEqualTo("must not be null");
+    assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must not be null");
 
     assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    assertThat(exMin.getMessage()).isEqualTo("must be greater than or equal to 3");
+    assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -354,21 +374,24 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     BeanValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      if (bvEx.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
+      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
-      } else if (bvEx.getMessageId().equals("jakarta.validation.constraints.Min")) {
+      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
         exMin = bvEx;
       }
     }
 
     assertThat(exNotNull).isNotEqualTo(null);
     Objects.requireNonNull(exNotNull);
-    assertThat(exNotNull.getMessage()).isEqualTo("null は許可されていません");
+    assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("null は許可されていません");
 
     Assertions.assertThat(exMin).isNotEqualTo(null);
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getMessage()).isEqualTo("3 以上の値にしてください");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
+        .isEqualTo("3 以上の値にしてください");
   }
 
   public static class SampleObj {

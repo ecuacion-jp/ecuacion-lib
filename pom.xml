@@ -21,7 +21,7 @@
 	<groupId>jp.ecuacion.lib</groupId>
 	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>14.0.8</version>
+	<version>14.0.9</version>
 	<organization>
 		<name>ecuacion.jp</name>
 	</organization>
@@ -39,7 +39,7 @@
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
 		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
-		<ecuacion-lib.version>14.0.8</ecuacion-lib.version>
+		<ecuacion-lib.version>14.0.9</ecuacion-lib.version>
 	</properties>
 	<distributionManagement>
 		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->

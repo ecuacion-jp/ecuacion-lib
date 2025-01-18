@@ -106,9 +106,10 @@ public abstract class AbstractEntity {
   }
 
   /**
-   * Returns an array of fields which are the Unique Constraint.
+   * Returns an array of fields which constructs an unique 
+   * Constraint connected to natural key.
    * 
-   * @return set of unique key column list.
+   * @return set of unique constraint column list.
    */
   @Nonnull
   public Set<List<String>> getSetOfUniqueConstraintFieldList() {

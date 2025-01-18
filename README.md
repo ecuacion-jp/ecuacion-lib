@@ -40,6 +40,7 @@ The following public library is introduced by default. (Basically the usage of a
     <dependency>
         <groupId>jp.ecuacion.lib</groupId>
         <artifactId>ecuacion-lib-core</artifactId>
-        <version>14.0.0</version>
+	    <!-- Put the latest release version -->
+	    <version>x.x.x</version>
     </dependency>
     ```
