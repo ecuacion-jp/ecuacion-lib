@@ -29,4 +29,13 @@ public abstract class SingleAppException extends AppException {
   public SingleAppException() {
     
   }
+
+  /**
+   * Constructs a new instance with {@code message}.
+   * 
+   * @param message message
+   */
+  public SingleAppException(String message) {
+    super(message);
+  }
 }
