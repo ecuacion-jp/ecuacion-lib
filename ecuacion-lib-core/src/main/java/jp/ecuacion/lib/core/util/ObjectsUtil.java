@@ -46,7 +46,7 @@ public class ObjectsUtil {
   @Nonnull
   public static <T> T paramRequireNonNull(@RequireNonnull T object) {
     return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
-        + "the argument: " + object.getClass().getName() + "is null.");
+        + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
   }
 
 
