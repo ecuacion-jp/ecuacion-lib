@@ -23,7 +23,7 @@
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
 		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
-		<version>14.0.11</version>
+		<version>0.0.1-snapshot</version>
 		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
 	</parent>
 	
