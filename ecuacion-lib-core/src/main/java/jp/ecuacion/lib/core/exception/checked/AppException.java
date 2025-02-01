@@ -43,4 +43,13 @@ public abstract class AppException extends Exception {
   public AppException() {
 
   }
+
+  /**
+   * Constructs a new instance with {@code message}.
+   * 
+   * @param message message
+   */
+  public AppException(String message) {
+    super(message);
+  }
 }
