@@ -202,6 +202,10 @@
 						<violationSeverity>info</violationSeverity>
 						<configLocation>${checkstyle.config.site}/google_checks.xml</configLocation>
 						<propertiesLocation>${checkstyle.config.site}/checkstyle-for-libs-and-utils.properties</propertiesLocation>
+						<sourceDirectories>
+							<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+							<sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
+						</sourceDirectories>
 					</configuration>
 					<executions>
 						<execution>
