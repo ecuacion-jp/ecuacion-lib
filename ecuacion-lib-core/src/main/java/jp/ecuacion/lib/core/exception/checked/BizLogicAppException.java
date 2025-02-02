@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
-import java.util.Locale;
+import jakarta.annotation.Nullable;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 
@@ -34,10 +34,7 @@ public class BizLogicAppException extends SingleAppException {
   @Nonnull
   private String[] messageArgs;
 
-  @Nonnull
-  private Locale locale;
-
-  @Nonnull
+  @Nullable
   private AppExceptionFields fields;
 
   /**
@@ -47,62 +44,26 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageArgs message Arguments
    */
   public BizLogicAppException(@Nonnull String messageId, @Nonnull String... messageArgs) {
-    this(Locale.getDefault(), messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code fields}, {@code messageId} and {@code messageArgs}.
-   *
-   * @param fields the fields related to the exeception
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public BizLogicAppException(@Nonnull AppExceptionFields fields, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
-    this(Locale.getDefault(), fields, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code locale}, {@code messageId} and {@code messageArgs}.
-   *
-   * @param locale locale
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public BizLogicAppException(@Nonnull Locale locale, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
-    this(locale, new AppExceptionFields(new String[] {}), messageId, messageArgs);
+    this(null, messageId, messageArgs);
   }
 
   /**
    * Constructs a new instance with {@code locale},  {@code fields},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param locale locale
    * @param fields the fields related to the exeception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nonnull Locale locale, @Nonnull AppExceptionFields fields,
+  public BizLogicAppException(@Nullable AppExceptionFields fields,
       @Nonnull String messageId, @Nonnull String... messageArgs) {
 
     // set message with default locale to show the message in stack trace 
     // for users who don't use ecuacion-xxlib exception handler.
     super(PropertyFileUtil.getMsg(messageId, messageArgs));
 
-    this.locale = ObjectsUtil.paramRequireNonNull(locale);
-    this.fields = ObjectsUtil.paramRequireNonNull(fields);
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
-  }
-
-  /**
-   * Gets locale. 
-   * 
-   * @return locale
-   */
-  public @Nonnull Locale getLocale() {
-    return locale;
   }
 
   /**
@@ -110,7 +71,7 @@ public class BizLogicAppException extends SingleAppException {
    * 
    * @return fields
    */
-  public @Nonnull AppExceptionFields getErrorFields() {
+  public @Nullable AppExceptionFields getErrorFields() {
     return fields;
   }
 
