@@ -115,6 +115,14 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
  * 
  * <p><b>5. To Have the default locale setting function by .properties file
  *     (application_for_property-file-util_base.properties)</b><br><br>
+ *     
+ *     When you don't prepare the properties file, 
+ *     values are obtained from properties files without locale specification 
+ *     (like {@code message.properties}, not like {@code messages_en.properties}).<br>
+ *     {@code ResourceBundle} uses {@code Locale.getDefault()} but this is not good
+ *     because the resulting locale depends on the PC or the server the program is executing.<br>
+ *     Of course when you want to depends on the PC or the server, 
+ *     you just have to explicitly pass {@code Locale.getDefault()} to it.
  * </p>
  * 
  * <p><b>Miscellaneous</b><br><br>
@@ -137,9 +145,32 @@ public class PropertyFileUtil {
   private static PropertyFileUtilKeyGetterByFileKind enumNamesStore =
       new PropertyFileUtilKeyGetterByFileKind(ENUM_NAME);
 
+  /**
+   * Provides bundle name in the case that the application is executed with a Jigsaw module.
+   * 
+   * <p>In a java 9 module system, ResourceBundle.Control cannot be used.<br>
+   *     https://docs.oracle.com/javase/jp/21/docs/api/java.base/java/util/ResourceBundle.html<br>
+   *     {@code ResourceBundle.Control is designed for an application deployed in an unnamed module,
+   *     for example to support resource bundles 
+   *     in non-standard formats or package localized resources in a non-traditional convention. 
+   *     ResourceBundleProvider is the replacement for ResourceBundle.Control 
+   *     when migrating to modules. UnsupportedOperationException will be thrown 
+   *     when a factory method that takes the ResourceBundle.Control parameter is called.}<br><br>
+   * 
+   *     https://www.morling.dev/blog/resource-bundle-lookups-in-modular-java-applications/
+   * </p>
+   */
+  public static final ThreadLocal<String> bundleNameForModule = new ThreadLocal<>();
+  
+  /**
+   * Stores a specified locale to control the candidate locales in java 9 module system.
+   */
+  public static final ThreadLocal<Locale> specifiedLocale = new ThreadLocal<>();
+
   /** Does not construct an instance.  */
   private PropertyFileUtil() {}
 
+  
   // ■□■ application ■□■
 
   /**

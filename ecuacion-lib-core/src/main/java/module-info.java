@@ -28,8 +28,16 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.exception.checked;
   exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.logging;
+  exports jp.ecuacion.lib.core.spi;
+  exports jp.ecuacion.lib.core.spi.impl;
   exports jp.ecuacion.lib.core.util;
 
+  uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
+  
+  provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
+  
   requires transitive jakarta.validation;
   requires jakarta.mail;
   requires jakarta.annotation;
