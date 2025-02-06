@@ -15,16 +15,28 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.LogUtil;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.StringUtil;
 
 /**
  * ファイルから抽出したプロパティを保持するクラス。
@@ -59,14 +71,6 @@ public class PropertyFileUtilKeyGetterByFileKind {
   private String filePrefix;
 
   /*
-   * application.propertiesはlocale別の情報を保持しないが、messages.propertiesなどと同様に
-   * localeをキーとした本クラスに格納されるため、何らかlocaleが必要。<br>
-   * default_localeでも良いのだが、途中で変更される可能性もあるので、固定用のlocaleを定義しておく。<br>
-   * （変更されても、同じentryが2つできるだけで動作に問題が出るわけではないが、テスト上も固定の方が楽）
-   */
-  private static final Locale LOCALE_FOR_LOCALE_UNNEEDED_PROPERTIES = Locale.JAPANESE;
-
-  /*
    * テスト用に変更可能とするため、同一パッケージからはアクセス可能としておく。 テスト以外では変更不可。
    */
   static String bundleForPropertyFileUtil = "application_for_property-file-util_base";
@@ -87,12 +91,15 @@ public class PropertyFileUtilKeyGetterByFileKind {
 
   private static final String[] OTHERS = new String[] {"ValidationMessages", "test"};
 
-  /*
-   * PropFileKindEnum毎に、対象のファイルリストが存在する。 そのファイルリストをコンストラクタ呼び出し時に受け取る
+  /**
+   * Constructs a new instance with {@code PropertyFileUtilPropFileKindEnum}.
+   * 
+   * @param fileKindEnum fileKindEnum
    */
-  public PropertyFileUtilKeyGetterByFileKind(PropertyFileUtilPropFileKindEnum fileKindEnum) {
-    Objects.requireNonNull(fileKindEnum);
-    this.kind = fileKindEnum;
+  public PropertyFileUtilKeyGetterByFileKind(
+      @RequireNonnull PropertyFileUtilPropFileKindEnum fileKindEnum) {
+
+    this.kind = ObjectsUtil.paramRequireNonNull(fileKindEnum);
     this.filePrefix = fileKindEnum.getFilePrefix();
     onConstruct();
   }
@@ -102,7 +109,7 @@ public class PropertyFileUtilKeyGetterByFileKind {
    * PropertyFileUtilとしては、PropFileKindEnumの値に対応するprefixにしか対応しないのだが、MultiLangPropStoreとしては
    * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
    */
-  PropertyFileUtilKeyGetterByFileKind(String filePrefix) {
+  PropertyFileUtilKeyGetterByFileKind(@RequireNonnull String filePrefix) {
     Objects.requireNonNull(filePrefix);
     this.kind = PropertyFileUtilPropFileKindEnum.MSG;
     this.filePrefix = filePrefix;
@@ -167,81 +174,148 @@ public class PropertyFileUtilKeyGetterByFileKind {
     return rtnList;
   }
 
+  private Map<String, ResourceBundle> rbMapForModule;
+
   /*
    * 指定のlocaleに対してResourceBundleを丸ごと取得し、それをtableに突っ込む。
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
    */
-  private String readPropFile(Locale locale, String key) {
-    String value = null;
-
+  @Nonnull
+  private String readPropFile(@Nullable Locale locale, @RequireNonnull String key) {
     List<String> postfixes = getFileNamePostfixes();
-    // データを取得
-    for (int i = 0; i < postfixes.size(); i++) {
-      String postfix = postfixes.get(i);
-      String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
 
-      String tmpValue = readOnePropFile(filename, locale, key, value != null);
-      if (tmpValue != null) {
-        value = tmpValue;
+    // 初回のみResourceBundleデータを取得
+    if (rbMapForModule == null) {
+      rbMapForModule = new HashMap<>();
+
+      for (int i = 0; i < postfixes.size(); i++) {
+        String postfix = postfixes.get(i);
+        String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
+
+        ResourceBundle bundle = getOneResourceBundle(filePrefix, postfix, locale, key);
+        rbMapForModule.put(filename, bundle);
+
+        // msgの場合は追加でファイル読み込み
+        if (kind == PropertyFileUtilPropFileKindEnum.MSG) {
+          filename = "ValidationMessages";
+          rbMapForModule.put(filename, getOneResourceBundle(filePrefix, postfix, locale, key));
+        }
+      }
+
+      // 複数bundle間でのkey重複チェック
+      Set<String> duplicateCheckMap = new HashSet<>();
+      for (Entry<String, ResourceBundle> entry : rbMapForModule.entrySet()) {
+        if (entry.getValue() != null) {
+          for (String keyInBundle : entry.getValue().keySet()) {
+            if (duplicateCheckMap.contains(keyInBundle)) {
+              throw new RuntimeSystemException(
+                  "Key '" + keyInBundle + "' in properties file duplicated. ");
+            }
+            duplicateCheckMap.add(keyInBundle);
+          }
+        }
+        rbMapForModule.put(entry.getKey(), entry.getValue());
       }
     }
 
-    // msgの場合は追加でファイル読み込み
-    if (value == null && kind == PropertyFileUtilPropFileKindEnum.MSG) {
-      value = readOnePropFile("ValidationMessages", locale, key, false);
+    for (Entry<String, ResourceBundle> entry : rbMapForModule.entrySet()) {
+      if (entry.getValue() == null || !entry.getValue().containsKey(key)) {
+        continue;
+
+      } else {
+        return entry.getValue().getString(key);
+      }
     }
 
-    return value;
+    return null;
   }
 
-  private String readOnePropFile(String filename, Locale locale, String key,
-      boolean valueObtained) {
+  /**
+   * Reads a property file and returns the value to the key.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   */
+  @Nonnull
+  private ResourceBundle getOneResourceBundle(@RequireNonnull String filePrefix,
+      @RequireNonnull String postfix, @Nullable Locale locale, @RequireNonnull String key) {
+
+    String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
+
+    ObjectsUtil.paramRequireNonNull(filename);
+    ObjectsUtil.paramRequireNonNull(key);
+
     ResourceBundle bundle = null;
 
-    Objects.requireNonNull(filename);
-    Objects.requireNonNull(locale);
+    if (locale == null) {
+      locale = Locale.ROOT;
+    }
 
+    // java 9 module system
     try {
-      bundle = ResourceBundle.getBundle(filename, locale);
+      PropertyFileUtil.bundleNameForModule.set(filename);
+      PropertyFileUtil.specifiedLocale.set(locale);
 
-    } catch (MissingResourceException e) {
-      // 例えばapplication.propertiesに対して、fw_cmn, fw_web, base, ...の全てのモジュールに対するpropertiesファイルが
-      // 存在する必要はないので、探しに行ったプロパティファイルがなくても見逃す
-      detailLogger.trace("(not a problem) jp.ecuacion.lib.core.util.internal.PropertyFileUtil: "
-          + "property file not exist（" + filename + "）");
+      ResourceBundle.clearCache();
+      bundle = ResourceBundle.getBundle(
+          "jp.ecuacion.lib.core.Messages" + new StringUtil()
+              .getUpperCamelFromSnakeOrNullIfInputIsNull(postfix.replace("-", "_")),
+          // Locale.of(locale.getLanguage(), locale.getCountry(), postfix));
+          locale);
 
-      // 本処理は終了
-      return null;
+    } catch (MissingResourceException ex) {
+      // do nothing.
     }
 
-    if (!bundle.containsKey(key)) {
-      return null;
+    // non-module apps
+    if (bundle == null) {
+      try {
+
+        if (locale == null) {
+          locale = Locale.ROOT;
+        }
+
+        /*
+         * ファイルの探し順を指定。
+         * 
+         * <p>自localeのファイル（例えばLocale.JAPANを指定している場合はmessages_ja.properties）
+         * がない場合、ResourceBundleのdefaultではLocale.getDefault()で探しに行ってしまうが、
+         * それだと実行PC / server環境に依存して結果が変わってしまうためよくない。
+         * （もちろん、Locale.getDefault()を使用したい場合は、明示的にそれを設定すれば可能）</p>
+         * 
+         * <p>messages_ja.propertiesが存在しない場合は次にmessages.propertiesを探す、
+         * それもなければmessages_en.propertiesを探す、という順番に変更する。</p>
+         * 
+         * <p>java 9 module systemでは使用不可。
+         */
+        bundle = ResourceBundle.getBundle(filename, locale,
+            ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+
+      } catch (MissingResourceException | UnsupportedOperationException e) {
+        // 例えばapplication.propertiesに対して、fw_cmn, fw_web, base, ...の全てのモジュールに対するpropertiesファイルが
+        // 存在する必要はないので、探しに行ったプロパティファイルがなくても見逃す
+        detailLogger.trace("(not a problem) jp.ecuacion.lib.core.util.internal.PropertyFileUtil: "
+            + "property file not exist（" + filename + "）");
+
+        // 本処理は終了
+        return null;
+      }
     }
 
-    String val = bundle.getString(key);
-    if (val != null && valueObtained) {
-      // 既に同一のキーが設定されている場合はエラー
-      throw new RuntimeException("Duplicate key in Property File.[file="
-          + bundle.getBaseBundleName() + ", key=" + key + "]");
-    }
-
-    return val;
-  }
-
-  /*
-  * プロパティファイルのシリーズごとに、キーが存在するかどうかを確認する。 application.propertiesなどlocale別ファイルが存在しないものはこちらを使用。
-  */
-  public boolean hasProp(String key) {
-    return hasProp(LOCALE_FOR_LOCALE_UNNEEDED_PROPERTIES, key);
+    return bundle;
   }
 
   /*
   * プロパティファイルのシリーズごとに、キーが存在するかどうかを確認する。
   */
-  public boolean hasProp(Locale locale, String key) {
-    Objects.requireNonNull(locale);
+  public boolean hasProp(String key) {
     Objects.requireNonNull(key);
 
-    String val = readPropFile(locale, key);
+    String val = readPropFile(null, key);
 
     return val != null;
   }
@@ -250,15 +324,23 @@ public class PropertyFileUtilKeyGetterByFileKind {
    * プロパティファイルのシリーズごとに、キーに対する値を取得する。 application.propertiesなどlocale別ファイルが存在しないものはこちらを使用。
    */
   public String getProp(String key) {
-    return getProp(LOCALE_FOR_LOCALE_UNNEEDED_PROPERTIES, key);
+    return getProp(null, key);
   }
 
   /*
    * プロパティファイルのシリーズごとに、キーに対する値を取得する。
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
    */
-  public String getProp(Locale locale, String key) {
-    Objects.requireNonNull(locale);
-    Objects.requireNonNull(key);
+  public String getProp(@Nullable Locale locale, @RequireNonnull String key) {
+    ObjectsUtil.paramRequireNonNull(key);
+
+    // msgIdが空だったらエラー
+    if (key.equals("")) {
+      throw new RuntimeSystemException("Message ID is blank.");
+    }
 
     // 値を取得
     String str = readPropFile(locale, key);
@@ -283,7 +365,7 @@ public class PropertyFileUtilKeyGetterByFileKind {
   }
 
   /* 結局一行で書けるのだがちょっとwrapして書く量を減らした^^;。 */
-  public boolean isOverrided(String key) {
+  public boolean isOverrided(@RequireNonnull String key) {
     return System.getProperties().keySet().contains(key);
   }
 }
