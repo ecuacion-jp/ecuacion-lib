@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.spi.impl;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.spi.AbstractResourceBundleProvider;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 
 /**
  * Provides an implementation of {@code ResourceBundleProvider}.
@@ -34,8 +34,8 @@ public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceB
    * Provides {@code ResourceBundle}.
    */
   public ResourceBundle getBundle(String baseName, Locale locale) {
-    Locale specifiedLocale = PropertyFileUtil.specifiedLocale.get();
-
+    Locale specifiedLocale = PropertyFileUtilValueGetter.specifiedLocale.get();
+    
     // remove default locale if not specified.
     if (!locale.getLanguage().equals("")
         && !specifiedLocale.getLanguage().equals(Locale.getDefault().getLanguage())
@@ -43,6 +43,6 @@ public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceB
       return null;
     }
 
-    return super.getBundle(PropertyFileUtil.bundleNameForModule.get(), locale);
+    return super.getBundle(PropertyFileUtilValueGetter.bundleNameForModule.get(), locale);
   }
 }

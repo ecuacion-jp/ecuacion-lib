@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-public enum PropertyFileUtilPropFileKindEnum {
+public enum PropertyFileUtilFileKindEnum {
 
   /** application.properties. */
   APP("application"),
@@ -31,7 +31,7 @@ public enum PropertyFileUtilPropFileKindEnum {
 
   private String filePrefix;
 
-  private PropertyFileUtilPropFileKindEnum(String filePrefix) {
+  private PropertyFileUtilFileKindEnum(String filePrefix) {
     this.filePrefix = filePrefix;
   }
   
@@ -39,8 +39,8 @@ public enum PropertyFileUtilPropFileKindEnum {
     return filePrefix;
   }
   
-  public static PropertyFileUtilPropFileKindEnum getEnumFromFilePrefix(String filePrefix) {
-    for (PropertyFileUtilPropFileKindEnum anEnum : PropertyFileUtilPropFileKindEnum.values()) {
+  public static PropertyFileUtilFileKindEnum getEnumFromFilePrefix(String filePrefix) {
+    for (PropertyFileUtilFileKindEnum anEnum : PropertyFileUtilFileKindEnum.values()) {
       if (anEnum.getFilePrefix().equals(filePrefix)) {
         return anEnum;
       }
