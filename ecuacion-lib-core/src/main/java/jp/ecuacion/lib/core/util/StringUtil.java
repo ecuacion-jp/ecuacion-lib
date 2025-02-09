@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import org.apache.commons.lang3.StringUtils;
@@ -59,11 +60,22 @@ public class StringUtil {
 
     // '_'が連続で入っている場合もエラー
     if (snakeCaseString.contains("__")) {
-      throw new RuntimeSystemException(
-          "snake-case strings are not supposed to have '__' "
-              + "(double underscores). (argment string: '" + snakeCaseString + "')");
+      throw new RuntimeSystemException("snake-case strings are not supposed to have '__' "
+          + "(double underscores). (argument string: '" + snakeCaseString + "')");
     }
 
+    // snake string can be like "validation_messages_ja", "VALIDATION_MESSAGES_JA" and
+    // "ValidationMessages_ja".
+    // Lower camel strings for these are supposed to be "validationMessagesJa",
+    // "validationMessagesJa" and "validationMessagesJa".
+    // To realize 2nd one argument.toLowerCase() is needed but it makes "validationmessagesJa" (m is
+    // changed to lowercase).
+    // It's not good so only the strings without lower case alphabets are changed to lower case.
+    Pattern pattern = Pattern.compile("^[A-Z_]*$");
+    if (pattern.matcher(snakeCaseString).find()) {
+      snakeCaseString = snakeCaseString.toLowerCase();
+    }
+    
     String lowStr = StringUtils.uncapitalize(snakeCaseString);
     while (lowStr.indexOf("_") >= 0) {
       int firstUsPos = lowStr.indexOf("_");
