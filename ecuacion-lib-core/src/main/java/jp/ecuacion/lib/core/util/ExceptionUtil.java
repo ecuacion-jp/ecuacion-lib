@@ -347,7 +347,7 @@ public class ExceptionUtil {
     }
 
     // stackTraceを出力
-    getStackTraceString(sb, th);
+    sb.append(getStackTraceString(th));
 
     // causeがあればそれも出力
     if (th.getCause() != null) {
@@ -355,13 +355,33 @@ public class ExceptionUtil {
     }
   }
 
-  /*
-   * Throwable#getStackTrace()の内容をString化する。
-   */
-  private void getStackTraceString(StringBuilder sb, Throwable th) {
+  private String getStackTraceString(Throwable th, boolean isShort) {
+    StringBuilder sb = new StringBuilder();
     for (StackTraceElement ste : th.getStackTrace()) {
-      sb.append("\tat " + ste.getClassName() + "." + ste.getMethodName() + "(" + ste.getFileName()
-          + ":" + ste.getLineNumber() + ")" + RT);
+      String[] spl = ste.getClassName().split("\\.");
+      String cls =
+          spl.length > 2 ? spl[0] + "." + spl[1] + "." + spl[2] + ".." : ste.getClassName();
+      String className = isShort ? cls : ste.getClassName();
+      sb.append("\tat " + className + "." + ste.getMethodName() + "(" + ste.getFileName() + ":"
+          + ste.getLineNumber() + ")" + RT);
     }
+
+    return sb.toString();
+  }
+
+  /**
+   * Stringizes {@code Throwable#getStackTrace()}.
+   */
+  public String getStackTraceString(Throwable th) {
+    return getStackTraceString(th, false);
+  }
+
+  /**
+   * Stringizes {@code Throwable#getStackTrace()} with shorter stackTrace display.
+   * 
+   * <p>It's useful when you paste stack trace to smaller spaces like chat spaces.</p>
+   */
+  public String getStackTraceShortString(Throwable th) {
+    return getStackTraceString(th, true);
   }
 }
