@@ -20,6 +20,7 @@ import jakarta.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Collection;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -45,7 +46,25 @@ public class StringUtil {
       return null;
     }
 
-    String lowStr = snakeCaseString.toLowerCase();
+    // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
+    if (snakeCaseString.startsWith("_")) {
+      throw new RuntimeSystemException(
+          "snake-case string cannot start with '_'. (argment string: '" + snakeCaseString + "')");
+    }
+
+    if (snakeCaseString.endsWith("_")) {
+      throw new RuntimeSystemException(
+          "snake-case string cannot end with '_'. (argment string: '" + snakeCaseString + "')");
+    }
+
+    // '_'が連続で入っている場合もエラー
+    if (snakeCaseString.contains("__")) {
+      throw new RuntimeSystemException(
+          "snake-case strings are not supposed to have '__' "
+              + "(double underscores). (argment string: '" + snakeCaseString + "')");
+    }
+
+    String lowStr = StringUtils.uncapitalize(snakeCaseString);
     while (lowStr.indexOf("_") >= 0) {
       int firstUsPos = lowStr.indexOf("_");
       lowStr = lowStr.substring(0, firstUsPos)
