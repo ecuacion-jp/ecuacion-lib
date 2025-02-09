@@ -50,14 +50,14 @@ public class Test21_21_exception_MultipleAppException extends TestTools {
   @Test
   public void test01_コンストラクタ_01_list_03_正常() {
     List<SingleAppException> list = new ArrayList<>();
-    list.add(new BizLogicAppException("MSG1"));
-    list.add(new BizLogicAppException("MSG2"));
-    list.add(new BizLogicAppException("MSG3"));
+    list.add(new BizLogicAppException("TEST_KEY"));
+    list.add(new BizLogicAppException("TEST_KEY"));
+    list.add(new BizLogicAppException("TEST_KEY"));
     MultipleAppException ex = new MultipleAppException(list);
 
     Assertions.assertThat(list.size()).isEqualTo(3);
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(0)).getMessageId()).isEqualTo("MSG1");
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(1)).getMessageId()).isEqualTo("MSG2");
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(2)).getMessageId()).isEqualTo("MSG3");
+    Assertions.assertThat(((BizLogicAppException) ex.getList().get(0)).getMessageId()).isEqualTo("TEST_KEY");
+    Assertions.assertThat(((BizLogicAppException) ex.getList().get(1)).getMessageId()).isEqualTo("TEST_KEY");
+    Assertions.assertThat(((BizLogicAppException) ex.getList().get(2)).getMessageId()).isEqualTo("TEST_KEY");
   }
 }

@@ -45,4 +45,33 @@ module jp.ecuacion.lib.core {
   requires org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
+  
+  // for test
+  uses jp.ecuacion.lib.core.spi.MessagesTestProvider;
+  provides jp.ecuacion.lib.core.spi.MessagesTestProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.MessagesTestProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92NoneProvider;
+  provides jp.ecuacion.lib.core.spi.Test92NoneProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92NoneProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92LangProvider;
+  provides jp.ecuacion.lib.core.spi.Test92LangProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92LangProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92NoneAndLangProvider;
+  provides jp.ecuacion.lib.core.spi.Test92NoneAndLangProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92NoneAndLangProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92NoneAndLangCountryProvider;
+  provides jp.ecuacion.lib.core.spi.Test92NoneAndLangCountryProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92NoneAndLangCountryProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92NoneAndLangAndLangCountryProvider;
+  provides jp.ecuacion.lib.core.spi.Test92NoneAndLangAndLangCountryProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92NoneAndLangAndLangCountryProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92DuplicateInOneFileProvider;
+  provides jp.ecuacion.lib.core.spi.Test92DuplicateInOneFileProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92DuplicateInOneFileProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92DuplicateInMultipleFilesProvider;
+  provides jp.ecuacion.lib.core.spi.Test92DuplicateInMultipleFilesProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92DuplicateInMultipleFilesProviderImpl;
+  uses jp.ecuacion.lib.core.spi.Test92DuplicateInMultipleFilesCoreProvider;
+  provides jp.ecuacion.lib.core.spi.Test92DuplicateInMultipleFilesCoreProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.Test92DuplicateInMultipleFilesCoreProviderImpl;
 }
