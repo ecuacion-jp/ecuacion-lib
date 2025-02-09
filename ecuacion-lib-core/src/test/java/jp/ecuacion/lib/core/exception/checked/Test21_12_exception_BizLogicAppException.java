@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -78,71 +77,13 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_11_locale_messageId_01_全部null() {
-    try {
-      @SuppressWarnings("unused")
-      BizLogicAppException ex = new BizLogicAppException((Locale) null, (String) null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-
-    } catch (Exception ex) {
-      fail();
-    }
-  }
-
-  @Test
-  public void test01_コンストラクタ_11_locale_messageId_02_messageId以外null() {
-    BizLogicAppException ex = new BizLogicAppException(Locale.getDefault(), SAMPLE_MSG_ID);
-
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
-    assertFalse(ex.getLocale() == null);
-  }
-
-  @Test
-  public void test01_コンストラクタ_11_locale_messageId_03_正常() {
-    BizLogicAppException ex = new BizLogicAppException(Locale.GERMAN, SAMPLE_MSG_ID);
-
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
-    Assertions. assertThat(ex.getLocale().toString()).isEqualTo(Locale.GERMAN.toString());
-  }
-
-  @Test
-  public void test01_コンストラクタ_12_locale_messageId_messageArgs_01_全部null() {
-    try {
-      @SuppressWarnings("unused")
-      BizLogicAppException ex =
-          new BizLogicAppException((Locale) null, (String) null, (String[]) null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-
-    } catch (Exception ex) {
-      fail();
-    }
-  }
-
-  @Test
   public void test01_コンストラクタ_12_locale_messageId_messageArgs_02_messageId以外null() {
     BizLogicAppException ex =
-        new BizLogicAppException(Locale.getDefault(), SAMPLE_MSG_ID, new String[] {});
+        new BizLogicAppException("TEST_KEY", new String[] {});
 
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
-    Assertions.assertThat(ex.getLocale()).isNotEqualTo(null);
+    Assertions.assertThat(ex.getMessageId()).isEqualTo("TEST_KEY");
     Assertions.assertThat(ex.getMessageArgs()).isNotNull();
     Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(0);
-  }
-
-  @Test
-  public void test01_コンストラクタ_12_locale_messageId_messageArgs_03_正常() {
-    BizLogicAppException ex = new BizLogicAppException(Locale.GERMAN, SAMPLE_MSG_ID, "abc");
-
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
-    Assertions.assertThat(ex.getLocale().toString()).isEqualTo(Locale.GERMAN.toString());
-    Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(1);
-    Assertions.assertThat(ex.getMessageArgs()[0]).isEqualTo("abc");
   }
 
   // @Test

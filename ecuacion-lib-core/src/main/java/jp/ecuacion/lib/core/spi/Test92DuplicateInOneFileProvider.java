@@ -13,29 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.exception.checked;
+package jp.ecuacion.lib.core.spi;
 
+import java.util.spi.ResourceBundleProvider;
 
-/** 
- * Is an abstract class describing an occurence of a single validation error.
+/**
+ * Is a {@code ResourceBundleProvider} for messages in {@code ecuacion-lib-core}.
  */
-public abstract class SingleAppException extends AppException {
-  
-  private static final long serialVersionUID = 1L;
-
-  /**
-   * Constructs a new instance.
-   */
-  public SingleAppException() {
-    
-  }
-
-  /**
-   * Constructs a new instance with {@code message}.
-   * 
-   * @param message message
-   */
-  public SingleAppException(String message) {
-    super(message);
-  }
+public interface Test92DuplicateInOneFileProvider extends ResourceBundleProvider {
 }

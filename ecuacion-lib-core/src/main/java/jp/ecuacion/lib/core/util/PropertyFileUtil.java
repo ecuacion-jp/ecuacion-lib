@@ -15,18 +15,20 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.APP;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.ENUM_NAME;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.FIELD_NAME;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.MSG;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APP;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAME;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.FIELD_NAME;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -36,10 +38,11 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
  * <ol>
  * <li>To read all the ".properties" files in library modules 
  *     and multiple modules in app projects</li>
- * <li>To read multiple kinds of ".properties" (application, messages, enum_name, field_name)</li>
+ * <li>To read multiple kinds of ".properties" 
+ *     ({@code application, messages, enum_names, field_names})</li>
  * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
- * <li>To Have the override function by java launch parameter (-D) or System.setProperty(...) </li>
- * <li>To Have the default locale setting function by .properties file
+ * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
+ * <li>To have the default locale setting function by .properties file
  *     (application_for_property-file-util_base.properties)</li>
  * </ol>
  * <br>
@@ -65,18 +68,27 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
  * <br>
  * 
  * <p><b>2. To read multiple kinds of ".properties" 
- *     (application, messages, enum_name, field_name)</b><br><br>
- * 
- *     {@code PropertyFileUtil.getMsg(...)} : messages[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getApp(...)} : application[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getEnumName(...)} : enum_names[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getFieldName(...)} : fiels_names[_xxx].properties}<br><br>
+ *     (application, messages, enum_names, field_names)</b><br><br>
+ *     Firstly, In {@code ecuacion-lib} we have 4 kinds of property files.<br><br>
+ *     
+ *     {@code PropertyFileUtil.getMsg(...) : messages[_xxx].properties}<br>
+ *     {@code PropertyFileUtil.getApp(...) : application[_xxx].properties}<br>
+ *     {@code PropertyFileUtil.getEnumName(...) : enum_names[_xxx].properties}<br>
+ *     {@code PropertyFileUtil.getFieldName(...) : fiels_names[_xxx].properties}<br><br>
+ *     
+ *     {@code messages.properties} and {@code application.properties} are well-known.<br>
+ *     {@code enum_names.properties} stores the localized name of the enum element, and
+ *     {@code field_names.properties} stores the localized name of the entity field.<br>
+ *     Usually these are also stored in {@code messages.properties},
+ *     but it's kind of messy so divided files are prepared.<br><br>
+ *     
+ *     {@code PropertyFileUtil} supports these 4 kinds of properties files.
  * </p>
  * <table border="1">
  * <caption>kinds of property files</caption>
  * <tr>
- * <td>kind</td>
- * <td>data the file has</td>
+ * <th>kind</th>
+ * <th>data the file has</th>
  * </tr>
  * <tr>
  * <td>application</td>
@@ -106,6 +118,14 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
  * 
  * <p><b>5. To Have the default locale setting function by .properties file
  *     (application_for_property-file-util_base.properties)</b><br><br>
+ *     
+ *     When you don't prepare the properties file, 
+ *     values are obtained from properties files without locale specification 
+ *     (like {@code message.properties}, not like {@code messages_en.properties}).<br>
+ *     {@code ResourceBundle} uses {@code Locale.getDefault()} but this is not good
+ *     because the resulting locale depends on the PC or the server the program is executing.<br>
+ *     Of course when you want to depends on the PC or the server, 
+ *     you just have to explicitly pass {@code Locale.getDefault()} to it.
  * </p>
  * 
  * <p><b>Miscellaneous</b><br><br>
@@ -118,15 +138,15 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilKeyGetterByFileKind;
  */
 public class PropertyFileUtil {
 
-  // propertiesファイルの種類ごとに、その複数言語分のメッセージを格納する入れ物を定義
-  private static PropertyFileUtilKeyGetterByFileKind appPropStore =
-      new PropertyFileUtilKeyGetterByFileKind(APP);
-  private static PropertyFileUtilKeyGetterByFileKind svrMsgStore =
-      new PropertyFileUtilKeyGetterByFileKind(MSG);
-  private static PropertyFileUtilKeyGetterByFileKind fieldNamesStore =
-      new PropertyFileUtilKeyGetterByFileKind(FIELD_NAME);
-  private static PropertyFileUtilKeyGetterByFileKind enumNamesStore =
-      new PropertyFileUtilKeyGetterByFileKind(ENUM_NAME);
+  private static Map<PropertyFileUtilFileKindEnum, PropertyFileUtilValueGetter> getterMap =
+      new HashMap<>();
+
+  static {
+    getterMap.put(APP, new PropertyFileUtilValueGetter(APP));
+    getterMap.put(MSG, new PropertyFileUtilValueGetter(MSG));
+    getterMap.put(FIELD_NAME, new PropertyFileUtilValueGetter(FIELD_NAME));
+    getterMap.put(ENUM_NAME, new PropertyFileUtilValueGetter(ENUM_NAME));
+  }
 
   /** Does not construct an instance.  */
   private PropertyFileUtil() {}
@@ -143,8 +163,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  public static String getApp(@Nonnull String key) {
-    return appPropStore.getProp(key);
+  public static String getApp(@RequireNonnull String key) {
+    return getterMap.get(APP).getProp(key);
   }
 
 
@@ -157,40 +177,8 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasApp(@Nonnull String key) {
-    return appPropStore.hasProp(key);
-  }
-
-  // ■□■ messages ■□■
-
-  /**
-   * Returns the value in application_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
-   * @param key the key of the property
-   * @return the message corresponding to the message ID
-   */
-  @Nonnull
-  public static String getMsg(@Nonnull String key) {
-    return getMsg(Locale.getDefault(), key);
-  }
-
-  /**
-   * Returns the value in application_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
-   * @param key the key of the property
-   * @return the message corresponding to the message ID
-   */
-  @Nonnull
-  public static String getMsg(@Nullable Locale locale, @Nonnull String key) {
-    return getMsg(locale, key, (String[]) null);
+  public static boolean hasApp(@RequireNonnull String key) {
+    return getterMap.get(APP).hasProp(key);
   }
 
   /**
@@ -205,8 +193,8 @@ public class PropertyFileUtil {
    * @return the message corresponding to the message ID
    */
   @Nonnull
-  public static String getMsg(@RequireNonnull String key, @Nullable String... args) {
-    return getMsg(Locale.getDefault(), key, args);
+  public static String getMsg(@RequireNonnull String key, @RequireNonnull String... args) {
+    return getMsg(null, key, args);
   }
 
   /**
@@ -216,27 +204,17 @@ public class PropertyFileUtil {
    * to show message ID when the key does not exist in the file.</p>
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which means no {@code Locale} specified.
    * @param key the key of the property
    * @param args message arguments, 
    *     may be {@code null} which is treated as <code>new String[] {}</code>.
    * @return the message corresponding to the message ID
    */
   @Nonnull
-  public static String getMsg(@Nullable Locale locale, @Nonnull String key,
-      @Nullable String... args) {
+  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
+      @RequireNonnull String... args) {
 
-    // msgIdが空だったらエラー
-    if (key == null || key.equals("")) {
-      throw new RuntimeSystemException("Message ID is null or blank.");
-    }
-
-    String msgStr = svrMsgStore.getProp(locale, key);
-
-    // 後の処理を共通化するためnullは避けておく
-    if (args == null) {
-      args = new String[] {};
-    }
+    String msgStr = getterMap.get(MSG).getProp(locale, key);
 
     // データパターンにより処理を分岐
     return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
@@ -251,8 +229,8 @@ public class PropertyFileUtil {
    * @param msgId message ID
    * @return boolean value that shows whether properties has the message ID
    */
-  public static boolean hasMsg(@Nonnull String msgId) {
-    return svrMsgStore.hasProp(Locale.getDefault(), msgId);
+  public static boolean hasMsg(@RequireNonnull String msgId) {
+    return getterMap.get(MSG).hasProp(msgId);
   }
 
   // ■□■ field_name ■□■
@@ -267,8 +245,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  public static String getFieldName(@Nonnull String key) {
-    return fieldNamesStore.getProp(Locale.getDefault(), key);
+  public static String getFieldName(@RequireNonnull String key) {
+    return getterMap.get(FIELD_NAME).getProp(null, key);
   }
 
   /**
@@ -283,8 +261,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  public static String getFieldName(@Nullable Locale locale, @Nonnull String key) {
-    return fieldNamesStore.getProp(locale, key);
+  public static String getFieldName(@Nullable Locale locale, @RequireNonnull String key) {
+    return getterMap.get(FIELD_NAME).getProp(locale, key);
   }
 
   /**
@@ -296,8 +274,8 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasFieldName(@Nonnull String key) {
-    return fieldNamesStore.hasProp(Locale.getDefault(), key);
+  public static boolean hasFieldName(@RequireNonnull String key) {
+    return getterMap.get(FIELD_NAME).hasProp(key);
   }
 
   // ■□■ enum_name ■□■
@@ -312,8 +290,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  public static String getEnumName(@Nonnull String key) {
-    return enumNamesStore.getProp(Locale.getDefault(), key);
+  public static String getEnumName(@RequireNonnull String key) {
+    return getterMap.get(ENUM_NAME).getProp(null, key);
   }
 
   /**
@@ -328,8 +306,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  public static String getEnumName(@Nullable Locale locale, @Nonnull String key) {
-    return enumNamesStore.getProp(locale, key);
+  public static String getEnumName(@Nullable Locale locale, @RequireNonnull String key) {
+    return getterMap.get(ENUM_NAME).getProp(locale, key);
   }
 
   /**
@@ -341,7 +319,20 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasEnumName(@Nonnull String key) {
-    return enumNamesStore.hasProp(Locale.getDefault(), key);
+  public static boolean hasEnumName(@RequireNonnull String key) {
+    return getterMap.get(ENUM_NAME).hasProp(key);
+  }
+
+  /**
+   * Adds postfix dinamically.
+   * 
+   * <p>If you add {@code test} for example, 
+   *     {@code messages_test[_xxx].properties, 
+   *     application_test[_xxx}.properties, ...} are searched.</p>
+   * 
+   * @param postfix postfix
+   */
+  public static void addResourceBundlePostfix(String postfix) {
+    PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
   }
 }

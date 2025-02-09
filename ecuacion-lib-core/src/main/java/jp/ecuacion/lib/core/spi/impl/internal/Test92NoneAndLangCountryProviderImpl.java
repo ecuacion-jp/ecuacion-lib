@@ -13,29 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.exception.checked;
+package jp.ecuacion.lib.core.spi.impl.internal;
 
+import jp.ecuacion.lib.core.spi.Test92NoneAndLangCountryProvider;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
 
-/** 
- * Is an abstract class describing an occurence of a single validation error.
- */
-public abstract class SingleAppException extends AppException {
-  
-  private static final long serialVersionUID = 1L;
+public class Test92NoneAndLangCountryProviderImpl extends AbstractPropertyFileProviderImpl
+    implements Test92NoneAndLangCountryProvider {
 
-  /**
-   * Constructs a new instance.
-   */
-  public SingleAppException() {
-    
-  }
-
-  /**
-   * Constructs a new instance with {@code message}.
-   * 
-   * @param message message
-   */
-  public SingleAppException(String message) {
-    super(message);
-  }
 }
