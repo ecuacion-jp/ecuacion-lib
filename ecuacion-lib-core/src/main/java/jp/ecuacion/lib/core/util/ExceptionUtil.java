@@ -309,11 +309,36 @@ public class ExceptionUtil {
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
+   * @param packagesShown packages shown in the stack traces.
+   *     This is used when the log displaying area is small.
+   * @return error log string
+   */
+  @Nonnull
+  public String getErrLogShortString(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale, int packagesShown) {
+    return getErrLogString(throwable, additionalMessage, locale, packagesShown);
+  }
+
+  /**
+   * Returns strings or error log.
+   * 
+   * @param throwable throwable
+   * @param additionalMessage additional message,
+   *     may be {@code null} if no {@code additionalMessage} is needed.
+   *     In the case of {@code null} no additional message is output.
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
    * @return error log string
    */
   @Nonnull
   public String getErrLogString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale) {
+    return getErrLogString(throwable, additionalMessage, locale, null);
+  }
+
+  @Nonnull
+  private String getErrLogString(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale, Integer packagesShown) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = (locale == null) ? Locale.getDefault() : locale;
 
@@ -327,13 +352,14 @@ public class ExceptionUtil {
 
     sb.append(RT);
 
-    getErrInfoRecursively(sb, throwable, locale);
+    getErrInfoRecursively(sb, throwable, locale, packagesShown);
 
     return sb.toString();
   }
 
   /* 再起的に呼び出してThrowableの内容を出力する。 */
-  private void getErrInfoRecursively(StringBuilder sb, Throwable th, Locale locale) {
+  private void getErrInfoRecursively(StringBuilder sb, Throwable th, Locale locale,
+      Integer packagesShown) {
 
     locale = (locale == null) ? Locale.getDefault() : locale;
 
@@ -347,41 +373,34 @@ public class ExceptionUtil {
     }
 
     // stackTraceを出力
-    sb.append(getStackTraceString(th));
+    sb.append(getStackTraceString(th, packagesShown));
 
     // causeがあればそれも出力
     if (th.getCause() != null) {
-      getErrInfoRecursively(sb, th.getCause(), locale);
+      getErrInfoRecursively(sb, th.getCause(), locale, packagesShown);
     }
   }
 
-  private String getStackTraceString(Throwable th, boolean isShort) {
+  private String getStackTraceString(Throwable th, Integer packagesShown) {
     StringBuilder sb = new StringBuilder();
     for (StackTraceElement ste : th.getStackTrace()) {
       String[] spl = ste.getClassName().split("\\.");
-      String cls =
-          spl.length > 2 ? spl[0] + "." + spl[1] + "." + spl[2] + ".." : ste.getClassName();
-      String className = isShort ? cls : ste.getClassName();
-      sb.append("\tat " + className + "." + ste.getMethodName() + "(" + ste.getFileName() + ":"
-          + ste.getLineNumber() + ")" + RT);
+      String packageAndClass = ste.getClassName();
+      if (packagesShown != null) {
+        String packages = "";
+        for (int i = 0; i < packagesShown; i++) {
+          if (spl.length > i) {
+            packages = packages + spl[i] + (spl.length - 1 == i ? "" : ".");
+          }
+        }
+
+        packageAndClass = packages + (spl.length > packagesShown ? "." : "");
+      }
+
+      sb.append("\tat " + packageAndClass + "." + ste.getMethodName() + "(" + ste.getFileName()
+          + ":" + ste.getLineNumber() + ")" + RT);
     }
 
     return sb.toString();
-  }
-
-  /**
-   * Stringizes {@code Throwable#getStackTrace()}.
-   */
-  public String getStackTraceString(Throwable th) {
-    return getStackTraceString(th, false);
-  }
-
-  /**
-   * Stringizes {@code Throwable#getStackTrace()} with shorter stackTrace display.
-   * 
-   * <p>It's useful when you paste stack trace to smaller spaces like chat spaces.</p>
-   */
-  public String getStackTraceShortString(Throwable th) {
-    return getStackTraceString(th, true);
   }
 }
