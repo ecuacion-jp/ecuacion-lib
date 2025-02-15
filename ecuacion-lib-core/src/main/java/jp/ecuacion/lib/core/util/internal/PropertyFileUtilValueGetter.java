@@ -35,7 +35,9 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
 import jp.ecuacion.lib.core.util.LogUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * ファイルから抽出したプロパティを保持するクラス。
@@ -210,11 +212,77 @@ public class PropertyFileUtilValueGetter {
         continue;
 
       } else {
-        return entry.getValue().getString(key);
+        String value = entry.getValue().getString(key);
+        List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(value);
+        StringBuilder sb = new StringBuilder();
+
+        for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
+          if (tuple.getLeft() == null) {
+            sb.append(tuple.getRight());
+
+          } else {
+            sb.append(PropertyFileUtil.get(tuple.getLeft().getFilePrefix(), tuple.getRight()));
+          }
+        }
+
+        return sb.toString();
       }
     }
 
     return null;
+  }
+
+  private List<Pair<PropertyFileUtilFileKindEnum, String>> analyze(String string) {
+    final String startBracket = "${";
+    final String endBracket = "}";
+    List<Pair<PropertyFileUtilFileKindEnum, String>> list = new ArrayList<>();
+
+    String stringLeft = string;
+
+    while (true) {
+      int indexOfStartBracket = stringLeft.indexOf(startBracket);
+      int indexOfEndBracket = stringLeft.indexOf(endBracket);
+
+      if (indexOfStartBracket == -1) {
+        list.add(Pair.of(null, stringLeft));
+        break;
+      }
+
+      // the code below is executed when stringLeft contains the startBracket.
+
+      if (indexOfStartBracket > indexOfEndBracket) {
+        throw new RuntimeSystemException(
+            "startBracketFollowsEndBracket. the brackets in the string is somehow wrong. string: "
+                + stringLeft);
+      }
+
+      // front simple string part before startBracket
+      list.add(Pair.of(null, stringLeft.substring(0, indexOfStartBracket)));
+
+      String stringInBrackets =
+          stringLeft.substring(indexOfStartBracket + startBracket.length(), indexOfEndBracket);
+      PropertyFileUtilFileKindEnum fileKind = getFileKindFromStringInBrackets(stringInBrackets);
+
+      if (fileKind == null) {
+        list.add(Pair.of(null,
+            stringLeft.substring(indexOfStartBracket, indexOfEndBracket + endBracket.length())));
+
+      } else {
+        list.add(Pair.of(fileKind, stringInBrackets.split(":")[1]));
+      }
+
+      stringLeft = stringLeft.substring(indexOfEndBracket + endBracket.length());
+    }
+
+    return list;
+  }
+
+  private PropertyFileUtilFileKindEnum getFileKindFromStringInBrackets(String stringInBrackets) {
+    if (!stringInBrackets.contains(":")) {
+      return null;
+    }
+
+    return PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(stringInBrackets.split(":")[0]);
   }
 
   /**
@@ -240,9 +308,8 @@ public class PropertyFileUtilValueGetter {
       bundleNameForModule.set(filename);
       specifiedLocale.set(locale);
 
-      String bundle =
-          "jp.ecuacion.lib.core." + new StringUtil().getUpperCamelFromSnakeOrNullIfInputIsNull(
-              filename.replaceAll("-", "_"));
+      String bundle = "jp.ecuacion.lib.core." + new StringUtil()
+          .getUpperCamelFromSnakeOrNullIfInputIsNull(filename.replaceAll("-", "_"));
       return ResourceBundle.getBundle(bundle, locale);
 
     } catch (MissingResourceException ex) {

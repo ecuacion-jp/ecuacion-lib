@@ -33,17 +33,17 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 /**
  * Provides utility methods to read {@code *.properties} files.
  * 
- * <p>It has following functions added to {@code ResourceBundle} class packaged in JRE.</p>
+ * <p>It has following features added to {@code ResourceBundle} class packaged in JRE.</p>
  * 
  * <ol>
  * <li>To read all the ".properties" files in library modules 
- *     and multiple modules in app projects</li>
+ *     and multiple modules in projects of an app.</li>
  * <li>To read multiple kinds of ".properties" 
  *     ({@code application, messages, enum_names, field_names})</li>
+ * <li>To remove default locale from candidate locales</li>
  * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
  * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
- * <li>To have the default locale setting function by .properties file
- *     (application_for_property-file-util_base.properties)</li>
+ * <li>To resolve property keys in the obtained value</li>
  * </ol>
  * <br>
  * 
@@ -109,24 +109,49 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * </table>
  * <br>
  * 
- * <p><b>3. To use "default" message by putting the postfix of the message ID ".default"</b><br><br>
+ * <p><b>3. To remove default locale from candidate locales</b><br><br>
+ *     Java Standard {@code ResourceBundle} uses default locale 
+ *     (which is obtained by {@code Locale.getDefault()}) 
+ *     when the property file of specified locale is not found.<br>
+ *     The default locale is usually equal to the locale of the OS,
+ *     which means the result depends on the machine the program is executed on.<br><br>
+ *     To avoid that situation deault locale is removed from candidate locales with this class.
+ * </p>
+ * <br>
+ * 
+ * <p><b>4. To use "default" message by putting the postfix of the message ID ".default"</b><br><br>
  * </p>
  * 
- * <p><b>4. To Have the override function by java launch parameter (-D) 
+ * <p><b>5. To Have the override function by java launch parameter (-D) 
  *     or System.setProperty(...)</b><br><br>
  * </p>
  * 
- * <p><b>5. To Have the default locale setting function by .properties file
- *     (application_for_property-file-util_base.properties)</b><br><br>
+ * <p><b>6. To resolve property keys in the obtained value</b><br><br>
+ *     You can put a property key into a property value.<br>
+ *     For example, you can define keys and values like this in {@code messages.properties}. 
+ *     By executing {@code PropertyFileUtil.getMsg("message")} you'll get {@code "a-b-c"}.</p>
+ * <pre>
+ *     message=a-${messages:message_test1}-c
+ *     message_test1=b</pre>
+ * 
+ * <p>Recursive resolution is also supported so you can even define like the one below. <br>
+ * By executing {@code PropertyFileUtil.getMsg("message")} you'll get {@code "a-b-c-d-e-f-g"}.</p>
+ * 
+ * <pre>
+ *     message=a-${messages:message_test1}-c-${messages:message_test2}-g
+ *     message_test1=b
+ *     message_test2=d-${messages:message_test3}-f
+ *     message_test3=e</pre>
+ * 
+ * <p>Examples above uses {@code ${messages:...}} but you can also use other file kinds 
+ * like {@code ${application:...}, ${field_names:...} and ${enum_names:...}}.</p>
  *     
- *     When you don't prepare the properties file, 
- *     values are obtained from properties files without locale specification 
- *     (like {@code message.properties}, not like {@code messages_en.properties}).<br>
- *     {@code ResourceBundle} uses {@code Locale.getDefault()} but this is not good
- *     because the resulting locale depends on the PC or the server the program is executing.<br>
- *     Of course when you want to depends on the PC or the server, 
- *     you just have to explicitly pass {@code Locale.getDefault()} to it.
- * </p>
+ * <p>Recursive resolution is supported, but multiple layer of key is not supported. 
+ *     (which does not seem to be needed really)</p>
+ *     <pre>
+ *     message=a-${messages:${messages:message_prefix}_test1}-c
+ *     message_prefix=message
+ *     message_test1=b</pre><br>
  * 
  * <p><b>Miscellaneous</b><br><br>
  * {@code messages[_xxx].properties}, {@code enum_names[_xxx].properties}, 
@@ -321,6 +346,51 @@ public class PropertyFileUtil {
    */
   public static boolean hasEnumName(@RequireNonnull String key) {
     return getterMap.get(ENUM_NAME).hasProp(key);
+  }
+
+  // ■□■ abstract property ■□■
+
+  /**
+   * Returns the property value of default locale.
+   * 
+   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String get(@RequireNonnull String propertyUtilFileKind,
+      @RequireNonnull String key) {
+    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+        .getProp(null, key);
+  }
+
+  /**
+   * Returns the property value of default locale.
+   * 
+   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
+      @RequireNonnull String key) {
+    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+        .getProp(locale, key);
+  }
+
+  /**
+   * Returns the existence of the key in enam_names_xxx.properties.
+   * 
+   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  public static boolean has(@RequireNonnull String propertyUtilFileKind,
+      @RequireNonnull String key) {
+    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+        .hasProp(key);
   }
 
   /**
