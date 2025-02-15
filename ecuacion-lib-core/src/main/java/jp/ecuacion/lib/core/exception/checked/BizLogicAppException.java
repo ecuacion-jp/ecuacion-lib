@@ -62,6 +62,7 @@ public class BizLogicAppException extends SingleAppException {
     // for users who don't use ecuacion-xxlib exception handler.
     super(PropertyFileUtil.getMsg(messageId, messageArgs));
 
+    this.fields = fields;
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
   }
