@@ -23,10 +23,10 @@ public enum PropertyFileUtilFileKindEnum {
   /** messages.properties. */
   MSG("messages"),
 
-  /** enumの名称を記述. */
-  FIELD_NAME("field_names"),
+  /** itemの名称を記述. */
+  ITEM_NAME("item_names"),
 
-  /** fieldの各項目の名称. */
+  /** enumの名称を記述. */
   ENUM_NAME("enum_names");
 
   private String filePrefix;
@@ -34,18 +34,18 @@ public enum PropertyFileUtilFileKindEnum {
   private PropertyFileUtilFileKindEnum(String filePrefix) {
     this.filePrefix = filePrefix;
   }
-  
+
   public String getFilePrefix() {
     return filePrefix;
   }
-  
+
   public static PropertyFileUtilFileKindEnum getEnumFromFilePrefix(String filePrefix) {
     for (PropertyFileUtilFileKindEnum anEnum : PropertyFileUtilFileKindEnum.values()) {
       if (anEnum.getFilePrefix().equals(filePrefix)) {
         return anEnum;
       }
     }
-    
+
     return null;
   }
 }

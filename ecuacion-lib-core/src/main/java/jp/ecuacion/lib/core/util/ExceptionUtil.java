@@ -144,8 +144,8 @@ public class ExceptionUtil {
             }
 
             // itemNameがmessages.propertiesにあったらそれに置き換える
-            if (PropertyFileUtil.hasFieldName(itemName)) {
-              itemName = PropertyFileUtil.getFieldName(locale, itemName);
+            if (PropertyFileUtil.hasItemName(itemName)) {
+              itemName = PropertyFileUtil.getItemName(locale, itemName);
             }
 
             message = MessageFormat.format(message, itemName);
