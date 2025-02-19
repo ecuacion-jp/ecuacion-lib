@@ -99,8 +99,8 @@ public class EnumUtil {
     }
 
     // ここまで来てしまうということは、存在しないコードを設定してしまったということ。
-    throw new RuntimeExceptionWithMessageId("MSG_ERR_ENUM_EXISTS_CHECK", enumClass.getSimpleName(),
-        "code", code);
+    throw new RuntimeExceptionWithMessageId("jp.ecuacion.lib.core.EnumNotExist.message",
+        enumClass.getSimpleName(), "code", code);
   }
 
   /**
