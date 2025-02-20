@@ -23,7 +23,9 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MS
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
@@ -44,6 +46,7 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
  * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
  * <li>To resolve property keys in the obtained value</li>
+ * <li>To resolve property keys in arguments</li>
  * </ol>
  * <br>
  * 
@@ -153,6 +156,8 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  *     message_prefix=message
  *     message_test1=b</pre><br>
  * 
+ * <p><b>7. To resolve property keys in arguments</b></p>
+ * 
  * <p><b>Miscellaneous</b><br><br>
  * {@code messages[_xxx].properties}, {@code enum_names[_xxx].properties}, 
  * {@code fiels_names[_xxx].properties} need to have default locale file 
@@ -181,9 +186,6 @@ public class PropertyFileUtil {
   /**
    * Returns the value in application_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
    * @param key the key of the property
    * @return the value of the property
    */
@@ -196,9 +198,6 @@ public class PropertyFileUtil {
   /**
    * Returns the existence of the key in application_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
@@ -207,15 +206,11 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Returns the value in application_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
+   * Returns the value of default locale in messages_xxx.properties.
    * 
    * @param key the key of the property
-   * @param args message arguments, 
-   *     may be {@code null} which is treated as <code>new String[] {}</code>.
-   * @return the message corresponding to the message ID
+   * @param args message arguments
+   * @return the value (message) of the property key (message ID)
    */
   @Nonnull
   public static String getMsg(@RequireNonnull String key, @RequireNonnull String... args) {
@@ -223,17 +218,13 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Returns the value in messages_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
+   * Returns the localized value in messages_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
    * @param key the key of the property
-   * @param args message arguments, 
-   *     may be {@code null} which is treated as <code>new String[] {}</code>.
-   * @return the message corresponding to the message ID
+   * @param args message arguments
+   * @return the value (message) of the property key (message ID)
    */
   @Nonnull
   public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
@@ -246,25 +237,57 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Returns the existence of the key in item_names_xxx.properties.
+   * Returns the value of default locale in messages_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
-   * @param msgId message ID
-   * @return boolean value that shows whether properties has the message ID
+   * @param key the key of the property
+   * @param argList message arguments, which can be message ID.
+   *     The data type is {@code List<Arg>}, not {@code Arg...} 
+   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
+   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
+   * @return the value (message) of the property key (message ID)
    */
-  public static boolean hasMsg(@RequireNonnull String msgId) {
-    return getterMap.get(MSG).hasProp(msgId);
+  @Nonnull
+  public static String getMsg(@RequireNonnull String key, @RequireNonnull List<Arg> argList) {
+    return getMsg(null, key, argList);
+  }
+
+  /**
+   * Returns the localized value in messages_xxx.properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param argList message arguments, which can be message ID.
+   *     The data type is {@code List<Arg>}, not {@code Arg...} 
+   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
+   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
+   * @return the message corresponding to the message ID
+   */
+  @Nonnull
+  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
+      @RequireNonnull List<Arg> argList) {
+
+    final List<String> list = new ArrayList<>();
+    argList.stream().forEach(arg -> list
+        .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getString()) : arg.getString()));
+
+    return getMsg(locale, key, list.toArray(new String[list.size()]));
+  }
+
+  /**
+   * Returns the existence of the key in messages_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key (message ID)
+   */
+  public static boolean hasMsg(@RequireNonnull String key) {
+    return getterMap.get(MSG).hasProp(key);
   }
 
   // ■□■ item_names ■□■
 
   /**
    * Returns the item name of default locale in item_names_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
    * 
    * @param key the key of the property
    * @return the value of the property
@@ -276,9 +299,6 @@ public class PropertyFileUtil {
 
   /**
    * Returns the localized item name in item_names_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
    * 
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
@@ -293,9 +313,6 @@ public class PropertyFileUtil {
   /**
    * Returns the existence of the key in item_names_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
@@ -308,9 +325,6 @@ public class PropertyFileUtil {
   /**
    * Returns the enum name of default locale in enum_names_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
    * @param key the key of the property
    * @return the value of the property
    */
@@ -321,9 +335,6 @@ public class PropertyFileUtil {
 
   /**
    * Returns the localized enum name in enum_names_xxx.properties.
-   * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
    * 
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
@@ -338,9 +349,6 @@ public class PropertyFileUtil {
   /**
    * Returns the existence of the key in enam_names_xxx.properties.
    * 
-   * <p>Names should exist but some function uses this 
-   * to show message ID when the key does not exist in the file.</p>
-   * 
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
@@ -353,7 +361,8 @@ public class PropertyFileUtil {
   /**
    * Returns the property value of default locale.
    * 
-   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param propertyUtilFileKind String value of 
+   *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param key the key of the property
    * @return the value of the property
    */
@@ -365,9 +374,10 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Returns the property value of default locale.
+   * Returns the localized property value.
    * 
-   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param propertyUtilFileKind String value of 
+   *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
    * @param key the key of the property
@@ -381,9 +391,10 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Returns the existence of the key in enam_names_xxx.properties.
+   * Returns the existence of the key.
    * 
-   * @param propertyUtilFileKind String value of propertyUtilFileKind (application, messages, ...)
+   * @param propertyUtilFileKind String value of 
+   *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param key the key of the property
    * @return the value of the property
    */
@@ -397,12 +408,57 @@ public class PropertyFileUtil {
    * Adds postfix dinamically.
    * 
    * <p>If you add {@code test} for example, 
-   *     {@code messages_test[_xxx].properties, 
-   *     application_test[_xxx}.properties, ...} are searched.</p>
+   *     {@code messages_test[_lang].properties, 
+   *     application_test[_lang].properties, ...} are searched.</p>
    * 
    * @param postfix postfix
    */
   public static void addResourceBundlePostfix(String postfix) {
     PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
+  }
+
+  /**
+   * Is considered as an argument string, but you can set message ID replaced to message string 
+   * with {@code PropertyFileUtil.getMsg(String)}.
+   * 
+   * <p>In UI application like web, 
+   *     usually {@code "throw new AppException"} part does not care about the {@code locale}.
+   *     It's taken care at {@code ExceptionHandler}.<br>
+   *     So you also don't want obtain an appropriate locale 
+   *     when you put message obtained from {@code PropertyFileUtil.getMsg(...)} 
+   *     into the argument of {@code AppException}.<br><br>
+   *     That's why this is needed.</p>
+   */
+  public static class Arg {
+    private String string;
+    private boolean isMessageId;
+
+    /**
+     * Constructs a new instance considered as a normal string.
+     * 
+     * @param argument argument
+     */
+    public Arg(String argument) {
+      this.string = argument;
+    }
+
+    /**
+     * Constructs a new instance considered as a message ID by setting {@code isMessageId = true}.
+     * 
+     * @param argument argument
+     * @param isMessageId isMessageId
+     */
+    public Arg(String argument, boolean isMessageId) {
+      this.string = argument;
+      this.isMessageId = isMessageId;
+    }
+
+    public String getString() {
+      return string;
+    }
+
+    public boolean isMessageId() {
+      return isMessageId;
+    }
   }
 }
