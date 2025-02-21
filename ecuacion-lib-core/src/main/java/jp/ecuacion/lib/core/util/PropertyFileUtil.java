@@ -431,26 +431,38 @@ public class PropertyFileUtil {
    *     That's why this is needed.</p>
    */
   public static class Arg {
-    private String string;
     private boolean isMessageId;
+    private String string;
+    private Arg[] messageArgs;
 
+    /**
+     * Constructs a new instance of normal string.
+     * 
+     * @param argument normal string
+     * @return Arg
+     */
+    public static Arg string(String argument) {
+      return new Arg(false, argument);
+    }
+    
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
+     * @param messageArgs messageArgs
+     * @return Arg
+     */
+    public static Arg message(String messageId, Arg... messageArgs) {
+      return new Arg(false, messageId);
+    }
+    
     /**
      * Constructs a new instance considered as a normal string.
      * 
      * @param argument argument
      */
-    public Arg(String argument) {
-      this.string = argument;
-    }
-
-    /**
-     * Constructs a new instance considered as a message ID by setting {@code isMessageId = true}.
-     * 
-     * @param argument argument
-     * @param isMessageId isMessageId
-     */
-    public Arg(String argument, boolean isMessageId) {
-      this.string = argument;
+    private Arg(boolean isMessageId, String argumentString, Arg... messageArgs) {
+      this.string = argumentString;
       this.isMessageId = isMessageId;
     }
 
@@ -460,6 +472,10 @@ public class PropertyFileUtil {
 
     public boolean isMessageId() {
       return isMessageId;
+    }
+
+    public Arg[] getMessageArgs() {
+      return messageArgs;
     }
   }
 }
