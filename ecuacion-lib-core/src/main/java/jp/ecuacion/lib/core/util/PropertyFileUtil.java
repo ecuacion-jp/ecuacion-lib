@@ -24,6 +24,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -240,15 +241,15 @@ public class PropertyFileUtil {
    * Returns the value of default locale in messages_xxx.properties.
    * 
    * @param key the key of the property
-   * @param argList message arguments, which can be message ID.
-   *     The data type is {@code List<Arg>}, not {@code Arg...} 
+   * @param args message arguments, which can be message ID.
+   *     The data type is {@code Arg[]}, not {@code Arg...} 
    *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the value (message) of the property key (message ID)
    */
   @Nonnull
-  public static String getMsg(@RequireNonnull String key, @RequireNonnull List<Arg> argList) {
-    return getMsg(null, key, argList);
+  public static String getMsg(@RequireNonnull String key, @RequireNonnull Arg[] args) {
+    return getMsg(null, key, args);
   }
 
   /**
@@ -257,18 +258,18 @@ public class PropertyFileUtil {
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
    * @param key the key of the property
-   * @param argList message arguments, which can be message ID.
-   *     The data type is {@code List<Arg>}, not {@code Arg...} 
+   * @param args message arguments, which can be message ID.
+   *     The data type is {@code Arg[]}, not {@code Arg...} 
    *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the message corresponding to the message ID
    */
   @Nonnull
   public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull List<Arg> argList) {
+      @RequireNonnull Arg[] args) {
 
     final List<String> list = new ArrayList<>();
-    argList.stream().forEach(arg -> list
+    Arrays.asList(args).stream().forEach(arg -> list
         .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getString()) : arg.getString()));
 
     return getMsg(locale, key, list.toArray(new String[list.size()]));
