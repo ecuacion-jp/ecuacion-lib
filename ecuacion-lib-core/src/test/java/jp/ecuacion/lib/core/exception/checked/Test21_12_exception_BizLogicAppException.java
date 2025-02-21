@@ -47,7 +47,8 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
   public void test01_コンストラクタ_02_messageId_messageArgs_01_全部null() {
     try {
       @SuppressWarnings("unused")
-      BizLogicAppException ex = new BizLogicAppException((String) null, (String[]) null);
+      BizLogicAppException ex =
+          new BizLogicAppException((String) null, (String[]) null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -60,7 +61,7 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
 
   @Test
   public void test01_コンストラクタ_02_messageId_messageArgs_02_messageId以外null() {
-    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, new String[] {});
+    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     assertFalse(ex.getMessageArgs() == null);
@@ -69,20 +70,19 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
 
   @Test
   public void test01_コンストラクタ_02_messageId_messageArgs_03_正常() {
-    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, new String[] {"abc"});
+    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, "abc");
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(1);
-    Assertions.assertThat(ex.getMessageArgs()[0]).isEqualTo("abc");
+    Assertions.assertThat(ex.getMessageArgs()[0].getString()).isEqualTo("abc");
   }
 
   @Test
   public void test01_コンストラクタ_12_locale_messageId_messageArgs_02_messageId以外null() {
-    BizLogicAppException ex =
-        new BizLogicAppException("TEST_KEY", new String[] {});
+    BizLogicAppException ex = new BizLogicAppException("TEST_KEY");
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo("TEST_KEY");
-    Assertions.assertThat(ex.getMessageArgs()).isNotNull();
+    Assertions.assertThat(ex.getMessageArgs() == null).isFalse();
     Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(0);
   }
 

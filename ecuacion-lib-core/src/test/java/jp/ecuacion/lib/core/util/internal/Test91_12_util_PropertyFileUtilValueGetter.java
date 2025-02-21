@@ -17,9 +17,9 @@ package jp.ecuacion.lib.core.util.internal;
 
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APP;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
-import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
@@ -38,7 +38,7 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   @Test
   public void test01_constructor_01_PropertyFileUtilPropFileKindEnum_02_引数がnull以外() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-    assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
@@ -55,43 +55,43 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   @Test
   public void test01_constructor_02_filePrefix_02_引数がnull以外() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("messages");
-    assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
   public void test11_読み込みファイル種類_01_ecuacion_lib_xxx() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");;
-    assertThat(store.getPostfixes().contains("lib_core")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("lib_core")).isEqualTo(true);
   }
 
   @Test
   public void test11_読み込みファイル種類_02_ecuacion_splib_xxx() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");
-    assertThat(store.getPostfixes().contains("splib_web")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("splib_web")).isEqualTo(true);
   }
 
   @Test
   public void test11_読み込みファイル種類_03_個別プロジェクト用標準ファイル() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");
-    assertThat(store.getPostfixes().contains("")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("")).isEqualTo(true);
   }
 
   @Test
   public void test11_読み込みファイル種類_04_個別プロジェクト用base() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");
-    assertThat(store.getPostfixes().contains("base")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("base")).isEqualTo(true);
   }
 
   @Test
   public void test11_読み込みファイル種類_05_個別プロジェクト用_profile() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");
-    assertThat(store.getPostfixes().contains("profile")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("profile")).isEqualTo(true);
   }
 
   @Test
   public void test11_読み込みファイル種類_06_個別プロジェクト用_core_profile() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-12-11");
-    assertThat(store.getPostfixes().contains("core_profile")).isEqualTo(true);
+    Assertions.assertThat(store.getPostfixes().contains("core_profile")).isEqualTo(true);
   }
 
   @Test
@@ -167,7 +167,7 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   public void test22_getProp_01_key_21_キーが存在する場合() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
 
-    assertThat(store.getProp("TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp("TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
@@ -221,28 +221,28 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   public void test22_getProp_02_locale_key_21_キーが存在する場合() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
 
-    assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
   public void test31_複数locale_01_ファイル_localeなしのみ_01_client_locale_なし() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none");
 
-    assertThat(store.getProp(Locale.ROOT, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.ROOT, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
   public void test31_複数locale_01_ファイル_localeなしのみ_02_client_locale_言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none");
 
-    assertThat(store.getProp(Locale.JAPANESE, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.JAPANESE, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
   public void test31_複数locale_01_ファイル_localeなしのみ_03_client_locale_言語and国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none");
 
-    assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
   }
 
   @Test
@@ -261,97 +261,97 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_01_client_locale_同一言語and国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang");
-    assertThat(store.getProp(Locale.US, "FILE_LOCALE")).isEqualTo("en");
+    Assertions.assertThat(store.getProp(Locale.US, "FILE_LOCALE")).isEqualTo("en");
   }
 
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_02_client_locale_同一言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang");
-    assertThat(store.getProp(Locale.ENGLISH, "FILE_LOCALE")).isEqualTo("en");
+    Assertions.assertThat(store.getProp(Locale.ENGLISH, "FILE_LOCALE")).isEqualTo("en");
   }
 
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_03_client_locale_別言語and国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang");
-    assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_04_client_locale_別言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang");
-    assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_01_client_locale_同一言語and同一国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
+    Assertions.assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_02_client_locale_同一言語and別国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_03_client_locale_同一言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_04_client_locale_別言語and同一国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_05_client_locale_別言語and別国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_12_ファイル_localeなし_言語and国_06_client_locale_別言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-country");
-    assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_01_client_locale_同一言語and同一国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
+    Assertions.assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_02_client_locale_同一言語and別国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("fr");
+    Assertions.assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("fr");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_03_client_locale_同一言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("fr");
+    Assertions.assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("fr");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_04_client_locale_別言語and同一国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_05_client_locale_別言語and別国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_06_client_locale_別言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter("test92-none-and-lang-and-lang-country");
-    assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
+    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
