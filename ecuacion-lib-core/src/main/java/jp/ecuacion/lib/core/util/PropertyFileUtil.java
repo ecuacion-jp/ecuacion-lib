@@ -78,7 +78,7 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  *     {@code PropertyFileUtil.getMsg(...) : messages[_xxx].properties}<br>
  *     {@code PropertyFileUtil.getApp(...) : application[_xxx].properties}<br>
  *     {@code PropertyFileUtil.getEnumName(...) : enum_names[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getItemName(...) : fiels_names[_xxx].properties}<br><br>
+ *     {@code PropertyFileUtil.getItemName(...) : item_names[_xxx].properties}<br><br>
  *     
  *     {@code messages.properties} and {@code application.properties} are well-known.<br>
  *     {@code enum_names.properties} stores the localized name of the enum element, and
