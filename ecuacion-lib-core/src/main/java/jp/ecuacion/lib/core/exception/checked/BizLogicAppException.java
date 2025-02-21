@@ -63,7 +63,7 @@ public class BizLogicAppException extends SingleAppException {
     
     this(fields, ObjectsUtil.paramRequireNonNull(messageId),
         Arrays.asList(ObjectsUtil.paramRequireNonNull(messageArgs)).stream()
-            .map(arg -> new Arg(arg)).toList().toArray(new Arg[messageArgs.length]));
+            .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
   /**
