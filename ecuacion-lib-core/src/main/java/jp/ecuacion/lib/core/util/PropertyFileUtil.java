@@ -464,6 +464,7 @@ public class PropertyFileUtil {
     private Arg(boolean isMessageId, String argumentString, Arg... messageArgs) {
       this.string = argumentString;
       this.isMessageId = isMessageId;
+      this.messageArgs = messageArgs;
     }
 
     public String getString() {
