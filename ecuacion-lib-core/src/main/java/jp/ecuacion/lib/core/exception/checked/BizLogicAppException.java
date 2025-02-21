@@ -17,8 +17,11 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.util.Arrays;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
  * Is used for buziness logic exceptions.
@@ -32,7 +35,7 @@ public class BizLogicAppException extends SingleAppException {
   private String messageId;
 
   @Nonnull
-  private String[] messageArgs;
+  private Arg[] messageArgs;
 
   @Nullable
   private AppExceptionFields fields;
@@ -51,20 +54,47 @@ public class BizLogicAppException extends SingleAppException {
    * Constructs a new instance with {@code locale},  {@code fields},
    *     {@code messageId} and {@code messageArgs}.
    *
+   * @param fields the fields related to the exception
+   * @param messageId message ID
+   * @param messageArgs message Arguments
+   */
+  public BizLogicAppException(@Nullable AppExceptionFields fields, @Nonnull String messageId,
+      @Nonnull String... messageArgs) {
+    
+    this(fields, ObjectsUtil.paramRequireNonNull(messageId),
+        Arrays.asList(ObjectsUtil.paramRequireNonNull(messageArgs)).stream()
+            .map(arg -> new Arg(arg)).toList().toArray(new Arg[messageArgs.length]));
+  }
+
+  /**
+   * Constructs a new instance with {@code fields},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param messageId message ID
+   * @param messageArgs message Arguments
+   */
+  public BizLogicAppException(@RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
+    this(null, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code fields},
+   *     {@code messageId} and {@code messageArgs}.
+   *
    * @param fields the fields related to the exeception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable AppExceptionFields fields,
-      @Nonnull String messageId, @Nonnull String... messageArgs) {
+  public BizLogicAppException(@Nullable AppExceptionFields fields, @RequireNonnull String messageId,
+      @RequireNonnull Arg[] messageArgs) {
 
-    // set message with default locale to show the message in stack trace 
+    // set message with default locale to show the message in stack trace
     // for users who don't use ecuacion-xxlib exception handler.
-    super(PropertyFileUtil.getMsg(messageId, messageArgs));
+    super(PropertyFileUtil.getMsg(messageId));
 
     this.fields = fields;
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
-    this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
+    this.messageArgs = messageArgs;
   }
 
   /**
@@ -90,7 +120,8 @@ public class BizLogicAppException extends SingleAppException {
    * 
    * @return messageArgs
    */
-  public @Nonnull String[] getMessageArgs() {
-    return messageArgs == null ? new String[] {} : messageArgs.clone();
+  @Nonnull
+  public Arg[] getMessageArgs() {
+    return messageArgs == null ? new Arg[] {} : messageArgs;
   }
 }
