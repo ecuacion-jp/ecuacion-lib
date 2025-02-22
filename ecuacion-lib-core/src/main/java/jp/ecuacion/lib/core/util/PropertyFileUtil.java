@@ -444,7 +444,18 @@ public class PropertyFileUtil {
     public static Arg string(String argument) {
       return new Arg(false, argument);
     }
-    
+
+    /**
+     * Constructs an array of new instances of normal string.
+     * 
+     * @param arguments an array of normal string
+     * @return Arg[]
+     */
+    public static Arg[] strings(String... arguments) {
+      return Arrays.asList(arguments).stream().map(arg -> Arg.string(arg)).toList()
+          .toArray(new Arg[arguments.length]);
+    }
+
     /**
      * Constructs a new instance of messageId and messageArgs.
      * 
@@ -455,7 +466,7 @@ public class PropertyFileUtil {
     public static Arg message(String messageId, Arg... messageArgs) {
       return new Arg(false, messageId);
     }
-    
+
     /**
      * Constructs a new instance considered as a normal string.
      * 
