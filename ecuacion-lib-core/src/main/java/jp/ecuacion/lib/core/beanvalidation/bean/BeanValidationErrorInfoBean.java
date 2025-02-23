@@ -35,6 +35,8 @@ public class BeanValidationErrorInfoBean {
   private String leafClassName;
   private String invalidValue;
   private Object instance;
+  
+  private Map<String, Object> paramMap;
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -59,6 +61,8 @@ public class BeanValidationErrorInfoBean {
     this.leafClassName = cv.getLeafBean().getClass().getName();
     this.invalidValue = (cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
     this.instance = cv.getLeafBean();
+    
+    this.paramMap = cv.getConstraintDescriptor().getAttributes();
   }
 
   /**
@@ -188,5 +192,9 @@ public class BeanValidationErrorInfoBean {
    */
   public Object getInstance() {
     return instance;
+  }
+  
+  public Map<String, Object> getParamMap() {
+    return paramMap;
   }
 }
