@@ -20,7 +20,6 @@ import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +28,6 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
-import java.util.Set;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
@@ -193,45 +191,56 @@ public class PropertyFileUtilValueGetter {
     }
 
     // 複数bundle間でのkey重複チェック
-    Set<String> duplicateCheckMap = new HashSet<>();
+    String messageString = null;
     for (Entry<String, ResourceBundle> entry : rbMapForModule.entrySet()) {
-      if (entry.getValue() != null) {
-        for (String keyInBundle : entry.getValue().keySet()) {
-          if (duplicateCheckMap.contains(keyInBundle)) {
-            throw new RuntimeSystemException(
-                "Key '" + keyInBundle + "' in properties file duplicated. ");
-          }
-          duplicateCheckMap.add(keyInBundle);
+      if (entry.getValue() != null && entry.getValue().containsKey(key)) {
+        if (messageString != null) {
+          throw new RuntimeSystemException("Key '" + key + "' in properties file duplicated. ");
         }
+
+        messageString = entry.getValue().getString(key);
       }
-      rbMapForModule.put(entry.getKey(), entry.getValue());
     }
 
-    for (Entry<String, ResourceBundle> entry : rbMapForModule.entrySet()) {
-      if (entry.getValue() == null || !entry.getValue().containsKey(key)) {
-        continue;
+    if (messageString == null) {
+      return null;
+    }
+
+    // analyzes messageString
+    List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(messageString);
+    StringBuilder sb = new StringBuilder();
+
+    for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
+      if (tuple.getLeft() == null) {
+        sb.append(tuple.getRight());
 
       } else {
-        String value = entry.getValue().getString(key);
-        List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(value);
-        StringBuilder sb = new StringBuilder();
-
-        for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
-          if (tuple.getLeft() == null) {
-            sb.append(tuple.getRight());
-
-          } else {
-            sb.append(PropertyFileUtil.get(tuple.getLeft().getFilePrefix(), tuple.getRight()));
-          }
-        }
-
-        return sb.toString();
+        sb.append(PropertyFileUtil.get(tuple.getLeft().getFilePrefix(), tuple.getRight()));
       }
     }
 
-    return null;
+    return sb.toString();
   }
 
+  /**
+   * Analyzes messages with the constructure of {@code message ID in message}.
+   * 
+   * <p>When there's no message ID in a message, return will be {(null, {@code <message>})}.<br>
+   *     left hand side of a pair is {@code null} meeans 
+   *     that the message doesn't have a message ID in it.</p>
+   * 
+   * <p>.When one message ID is included in a message return will be 
+   *     {(null, {@code prefixOfMessage}),  ({@code PropertyFileUtilFileKindEnum.MSG, message ID}), 
+   *     (null, {@code postfixOfMessage})}.<br>
+   *     3 parts of a message will be concatenated into a single string, 
+   *     and the middle part wlll be translated into a message.<br><br>
+   *     For example, when the message is {@code Hello, {messages:human}!}, 
+   *     the analyzed result is: <br>
+   *     ({@code (null, "Hello, "), (PropertyFileUtilFileKindEnum.MSG, "human"), (null, "!")}}.</p>
+   * 
+   * @param string string
+   * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
+   */
   private List<Pair<PropertyFileUtilFileKindEnum, String>> analyze(String string) {
     final String startBracket = "${";
     final String endBracket = "}";
