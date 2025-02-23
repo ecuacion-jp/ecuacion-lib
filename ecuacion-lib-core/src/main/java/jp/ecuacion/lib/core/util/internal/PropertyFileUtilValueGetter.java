@@ -242,7 +242,7 @@ public class PropertyFileUtilValueGetter {
    * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
    */
   private List<Pair<PropertyFileUtilFileKindEnum, String>> analyze(String string) {
-    final String startBracket = "${";
+    final String startBracket = "{";
     final String endBracket = "}";
     List<Pair<PropertyFileUtilFileKindEnum, String>> list = new ArrayList<>();
 
