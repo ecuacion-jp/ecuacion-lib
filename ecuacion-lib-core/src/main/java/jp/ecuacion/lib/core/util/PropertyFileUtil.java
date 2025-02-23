@@ -19,6 +19,8 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.AP
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAME;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAME;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_FIELD;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -29,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
@@ -42,7 +45,8 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * <li>To read all the ".properties" files in library modules 
  *     and multiple modules in projects of an app.</li>
  * <li>To read multiple kinds of ".properties" 
- *     ({@code application, messages, enum_names, item_names})</li>
+ *     ({@code application, messages, enum_names, item_names, ValidationMessages, 
+ *     ValidationMessagesWithField})</li>
  * <li>To remove default locale from candidate locales</li>
  * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
  * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
@@ -357,6 +361,86 @@ public class PropertyFileUtil {
     return getterMap.get(ENUM_NAME).hasProp(key);
   }
 
+  // ■□■ ValidationMessages ■□■
+
+  /**
+   * Returns the property value of default locale in ValidationMessages[_locale].properties.
+   * 
+   * <p>Usually {@code ValidationMessages[_locale].properties} file 
+   *     satisfies validation message's requirement.
+   *     But when you want to show error messages on the top message space and  
+   * 
+   * @param key the key of the property
+   * @param argMap argMap
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessage(@RequireNonnull String key,
+      Map<String, String> argMap) {
+    return getValidationMessage(null, key, argMap);
+  }
+
+  /**
+   * Returns the localized enum name in ValidationMessages[_locale].properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessage(@Nullable Locale locale, @RequireNonnull String key,
+      Map<String, String> argMap) {
+    String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key);
+
+    return substituteArgsToValidationMessages(message, argMap);
+  }
+
+  // ■□■ ValidationMessagesWithField ■□■
+
+  /**
+   * Returns the property value of default locale in ValidationMessagesWithField_xxx.properties.
+   * 
+   * <p>Usually {@code ValidationMessages[_locale].properties} file 
+   *     satisfies validation message's requirement.
+   *     But when you want to show error messages on the top message space and  
+   * 
+   * @param key the key of the property
+   * @param argMap argMap
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessageWithField(@RequireNonnull String key,
+      Map<String, String> argMap) {
+    return getValidationMessageWithField(null, key, argMap);
+  }
+
+  /**
+   * Returns the localized enum name in enum_names_xxx.properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessageWithField(@Nullable Locale locale,
+      @RequireNonnull String key, Map<String, String> argMap) {
+    String message = getterMap.get(VALIDATION_MESSAGES_WITH_FIELD).getProp(locale, key);
+
+    return substituteArgsToValidationMessages(message, argMap);
+  }
+
+  private static String substituteArgsToValidationMessages(String message,
+      Map<String, String> argMap) {
+    String rtnMessage = message;
+    for (Entry<String, String> entry : argMap.entrySet()) {
+      rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue());
+    }
+
+    return rtnMessage;
+  }
+
   // ■□■ abstract property ■□■
 
   /**
@@ -411,6 +495,9 @@ public class PropertyFileUtil {
    * <p>If you add {@code test} for example, 
    *     {@code messages_test[_lang].properties, 
    *     application_test[_lang].properties, ...} are searched.</p>
+   *     
+   * <p>In java 9 module system environment, you also need to Service Provider Interface(SPI)
+   *     defined in `ecuacion-lib-core`.</p>
    * 
    * @param postfix postfix
    */
@@ -444,7 +531,18 @@ public class PropertyFileUtil {
     public static Arg string(String argument) {
       return new Arg(false, argument);
     }
-    
+
+    /**
+     * Constructs an array of new instances of normal string.
+     * 
+     * @param arguments an array of normal string
+     * @return Arg[]
+     */
+    public static Arg[] strings(String... arguments) {
+      return Arrays.asList(arguments).stream().map(arg -> Arg.string(arg)).toList()
+          .toArray(new Arg[arguments.length]);
+    }
+
     /**
      * Constructs a new instance of messageId and messageArgs.
      * 
@@ -455,7 +553,7 @@ public class PropertyFileUtil {
     public static Arg message(String messageId, Arg... messageArgs) {
       return new Arg(false, messageId);
     }
-    
+
     /**
      * Constructs a new instance considered as a normal string.
      * 

@@ -32,12 +32,6 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.spi.impl;
   exports jp.ecuacion.lib.core.util;
 
-  uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
-  uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
-  
-  provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
-      with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
-  
   requires transitive jakarta.validation;
   requires jakarta.mail;
   requires jakarta.annotation;
@@ -45,6 +39,35 @@ module jp.ecuacion.lib.core {
   requires org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
+  
+  // apps: application
+  uses jp.ecuacion.lib.core.spi.ApplicationProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationBaseProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationCoreProvider;
+
+  // apps: messages
+  uses jp.ecuacion.lib.core.spi.MessagesProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesBaseProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesCoreProvider;
+
+  // apps: item_names
+  uses jp.ecuacion.lib.core.spi.ItemNamesProvider;
+  uses jp.ecuacion.lib.core.spi.ItemNamesBaseProvider;
+  uses jp.ecuacion.lib.core.spi.ItemNamesCoreProvider;
+
+  // apps: enum_names
+  uses jp.ecuacion.lib.core.spi.EnumNamesProvider;
+  uses jp.ecuacion.lib.core.spi.EnumNamesBaseProvider;
+  uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
+
+  // ecuacion lib / sutil / splib: messages
+  uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilJpaProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilPdfboxProvider;
+  
+  provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
   
   // for test
   uses jp.ecuacion.lib.core.spi.MessagesTestProvider;
