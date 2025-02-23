@@ -172,6 +172,8 @@ public class PropertyFileUtilValueGetter {
    */
   @Nonnull
   private String readPropFile(@Nullable Locale locale, @RequireNonnull String key) {
+    ObjectsUtil.paramRequireNonNull(key);
+
     List<String> postfixes = getPostfixes();
     Map<String, ResourceBundle> rbMapForModule = new HashMap<>();
 
@@ -180,13 +182,13 @@ public class PropertyFileUtilValueGetter {
       String postfix = postfixes.get(i);
       String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
 
-      ResourceBundle bundle = getOneResourceBundle(filename, locale, key);
+      ResourceBundle bundle = getOneResourceBundle(filename, locale);
       rbMapForModule.put(filename, bundle);
 
       // msgの場合は追加でファイル読み込み
       if (kind == PropertyFileUtilFileKindEnum.MSG) {
         filename = "ValidationMessages";
-        rbMapForModule.put(filename, getOneResourceBundle(filename, locale, key));
+        rbMapForModule.put(filename, getOneResourceBundle(filename, locale));
       }
     }
 
@@ -299,14 +301,12 @@ public class PropertyFileUtilValueGetter {
    * 
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
-   * @param key the key of the property
    */
   @Nonnull
   private ResourceBundle getOneResourceBundle(@RequireNonnull String filename,
-      @Nullable Locale locale, @RequireNonnull String key) {
+      @Nullable Locale locale) {
 
     ObjectsUtil.paramRequireNonNull(filename);
-    ObjectsUtil.paramRequireNonNull(key);
 
     if (locale == null) {
       locale = Locale.ROOT;
