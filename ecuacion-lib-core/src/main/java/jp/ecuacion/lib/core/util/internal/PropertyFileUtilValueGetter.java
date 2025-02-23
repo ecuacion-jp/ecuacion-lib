@@ -54,8 +54,6 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class PropertyFileUtilValueGetter {
 
-  private PropertyFileUtilFileKindEnum kind;
-
   /*
    * kindの中にfilePrefixを持っているので冗長な持ち方なのだが、
    * テストでPropertyFileUtilPropFileKindEnumにないfilePrefixを使用したい場合があるため別で持つ。
@@ -114,8 +112,7 @@ public class PropertyFileUtilValueGetter {
    * @param fileKindEnum fileKindEnum
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
-    this.kind = ObjectsUtil.paramRequireNonNull(fileKindEnum);
-    this.filePrefixes = fileKindEnum.getActualFilePrefixes();
+    this.filePrefixes = ObjectsUtil.paramRequireNonNull(fileKindEnum).getActualFilePrefixes();
   }
 
   /*
@@ -124,7 +121,6 @@ public class PropertyFileUtilValueGetter {
    * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
-    this.kind = PropertyFileUtilFileKindEnum.MSG;
     this.filePrefixes = Objects.requireNonNull(filePrefixes);
   }
 
