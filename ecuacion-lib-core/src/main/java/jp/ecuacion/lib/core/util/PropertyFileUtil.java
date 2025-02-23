@@ -273,8 +273,10 @@ public class PropertyFileUtil {
       @RequireNonnull Arg[] args) {
 
     final List<String> list = new ArrayList<>();
-    Arrays.asList(args).stream().forEach(arg -> list
-        .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getString()) : arg.getString()));
+    Arrays.asList(args).stream()
+        .forEach(arg -> list
+            .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getString(), arg.messageArgs)
+                : arg.getString()));
 
     return getMsg(locale, key, list.toArray(new String[list.size()]));
   }
@@ -551,7 +553,7 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId, Arg... messageArgs) {
-      return new Arg(false, messageId);
+      return new Arg(true, messageId, messageArgs);
     }
 
     /**
