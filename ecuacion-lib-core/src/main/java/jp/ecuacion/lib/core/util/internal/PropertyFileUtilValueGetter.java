@@ -54,8 +54,6 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class PropertyFileUtilValueGetter {
 
-  // private DetailLogger detailLogger = new DetailLogger(this);
-
   private PropertyFileUtilFileKindEnum kind;
 
   /*
@@ -63,7 +61,7 @@ public class PropertyFileUtilValueGetter {
    * テストでPropertyFileUtilPropFileKindEnumにないfilePrefixを使用したい場合があるため別で持つ。
    * constructor以降ではkind.getPrefix()は使用しない。（使用したらテストでエラーになるのでまぁ検知可能）
    */
-  private String filePrefix;
+  private String[][] filePrefixes;
 
   private static final String[] LIB_MODULES = new String[] {"core", "jpa"};
   private static final String[] SPLIB_MODULES = new String[] {"web"};
@@ -117,7 +115,7 @@ public class PropertyFileUtilValueGetter {
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
     this.kind = ObjectsUtil.paramRequireNonNull(fileKindEnum);
-    this.filePrefix = fileKindEnum.getFilePrefix();
+    this.filePrefixes = fileKindEnum.getActualFilePrefixes();
   }
 
   /*
@@ -125,10 +123,9 @@ public class PropertyFileUtilValueGetter {
    * PropertyFileUtilとしては、PropFileKindEnumの値に対応するprefixにしか対応しないのだが、MultiLangPropStoreとしては
    * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
    */
-  PropertyFileUtilValueGetter(@RequireNonnull String filePrefix) {
-    Objects.requireNonNull(filePrefix);
+  PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
     this.kind = PropertyFileUtilFileKindEnum.MSG;
-    this.filePrefix = filePrefix;
+    this.filePrefixes = Objects.requireNonNull(filePrefixes);
   }
 
   /**
@@ -171,9 +168,9 @@ public class PropertyFileUtilValueGetter {
   @Nonnull
   private String getValue(@Nullable Locale locale, @RequireNonnull String key) {
     ObjectsUtil.paramRequireNonNull(key);
-    
+
     String value = null;
-    
+
     if (System.getProperties().keySet().contains(key)) {
       // If the key is in System.getProperties(), just return it.
       value = System.getProperties().getProperty(key);
@@ -198,6 +195,22 @@ public class PropertyFileUtilValueGetter {
     return sb.toString();
   }
 
+  private String getValueFromPropertiesFiles(Locale locale, String key) {
+    for (String[] filePrefixesOfSamePriority : filePrefixes) {
+      String value =
+          getValueFromPropertiesFilesWithSamePriority(locale, key, filePrefixesOfSamePriority);
+
+      if (value != null) {
+        return value;
+      }
+    }
+
+    // The program reaches here means key not exist in properties files.
+    // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
+    // 失敗したときはRuntimeExceptionとしておく
+    throw new RuntimeSystemException("No key in .properties. key: " + key);
+  }
+
   /*
    * Obtains value from key and locale by reading multiple properties files 
    *     with prefixes and postfixes of the filename.
@@ -208,32 +221,26 @@ public class PropertyFileUtilValueGetter {
    *     which means no {@code Locale} specified.
    * @param key the key of the property
    */
-  private String getValueFromPropertiesFiles(Locale locale, String key) {
-    String value;
+  private String getValueFromPropertiesFilesWithSamePriority(Locale locale, String key,
+      String[] filePrefixesOfSamePriority) {
     // Search the key in properties files.
     List<String> postfixes = getPostfixes();
     Map<String, ResourceBundle> rbMap = new HashMap<>();
 
-    for (int i = 0; i < postfixes.size(); i++) {
-      String postfix = postfixes.get(i);
-      String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
+    for (String prefix : filePrefixesOfSamePriority) {
+      for (int i = 0; i < postfixes.size(); i++) {
+        String postfix = postfixes.get(i);
+        String filename = prefix + ((postfix.equals("")) ? "" : "_") + postfix;
 
-      ResourceBundle bundle = getResourceBundle(filename, locale);
-      rbMap.put(filename, bundle);
+        ResourceBundle bundle = getResourceBundle(filename, locale);
+        rbMap.put(filename, bundle);
+      }
     }
 
     String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
     String valueDefault = getValueAndDuplicationCheck(rbMap, key + ".default");
 
-    value = valueNonDefault == null ? valueDefault : valueNonDefault;
-
-    // Key existence check. non-existence causes throw RuntimeSystemException.
-    if (value == null) {
-      // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
-      // 失敗したときはRuntimeExceptionとしておく
-      throw new RuntimeSystemException("No key in .properties. key: " + key);
-    }
-    return value;
+    return valueNonDefault == null ? valueDefault : valueNonDefault;
   }
 
   /**
