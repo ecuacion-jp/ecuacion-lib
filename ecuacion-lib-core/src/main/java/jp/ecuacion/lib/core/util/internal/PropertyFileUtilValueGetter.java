@@ -31,7 +31,6 @@ import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
-import jp.ecuacion.lib.core.util.LogUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -175,7 +174,7 @@ public class PropertyFileUtilValueGetter {
     ObjectsUtil.paramRequireNonNull(key);
 
     List<String> postfixes = getPostfixes();
-    Map<String, ResourceBundle> rbMapForModule = new HashMap<>();
+    Map<String, ResourceBundle> rbMap = new HashMap<>();
 
     // 初回のみResourceBundleデータを取得
     for (int i = 0; i < postfixes.size(); i++) {
@@ -183,33 +182,30 @@ public class PropertyFileUtilValueGetter {
       String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
 
       ResourceBundle bundle = getResourceBundle(filename, locale);
-      rbMapForModule.put(filename, bundle);
+      rbMap.put(filename, bundle);
 
       // msgの場合は追加でファイル読み込み
       if (kind == PropertyFileUtilFileKindEnum.MSG) {
         filename = "ValidationMessages";
-        rbMapForModule.put(filename, getResourceBundle(filename, locale));
+        rbMap.put(filename, getResourceBundle(filename, locale));
       }
     }
 
-    // 複数bundle間でのkey重複チェック
-    String messageString = null;
-    for (Entry<String, ResourceBundle> entry : rbMapForModule.entrySet()) {
-      if (entry.getValue() != null && entry.getValue().containsKey(key)) {
-        if (messageString != null) {
-          throw new RuntimeSystemException("Key '" + key + "' in properties file duplicated. ");
-        }
+    // 複数bundle間でのkey重複チェックと取得
+    String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
+    String valueDefault = getValueAndDuplicationCheck(rbMap, key + ".default");
 
-        messageString = entry.getValue().getString(key);
-      }
-    }
+    String value = valueNonDefault == null ? valueDefault : valueNonDefault;
 
-    if (messageString == null) {
-      return null;
+    // Key existence check. non-existence causes throw RuntimeSystemException.
+    if (value == null) {
+      // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
+      // 失敗したときはRuntimeExceptionとしておく
+      throw new RuntimeSystemException("No key in .properties. key: " + key);
     }
 
     // analyzes messageString
-    List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(messageString);
+    List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(value);
     StringBuilder sb = new StringBuilder();
 
     for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
@@ -266,6 +262,22 @@ public class PropertyFileUtilValueGetter {
     }
 
     return null;
+  }
+
+  private String getValueAndDuplicationCheck(Map<String, ResourceBundle> resourceBundleMap,
+      String key) {
+    String messageString = null;
+    for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
+      if (entry.getValue() != null && entry.getValue().containsKey(key)) {
+        if (messageString != null) {
+          throw new RuntimeSystemException("Key '" + key + "' in properties file duplicated. ");
+        }
+
+        messageString = entry.getValue().getString(key);
+      }
+    }
+
+    return messageString;
   }
 
   /**
@@ -346,9 +358,13 @@ public class PropertyFileUtilValueGetter {
   public boolean hasProp(String key) {
     Objects.requireNonNull(key);
 
-    String val = readPropFile(null, key);
+    try {
+      readPropFile(null, key);
+      return true;
 
-    return val != null;
+    } catch (RuntimeSystemException ex) {
+      return false;
+    }
   }
 
   /*
@@ -375,24 +391,9 @@ public class PropertyFileUtilValueGetter {
 
     // 値を取得
     String str = readPropFile(locale, key);
-    // 頭に"default."がつくdefault設定のmessageも検索
-    String defaultStr = readPropFile(locale, key + ".default");
-
-    // キーが存在しなかったらエラーとする。エラーが出るのが怖かったらあらかじめhasPropをすること。
-    if (str == null && defaultStr == null) {
-      // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになるので、
-      // 失敗したときはログ出力のみとしておく
-      try {
-        throw new RuntimeException("No key in .properties. key: " + key);
-
-      } catch (Exception e) {
-        new LogUtil(this).logError(e, (String) null);
-        throw e;
-      }
-    }
 
     // keyを渡して値を返す
-    return str != null ? str : defaultStr;
+    return str;
   }
 
   /* 結局一行で書けるのだがちょっとwrapして書く量を減らした^^;。 */
