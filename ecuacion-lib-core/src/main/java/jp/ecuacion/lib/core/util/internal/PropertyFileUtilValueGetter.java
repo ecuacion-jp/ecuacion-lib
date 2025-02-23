@@ -161,7 +161,7 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
-   * 指定のlocaleに対し、postfix × candidate locales 分のbundleを取得しそこから値を取得。
+   * 指定のlocaleに対し、postfix 分のbundleを取得しそこから値を取得。
    * 
    * <p>キーの重複定義チェックもここで行う。</p>
    * 
@@ -170,38 +170,17 @@ public class PropertyFileUtilValueGetter {
    * @param key the key of the property
    */
   @Nonnull
-  private String readPropFile(@Nullable Locale locale, @RequireNonnull String key) {
+  private String getValue(@Nullable Locale locale, @RequireNonnull String key) {
     ObjectsUtil.paramRequireNonNull(key);
+    
+    String value = null;
+    
+    if (System.getProperties().keySet().contains(key)) {
+      // If the key is in System.getProperties(), just return it.
+      value = System.getProperties().getProperty(key);
 
-    List<String> postfixes = getPostfixes();
-    Map<String, ResourceBundle> rbMap = new HashMap<>();
-
-    // 初回のみResourceBundleデータを取得
-    for (int i = 0; i < postfixes.size(); i++) {
-      String postfix = postfixes.get(i);
-      String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
-
-      ResourceBundle bundle = getResourceBundle(filename, locale);
-      rbMap.put(filename, bundle);
-
-      // msgの場合は追加でファイル読み込み
-      if (kind == PropertyFileUtilFileKindEnum.MSG) {
-        filename = "ValidationMessages";
-        rbMap.put(filename, getResourceBundle(filename, locale));
-      }
-    }
-
-    // 複数bundle間でのkey重複チェックと取得
-    String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
-    String valueDefault = getValueAndDuplicationCheck(rbMap, key + ".default");
-
-    String value = valueNonDefault == null ? valueDefault : valueNonDefault;
-
-    // Key existence check. non-existence causes throw RuntimeSystemException.
-    if (value == null) {
-      // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
-      // 失敗したときはRuntimeExceptionとしておく
-      throw new RuntimeSystemException("No key in .properties. key: " + key);
+    } else {
+      value = getValueFromPropertiesFiles(locale, key);
     }
 
     // analyzes messageString
@@ -218,6 +197,50 @@ public class PropertyFileUtilValueGetter {
     }
 
     return sb.toString();
+  }
+
+  /*
+   * Obtains value from key and locale by reading multiple properties files 
+   *     with prefixes and postfixes of the filename.
+   * 
+   * <p>キーの重複定義チェックもここで行う。</p>
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   */
+  private String getValueFromPropertiesFiles(Locale locale, String key) {
+    String value;
+    // Search the key in properties files.
+    List<String> postfixes = getPostfixes();
+    Map<String, ResourceBundle> rbMap = new HashMap<>();
+
+    for (int i = 0; i < postfixes.size(); i++) {
+      String postfix = postfixes.get(i);
+      String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
+
+      ResourceBundle bundle = getResourceBundle(filename, locale);
+      rbMap.put(filename, bundle);
+
+      // msgの場合は追加でファイル読み込み
+      if (kind == PropertyFileUtilFileKindEnum.MSG) {
+        filename = "ValidationMessages";
+        rbMap.put(filename, getResourceBundle(filename, locale));
+      }
+    }
+
+    String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
+    String valueDefault = getValueAndDuplicationCheck(rbMap, key + ".default");
+
+    value = valueNonDefault == null ? valueDefault : valueNonDefault;
+
+    // Key existence check. non-existence causes throw RuntimeSystemException.
+    if (value == null) {
+      // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
+      // 失敗したときはRuntimeExceptionとしておく
+      throw new RuntimeSystemException("No key in .properties. key: " + key);
+    }
+    return value;
   }
 
   /**
@@ -359,7 +382,7 @@ public class PropertyFileUtilValueGetter {
     Objects.requireNonNull(key);
 
     try {
-      readPropFile(null, key);
+      getValue(null, key);
       return true;
 
     } catch (RuntimeSystemException ex) {
@@ -381,6 +404,7 @@ public class PropertyFileUtilValueGetter {
    *     which means no {@code Locale} specified.
    * @param key the key of the property
    */
+  @Nonnull
   public String getProp(@Nullable Locale locale, @RequireNonnull String key) {
     ObjectsUtil.paramRequireNonNull(key);
 
@@ -389,15 +413,6 @@ public class PropertyFileUtilValueGetter {
       throw new RuntimeSystemException("Message ID is blank.");
     }
 
-    // 値を取得
-    String str = readPropFile(locale, key);
-
-    // keyを渡して値を返す
-    return str;
-  }
-
-  /* 結局一行で書けるのだがちょっとwrapして書く量を減らした^^;。 */
-  public boolean isOverrided(@RequireNonnull String key) {
-    return System.getProperties().keySet().contains(key);
+    return getValue(locale, key);
   }
 }
