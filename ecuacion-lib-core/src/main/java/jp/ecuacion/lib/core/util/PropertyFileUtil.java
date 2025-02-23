@@ -435,7 +435,7 @@ public class PropertyFileUtil {
       Map<String, String> argMap) {
     String rtnMessage = message;
     for (Entry<String, String> entry : argMap.entrySet()) {
-      rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue());
+      rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue());
     }
 
     return rtnMessage;
