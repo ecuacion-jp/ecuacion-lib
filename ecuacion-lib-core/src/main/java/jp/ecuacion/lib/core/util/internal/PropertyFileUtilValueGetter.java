@@ -116,7 +116,6 @@ public class PropertyFileUtilValueGetter {
    * @param fileKindEnum fileKindEnum
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
-
     this.kind = ObjectsUtil.paramRequireNonNull(fileKindEnum);
     this.filePrefix = fileKindEnum.getFilePrefix();
   }
@@ -221,12 +220,6 @@ public class PropertyFileUtilValueGetter {
 
       ResourceBundle bundle = getResourceBundle(filename, locale);
       rbMap.put(filename, bundle);
-
-      // msgの場合は追加でファイル読み込み
-      if (kind == PropertyFileUtilFileKindEnum.MSG) {
-        filename = "ValidationMessages";
-        rbMap.put(filename, getResourceBundle(filename, locale));
-      }
     }
 
     String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
