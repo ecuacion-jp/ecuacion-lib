@@ -182,13 +182,13 @@ public class PropertyFileUtilValueGetter {
       String postfix = postfixes.get(i);
       String filename = filePrefix + ((postfix.equals("")) ? "" : "_") + postfix;
 
-      ResourceBundle bundle = getOneResourceBundle(filename, locale);
+      ResourceBundle bundle = getResourceBundle(filename, locale);
       rbMapForModule.put(filename, bundle);
 
       // msgの場合は追加でファイル読み込み
       if (kind == PropertyFileUtilFileKindEnum.MSG) {
         filename = "ValidationMessages";
-        rbMapForModule.put(filename, getOneResourceBundle(filename, locale));
+        rbMapForModule.put(filename, getResourceBundle(filename, locale));
       }
     }
 
@@ -222,6 +222,50 @@ public class PropertyFileUtilValueGetter {
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Reads a property file and returns its {@code ResourceBundle}.<br>
+   * Returns {@code null} when a resource bundle is not found.
+   * 
+   * @param bundleId resource bundle's bundle ID
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   */
+  @Nonnull
+  private ResourceBundle getResourceBundle(@RequireNonnull String bundleId,
+      @Nullable Locale locale) {
+
+    ObjectsUtil.paramRequireNonNull(bundleId);
+
+    if (locale == null) {
+      locale = Locale.ROOT;
+    }
+
+    // java 9 module system
+    try {
+      bundleNameForModule.set(bundleId);
+      specifiedLocale.set(locale);
+
+      String bundle = "jp.ecuacion.lib.core." + new StringUtil()
+          .getUpperCamelFromSnakeOrNullIfInputIsNull(bundleId.replaceAll("-", "_"));
+      return ResourceBundle.getBundle(bundle, locale);
+
+    } catch (MissingResourceException ex) {
+      // do nothing.
+    }
+
+    // non-module apps
+    try {
+
+      return ResourceBundle.getBundle(bundleId, locale,
+          ResourceBundle.Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+
+    } catch (MissingResourceException | UnsupportedOperationException e) {
+      // do nothing.
+    }
+
+    return null;
   }
 
   /**
@@ -294,48 +338,6 @@ public class PropertyFileUtilValueGetter {
     }
 
     return PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(stringInBrackets.split(":")[0]);
-  }
-
-  /**
-   * Reads a property file and returns the value to the key.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   */
-  @Nonnull
-  private ResourceBundle getOneResourceBundle(@RequireNonnull String filename,
-      @Nullable Locale locale) {
-
-    ObjectsUtil.paramRequireNonNull(filename);
-
-    if (locale == null) {
-      locale = Locale.ROOT;
-    }
-
-    // java 9 module system
-    try {
-      bundleNameForModule.set(filename);
-      specifiedLocale.set(locale);
-
-      String bundle = "jp.ecuacion.lib.core." + new StringUtil()
-          .getUpperCamelFromSnakeOrNullIfInputIsNull(filename.replaceAll("-", "_"));
-      return ResourceBundle.getBundle(bundle, locale);
-
-    } catch (MissingResourceException ex) {
-      // do nothing.
-    }
-
-    // non-module apps
-    try {
-
-      return ResourceBundle.getBundle(filename, locale,
-          ResourceBundle.Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-
-    } catch (MissingResourceException | UnsupportedOperationException e) {
-      // do nothing.
-    }
-
-    return null;
   }
 
   /*
