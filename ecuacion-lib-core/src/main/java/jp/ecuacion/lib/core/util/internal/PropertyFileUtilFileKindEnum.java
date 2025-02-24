@@ -56,8 +56,8 @@ public enum PropertyFileUtilFileKindEnum {
   VALIDATION_MESSAGES("ValidationMessages", new String[][] {new String[] {"ValidationMessages"}}),
 
   /** ValidationMessagsWithField */
-  VALIDATION_MESSAGES_WITH_FIELD("ValidationMessagesWithField", new String[][] {
-      new String[] {"ValidationMessagesWithField"}, new String[] {"ValidationMessages"}});
+  VALIDATION_MESSAGES_WITH_ITEM_NAMES("ValidationMessagesWithItemNames", new String[][] {
+      new String[] {"ValidationMessagesWithItemNames"}, new String[] {"ValidationMessages"}});
 
   private String filePrefix;
   private String[][] actualFilePrefixes;

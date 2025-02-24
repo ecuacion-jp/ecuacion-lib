@@ -71,6 +71,23 @@ public class BeanValidationUtil {
   }
 
   /**
+   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * 
+   * <p>{@code ValidationMessagesWithItemNames.properties} is preferentially used.</p>
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @throws MultipleAppException MultipleAppException
+   */
+  public <T> void validateThenThrowShowingMessagesWithItemNames(@RequireNonnull T object)
+      throws MultipleAppException {
+    MultipleAppException exList = validateThenReturnShowingMessagesWithItemNames(object);
+    if (exList != null && exList.getList().size() > 0) {
+      throw exList;
+    }
+  }
+
+  /**
    * Validates and returns {@code MultipleAppException} if validation errors exist.
    * 
    * @param <T> any class
@@ -79,8 +96,9 @@ public class BeanValidationUtil {
    */
   @Nullable
   public <T> MultipleAppException validateThenReturn(@RequireNonnull T object) {
-    return validateThenReturn(object, Locale.getDefault());
+    return validateThenReturn(object, Locale.ROOT);
   }
+
 
   /**
    * Validates and returns {@code MultipleAppException} if validation errors exist.
@@ -94,13 +112,28 @@ public class BeanValidationUtil {
   @Nullable
   public <T> MultipleAppException validateThenReturn(@RequireNonnull T object,
       @Nullable Locale locale) {
+    return validateThenReturn(object, locale, false);
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nullable
+  private <T> MultipleAppException validateThenReturn(@RequireNonnull T object,
+      @Nullable Locale locale, boolean isMessageWithItemName) {
     Set<ConstraintViolation<T>> set = validate(object, locale);
 
     MultipleAppException exList = null;
     if (set != null && set.size() > 0) {
       List<SingleAppException> list = new ArrayList<>();
       for (ConstraintViolation<T> v : set) {
-        list.add(new BeanValidationAppException(v));
+        list.add(new BeanValidationAppException(v).setMessageWithItemName(isMessageWithItemName));
       }
 
       exList = new MultipleAppException(list);
@@ -110,6 +143,21 @@ public class BeanValidationUtil {
     }
 
     return exList;
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * <p>{@code ValidationMessagesWithItemNames.properties} is preferentially used.</p>
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @return MultipleAppException
+   */
+  @Nullable
+  public <T> MultipleAppException validateThenReturnShowingMessagesWithItemNames(
+      @RequireNonnull T object) {
+    return validateThenReturn(object, Locale.ROOT, true);
   }
 
   /**
@@ -129,7 +177,6 @@ public class BeanValidationUtil {
     ObjectsUtil.paramRequireNonNull(object);
     locale = (locale == null) ? Locale.getDefault() : locale;
 
-    // Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     Validator validator = validatorCache.computeIfAbsent(locale,
         (keyLocale) -> Validation.byDefaultProvider().configure()
             .messageInterpolator(new LocaleSpecifiedMessageInterpolator(keyLocale))

@@ -123,7 +123,7 @@ public class ExceptionUtil {
 
       } else if (th instanceof BeanValidationAppException) {
         BeanValidationAppException ex = (BeanValidationAppException) th;
-
+        
         String message = null;
         try {
           BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
@@ -131,9 +131,9 @@ public class ExceptionUtil {
               .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
 
-          message = bean.messageWithField()
-              ? PropertyFileUtil.getValidationMessageWithField(locale, bean.getMessageTemplate(),
-                  map)
+          message = ex.isMessageWithItemName()
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale,
+                  bean.getMessageTemplate(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
 
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
