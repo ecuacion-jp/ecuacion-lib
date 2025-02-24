@@ -20,10 +20,13 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.exception.checked.AppException;
@@ -123,12 +126,18 @@ public class ExceptionUtil {
 
         String message = null;
         try {
+          BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+          Map<String, String> map = bean.getParamMap().entrySet().stream()
+              .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
+              .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+
+          message = bean.messageWithField()
+              ? PropertyFileUtil.getValidationMessageWithField(locale, bean.getMessageTemplate(),
+                  map)
+              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
+
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
           // messageに {0} があったら entity.field に置き換える
-          // ResourceBundle bundle = ResourceBundle.getBundle("ValidationMessages", locale);
-          // message = bundle.getString(ex.getMessageTemplate());
-          BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
-          message = bean.getMessage();
           if (message.contains("{0}")) {
             String className =
                 bean.getRootClassName().substring(bean.getRootClassName().lastIndexOf(".") + 1);

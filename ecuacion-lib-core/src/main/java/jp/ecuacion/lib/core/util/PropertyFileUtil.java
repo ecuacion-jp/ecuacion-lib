@@ -177,10 +177,9 @@ public class PropertyFileUtil {
       new HashMap<>();
 
   static {
-    getterMap.put(APP, new PropertyFileUtilValueGetter(APP));
-    getterMap.put(MSG, new PropertyFileUtilValueGetter(MSG));
-    getterMap.put(ITEM_NAME, new PropertyFileUtilValueGetter(ITEM_NAME));
-    getterMap.put(ENUM_NAME, new PropertyFileUtilValueGetter(ENUM_NAME));
+    for (PropertyFileUtilFileKindEnum anEnum : PropertyFileUtilFileKindEnum.values()) {
+      getterMap.put(anEnum, new PropertyFileUtilValueGetter(anEnum));
+    }
   }
 
   /** Does not construct an instance.  */
