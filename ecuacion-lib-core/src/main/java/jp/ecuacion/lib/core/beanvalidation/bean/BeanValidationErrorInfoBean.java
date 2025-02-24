@@ -40,8 +40,6 @@ public class BeanValidationErrorInfoBean {
   @Nonnull
   private Map<String, Object> paramMap;
 
-  private boolean isMessageWithField;
-
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
    * 
@@ -204,24 +202,5 @@ public class BeanValidationErrorInfoBean {
   @Nonnull
   public Map<String, Object> getParamMap() {
     return paramMap;
-  }
-
-  /**
-   * Sets {@code isMessageWithField = true} and returns this for method chain.
-   * 
-   * @return BeanValidationErrorInfoBean;
-   */
-  public BeanValidationErrorInfoBean mssageWithField() {
-    this.isMessageWithField = true;
-    return this;
-  }
-
-  /**
-   * Obtains {@code messageWithField}.
-   * 
-   * @return boolean
-   */
-  public boolean messageWithField() {
-    return isMessageWithField;
   }
 }

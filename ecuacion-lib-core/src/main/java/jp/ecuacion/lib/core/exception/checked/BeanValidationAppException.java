@@ -28,6 +28,8 @@ public class BeanValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
   private BeanValidationErrorInfoBean bean;
+  
+  private boolean isMessageWithItemName;
 
   /**
    * Constructs a new instance with bean validation violation.
@@ -72,5 +74,24 @@ public class BeanValidationAppException extends SingleAppException {
         + "rootClassName:" + bean.getRootClassName() + "\n" + "leafClassName:"
         + bean.getLeafClassName() + "\n" + "propertyPath:" + bean.getPropertyPath() + "\n"
         + "invalidValue:" + bean.getInvalidValue();
+  }
+
+  /**
+   * Sets {@code isMessageWithItemName = true} and returns this for method chain.
+   * 
+   * @return BeanValidationErrorInfoBean;
+   */
+  public BeanValidationAppException setMessageWithItemName(boolean isMessageWithItemName) {
+    this.isMessageWithItemName = isMessageWithItemName;
+    return this;
+  }
+
+  /**
+   * Obtains {@code isMessageWithItemName}.
+   * 
+   * @return boolean
+   */
+  public boolean isMessageWithItemName() {
+    return isMessageWithItemName;
   }
 }
