@@ -183,11 +183,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Assertions.assertThat(exNotNull == null).isFalse();
     Objects.requireNonNull(exNotNull);
     Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("null は許可されていません");
+        .isEqualTo("must not be null");
 
     Assertions.assertThat(exMin == null).isFalse();
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("3 以上の値にしてください");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -385,12 +385,12 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Assertions.assertThat(exNotNull == null).isFalse();
     Objects.requireNonNull(exNotNull);
     Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("null は許可されていません");
+        .isEqualTo("must not be null");
 
     Assertions.assertThat(exMin == null).isFalse();
     Objects.requireNonNull(exMin);
     Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("3 以上の値にしてください");
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   public static class SampleObj {
