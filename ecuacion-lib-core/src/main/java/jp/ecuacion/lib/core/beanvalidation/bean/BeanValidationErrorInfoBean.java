@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.beanvalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.util.HashMap;
 import java.util.Map;
 
 /** 
@@ -35,8 +36,11 @@ public class BeanValidationErrorInfoBean {
   private String leafClassName;
   private String invalidValue;
   private Object instance;
-  
+
+  @Nonnull
   private Map<String, Object> paramMap;
+
+  private boolean isMessageWithField;
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -61,8 +65,9 @@ public class BeanValidationErrorInfoBean {
     this.leafClassName = cv.getLeafBean().getClass().getName();
     this.invalidValue = (cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
     this.instance = cv.getLeafBean();
-    
-    this.paramMap = cv.getConstraintDescriptor().getAttributes();
+
+    this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
+        : cv.getConstraintDescriptor().getAttributes();
   }
 
   /**
@@ -81,6 +86,8 @@ public class BeanValidationErrorInfoBean {
     this.propertyPath = propertyPath;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
+    this.messageTemplate = validatorClass + ".message";
+    this.paramMap = new HashMap<>();
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
     annotationDescriptionString = "";
@@ -193,8 +200,28 @@ public class BeanValidationErrorInfoBean {
   public Object getInstance() {
     return instance;
   }
-  
+
+  @Nonnull
   public Map<String, Object> getParamMap() {
     return paramMap;
+  }
+
+  /**
+   * Sets {@code isMessageWithField = true} and returns this for method chain.
+   * 
+   * @return BeanValidationErrorInfoBean;
+   */
+  public BeanValidationErrorInfoBean mssageWithField() {
+    this.isMessageWithField = true;
+    return this;
+  }
+
+  /**
+   * Obtains {@code messageWithField}.
+   * 
+   * @return boolean
+   */
+  public boolean messageWithField() {
+    return isMessageWithField;
   }
 }
