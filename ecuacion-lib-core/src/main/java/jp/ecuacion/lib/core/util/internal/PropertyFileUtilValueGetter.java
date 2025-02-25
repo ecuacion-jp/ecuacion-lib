@@ -204,7 +204,7 @@ public class PropertyFileUtilValueGetter {
     // The program reaches here means key not exist in properties files.
     // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
     // 失敗したときはRuntimeExceptionとしておく
-    throw new RuntimeSystemException("No key in .properties. key: " + key);
+    throw new NoKeyInPropertiesFileException("No key in .properties. key: " + key);
   }
 
   /*
@@ -381,7 +381,7 @@ public class PropertyFileUtilValueGetter {
       getValue(null, key);
       return true;
 
-    } catch (RuntimeSystemException ex) {
+    } catch (NoKeyInPropertiesFileException ex) {
       return false;
     }
   }
@@ -410,5 +410,14 @@ public class PropertyFileUtilValueGetter {
     }
 
     return getValue(locale, key);
+  }
+
+  private static class NoKeyInPropertiesFileException extends RuntimeSystemException {
+
+    private static final long serialVersionUID = 1L;
+
+    public NoKeyInPropertiesFileException(String message) {
+      super(message);
+    }
   }
 }
