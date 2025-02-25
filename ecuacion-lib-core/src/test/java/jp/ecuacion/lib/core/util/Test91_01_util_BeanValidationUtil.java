@@ -40,7 +40,7 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
   @Test
   public void test11_validateThenReturn_01_object_locale_01_objectがnull() {
     try {
-      util.validateThenReturn(null, Locale.getDefault());
+      util.validateThenReturn(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -49,48 +49,8 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
   }
 
   @Test
-  public void test11_validateThenReturn_01_object_locale_02_localeがnull() {
-    try {
-      util.validateThenReturn(new SampleObj(), null);
-
-    } catch (NullPointerException npe) {
-      fail();
-    }
-  }
-
-  @Test
-  public void test11_validateThenReturn_01_object_locale_03_正常() {
-    MultipleAppException exList = util.validateThenReturn(new SampleObj(), Locale.ENGLISH);
-
-    Assertions.assertThat(exList.getList().size()).isEqualTo(2);
-    // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
-    for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
-      if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
-        exNotNull = bvEx;
-
-      } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
-        exMin = bvEx;
-      }
-    }
-
-    Assertions.assertThat(exNotNull == null).isFalse();
-    Objects.requireNonNull(exNotNull);
-    Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("must not be null");
-
-    Assertions.assertThat(exMin == null).isFalse();
-    Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("must be greater than or equal to 3");
-  }
-
-  @Test
   public void test11_validateThenReturn_01_object_locale_11_locale指定() {
-    MultipleAppException exList = util.validateThenReturn(new SampleObj(), Locale.JAPANESE);
+    MultipleAppException exList = util.validateThenReturn(new SampleObj());
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
@@ -162,7 +122,6 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
 
   @Test
   public void test11_validateThenReturn_02_object_11_defaultLocaleを指定() {
-    Locale.setDefault(Locale.JAPANESE);
     MultipleAppException exList = util.validateThenReturn(new SampleObj());
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
@@ -191,33 +150,10 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
   }
 
   @Test
-  public void test21_validateThenThrow_01_object_locale_01_objectがnull()
-      throws MultipleAppException {
-    try {
-      util.validateThenThrow(null, Locale.getDefault());
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test21_validateThenThrow_01_object_locale_02_localeがnull()
-      throws MultipleAppException {
-    try {
-      util.validateThenThrow(new SampleObj(), null);
-
-    } catch (MultipleAppException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
   public void test21_validateThenThrow_01_object_locale_03_正常() {
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj(), Locale.ENGLISH);
+      util.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
@@ -259,7 +195,7 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
   public void test21_validateThenThrow_01_object_locale_11_locale指定() {
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj(), Locale.JAPANESE);
+      util.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
@@ -289,11 +225,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Assertions.assertThat(exNotNull == null).isFalse();
     Objects.requireNonNull(exNotNull);
     Assertions.assertThat(exNotNull.getBeanValidationErrorInfoBean().getMessage())
-        .isEqualTo("null は許可されていません");
+        .isEqualTo("must not be null");
 
     Assertions.assertThat(exMin == null).isFalse();
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("3 以上の値にしてください");
+    Assertions.assertThat(exMin.getBeanValidationErrorInfoBean().getMessage()).isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -352,7 +288,6 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
 
   @Test
   public void test21_validateThenThrow_02_object_11_defaultLocaleを指定() {
-    Locale.setDefault(Locale.JAPANESE);
     MultipleAppException exList = null;
     try {
       util.validateThenThrow(new SampleObj());

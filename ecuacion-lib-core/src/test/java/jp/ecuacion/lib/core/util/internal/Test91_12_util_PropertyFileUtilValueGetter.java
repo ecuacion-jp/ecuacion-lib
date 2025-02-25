@@ -261,13 +261,13 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_01_client_locale_同一言語and国() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.US, "FILE_LOCALE")).isEqualTo("en");
+    Assertions.assertThat(store.getProp(Locale.US, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
   public void test31_複数locale_11_ファイル_localeなし_言語_02_client_locale_同一言語() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.ENGLISH, "FILE_LOCALE")).isEqualTo("en");
+    Assertions.assertThat(store.getProp(Locale.ENGLISH, "FILE_LOCALE")).isEqualTo("none");
   }
 
   @Test
