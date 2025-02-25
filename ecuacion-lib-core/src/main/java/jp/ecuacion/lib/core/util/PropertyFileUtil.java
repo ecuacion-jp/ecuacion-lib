@@ -310,7 +310,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getMessage(@RequireNonnull String key, @RequireNonnull String... args) {
-    return getMsg(null, key, args);
+    return getMessage(null, key, args);
   }
 
   /**
@@ -366,10 +366,10 @@ public class PropertyFileUtil {
     final List<String> list = new ArrayList<>();
     Arrays.asList(args).stream()
         .forEach(arg -> list
-            .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getString(), arg.messageArgs)
-                : arg.getString()));
+            .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getArgString(), arg.messageArgs)
+                : arg.getArgString()));
 
-    return getMsg(locale, key, list.toArray(new String[list.size()]));
+    return getMessage(locale, key, list.toArray(new String[list.size()]));
   }
 
   /**
@@ -600,7 +600,7 @@ public class PropertyFileUtil {
 
   /**
    * Is considered as an argument string, but you can set message ID replaced to message string 
-   * with {@code PropertyFileUtil.getMsg(String)}.
+   * with {@code PropertyFileUtil.getMessage(String)}.
    * 
    * <p>In UI application like web, 
    *     usually {@code "throw new AppException"} part does not care about the {@code locale}.
@@ -609,31 +609,37 @@ public class PropertyFileUtil {
    *     when you put message obtained from {@code PropertyFileUtil.getMsg(...)} 
    *     into the argument of {@code AppException}.<br><br>
    *     That's why this is needed.</p>
+   * 
+   * <p>Usually message argument is like {@code {0}, {1}, ...} 
+   *     but {@BeanValidation} message argument is like {@code {value}, {min}, ...}
+   *     so it supports both of them. 
+   *     When you want to use the former format you need to set value to {@code messageArgs},
+   *     the latter {@code messageArgMap}.
    */
   public static class Arg {
     private boolean isMessageId;
-    private String string;
+    private String argString;
     private Arg[] messageArgs;
 
     /**
      * Constructs a new instance of normal string.
      * 
-     * @param argument normal string
+     * @param argString normal string
      * @return Arg
      */
-    public static Arg string(String argument) {
-      return new Arg(false, argument);
+    public static Arg string(String argString) {
+      return new Arg(false, argString);
     }
 
     /**
      * Constructs an array of new instances of normal string.
      * 
-     * @param arguments an array of normal string
+     * @param argStrings an array of normal string
      * @return Arg[]
      */
-    public static Arg[] strings(String... arguments) {
-      return Arrays.asList(arguments).stream().map(arg -> Arg.string(arg)).toList()
-          .toArray(new Arg[arguments.length]);
+    public static Arg[] strings(String... argStrings) {
+      return Arrays.asList(argStrings).stream().map(arg -> Arg.string(arg)).toList()
+          .toArray(new Arg[argStrings.length]);
     }
 
     /**
@@ -650,16 +656,16 @@ public class PropertyFileUtil {
     /**
      * Constructs a new instance considered as a normal string.
      * 
-     * @param argument argument
+     * @param argString argument
      */
-    private Arg(boolean isMessageId, String argumentString, Arg... messageArgs) {
-      this.string = argumentString;
+    private Arg(boolean isMessageId, String argString, Arg... messageArgs) {
       this.isMessageId = isMessageId;
+      this.argString = argString;
       this.messageArgs = messageArgs;
     }
 
-    public String getString() {
-      return string;
+    public String getArgString() {
+      return argString;
     }
 
     public boolean isMessageId() {
