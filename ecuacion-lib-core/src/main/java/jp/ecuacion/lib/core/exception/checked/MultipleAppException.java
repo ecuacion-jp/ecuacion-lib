@@ -65,6 +65,14 @@ public class MultipleAppException extends AppException {
     this.exceptionList = internalList;
   }
 
+  @Override
+  public String getMessage() {
+    StringBuilder sb = new StringBuilder();
+    exceptionList.stream().forEach(ex -> sb.append(ex.getMessage()));
+
+    return sb.toString();
+  }
+
   /** 
    * Returns a list of {@code SingleAppException}.
    * 
