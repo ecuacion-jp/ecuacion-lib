@@ -16,8 +16,8 @@
 package jp.ecuacion.lib.core.exception.unchecked;
 
 import jakarta.annotation.Nonnull;
-import java.util.Locale;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
  * Is used when you want to throw RuntimeException, but message is deifned in .properties.
@@ -32,18 +32,7 @@ public class RuntimeExceptionWithMessageId extends RuntimeException {
 
   private String messageId;
 
-  private @Nonnull String[] messageArgs;
-
-  private @Nonnull Locale locale;
-
-  /**
-   * Constructs a new instance with {@code messageId}.
-   * 
-   * @param messageId message ID
-   */
-  public RuntimeExceptionWithMessageId(@Nonnull String messageId) {
-    this(messageId, new String[] {});
-  }
+  private @Nonnull Arg[] messageArgs;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -52,34 +41,24 @@ public class RuntimeExceptionWithMessageId extends RuntimeException {
    * @param messageArgs message Arguments
    */
   public RuntimeExceptionWithMessageId(@Nonnull String messageId, @Nonnull String... messageArgs) {
-    this(Locale.getDefault(), messageId, messageArgs);
+    this(messageId, Arg.strings(messageArgs));
   }
 
 
   /**
-   * Constructs a new instance with {@code locale} and {@code messageId}.
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    * 
-   * @param locale locale
-   * @param messageId message ID
-   */
-  public RuntimeExceptionWithMessageId(@Nonnull Locale locale, @Nonnull String messageId) {
-    this(locale, messageId, new String[] {});
-  }
-
-  /**
-   * Constructs a new instance with {@code locale}, {@code messageId} and {@code messageArgs}.
-   * 
-   * @param locale locale
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public RuntimeExceptionWithMessageId(@Nonnull Locale locale, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
-    super();
-
-    this.locale = ObjectsUtil.paramRequireNonNull(locale);
-    this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
-    this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
+  public RuntimeExceptionWithMessageId(@Nonnull String messageId, @Nonnull Arg[] messageArgs) {
+    this.messageId = messageId;
+    this.messageArgs = messageArgs;
+  }
+  
+  @Override
+  public String getMessage() {
+    return PropertyFileUtil.getMessage(messageId, messageArgs);
   }
 
   /**
@@ -92,20 +71,11 @@ public class RuntimeExceptionWithMessageId extends RuntimeException {
   }
 
   /**
-   * Gets locale.
-   * 
-   * @return locale
-   */
-  public @Nonnull Locale getLocale() {
-    return locale;
-  }
-
-  /**
    * Gets messageArgs.
    * 
    * @return message Arguments
    */
-  public @Nonnull String[] getMessageArgs() {
-    return messageArgs == null ? new String[] {} : messageArgs.clone();
+  public @Nonnull Arg[] getMessageArgs() {
+    return messageArgs == null ? new Arg[] {} : messageArgs.clone();
   }
 }

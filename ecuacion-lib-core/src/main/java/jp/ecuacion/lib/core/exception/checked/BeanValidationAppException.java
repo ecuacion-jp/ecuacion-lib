@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintViolation;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
  * Holds a bean validations violation.
@@ -31,13 +32,17 @@ public class BeanValidationAppException extends SingleAppException {
   
   private boolean isMessageWithItemName;
 
+  private Arg messagePrefix;
+  
+  private Arg messagePostfix;
+
   /**
    * Constructs a new instance with bean validation violation.
    *
    * @param violation violation result
    */
   public BeanValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
-    super();
+    super(violation.getMessage());
     this.bean = new BeanValidationErrorInfoBean(ObjectsUtil.paramRequireNonNull(violation));
   }
 
@@ -77,7 +82,16 @@ public class BeanValidationAppException extends SingleAppException {
   }
 
   /**
-   * Sets {@code isMessageWithItemName = true} and returns this for method chain.
+   * Obtains {@code isMessageWithItemName}.
+   * 
+   * @return boolean
+   */
+  public boolean isMessageWithItemName() {
+    return isMessageWithItemName;
+  }
+
+  /**
+   * Sets {@code isMessageWithItemName} and returns this for method chain.
    * 
    * @return BeanValidationErrorInfoBean;
    */
@@ -85,13 +99,32 @@ public class BeanValidationAppException extends SingleAppException {
     this.isMessageWithItemName = isMessageWithItemName;
     return this;
   }
+  
+  public Arg getMessagePrefix() {
+    return messagePrefix;
+  }
 
   /**
-   * Obtains {@code isMessageWithItemName}.
+   * Sets {@code messagePrefix} and returns this for method chain.
    * 
-   * @return boolean
+   * @return BeanValidationErrorInfoBean;
    */
-  public boolean isMessageWithItemName() {
-    return isMessageWithItemName;
+  public BeanValidationAppException setMessagePrefix(Arg messagePrefix) {
+    this.messagePrefix = messagePrefix;
+    return this;
+  }
+
+  /**
+   * Sets {@code messagePostfix} and returns this for method chain.
+   * 
+   * @return BeanValidationErrorInfoBean;
+   */
+
+  public Arg getMessagePostfix() {
+    return messagePostfix;
+  }
+
+  public void setMessagePostfix(Arg messagePostfix) {
+    this.messagePostfix = messagePostfix;
   }
 }

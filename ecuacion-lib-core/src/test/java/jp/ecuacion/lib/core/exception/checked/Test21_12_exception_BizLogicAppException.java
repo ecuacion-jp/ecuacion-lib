@@ -74,7 +74,7 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(1);
-    Assertions.assertThat(ex.getMessageArgs()[0].getString()).isEqualTo("abc");
+    Assertions.assertThat(ex.getMessageArgs()[0].getArgString()).isEqualTo("abc");
   }
 
   @Test

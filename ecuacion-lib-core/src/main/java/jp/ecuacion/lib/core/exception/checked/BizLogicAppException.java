@@ -87,14 +87,14 @@ public class BizLogicAppException extends SingleAppException {
    */
   public BizLogicAppException(@Nullable AppExceptionFields fields, @RequireNonnull String messageId,
       @RequireNonnull Arg[] messageArgs) {
-
-    // set message with default locale to show the message in stack trace
-    // for users who don't use ecuacion-xxlib exception handler.
-    super(PropertyFileUtil.getMsg(messageId));
-
     this.fields = fields;
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = messageArgs;
+  }
+  
+  @Override
+  public String getMessage() {
+    return PropertyFileUtil.getMessage(messageId, messageArgs);
   }
 
   /**
