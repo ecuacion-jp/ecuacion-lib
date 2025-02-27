@@ -611,7 +611,7 @@ public class PropertyFileUtil {
    *     That's why this is needed.</p>
    * 
    * <p>Usually message argument is like {@code {0}, {1}, ...} 
-   *     but {@BeanValidation} message argument is like {@code {value}, {min}, ...}
+   *     but {@code BeanValidation} message argument is like {@code {value}, {min}, ...}
    *     so it supports both of them. 
    *     When you want to use the former format you need to set value to {@code messageArgs},
    *     the latter {@code messageArgMap}.
