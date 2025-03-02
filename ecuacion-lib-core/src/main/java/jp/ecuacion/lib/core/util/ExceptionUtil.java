@@ -123,7 +123,7 @@ public class ExceptionUtil {
 
       } else if (th instanceof BeanValidationAppException) {
         BeanValidationAppException ex = (BeanValidationAppException) th;
-        
+
         String message = null;
         try {
           BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
@@ -132,8 +132,8 @@ public class ExceptionUtil {
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
 
           message = ex.isMessageWithItemName()
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale,
-                  bean.getMessageTemplate(), map)
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
+                  map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
 
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
@@ -243,7 +243,12 @@ public class ExceptionUtil {
 
     for (Throwable th : serializeExceptions(throwable)) {
 
-      if (th instanceof RuntimeAppException) {
+      if (th instanceof MultipleAppException) {
+        // MultipleAppException changed to have its message but it's ignored
+        // because it's obtained from SingleAppExceptions which it carries.
+        continue;
+
+      } else if (th instanceof RuntimeAppException) {
         rtnList.add(((RuntimeAppException) th).getCause());
 
       } else if (th instanceof SingleAppException || th instanceof RuntimeExceptionWithMessageId
