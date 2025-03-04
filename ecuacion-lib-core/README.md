@@ -6,14 +6,14 @@
 It also provides some utilities used for other modules.  
 This is the base library which is used by other ecuacion apps and libraries.  
 
-The following public library is introduced by default. (Basically the usage of apache-commons-xxx is preferable.)
-
-- apache-commons-lang
-- apache-commons-exec (@Deprecated. It will be removed in the future release)
-
 ## System Requirements
 
 - JDK 21 or above.
+
+## dependent external libraries
+
+- `apache-commons-lang`
+- `apache-commons-exec` (@Deprecated. It will be removed in the future release)
 
 ## Documentation
 
@@ -21,7 +21,7 @@ The following public library is introduced by default. (Basically the usage of a
 
 ## introduction
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page.  
+Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page in `ecuacion-lib`.  
 dependency description is as follows.
 
 ```xml
