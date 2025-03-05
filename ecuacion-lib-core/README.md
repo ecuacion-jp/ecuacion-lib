@@ -2,18 +2,33 @@
 
 ## What is it?
 
-`ecuacion-lib-core` provides utilities for jakarta bean-validation.
-It also provides some utilities used for other modules.  
+`ecuacion-lib-core` provides utilities for jakarta Bean Validation.
+It also provides some utilities used by other ecuacion modules.  
 This is the base library which is used by other ecuacion apps and libraries.  
-
-The following public library is introduced by default. (Basically the usage of apache-commons-xxx is preferable.)
-
-- apache-commons-lang
-- apache-commons-exec (@Deprecated. It will be removed in the future release)
 
 ## System Requirements
 
 - JDK 21 or above.
+
+## Dependent Ecuacion Libraries
+
+(none)
+
+## Dependent External Libraries
+
+### Automatically Loaded Libraries
+
+- `org.apache.commons:commons-lang3`
+- `org.apache.commons:commons-exec` (@Deprecated. It will be removed in the future release)
+
+### Manual Load Needed Libraries
+
+- `jakarta.validation:jakarta.validation-api`
+- (any `jakarta.validation:jakarta.validation-api` compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- `jakarta.annotation:jakarta.annotation-api`
+- `jakarta.mail:jakarta.mail-api`
+- `org.slf4j:slf4j-api`
+- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
 
 ## Documentation
 
@@ -21,8 +36,8 @@ The following public library is introduced by default. (Basically the usage of a
 
 ## introduction
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page.  
-dependency description is as follows.
+Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` in `ecuacion-lib`.  
+The description of dependent `ecuacion` modules is as follows.
 
 ```xml
 <dependency>

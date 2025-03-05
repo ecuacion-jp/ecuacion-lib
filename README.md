@@ -2,14 +2,11 @@
 
 ## What is it?
 
-`ecuacion-lib` provides utilities for jakarta bean-validation and jpa.
-It also provides some utilities used for other modules.  
-This is the base library which is used by other ecuacion apps and libraries.  
+`ecuacion-lib` provides utilities for jakarta Bean Validation and JPA.
+It also provides some utilities used by other ecuacion modules.  
+This is the base library which is used by other ecuacion libraries, utils and other apps.  
 
-The following public library is introduced by default. (Basically the usage of apache-commons-xxx is preferable.)
-
-- `apache-commons-lang`
-- `apache-commons-exec` (@Deprecated. It will be removed in the future release)
+`ecuacion-lib` and other ecuacion libraries, utils and apps are fully dependent on `jakarta EE`. `jakarta EE 10` is used to have compatibility with `spring boot 3` in `ecuacion-splib`.
 
 ## System Requirements
 
@@ -17,11 +14,11 @@ The following public library is introduced by default. (Basically the usage of a
 
 ## Documentation
 
-- [javadoc](https://javadoc.ecuacion.jp/apidocs/)
+(See `Documentation` part of the `README` in each module)
 
 ## Introduction
 
-1. Put the following tags to your `pom.xml` (put `<repositories>` tag as a child tag of `project`).
+1. Put the following tags to your `pom.xml` (put `<repositories>` tag as a child tag of `<project>` tag).
 
     ```xml
     <repositories> 
@@ -33,8 +30,8 @@ The following public library is introduced by default. (Basically the usage of a
     </repositories>
     ```
 
-1. Add maven dependency to your `pom.xml`.  
-   (This is the example of `ecuacion-lib-core` module. Check the page of the module you want to add to your project in detail.)
+2. Add dependent `ecuacion` modules to your `pom.xml`.  
+   (This is the example of `ecuacion-lib-core` module. Check `Introduction` part of `README` in the module you want to add to your project.)
 
     ```xml
     <dependency>
@@ -44,3 +41,6 @@ The following public library is introduced by default. (Basically the usage of a
 	    <version>x.x.x</version>
     </dependency>
     ```
+    
+3. Add dependent external modules to your `pom.xml`.  
+   (Check `Dependent External Libraries > Manual Load Needed Libraries` part of `README` in the module you want to add to your project.)
