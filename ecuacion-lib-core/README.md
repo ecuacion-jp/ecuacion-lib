@@ -24,7 +24,7 @@ This is the base library which is used by other ecuacion apps and libraries.
 ### Manual Load Needed Libraries
 
 - `jakarta.validation:jakarta.validation-api`
-- (any `jakarta.validation:jakarta.validation-api`) compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- (any `jakarta.validation:jakarta.validation-api` compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
 - `jakarta.annotation:jakarta.annotation-api`
 - `jakarta.mail:jakarta.mail-api`
 - `org.slf4j:slf4j-api`

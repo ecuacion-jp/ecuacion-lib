@@ -6,7 +6,7 @@
 It also provides some utilities used by other ecuacion modules.  
 This is the base library which is used by other ecuacion libraries, utils and other apps.  
 
-`ecuacion-lib` and other ecuacion libraries, utils and apps are fullyl dependent on `jakarta EE`. `jakarta EE 10` is used to have compatibility with `spring boot 3` in `ecuacion-splib`.
+`ecuacion-lib` and other ecuacion libraries, utils and apps are fully dependent on `jakarta EE`. `jakarta EE 10` is used to have compatibility with `spring boot 3` in `ecuacion-splib`.
 
 ## System Requirements
 
@@ -14,11 +14,11 @@ This is the base library which is used by other ecuacion libraries, utils and ot
 
 ## Documentation
 
-(See `Documentation` part of the `README.md` in each module)
+(See `Documentation` part of the `README` in each module)
 
 ## Introduction
 
-1. Put the following tags to your `pom.xml` (put `<repositories>` tag as a child tag of `project`).
+1. Put the following tags to your `pom.xml` (put `<repositories>` tag as a child tag of `<project>` tag).
 
     ```xml
     <repositories> 
