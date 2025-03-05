@@ -35,7 +35,7 @@ It offers customized entity class.
 - (any `jakarta.validation:jakarta.validation-api` compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
 - `jakarta.mail:jakarta.mail-api` (If you want to use the mail related utility: `jp.ecuacion.lib.core.util.MailUtil`)
 - `org.slf4j:slf4j-api`
-- (any logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
+- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is recommended.)
 
 ## Documentation
 
