@@ -2,21 +2,23 @@
 
 ## What is it?
 
-`ecuacion-lib` provides utilities for jakarta bean-validation and jpa.
-It also provides some utilities used for other modules.  
-This is the base library which is used by other ecuacion apps and libraries.  
+`ecuacion-lib` provides utilities for jakarta Bean Validation and JPA.
+It also provides some utilities used by other ecuacion modules.  
+This is the base library which is used by other ecuacion libraries and apps.  
 
 ## System Requirements
 
 - JDK 21 or above.
 
-## dependent external libraries
+## Dependent External Libraries
 
-Basically dependencies to `apache-commons-xxx` are preferable.
+(none)  
+
+\# Basically dependencies to `apache-commons` modules are preferable in ecuacion modules.
 
 ## Documentation
 
-- [javadoc](https://javadoc.ecuacion.jp/apidocs/)
+(See `Documentation` part of the `README.md` in each module)
 
 ## Introduction
 
@@ -32,8 +34,8 @@ Basically dependencies to `apache-commons-xxx` are preferable.
     </repositories>
     ```
 
-1. Add maven dependency to your `pom.xml`.  
-   (This is the example of `ecuacion-lib-core` module. Check the page of the module you want to add to your project in detail.)
+2. Add maven dependency to your `pom.xml`.  
+   (This is the example of `ecuacion-lib-core` module. Check the page of the module you want to add to your project.)
 
     ```xml
     <dependency>

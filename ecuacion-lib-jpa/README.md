@@ -2,16 +2,28 @@
 
 ## What is it?
 
-`ecuacion-lib-jpa` provides jpa-related classes.
-It offers customized entity class for jakarta persistence-api.
+`ecuacion-lib-jpa` provides JPA-related classes.
+It offers customized entity class.
 
 ## System Requirements
 
 - JDK 21 or above.
 
-## dependent external libraries
+## Dependent External Libraries
 
-- (none)
+### Automatically Loaded Libraries
+
+(none)
+
+### Manual Load Needed Libraries
+
+- `jakarta.annotation:jakarta.annotation-api`
+- `jakarta.persistence:jakarta.persistence-api`
+
+
+## Eependent Ecuacion Libraries (Automatically Loaded)
+
+- `ecuacion-lib-core`
 
 ## Documentation
 
