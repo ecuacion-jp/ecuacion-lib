@@ -34,7 +34,7 @@ This is the base library which is used by other ecuacion libraries and apps.
     </repositories>
     ```
 
-2. Add maven dependency to your `pom.xml`.  
+2. Add dependent `ecuacion` modules to your `pom.xml`.  
    (This is the example of `ecuacion-lib-core` module. Check the page of the module you want to add to your project.)
 
     ```xml
@@ -45,3 +45,6 @@ This is the base library which is used by other ecuacion libraries and apps.
 	    <version>x.x.x</version>
     </dependency>
     ```
+    
+3. Add dependent external modules to your `pom.xml`.  
+   (Check `Dependent External Libraries > Manual Load Needed Libraries` part of the page of the module you want to add to your project.)
