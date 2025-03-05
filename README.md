@@ -6,15 +6,11 @@
 It also provides some utilities used by other ecuacion modules.  
 This is the base library which is used by other ecuacion libraries, utils and other apps.  
 
+`ecuacion-lib` and other ecuacion libraries, utils and apps are fullyl dependent on `jakarta EE`. `jakarta EE 10` is used to have compatibility with `spring boot 3` in `ecuacion-splib`.
+
 ## System Requirements
 
 - JDK 21 or above.
-
-## Dependent External Libraries
-
-(none)  
-
-\# Basically dependencies to `apache-commons` modules are preferable in ecuacion modules.
 
 ## Documentation
 
@@ -35,7 +31,7 @@ This is the base library which is used by other ecuacion libraries, utils and ot
     ```
 
 2. Add dependent `ecuacion` modules to your `pom.xml`.  
-   (This is the example of `ecuacion-lib-core` module. Check `README` of the module you want to add to your project.)
+   (This is the example of `ecuacion-lib-core` module. Check `Introduction` part of `README` in the module you want to add to your project.)
 
     ```xml
     <dependency>
@@ -47,4 +43,4 @@ This is the base library which is used by other ecuacion libraries, utils and ot
     ```
     
 3. Add dependent external modules to your `pom.xml`.  
-   (Check `Dependent External Libraries > Manual Load Needed Libraries` part of `README` of the module you want to add to your project.)
+   (Check `Dependent External Libraries > Manual Load Needed Libraries` part of `README` in the module you want to add to your project.)

@@ -24,12 +24,11 @@ This is the base library which is used by other ecuacion apps and libraries.
 ### Manual Load Needed Libraries
 
 - `jakarta.validation:jakarta.validation-api`
+- (any `jakarta.validation:jakarta.validation-api`) compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
 - `jakarta.annotation:jakarta.annotation-api`
 - `jakarta.mail:jakarta.mail-api`
-- `org.hibernate.validator:hibernate-validator`
-- `org.glassfish:jakarta.el`
 - `org.slf4j:slf4j-api`
-- (any logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
+- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
 
 ## Documentation
 
@@ -37,8 +36,8 @@ This is the base library which is used by other ecuacion apps and libraries.
 
 ## introduction
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page in `ecuacion-lib`.  
-Dependency description is as follows.
+Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` in `ecuacion-lib`.  
+The description of dependent `ecuacion` modules is as follows.
 
 ```xml
 <dependency>

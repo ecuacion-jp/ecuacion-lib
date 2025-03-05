@@ -32,9 +32,8 @@ It offers customized entity class.
 
 (modules depending on `ecuacion-lib-core`)
 - `jakarta.validation:jakarta.validation-api`
-- `jakarta.mail:jakarta.mail-api`
-- `org.hibernate.validator:hibernate-validator`
-- `org.glassfish:jakarta.el`
+- (any `jakarta.validation:jakarta.validation-api`) compatible Bean Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- `jakarta.mail:jakarta.mail-api` (If you want to use the mail related utility: `jp.ecuacion.lib.core.util.MailUtil`)
 - `org.slf4j:slf4j-api`
 - (any logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
 
@@ -45,7 +44,7 @@ It offers customized entity class.
 ## introduction
 
 Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page in `ecuacion-lib`.  
-dependency description is as follows.
+The description of dependent `ecuacion` modules is as follows.
 
 ```xml
 <dependency>
