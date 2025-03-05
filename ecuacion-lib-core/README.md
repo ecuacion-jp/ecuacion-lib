@@ -12,12 +12,6 @@ This is the base library which is used by other ecuacion apps and libraries.
 
 ## Dependent Ecuacion Libraries
 
-### Automatically Loaded Libraries
-
-(none)
-
-### Manual Load Needed Libraries
-
 (none)
 
 ## Dependent External Libraries
