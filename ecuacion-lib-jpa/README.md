@@ -9,6 +9,16 @@ It offers customized entity class.
 
 - JDK 21 or above.
 
+## Dependent Ecuacion Libraries
+
+### Automatically Loaded Libraries
+
+- `ecuacion-lib-core`
+
+### Manual Load Needed Libraries
+
+(none)
+
 ## Dependent External Libraries
 
 ### Automatically Loaded Libraries
@@ -20,10 +30,13 @@ It offers customized entity class.
 - `jakarta.annotation:jakarta.annotation-api`
 - `jakarta.persistence:jakarta.persistence-api`
 
-
-## Eependent Ecuacion Libraries (Automatically Loaded)
-
-- `ecuacion-lib-core`
+(modules depending on `ecuacion-lib-core`)
+- `jakarta.validation:jakarta.validation-api`
+- `jakarta.mail:jakarta.mail-api`
+- `org.hibernate.validator:hibernate-validator`
+- `org.glassfish:jakarta.el`
+- `org.slf4j:slf4j-api`
+- (any logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
 
 ## Documentation
 

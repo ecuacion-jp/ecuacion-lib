@@ -10,6 +10,16 @@ This is the base library which is used by other ecuacion apps and libraries.
 
 - JDK 21 or above.
 
+## Dependent Ecuacion Libraries
+
+### Automatically Loaded Libraries
+
+(none)
+
+### Manual Load Needed Libraries
+
+(none)
+
 ## Dependent External Libraries
 
 ### Automatically Loaded Libraries
@@ -25,11 +35,7 @@ This is the base library which is used by other ecuacion apps and libraries.
 - `org.hibernate.validator:hibernate-validator`
 - `org.glassfish:jakarta.el`
 - `org.slf4j:slf4j-api`
-
-
-### dependent ecuacion libraries (Automatically Loaded)
-
-- `ecuacion-lib-core`
+- (any logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
 
 ## Documentation
 
