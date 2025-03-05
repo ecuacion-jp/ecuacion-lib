@@ -28,7 +28,7 @@ This is the base library which is used by other ecuacion apps and libraries.
 - `jakarta.annotation:jakarta.annotation-api`
 - `jakarta.mail:jakarta.mail-api`
 - `org.slf4j:slf4j-api`
-- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is reccomended.)
+- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is recommended.)
 
 ## Documentation
 
