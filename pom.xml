@@ -43,16 +43,16 @@
 		<!-- 3rd party module versions -->
 		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
 		<org.apache.maven.plugins.maven-source-plugin.version>3.3.1</org.apache.maven.plugins.maven-source-plugin.version>
-		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.11.1</org.apache.maven.plugins.maven-javadoc-plugin.version>
+		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.11.2</org.apache.maven.plugins.maven-javadoc-plugin.version>
 		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
 		<com.mycila.license-maven-plugin.version>4.6</com.mycila.license-maven-plugin.version>
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>10.20.1</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>10.21.4</com.puppycrawl.tools.checkstyle.version>
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.8.6.4</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.8.6</com.github.spotbugs.spotbugs.version>
-		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.4.1</org.apache.maven.plugins.maven-enforcer-plugin.version>
+		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
 		<org.apache.commons.commons-lang3.version>3.17.0</org.apache.commons.commons-lang3.version>
-		<commons-io.commons-io.version>2.16.0</commons-io.commons-io.version>
+		<commons-io.commons-io.version>2.18.0</commons-io.commons-io.version>
 	</properties>
 	<distributionManagement>
 		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
@@ -148,7 +148,7 @@
 						</execution>
 					</executions>
 				</plugin>
-			
+
 				<!-- mycila license-maven-plugin -->
 				<plugin>
 					<groupId>com.mycila</groupId>
@@ -183,7 +183,7 @@
 						</licenseSets>
 					</configuration>
 				</plugin>
-			
+
 				<!-- checkstyle -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
