@@ -160,6 +160,15 @@ public class ExceptionUtil {
             message = MessageFormat.format(message, itemName);
           }
 
+          // add prefix and postfix messages.
+          if (ex.getMessagePrefix() != null) {
+            message = PropertyFileUtil.getStringFromArg(locale, ex.getMessagePrefix()) + message;
+          }
+
+          if (ex.getMessagePostfix() != null) {
+            message = message + PropertyFileUtil.getStringFromArg(locale, ex.getMessagePostfix());
+          }
+
         } catch (MissingResourceException mre) {
           message = ex.getMessage();
         }

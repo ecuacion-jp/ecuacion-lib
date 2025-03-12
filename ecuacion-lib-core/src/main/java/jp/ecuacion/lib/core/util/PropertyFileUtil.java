@@ -344,7 +344,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getMessage(@RequireNonnull String key, @RequireNonnull Arg[] args) {
-    return getMsg(null, key, args);
+    return getMessage(null, key, args);
   }
 
   /**
@@ -364,12 +364,23 @@ public class PropertyFileUtil {
       @RequireNonnull Arg[] args) {
 
     final List<String> list = new ArrayList<>();
-    Arrays.asList(args).stream()
-        .forEach(arg -> list
-            .add(arg.isMessageId() ? PropertyFileUtil.getMsg(arg.getArgString(), arg.messageArgs)
-                : arg.getArgString()));
+    Arrays.asList(args).stream().forEach(arg -> list.add(getStringFromArg(locale, arg)));
 
     return getMessage(locale, key, list.toArray(new String[list.size()]));
+  }
+
+  /**
+   * Obtains string from {@code Arg}.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param arg message arguments, which can be message ID.
+   * @return the message corresponding to the message ID or the string set to {@code Arg}.
+   */
+  public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
+    return arg.isMessageId()
+        ? PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs)
+        : arg.getArgString();
   }
 
   /**
