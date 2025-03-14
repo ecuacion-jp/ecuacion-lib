@@ -60,6 +60,10 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.EnumNamesBaseProvider;
   uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
 
+  // apps: ValidationMessages
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesProvider;
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesProvider;
+  
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
