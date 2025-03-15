@@ -42,8 +42,10 @@ module jp.ecuacion.lib.core {
   
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationProfileProvider;
   uses jp.ecuacion.lib.core.spi.ApplicationBaseProvider;
   uses jp.ecuacion.lib.core.spi.ApplicationCoreProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationCoreProfileProvider;
 
   // apps: messages
   uses jp.ecuacion.lib.core.spi.MessagesProvider;
