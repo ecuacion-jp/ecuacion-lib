@@ -130,6 +130,7 @@ public class ExceptionUtil {
           Map<String, String> map = bean.getParamMap().entrySet().stream()
               .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+          map.put("invalidValue", bean.getInvalidValue());
 
           message = ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
@@ -157,7 +158,15 @@ public class ExceptionUtil {
               itemName = PropertyFileUtil.getItemName(locale, itemName);
             }
 
-            message = MessageFormat.format(message, itemName);
+            try {
+              message = MessageFormat.format(message, itemName);
+
+            } catch (IllegalArgumentException iae) {
+              String msg = "ExceptionUtil#getExceptionMessage: MessageFormat.format throws "
+                  + "an IllegalArgumentException because message template has {x} "
+                  + "with x not a number. (message template: " + message + ")";
+              throw new RuntimeSystemException(msg, iae);
+            }
           }
 
           // add prefix and postfix messages.
