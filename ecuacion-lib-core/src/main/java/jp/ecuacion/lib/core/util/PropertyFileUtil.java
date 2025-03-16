@@ -20,6 +20,7 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.EN
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAME;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
 import jakarta.annotation.Nonnull;
@@ -497,7 +498,7 @@ public class PropertyFileUtil {
       Map<String, String> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key);
 
-    return substituteArgsToValidationMessages(message, argMap);
+    return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
   // ■□■ ValidationMessagesWithItemNames ■□■
@@ -532,17 +533,60 @@ public class PropertyFileUtil {
       @RequireNonnull String key, Map<String, String> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key);
 
-    return substituteArgsToValidationMessages(message, argMap);
+    return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
-  private static String substituteArgsToValidationMessages(String message,
+  private static String substituteArgsToValidationMessages(Locale locale, String message,
       Map<String, String> argMap) {
     String rtnMessage = message;
+    final String D_Id = "descriptionId";
+    final String P_D = "patternDescription";
+
+    // get patternDescription from descriptionId
+    if (argMap.containsKey(D_Id) && argMap.get(D_Id) != null) {
+      String desc =
+          PropertyFileUtil.getValidationMessagePatternDescription(locale, argMap.get(D_Id));
+      argMap.put(P_D, desc);
+    }
+
     for (Entry<String, String> entry : argMap.entrySet()) {
-      rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue());
+      // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
+      rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}",
+          entry.getValue().replace("{", "'{'").replace("}", "'}'"));
     }
 
     return rtnMessage;
+  }
+
+  // ■□■ ValidationMessagesPatternDescriptions ■□■
+
+  /**
+   * Returns the property value of default locale in ValidationMessages[_locale].properties.
+   * 
+   * <p>Usually {@code ValidationMessages[_locale].properties} file 
+   *     satisfies validation message's requirement.
+   *     But when you want to show error messages on the top message space and  
+   * 
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessagePatternDescription(@RequireNonnull String key) {
+    return getValidationMessagePatternDescription(null, key);
+  }
+
+  /**
+   * Returns the localized enum name in ValidationMessages[_locale].properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String getValidationMessagePatternDescription(@Nullable Locale locale,
+      @RequireNonnull String key) {
+    return getterMap.get(VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS).getProp(locale, key);
   }
 
   // ■□■ abstract property ■□■
