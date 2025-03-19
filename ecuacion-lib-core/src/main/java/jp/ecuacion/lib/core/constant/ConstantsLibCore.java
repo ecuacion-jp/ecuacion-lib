@@ -19,15 +19,16 @@ package jp.ecuacion.lib.core.constant;
 /**
  * Provides Constants.
  */
-public final class ConstantsInLibCore {
+public final class ConstantsLibCore {
   
   /* Cannot be called from outside of the class. */
-  private ConstantsInLibCore() {
+  private ConstantsLibCore() {
     
   }
   
   /** The common part of the package in ecuacion-lib. */
-  public static final String STR_LIB_PKG = "jp.ecuacion.lib";
+  public static final String PKG_PARENT = "jp.ecuacion.lib";
+  public static final String PKG = "jp.ecuacion.lib.core";
   
   /** The message contained in {@code RuntimeSystemException}. */
   public static final String MSG_RUNTIME_EXCEPTION_PREFIX = "[ecuacion][RuntimeException] ";
