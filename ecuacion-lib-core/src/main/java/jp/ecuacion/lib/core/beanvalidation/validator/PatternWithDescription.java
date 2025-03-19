@@ -20,21 +20,27 @@ import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import jakarta.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import jp.ecuacion.lib.core.beanvalidation.validator.PatternWithDescription.PatternWithDescriptionList;
 
 /**
  * Checks if a string matches specified regular expression.
  * 
  * @see PatternWithDescriptionValidator
  */
-@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
+@Repeatable(PatternWithDescriptionList.class)
 @Documented
 @Constraint(validatedBy = {PatternWithDescriptionValidator.class})
 public @interface PatternWithDescription {
@@ -73,4 +79,16 @@ public @interface PatternWithDescription {
    * @return description ID
    */
   String descriptionId();
+
+  /**
+   * Defines several {@link Pattern} annotations on the same element.
+   *
+   * @see Pattern
+   */
+  @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
+  @Documented
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface PatternWithDescriptionList {
+    PatternWithDescription[] value();
+  }
 }
