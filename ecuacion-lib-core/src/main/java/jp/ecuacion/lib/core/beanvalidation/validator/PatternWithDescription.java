@@ -89,6 +89,12 @@ public @interface PatternWithDescription {
   @Documented
   @Retention(RetentionPolicy.RUNTIME)
   public @interface PatternWithDescriptionList {
+
+    /**
+     * Returns an array of PatternWithDescription.
+     * 
+     * @return an array of PatternWithDescription
+     */
     PatternWithDescription[] value();
   }
 }

@@ -19,7 +19,7 @@ import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.constant.ConstantsInLibCore;
+import jp.ecuacion.lib.core.constant.ConstantsLibCore;
 
 /**
  * Provides utility methods for {@code Objects.requireNonnull} and other checks.
@@ -45,7 +45,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> T paramRequireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
+    return Objects.requireNonNull(object, ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
         + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
   }
 
@@ -63,7 +63,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> T returnRequireNonNull(@Nonnull T object) {
-    return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
+    return Objects.requireNonNull(object, ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
         + "the return value: " + object.getClass().getName() + "is null.");
   }
 
@@ -77,7 +77,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> T requireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object, ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
+    return Objects.requireNonNull(object, ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX
         + "the variable: " + object.getClass().getName() + "is null.");
   }
 
@@ -95,7 +95,7 @@ public class ObjectsUtil {
 
     if (objects.length == 0) {
       throw new IllegalArgumentException(
-          ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX + "The length of the array is zero.");
+          ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX + "The length of the array is zero.");
     }
 
     return objects;
@@ -116,7 +116,7 @@ public class ObjectsUtil {
 
     if (colleciton.size() == 0) {
       throw new IllegalArgumentException(
-          ConstantsInLibCore.MSG_RUNTIME_EXCEPTION_PREFIX + "The size of the collection is zero.");
+          ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX + "The size of the collection is zero.");
     }
 
     return colleciton;
