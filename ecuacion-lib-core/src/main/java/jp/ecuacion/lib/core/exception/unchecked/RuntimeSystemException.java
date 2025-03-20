@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.exception.unchecked;
 
 import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.constant.ConstantsLibCore;
+import jp.ecuacion.lib.core.constant.LibCoreConstants;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /** 
@@ -70,6 +70,6 @@ public class RuntimeSystemException extends RuntimeException {
   @Override
   public String getMessage() {
     return super.getMessage() == null ? null
-        : ConstantsLibCore.MSG_RUNTIME_EXCEPTION_PREFIX + super.getMessage();
+        : LibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + super.getMessage();
   }
 }
