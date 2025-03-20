@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
@@ -23,7 +23,7 @@ import java.util.Map;
 /** 
  * Stores {@code ConstraintViolation} info.
  */
-public class BeanValidationErrorInfoBean {
+public class ValidationErrorInfoBean {
   private String message;
   private String propertyPath;
   private String validatorClass;
@@ -45,7 +45,7 @@ public class BeanValidationErrorInfoBean {
    * 
    * @param cv ConstraintViolation
    */
-  public BeanValidationErrorInfoBean(ConstraintViolation<?> cv) {
+  public ValidationErrorInfoBean(ConstraintViolation<?> cv) {
     this.message = cv.getMessage();
     this.propertyPath = cv.getPropertyPath().toString();
     this.validatorClass = cv.getConstraintDescriptor().getAnnotation().annotationType().getName();
@@ -78,7 +78,7 @@ public class BeanValidationErrorInfoBean {
    * @param propertyPath propertyPath
    * @param validatorClass validatorClass
    */
-  public BeanValidationErrorInfoBean(String message, String propertyPath, String validatorClass,
+  public ValidationErrorInfoBean(String message, String propertyPath, String validatorClass,
       String rootClassName) {
     this.message = message;
     this.propertyPath = propertyPath;

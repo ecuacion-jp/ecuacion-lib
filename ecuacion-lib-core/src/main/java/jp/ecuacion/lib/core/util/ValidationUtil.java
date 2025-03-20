@@ -24,15 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
  * Provides validation-related utilities.
  */
-public class BeanValidationUtil {
+public class ValidationUtil {
   // private ConcurrentMap<Locale, Validator> validatorCache = new ConcurrentHashMap<>();
 
   private boolean isMessageWithItemName;
@@ -133,8 +133,8 @@ public class BeanValidationUtil {
     if (set != null && set.size() > 0) {
       List<SingleAppException> list = new ArrayList<>();
       for (ConstraintViolation<T> v : set) {
-        BeanValidationAppException bvex =
-            new BeanValidationAppException(v).setMessageWithItemName(isMessageWithItemName);
+        ValidationAppException bvex =
+            new ValidationAppException(v).setMessageWithItemName(isMessageWithItemName);
 
         if (messagePrefix != null) {
           bvex.setMessagePrefix(messagePrefix);
@@ -209,7 +209,7 @@ public class BeanValidationUtil {
    * @param isMessageWithItemName isMessageWithItemName
    * @return BeanValidationUtil
    */
-  public BeanValidationUtil setMessageWithItemName(boolean isMessageWithItemName) {
+  public ValidationUtil setMessageWithItemName(boolean isMessageWithItemName) {
     this.isMessageWithItemName = isMessageWithItemName;
     return this;
   }
@@ -220,7 +220,7 @@ public class BeanValidationUtil {
    * @param messagePrefix messagePrefix
    * @return BeanValidationUtil
    */
-  public BeanValidationUtil setMessagePrefix(Arg messagePrefix) {
+  public ValidationUtil setMessagePrefix(Arg messagePrefix) {
     this.messagePrefix = messagePrefix;
     return this;
   }
@@ -231,7 +231,7 @@ public class BeanValidationUtil {
    * @param messagePostfix messagePostfix
    * @return BeanValidationUtil
    */
-  public BeanValidationUtil setMessagePostfix(Arg messagePostfix) {
+  public ValidationUtil setMessagePostfix(Arg messagePostfix) {
     this.messagePostfix = messagePostfix;
     return this;
   }

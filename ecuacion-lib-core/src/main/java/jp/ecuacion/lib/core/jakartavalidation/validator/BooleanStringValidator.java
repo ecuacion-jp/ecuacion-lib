@@ -13,37 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 
 /**
- * Provides the validation logic for {@code LongString}.
+ * Provides the validation logic for {@code BooleanString}.
  */
-public class LongStringValidator implements ConstraintValidator<LongString, String> {
+public class BooleanStringValidator implements ConstraintValidator<BooleanString, String> {
 
   /**
    * Constructs a new instance.
    */
-  public LongStringValidator() {
+  public BooleanStringValidator() {
 
   }
 
   /** Initializes an instance. */
   @Override
-  public void initialize(LongString constraintAnnotation) {}
+  public void initialize(BooleanString constraintAnnotation) {}
 
   /**
-   * Checks if a string is convertable to {@code Long}.
+   * Checks if a string is convertable to {@code Boolean}.
    * 
-   * <p>a string is valid if Long.valueOf() does not throw exception.</p>
+   * <p>Valid strings are as follows. <br>
+   * (case-insensitive, the specification follows to 
+   * "apache-commons-lang:BooleanUtils.toBoolean(String str)".))</p>
    * 
-   * <p>comma-separated value is acceptable. This validator removes comma before check.
-   * This does not check the positions of the commas are correct.</p>
-   * 
-   * <p>Valid strings are: "{@code 123}", "{@code 123,456}", "{@code 12,3,4,56}"</p>
+   * <ul>
+   * <li>treated as {@code true} : {@code true}, {@code t}, {@code on}, {@code yes}, {@code y}</li>
+   * <li>treated as {@code false}: {@code false}, {@code f}, {@code off}, {@code no}, {@code n}</li>
+   * </ul>
    * 
    * <p>{@code null} is valid following to the specification of Jakarta EE.<br>
    * {@code empty ("")} is invalid.</p>
@@ -58,15 +60,15 @@ public class LongStringValidator implements ConstraintValidator<LongString, Stri
 
     Objects.requireNonNull(value);
 
-    // カンマが入っている場合は除去。カンマの位置の正当性までは見ない。
-    value = value.replaceAll(",", "");
+    String[] allowedLowerCaseStrings =
+        new String[] {"true", "false", "on", "off", "yes", "no", "t", "f", "y", "n"};
 
-    try {
-      Long.valueOf(value);
-      return true;
-
-    } catch (Exception e) {
-      return false;
+    for (String keyword : allowedLowerCaseStrings) {
+      if (keyword.equals(value.toLowerCase())) {
+        return true;
+      }
     }
+
+    return false;
   }
 }

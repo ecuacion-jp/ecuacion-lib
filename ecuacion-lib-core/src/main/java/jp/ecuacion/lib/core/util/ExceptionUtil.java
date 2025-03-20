@@ -28,15 +28,15 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
 import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeAppException;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeExceptionWithMessageId;
 import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ValidationErrorInfoBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -104,7 +104,7 @@ public class ExceptionUtil {
     if (throwable instanceof ConstraintViolationException) {
       ConstraintViolationException cve = (ConstraintViolationException) throwable;
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
-        exList.add(new BeanValidationAppException(cv));
+        exList.add(new ValidationAppException(cv));
       }
 
     } else {
@@ -121,12 +121,12 @@ public class ExceptionUtil {
         BizLogicAppException ex = (BizLogicAppException) th;
         rtnList.add(PropertyFileUtil.getMsg(locale, ex.getMessageId(), ex.getMessageArgs()));
 
-      } else if (th instanceof BeanValidationAppException) {
-        BeanValidationAppException ex = (BeanValidationAppException) th;
+      } else if (th instanceof ValidationAppException) {
+        ValidationAppException ex = (ValidationAppException) th;
 
         String message = null;
         try {
-          BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+          ValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
           Map<String, String> map = bean.getParamMap().entrySet().stream()
               .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
