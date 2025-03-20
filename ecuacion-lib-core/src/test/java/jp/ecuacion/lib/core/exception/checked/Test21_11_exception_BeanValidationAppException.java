@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidationErrorInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,7 +77,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
         + "Test21_11_exception_BeanValidationAppException$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
-    ValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
     Assertions.assertThat(bean.getAnnotation()).isEqualTo("jakarta.validation.constraints.NotNull");
     Assertions.assertThat(bean.getMessage()).isEqualTo("null は許可されていません");
     Assertions.assertThat(bean.getMessageTemplate())
@@ -93,7 +93,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
   @Test
   public void test11_messageIdの取得() {
     ValidationAppException ex = new ValidationAppException(violation);
-    ValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
     Assertions.assertThat(bean.getMessageId()).isEqualTo("jakarta.validation.constraints.NotNull");
   }
 

@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging.internal;
 
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Has common methods for concrete loggers.
  */
-public abstract class AbstractLogger {
+public abstract class LibLogger {
 
   /** internalLogger. */
   private Logger internalLogger;
@@ -33,7 +33,7 @@ public abstract class AbstractLogger {
    * 
    * @param loggerName loggerName. Cannot be {@code null}.
    */
-  public AbstractLogger(String loggerName) {
+  public LibLogger(String loggerName) {
     internalLogger = LoggerFactory.getLogger(loggerName);
   }
 
@@ -43,7 +43,7 @@ public abstract class AbstractLogger {
    *
    * @param cls class. Cannot be {@code null}.
    */
-  public AbstractLogger(Class<?> cls) {
+  public LibLogger(Class<?> cls) {
     internalLogger = LoggerFactory.getLogger(cls.getName());
   }
 
@@ -73,7 +73,7 @@ public abstract class AbstractLogger {
       internalLogger.trace(message);
 
     } else {
-      throw new RuntimeSystemException("nonexistent Loglevel : " + logLevel);
+      throw new LibRuntimeException("nonexistent Loglevel : " + logLevel);
     }
   }
 

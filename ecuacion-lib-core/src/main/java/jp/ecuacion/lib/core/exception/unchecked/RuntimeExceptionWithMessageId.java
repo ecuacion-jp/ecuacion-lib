@@ -26,6 +26,7 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
  * So it is not clear when to use {@code RuntimeExceptionWithMessageId}, 
  * but it is kept for the time being. May be deprecated in the future.
  */
+@Deprecated
 public class RuntimeExceptionWithMessageId extends RuntimeException {
 
   private static final long serialVersionUID = 1L;

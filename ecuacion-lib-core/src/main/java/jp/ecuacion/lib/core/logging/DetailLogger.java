@@ -17,7 +17,7 @@ package jp.ecuacion.lib.core.logging;
 
 import jakarta.annotation.Nonnull;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.LibLogger;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
@@ -28,7 +28,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
  * 
  * <p>All the loglevels (trace, debug, info, warn, error) can be used.</p>
  */
-public class DetailLogger extends AbstractLogger {
+public class DetailLogger extends LibLogger {
 
   /** 
    * Constructs a new instance with a caller instance.

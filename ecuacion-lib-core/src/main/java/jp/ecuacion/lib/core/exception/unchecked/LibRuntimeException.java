@@ -23,7 +23,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
  * Is thorwn just like {@code RuntimeException} whose message contains "ecuacion" 
  * so that you can see the Ezxception is thrown from the library.
  */
-public class RuntimeSystemException extends RuntimeException {
+public class LibRuntimeException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class RuntimeSystemException extends RuntimeException {
    * 
    * @param message message. May be null, which meaans it has no messages.
    */
-  public RuntimeSystemException(@Nonnull String message) {
+  public LibRuntimeException(@Nonnull String message) {
     super(message);
 
     ObjectsUtil.paramRequireNonNull(message);
@@ -43,7 +43,7 @@ public class RuntimeSystemException extends RuntimeException {
    * 
    * @param cause cause
    */
-  public RuntimeSystemException(@Nonnull Throwable cause) {
+  public LibRuntimeException(@Nonnull Throwable cause) {
     super(cause);
 
     ObjectsUtil.paramRequireNonNull(cause);
@@ -55,7 +55,7 @@ public class RuntimeSystemException extends RuntimeException {
    * @param message message
    * @param cause cause
    */
-  public RuntimeSystemException(@Nonnull String message, @Nonnull Throwable cause) {
+  public LibRuntimeException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
 
     ObjectsUtil.paramRequireNonNull(message);

@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -289,7 +289,7 @@ public class PropertyFileUtilValueGetter {
     for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
       if (entry.getValue() != null && entry.getValue().containsKey(key)) {
         if (messageString != null) {
-          throw new RuntimeSystemException("Key '" + key + "' in properties file duplicated. ");
+          throw new LibRuntimeException("Key '" + key + "' in properties file duplicated. ");
         }
 
         messageString = entry.getValue().getString(key);
@@ -337,7 +337,7 @@ public class PropertyFileUtilValueGetter {
       // the code below is executed when stringLeft contains the startBracket.
 
       if (indexOfStartBracket > indexOfEndBracket) {
-        throw new RuntimeSystemException(
+        throw new LibRuntimeException(
             "startBracketFollowsEndBracket. the brackets in the string is somehow wrong. string: "
                 + stringLeft);
       }
@@ -406,13 +406,13 @@ public class PropertyFileUtilValueGetter {
 
     // msgIdが空だったらエラー
     if (key.equals("")) {
-      throw new RuntimeSystemException("Message ID is blank.");
+      throw new LibRuntimeException("Message ID is blank.");
     }
 
     return getValue(locale, key);
   }
 
-  private static class NoKeyInPropertiesFileException extends RuntimeSystemException {
+  private static class NoKeyInPropertiesFileException extends LibRuntimeException {
 
     private static final long serialVersionUID = 1L;
 

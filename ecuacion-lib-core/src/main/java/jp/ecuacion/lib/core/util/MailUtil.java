@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmail;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailContent;
@@ -166,7 +166,7 @@ public class MailUtil {
     // Either mailToList or mailCcList need to have one element at least
     if ((mailToList == null || mailToList.size() == 0)
         && (mailCcList == null || mailCcList.size() == 0)) {
-      throw new RuntimeSystemException(
+      throw new LibRuntimeException(
           "Either mailToList or mailCcList need to have at least one element.");
     }
 

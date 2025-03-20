@@ -20,7 +20,7 @@ import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeAppException;
+import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.logging.ErrorLogger;
 
@@ -114,11 +114,11 @@ public class LogUtil {
         + additionalMessage + ")");
 
     // additionalMessageへの追加
-    if (throwable instanceof AppException || throwable instanceof RuntimeAppException) {
+    if (throwable instanceof AppException || throwable instanceof UncheckedAppException) {
       // ビジネスエラーとしてクライアントに返すのみ。本サービスでのエラー発生関連処理はない。
       StringBuilder sb = new StringBuilder();
-      AppException ae = throwable instanceof RuntimeAppException
-          ? (AppException) ((RuntimeAppException) throwable).getCause()
+      AppException ae = throwable instanceof UncheckedAppException
+          ? (AppException) ((UncheckedAppException) throwable).getCause()
           : (AppException) throwable;
       new ExceptionUtil().getAppExceptionMessageList(ae, Locale.getDefault())
           .forEach(tmpMsg -> sb.append(tmpMsg + "\n"));
