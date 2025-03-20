@@ -40,11 +40,13 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
    * 
    * <p>Valid strings are as follows. <br>
    * (case-insensitive, the specification follows to 
-   * "apache-commons-lang:BooleanUtils.toBoolean(String str)".))</p>
+   * "apache-commons-lang:BooleanUtils.toBoolean(String str)", but "○" and "×" are added.))</p>
    * 
    * <ul>
-   * <li>treated as {@code true} : {@code true}, {@code t}, {@code on}, {@code yes}, {@code y}</li>
-   * <li>treated as {@code false}: {@code false}, {@code f}, {@code off}, {@code no}, {@code n}</li>
+   * <li>treated as {@code true} : 
+   *     {@code true}, {@code t}, {@code on}, {@code yes}, {@code y}, {@code ○}</li>
+   * <li>treated as {@code false}: 
+   *     {@code false}, {@code f}, {@code off}, {@code no}, {@code n}, {@code ×}</li>
    * </ul>
    * 
    * <p>{@code null} is valid following to the specification of Jakarta EE.<br>
@@ -61,7 +63,7 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
     Objects.requireNonNull(value);
 
     String[] allowedLowerCaseStrings =
-        new String[] {"true", "false", "on", "off", "yes", "no", "t", "f", "y", "n"};
+        new String[] {"true", "false", "on", "off", "yes", "no", "t", "f", "y", "n", "○", "×"};
 
     for (String keyword : allowedLowerCaseStrings) {
       if (keyword.equals(value.toLowerCase())) {
