@@ -38,7 +38,7 @@ import jp.ecuacion.lib.core.util.internal.MailUtilEmail;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailContent;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailServer;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailSettings;
-import org.apache.commons.exec.LogOutputStream;
+import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
 
 /**
  * Provides mail-related utility methods.
@@ -226,15 +226,10 @@ public class MailUtil {
       } else {
         session = Session.getDefaultInstance(emailInfo.getProperties());
       }
+
       session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());
       // ログ出力結果をDetailLogに流す
-      LogOutputStream losStdOut = new LogOutputStream() {
-        @Override
-        protected void processLine(String line, int level) {
-          dtlLog.debug(line);
-        }
-      };
-      session.setDebugOut(new PrintStream(losStdOut, true, "UTF-8"));
+      session.setDebugOut(new PrintStream(new MailUtilLogOutputStream(), true, "UTF-8"));
 
       // mailToArrからInternetAddressインスタンスの配列を作成、格納
       InternetAddress[] addressTo = new InternetAddress[mailToList.size()];
@@ -273,7 +268,7 @@ public class MailUtil {
       dtlLog.trace("Mail successfully sent" + emailInfo.getDebugLogMessage());
 
     } catch (Throwable th1) {
-      
+
       if (throwsException) {
         // エラーログ出力
         logUtil.logError(th1);
@@ -292,9 +287,7 @@ public class MailUtil {
             // 何もしない
           }
         }
-  
       }
-
     }
   }
 
