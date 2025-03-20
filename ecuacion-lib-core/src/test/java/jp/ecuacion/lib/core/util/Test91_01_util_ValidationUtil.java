@@ -23,7 +23,7 @@ import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidationErrorInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -100,7 +100,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -130,7 +130,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -171,7 +171,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -213,7 +213,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -266,7 +266,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -308,7 +308,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
       ValidationAppException bvEx = (ValidationAppException) singleEx;
-      ValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 

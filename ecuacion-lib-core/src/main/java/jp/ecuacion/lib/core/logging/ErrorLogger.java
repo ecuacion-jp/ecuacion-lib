@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.LibLogger;
 
 /**
  * Logs messages which are surveilled by survaillance service 
@@ -37,7 +37,7 @@ import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
  * <li>info : uses for recover from warn state</li>
  * </ul>
  */
-public class ErrorLogger extends AbstractLogger {
+public class ErrorLogger extends LibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public ErrorLogger() {

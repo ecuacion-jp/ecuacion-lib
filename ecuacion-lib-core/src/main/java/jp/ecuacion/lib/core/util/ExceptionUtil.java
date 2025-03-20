@@ -33,10 +33,9 @@ import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeAppException;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeExceptionWithMessageId;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidationErrorInfoBean;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
+import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -126,7 +125,7 @@ public class ExceptionUtil {
 
         String message = null;
         try {
-          ValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+          ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
           Map<String, String> map = bean.getParamMap().entrySet().stream()
               .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
@@ -165,7 +164,7 @@ public class ExceptionUtil {
               String msg = "ExceptionUtil#getExceptionMessage: MessageFormat.format throws "
                   + "an IllegalArgumentException because message template has {x} "
                   + "with x not a number. (message template: " + message + ")";
-              throw new RuntimeSystemException(msg, iae);
+              throw new LibRuntimeException(msg, iae);
             }
           }
 
@@ -182,10 +181,6 @@ public class ExceptionUtil {
           message = ex.getMessage();
         }
         rtnList.add((needsDetails) ? message + "\n" + ex.toString() : message);
-
-      } else if (th instanceof RuntimeExceptionWithMessageId) {
-        RuntimeExceptionWithMessageId ex = (RuntimeExceptionWithMessageId) th;
-        rtnList.add(PropertyFileUtil.getMsg(locale, ex.getMessageId(), ex.getMessageArgs()));
 
       } else {
         rtnList.add(th.getMessage());
@@ -266,11 +261,10 @@ public class ExceptionUtil {
         // because it's obtained from SingleAppExceptions which it carries.
         continue;
 
-      } else if (th instanceof RuntimeAppException) {
-        rtnList.add(((RuntimeAppException) th).getCause());
+      } else if (th instanceof UncheckedAppException) {
+        rtnList.add(((UncheckedAppException) th).getCause());
 
-      } else if (th instanceof SingleAppException || th instanceof RuntimeExceptionWithMessageId
-          || th instanceof RuntimeSystemException
+      } else if (th instanceof SingleAppException || th instanceof LibRuntimeException
           || (th.getMessage() != null && !th.getMessage().equals(""))) {
         rtnList.add(th);
       }

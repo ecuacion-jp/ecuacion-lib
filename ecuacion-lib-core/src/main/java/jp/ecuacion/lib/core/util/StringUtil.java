@@ -21,7 +21,7 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeSystemException;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -49,18 +49,18 @@ public class StringUtil {
 
     // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
     if (snakeCaseString.startsWith("_")) {
-      throw new RuntimeSystemException(
+      throw new LibRuntimeException(
           "snake-case string cannot start with '_'. (argment string: '" + snakeCaseString + "')");
     }
 
     if (snakeCaseString.endsWith("_")) {
-      throw new RuntimeSystemException(
+      throw new LibRuntimeException(
           "snake-case string cannot end with '_'. (argment string: '" + snakeCaseString + "')");
     }
 
     // '_'が連続で入っている場合もエラー
     if (snakeCaseString.contains("__")) {
-      throw new RuntimeSystemException("snake-case strings are not supposed to have '__' "
+      throw new LibRuntimeException("snake-case strings are not supposed to have '__' "
           + "(double underscores). (argument string: '" + snakeCaseString + "')");
     }
 

@@ -26,7 +26,7 @@ public class Test21_31_exception_RuntimeAppException extends TestTools {
   public void test01_コンストラクタ_01_引数がnull() {
     try {
       @SuppressWarnings("unused")
-      RuntimeAppException ex = new RuntimeAppException(null);
+      UncheckedAppException ex = new UncheckedAppException(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -37,7 +37,7 @@ public class Test21_31_exception_RuntimeAppException extends TestTools {
   @Test
   public void test01_コンストラクタ_02_引数がnull以外() {
     AppException appEx = new BizLogicAppException("MSG1");
-    RuntimeAppException ex = new RuntimeAppException(appEx);
+    UncheckedAppException ex = new UncheckedAppException(appEx);
     
     assertEquals(ex.getCause(), appEx);
   }

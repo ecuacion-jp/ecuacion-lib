@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidationErrorInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
@@ -28,7 +28,7 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  private ValidationErrorInfoBean bean;
+  private ConstraintViolationBean bean;
   
   private boolean isMessageWithItemName;
 
@@ -43,7 +43,7 @@ public class ValidationAppException extends SingleAppException {
    */
   public ValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
     super(violation.getMessage());
-    this.bean = new ValidationErrorInfoBean(ObjectsUtil.paramRequireNonNull(violation));
+    this.bean = new ConstraintViolationBean(ObjectsUtil.paramRequireNonNull(violation));
   }
 
   /**
@@ -55,7 +55,7 @@ public class ValidationAppException extends SingleAppException {
    * 
    * @param bean BeanValidationErrorInfoBean
    */
-  public ValidationAppException(@RequireNonnull ValidationErrorInfoBean bean) {
+  public ValidationAppException(@RequireNonnull ConstraintViolationBean bean) {
     this.bean = ObjectsUtil.paramRequireNonNull(bean);
   }
 
@@ -64,7 +64,7 @@ public class ValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
-  public ValidationErrorInfoBean getBeanValidationErrorInfoBean() {
+  public ConstraintViolationBean getBeanValidationErrorInfoBean() {
     return bean;
   }
 

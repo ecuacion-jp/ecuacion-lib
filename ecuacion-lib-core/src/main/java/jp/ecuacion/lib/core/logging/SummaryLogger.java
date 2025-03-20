@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.LibLogger;
 
 /**
  * Logs start and end time of the timer-triggered exections, 
@@ -37,7 +37,7 @@ import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
  * <li>error: uses for abnormal end</li>
  * </ul>
  */
-public class SummaryLogger extends AbstractLogger {
+public class SummaryLogger extends LibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SummaryLogger() {
