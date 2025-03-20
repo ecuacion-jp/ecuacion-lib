@@ -19,10 +19,10 @@ package jp.ecuacion.lib.core.constant;
 /**
  * Provides Constants.
  */
-public final class ConstantsLibCore {
+public final class LibCoreConstants {
   
   /* Cannot be called from outside of the class. */
-  private ConstantsLibCore() {
+  private LibCoreConstants() {
     
   }
   
