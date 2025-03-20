@@ -20,21 +20,21 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
-import jp.ecuacion.lib.core.exception.checked.BeanValidationAppException;
+import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Test91_01_util_BeanValidationUtil extends TestTools {
+public class Test91_01_util_ValidationUtil extends TestTools {
 
-  private BeanValidationUtil util;
+  private ValidationUtil util;
 
   @BeforeEach
   public void before() {
-    util = new BeanValidationUtil();
+    util = new ValidationUtil();
   }
 
   @Test
@@ -54,11 +54,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -96,11 +96,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -126,11 +126,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -167,11 +167,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Objects.requireNonNull(exList);
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -209,11 +209,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Objects.requireNonNull(exList);
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -262,11 +262,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Objects.requireNonNull(exList);
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 
@@ -304,11 +304,11 @@ public class Test91_01_util_BeanValidationUtil extends TestTools {
     Objects.requireNonNull(exList);
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
-    BeanValidationAppException exNotNull = null;
-    BeanValidationAppException exMin = null;
+    ValidationAppException exNotNull = null;
+    ValidationAppException exMin = null;
     for (SingleAppException singleEx : exList.getList()) {
-      BeanValidationAppException bvEx = (BeanValidationAppException) singleEx;
-      BeanValidationErrorInfoBean bean = bvEx.getBeanValidationErrorInfoBean();
+      ValidationAppException bvEx = (ValidationAppException) singleEx;
+      ConstraintViolationBean bean = bvEx.getBeanValidationErrorInfoBean();
       if (bean.getMessageId().equals("jakarta.validation.constraints.NotNull")) {
         exNotNull = bvEx;
 

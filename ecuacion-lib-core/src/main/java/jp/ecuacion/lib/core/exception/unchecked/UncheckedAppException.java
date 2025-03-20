@@ -26,7 +26,7 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
  *  <p>After throwed, 
  *  catched and procesed in library is exactly the same as {@code SingleAppException}.</p>
  */
-public class RuntimeAppException extends RuntimeException {
+public class UncheckedAppException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
@@ -34,7 +34,7 @@ public class RuntimeAppException extends RuntimeException {
    * 
    * @param ex appException
    */
-  public RuntimeAppException(@Nonnull AppException ex) {
+  public UncheckedAppException(@Nonnull AppException ex) {
     super(ex);
     Objects.requireNonNull(ex);
   }

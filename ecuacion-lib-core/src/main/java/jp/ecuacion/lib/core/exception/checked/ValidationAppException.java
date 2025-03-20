@@ -18,17 +18,17 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
  * Holds a bean validations violation.
  */
-public class BeanValidationAppException extends SingleAppException {
+public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  private BeanValidationErrorInfoBean bean;
+  private ConstraintViolationBean bean;
   
   private boolean isMessageWithItemName;
 
@@ -41,9 +41,9 @@ public class BeanValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
-  public BeanValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
+  public ValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
     super(violation.getMessage());
-    this.bean = new BeanValidationErrorInfoBean(ObjectsUtil.paramRequireNonNull(violation));
+    this.bean = new ConstraintViolationBean(ObjectsUtil.paramRequireNonNull(violation));
   }
 
   /**
@@ -55,7 +55,7 @@ public class BeanValidationAppException extends SingleAppException {
    * 
    * @param bean BeanValidationErrorInfoBean
    */
-  public BeanValidationAppException(@RequireNonnull BeanValidationErrorInfoBean bean) {
+  public ValidationAppException(@RequireNonnull ConstraintViolationBean bean) {
     this.bean = ObjectsUtil.paramRequireNonNull(bean);
   }
 
@@ -64,7 +64,7 @@ public class BeanValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
-  public BeanValidationErrorInfoBean getBeanValidationErrorInfoBean() {
+  public ConstraintViolationBean getBeanValidationErrorInfoBean() {
     return bean;
   }
 
@@ -95,7 +95,7 @@ public class BeanValidationAppException extends SingleAppException {
    * 
    * @return BeanValidationErrorInfoBean;
    */
-  public BeanValidationAppException setMessageWithItemName(boolean isMessageWithItemName) {
+  public ValidationAppException setMessageWithItemName(boolean isMessageWithItemName) {
     this.isMessageWithItemName = isMessageWithItemName;
     return this;
   }
@@ -109,7 +109,7 @@ public class BeanValidationAppException extends SingleAppException {
    * 
    * @return BeanValidationErrorInfoBean;
    */
-  public BeanValidationAppException setMessagePrefix(Arg messagePrefix) {
+  public ValidationAppException setMessagePrefix(Arg messagePrefix) {
     this.messagePrefix = messagePrefix;
     return this;
   }

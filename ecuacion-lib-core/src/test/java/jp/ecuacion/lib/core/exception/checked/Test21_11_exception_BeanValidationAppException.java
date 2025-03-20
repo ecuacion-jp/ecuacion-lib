@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.beanvalidation.bean.BeanValidationErrorInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
     try {
       // NPEが起きるのが正解
       @SuppressWarnings("unused")
-      BeanValidationAppException ex = new BeanValidationAppException((ConstraintViolation<?>) null);
+      ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -63,7 +63,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
   public void test01_値の格納_01_ConstarintViolationを引数に取るコンストラクタ_11_引数が正常() {
     try {
       // findbugsに引っかからないよう、変数に入れた上でそれを使用（getStackTrace()）する；
-      BeanValidationAppException ex = new BeanValidationAppException(violation);
+      ValidationAppException ex = new ValidationAppException(violation);
       ex.getStackTrace();
 
     } catch (Exception e) {
@@ -76,8 +76,8 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
     final String className = "jp.ecuacion.lib.core.exception.checked."
         + "Test21_11_exception_BeanValidationAppException$SampleObj";
 
-    BeanValidationAppException ex = new BeanValidationAppException(violation);
-    BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    ValidationAppException ex = new ValidationAppException(violation);
+    ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
     Assertions.assertThat(bean.getAnnotation()).isEqualTo("jakarta.validation.constraints.NotNull");
     Assertions.assertThat(bean.getMessage()).isEqualTo("null は許可されていません");
     Assertions.assertThat(bean.getMessageTemplate())
@@ -92,8 +92,8 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
 
   @Test
   public void test11_messageIdの取得() {
-    BeanValidationAppException ex = new BeanValidationAppException(violation);
-    BeanValidationErrorInfoBean bean = ex.getBeanValidationErrorInfoBean();
+    ValidationAppException ex = new ValidationAppException(violation);
+    ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
     Assertions.assertThat(bean.getMessageId()).isEqualTo("jakarta.validation.constraints.NotNull");
   }
 
@@ -105,7 +105,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
         + "Test21_11_exception_BeanValidationAppException$SampleObj\n"
         + "propertyPath:str1\ninvalidValue:null";
-    BeanValidationAppException ex = new BeanValidationAppException(violation);
+    ValidationAppException ex = new ValidationAppException(violation);
     Assertions.assertThat(ex.toString()).isEqualTo(str);
   }
 

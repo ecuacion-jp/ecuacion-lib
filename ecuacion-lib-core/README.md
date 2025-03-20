@@ -2,7 +2,7 @@
 
 ## What is it?
 
-`ecuacion-lib-core` provides utilities for jakarta Bean Validation.
+`ecuacion-lib-core` provides utilities for `Jakarta Validation`.
 It also provides some utilities used by other ecuacion modules.  
 This is the base library which is used by other ecuacion apps and libraries.  
 

@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.unchecked.RuntimeExceptionWithMessageId;
+import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
 
 /**
  * Provivdes utility methods for ecuacion library enums.
@@ -99,8 +99,8 @@ public class EnumUtil {
     }
 
     // ここまで来てしまうということは、存在しないコードを設定してしまったということ。
-    throw new RuntimeExceptionWithMessageId("jp.ecuacion.lib.core.EnumNotExist.message",
-        enumClass.getSimpleName(), "code", code);
+    throw new LibRuntimeException(
+        "Enum: " + enumClass.getSimpleName() + "doesn't have the code. (code : " + code + ")");
   }
 
   /**

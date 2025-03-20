@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -29,22 +29,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Checks if a string is convertable to {@code Integer}.
+ * Checks if a string is convertable to {@code Long}.
  * 
- * @see IntegerStringValidator
+ * @see LongStringValidator
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {IntegerStringValidator.class})
-public @interface IntegerString {
+@Constraint(validatedBy = {LongStringValidator.class})
+public @interface LongString {
 
   /** 
    * Returns message ID.
    * 
    * @return message ID
    */
-  String message() default "{jp.ecuacion.validation.constraints.IntegerString.message}";
+  String message() default "{jp.ecuacion.validation.constraints.LongString.message}";
 
   /** 
    * Returns groups.
