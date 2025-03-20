@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 
 /**
- * Provides the validation logic for {@code IntegerString}.
+ * Provides the validation logic for {@code LongString}.
  */
-public class IntegerStringValidator implements ConstraintValidator<IntegerString, String> {
+public class LongStringValidator implements ConstraintValidator<LongString, String> {
 
   /**
    * Constructs a new instance.
    */
-  public IntegerStringValidator() {
+  public LongStringValidator() {
 
   }
 
   /** Initializes an instance. */
   @Override
-  public void initialize(IntegerString constraintAnnotation) {}
+  public void initialize(LongString constraintAnnotation) {}
 
   /**
-   * Checks if a string is convertable to {@code Integer}.
+   * Checks if a string is convertable to {@code Long}.
    * 
-   * <p>a string is valid if {@code Integer.valueOf()} does not throw exception.</p>
+   * <p>a string is valid if Long.valueOf() does not throw exception.</p>
    * 
    * <p>comma-separated value is acceptable. This validator removes comma before check.
    * This does not check the positions of the commas are correct.</p>
@@ -62,7 +62,7 @@ public class IntegerStringValidator implements ConstraintValidator<IntegerString
     value = value.replaceAll(",", "");
 
     try {
-      Integer.valueOf(value);
+      Long.valueOf(value);
       return true;
 
     } catch (Exception e) {

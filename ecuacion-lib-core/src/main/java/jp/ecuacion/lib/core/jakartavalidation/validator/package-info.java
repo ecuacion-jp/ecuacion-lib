@@ -15,6 +15,6 @@
  */
 
 /**
- * Provides beans for {@code bean validation} validators.
+ * Provides {@code bean validation} validators.
  */
-package jp.ecuacion.lib.core.beanvalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.validator;

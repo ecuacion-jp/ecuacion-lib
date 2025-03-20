@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -31,7 +31,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.beanvalidation.validator.PatternWithDescription.PatternWithDescriptionList;
+import jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription.PatternWithDescriptionList;
 
 /**
  * Checks if a string matches specified regular expression.

@@ -13,50 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.beanvalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Checks if a string matches specified regular expression.
+ * Provides the validation logic for {@code IntegerString}.
  */
-public class PatternWithDescriptionValidator
-    implements ConstraintValidator<PatternWithDescription, String> {
+public class IntegerStringValidator implements ConstraintValidator<IntegerString, String> {
 
-  private String regExp;
-  
   /**
    * Constructs a new instance.
    */
-  public PatternWithDescriptionValidator() {
+  public IntegerStringValidator() {
 
   }
 
   /** Initializes an instance. */
   @Override
-  public void initialize(PatternWithDescription constraintAnnotation) {
-    regExp = constraintAnnotation.regexp();
-  }
+  public void initialize(IntegerString constraintAnnotation) {}
 
   /**
-   * Checks if a string matches specified standard expression.
+   * Checks if a string is convertable to {@code Integer}.
+   * 
+   * <p>a string is valid if {@code Integer.valueOf()} does not throw exception.</p>
+   * 
+   * <p>comma-separated value is acceptable. This validator removes comma before check.
+   * This does not check the positions of the commas are correct.</p>
+   * 
+   * <p>Valid strings are: "{@code 123}", "{@code 123,456}", "{@code 12,3,4,56}"</p>
    * 
    * <p>{@code null} is valid following to the specification of Jakarta EE.<br>
-   * {@code empty ("")} is invalid if it doesn't match the standard expression.</p>
+   * {@code empty ("")} is invalid.</p>
    */
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
+
     // nullの場合はtrueとする。（bean validationの仕様に合わせ空文字はtrueにはしない）
     if (value == null) {
       return true;
     }
 
     Objects.requireNonNull(value);
-    Matcher m = Pattern.compile(regExp).matcher(value);
-    return m.matches();
+
+    // カンマが入っている場合は除去。カンマの位置の正当性までは見ない。
+    value = value.replaceAll(",", "");
+
+    try {
+      Integer.valueOf(value);
+      return true;
+
+    } catch (Exception e) {
+      return false;
+    }
   }
 }
