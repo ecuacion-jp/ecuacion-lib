@@ -35,15 +35,16 @@ module jp.ecuacion.lib.core {
   requires transitive jakarta.validation;
   requires jakarta.mail;
   requires jakarta.annotation;
-  requires org.apache.commons.exec;
   requires org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
   
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationProfileProvider;
   uses jp.ecuacion.lib.core.spi.ApplicationBaseProvider;
   uses jp.ecuacion.lib.core.spi.ApplicationCoreProvider;
+  uses jp.ecuacion.lib.core.spi.ApplicationCoreProfileProvider;
 
   // apps: messages
   uses jp.ecuacion.lib.core.spi.MessagesProvider;

@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.constant;
+package jp.ecuacion.lib.core.spi;
 
+import java.util.spi.ResourceBundleProvider;
 
 /**
- * Provides Constants.
+ * Is a {@code ResourceBundleProvider} for application in app projects.
  */
-public final class ConstantsInLibCore {
-  
-  /* Cannot be called from outside of the class. */
-  private ConstantsInLibCore() {
-    
-  }
-  
-  /** The common part of the package in ecuacion-lib. */
-  public static final String STR_LIB_PKG = "jp.ecuacion.lib";
-  
-  /** The message contained in {@code RuntimeSystemException}. */
-  public static final String MSG_RUNTIME_EXCEPTION_PREFIX = "[ecuacion][RuntimeException] ";
+public interface ApplicationProfileProvider extends ResourceBundleProvider {
 }
