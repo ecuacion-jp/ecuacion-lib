@@ -551,8 +551,8 @@ public class PropertyFileUtil {
 
     for (Entry<String, String> entry : argMap.entrySet()) {
       // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
-      rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}",
-          entry.getValue().replace("{", "'{'").replace("}", "'}'"));
+      rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue() == null ? "''"
+          : entry.getValue().replace("{", "'{'").replace("}", "'}'"));
     }
 
     return rtnMessage;

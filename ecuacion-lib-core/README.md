@@ -19,7 +19,6 @@ This is the base library which is used by other ecuacion apps and libraries.
 ### Automatically Loaded Libraries
 
 - `org.apache.commons:commons-lang3`
-- `org.apache.commons:commons-exec` (@Deprecated. It will be removed in the future release)
 
 ### Manual Load Needed Libraries
 
