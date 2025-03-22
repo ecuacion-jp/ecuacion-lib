@@ -16,14 +16,14 @@
 package jp.ecuacion.lib.core.exception.unchecked;
 
 import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.constant.LibCoreConstants;
+import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /** 
  * Is thorwn just like {@code RuntimeException} whose message contains "ecuacion" 
  * so that you can see the Ezxception is thrown from the library.
  */
-public class LibRuntimeException extends RuntimeException {
+public class EclibRuntimeException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
@@ -32,7 +32,7 @@ public class LibRuntimeException extends RuntimeException {
    * 
    * @param message message. May be null, which meaans it has no messages.
    */
-  public LibRuntimeException(@Nonnull String message) {
+  public EclibRuntimeException(@Nonnull String message) {
     super(message);
 
     ObjectsUtil.paramRequireNonNull(message);
@@ -43,7 +43,7 @@ public class LibRuntimeException extends RuntimeException {
    * 
    * @param cause cause
    */
-  public LibRuntimeException(@Nonnull Throwable cause) {
+  public EclibRuntimeException(@Nonnull Throwable cause) {
     super(cause);
 
     ObjectsUtil.paramRequireNonNull(cause);
@@ -55,7 +55,7 @@ public class LibRuntimeException extends RuntimeException {
    * @param message message
    * @param cause cause
    */
-  public LibRuntimeException(@Nonnull String message, @Nonnull Throwable cause) {
+  public EclibRuntimeException(@Nonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
 
     ObjectsUtil.paramRequireNonNull(message);
@@ -70,6 +70,6 @@ public class LibRuntimeException extends RuntimeException {
   @Override
   public String getMessage() {
     return super.getMessage() == null ? null
-        : LibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + super.getMessage();
+        : EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + super.getMessage();
   }
 }
