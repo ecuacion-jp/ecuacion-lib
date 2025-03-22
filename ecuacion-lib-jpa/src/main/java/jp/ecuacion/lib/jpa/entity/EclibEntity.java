@@ -33,7 +33,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 /**
  * Provides the customized jpa entity.
  */
-public abstract class LibEntity {
+public abstract class EclibEntity {
 
   /**
    * Returns the value of the designated fieldName.

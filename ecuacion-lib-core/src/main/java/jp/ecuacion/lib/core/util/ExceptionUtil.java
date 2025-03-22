@@ -33,7 +33,7 @@ import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.exception.unchecked.LibRuntimeException;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.apache.commons.lang3.StringUtils;
@@ -164,7 +164,7 @@ public class ExceptionUtil {
               String msg = "ExceptionUtil#getExceptionMessage: MessageFormat.format throws "
                   + "an IllegalArgumentException because message template has {x} "
                   + "with x not a number. (message template: " + message + ")";
-              throw new LibRuntimeException(msg, iae);
+              throw new EclibRuntimeException(msg, iae);
             }
           }
 
@@ -264,7 +264,7 @@ public class ExceptionUtil {
       } else if (th instanceof UncheckedAppException) {
         rtnList.add(((UncheckedAppException) th).getCause());
 
-      } else if (th instanceof SingleAppException || th instanceof LibRuntimeException
+      } else if (th instanceof SingleAppException || th instanceof EclibRuntimeException
           || (th.getMessage() != null && !th.getMessage().equals(""))) {
         rtnList.add(th);
       }

@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.LibLogger;
+import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 
 /**
  * Logs sqls and related info like sql parameters. 
@@ -30,7 +30,7 @@ import jp.ecuacion.lib.core.logging.internal.LibLogger;
  * <li>trace: uses for sql-related info</li>
  * </ul>
  */
-public class SqlLogger extends LibLogger {
+public class SqlLogger extends EclibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SqlLogger() {
