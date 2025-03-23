@@ -58,7 +58,7 @@ public @interface EnumElement {
    * 
    * @return message ID
    */
-  String message() default "";
+  String message() default "{jp.ecuacion.validation.constraints.EnumElement.message}";
 
   /** 
    * Returns groups.
