@@ -63,8 +63,10 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> T returnRequireNonNull(@Nonnull T object) {
-    return Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-        + "the return value: " + object.getClass().getName() + "is null.");
+    return Objects.requireNonNull(object,
+        EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+            + "ObjectsUtil#returnRequireNonNull(Object) : the return value: "
+            + object.getClass().getName() + "is null.");
   }
 
   /**
@@ -77,8 +79,10 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> T requireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-        + "the variable: " + object.getClass().getName() + "is null.");
+    return Objects.requireNonNull(object,
+        EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+            + "ObjectsUtil#requireNonNull(Object) : the variable: " + object.getClass().getName()
+            + "is null.");
   }
 
   /**
@@ -94,8 +98,8 @@ public class ObjectsUtil {
     ObjectsUtil.paramRequireNonNull(objects);
 
     if (objects.length == 0) {
-      throw new IllegalArgumentException(
-          EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + "The length of the array is zero.");
+      throw new IllegalArgumentException(EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+          + "ObjectsUtil#paramSizeNonZero(T[]) : The length of the array is zero.");
     }
 
     return objects;
@@ -115,8 +119,8 @@ public class ObjectsUtil {
     ObjectsUtil.paramRequireNonNull(colleciton);
 
     if (colleciton.size() == 0) {
-      throw new IllegalArgumentException(
-          EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + "The size of the collection is zero.");
+      throw new IllegalArgumentException(EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+          + "ObjectsUtil#paramSizeNonZero(Collection<T>) : The size of the collection is zero.");
     }
 
     return colleciton;
