@@ -23,12 +23,15 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides the customized jpa entity.
@@ -45,12 +48,13 @@ public abstract class EclibEntity {
   @Nullable
   public Object getValue(@RequireNonnull String fieldName) {
     try {
-      Field field = this.getClass().getDeclaredField(fieldName);
-      Object value = field.get(this);
+      Method m = this.getClass().getMethod("get" + StringUtils.capitalize(fieldName));
+      Object value = m.invoke(this);
+
       return value;
 
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
+    } catch (SecurityException | IllegalArgumentException
+        | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }

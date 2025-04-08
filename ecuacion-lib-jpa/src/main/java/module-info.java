@@ -24,4 +24,6 @@ module jp.ecuacion.lib.jpa {
   requires transitive jakarta.persistence;
 
   requires transitive jp.ecuacion.lib.core;
+  
+  requires org.apache.commons.lang3;
 }
