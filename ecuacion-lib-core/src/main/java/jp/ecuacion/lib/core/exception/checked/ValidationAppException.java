@@ -64,7 +64,7 @@ public class ValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
-  public ConstraintViolationBean getBeanValidationErrorInfoBean() {
+  public ConstraintViolationBean getConstraintViolationBean() {
     return bean;
   }
 

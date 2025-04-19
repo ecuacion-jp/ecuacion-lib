@@ -125,7 +125,7 @@ public class ExceptionUtil {
 
         String message = null;
         try {
-          ConstraintViolationBean bean = ex.getBeanValidationErrorInfoBean();
+          ConstraintViolationBean bean = ex.getConstraintViolationBean();
           Map<String, String> map = bean.getParamMap().entrySet().stream()
               .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
               .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
