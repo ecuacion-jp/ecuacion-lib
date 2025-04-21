@@ -19,6 +19,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
 import java.util.Map;
+import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 
 /** 
  * Stores {@code ConstraintViolation} info.
@@ -40,7 +42,7 @@ public class ConstraintViolationBean {
   private String leafClassName;
   private String invalidValue;
   private Object instance;
-  
+
   @Nonnull
   private Map<String, Object> paramMap;
 
@@ -69,7 +71,10 @@ public class ConstraintViolationBean {
     this.instance = cv.getLeafBean();
 
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
-        : cv.getConstraintDescriptor().getAttributes();
+        : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
+
+    // put additional params to paramMap
+    putAdditionalParamsToParamMap(cv);
   }
 
   /**
@@ -93,6 +98,56 @@ public class ConstraintViolationBean {
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
     annotationDescriptionString = "";
+  }
+
+  private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
+
+    // When localized messages are created, paramMap is an only parameter.
+    // So sume value are needed to put into the map.
+    paramMap.put("leafClassName", getLeafClassName());
+    paramMap.put("invalidValue", getInvalidValue());
+    paramMap.put("annotation", getAnnotation());
+
+    // In the case of ConditionalXxx validator
+    if (annotation.startsWith("jp.ecuacion.lib.core.jakartavalidation.validator.Conditional")) {
+      String conditionValueKind;
+      String valuesOfConditionFieldToValidate = null;
+      if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
+        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_EMPTY;
+
+      } else if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY)) {
+        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY;
+
+      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_WHICH_HOLDS_CONDITOION_VALUE))
+          .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+        conditionValueKind = ConditionalValidator.FIELD_WHICH_HOLDS_CONDITOION_VALUE;
+        valuesOfConditionFieldToValidate = (String) ConditionalValidator
+            .getFieldValue(conditionValueKind, instance, conditionValueKind);
+
+      } else {
+        // conditionValue is used
+        conditionValueKind = ConditionalValidator.CONDITION_VALUE;
+
+        String[] strs = (String[]) paramMap.get(conditionValueKind);
+        String csv = "";
+        boolean is1st = true;
+        for (String str : strs) {
+          if (is1st) {
+            is1st = false;
+          } else {
+            csv = csv + ", ";
+          }
+
+          csv = csv + str;
+        }
+
+        valuesOfConditionFieldToValidate = csv;
+      }
+
+      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
+      paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
+          valuesOfConditionFieldToValidate);
+    }
   }
 
   /**

@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 
@@ -538,16 +539,47 @@ public class PropertyFileUtil {
 
   private static String substituteArgsToValidationMessages(Locale locale, String message,
       Map<String, String> argMap) {
-    String rtnMessage = message;
-    final String D_Id = "descriptionId";
-    final String P_D = "patternDescription";
+    String annotation;
+    String key;
+    String newKey;
+    String newValue;
 
-    // get patternDescription from descriptionId
-    if (argMap.containsKey(D_Id) && argMap.get(D_Id) != null) {
-      String desc =
-          PropertyFileUtil.getValidationMessagePatternDescription(locale, argMap.get(D_Id));
-      argMap.put(P_D, desc);
+    // get patternDescription from descriptionId (for @PatternWithDescription)
+    annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription";
+    if (argMap.get("annotation").equals(annotation)) {
+      key = "descriptionId";
+      newKey = "patternDescription";
+      newValue = PropertyFileUtil.getValidationMessagePatternDescription(locale, argMap.get(key));
+      argMap.put(newKey, newValue);
     }
+
+    // get fieldName from field (for @ConditionalXxx)
+    annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
+    if (argMap.get("annotation").startsWith(annotation)) {
+      final String className =
+          argMap.get("leafClassName").substring(argMap.get("leafClassName").lastIndexOf(".") + 1);
+
+      // field -> fieldDisplayName
+      key = "field";
+      newKey = "fieldDisplayName";
+      newValue = PropertyFileUtil.getItemName(locale, className + "." + argMap.get(key));
+      argMap.put(newKey, newValue);
+
+      // conditionField -> conditionFieldDisplayName
+      key = ConditionalValidator.CONDITION_FIELD;
+      newKey = "conditionFieldDisplayName";
+      newValue = PropertyFileUtil.getItemName(locale, className + "." + argMap.get(key));
+      argMap.put(newKey, newValue);
+
+      key = ConditionalValidator.CONDITION_VALUE_KIND;
+      newKey = "conditionValueDescription";
+      newValue = PropertyFileUtil.getMessage(locale,
+          "jp.ecuacion.validation.constraints.Conditional.messagePart." + argMap.get(key),
+          argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
+      argMap.put(newKey, newValue);
+    }
+
+    String rtnMessage = message;
 
     for (Entry<String, String> entry : argMap.entrySet()) {
       // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
