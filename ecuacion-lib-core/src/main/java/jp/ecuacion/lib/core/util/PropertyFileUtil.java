@@ -544,9 +544,10 @@ public class PropertyFileUtil {
     String newKey;
     String newValue;
 
+    String argAnnotationValue = argMap.get("annotation");
     // get patternDescription from descriptionId (for @PatternWithDescription)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription";
-    if (argMap.get("annotation").equals(annotation)) {
+    if (argAnnotationValue != null && argAnnotationValue.equals(annotation)) {
       key = "descriptionId";
       newKey = "patternDescription";
       newValue = PropertyFileUtil.getValidationMessagePatternDescription(locale, argMap.get(key));
@@ -555,7 +556,7 @@ public class PropertyFileUtil {
 
     // get fieldName from field (for @ConditionalXxx)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
-    if (argMap.get("annotation").startsWith(annotation)) {
+    if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
       final String className =
           argMap.get("leafClassName").substring(argMap.get("leafClassName").lastIndexOf(".") + 1);
 
