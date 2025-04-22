@@ -30,18 +30,13 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalVali
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
 public class ConstraintViolationBean {
+  private ConstraintViolation<?> cv;
   private String message;
   private String propertyPath;
   private String validatorClass;
-  private String annotationDescriptionString;
-
-  private String annotation;
-  private Map<String, Object> annotationAttributes;
-  private String messageTemplate;
   private String rootClassName;
-  private String leafClassName;
-  private String invalidValue;
-  private Object instance;
+  private String messageTemplate;
+  private String annotationDescriptionString;
 
   @Nonnull
   private Map<String, Object> paramMap;
@@ -52,23 +47,18 @@ public class ConstraintViolationBean {
    * @param cv ConstraintViolation
    */
   public ConstraintViolationBean(ConstraintViolation<?> cv) {
+    this.cv = cv;
+
     this.message = cv.getMessage();
     this.propertyPath = cv.getPropertyPath().toString();
     this.validatorClass = cv.getConstraintDescriptor().getAnnotation().annotationType().getName();
+    this.rootClassName = cv.getRootBeanClass().getName();
     this.annotationDescriptionString = cv.getConstraintDescriptor().getAnnotation().toString();
-
-    this.annotation =
-        cv.getConstraintDescriptor().getAnnotation().annotationType().getCanonicalName();
-    this.annotationAttributes = cv.getConstraintDescriptor().getAttributes();
     messageTemplate = cv.getMessageTemplate();
     // 値が{jakarta.validation.constraints.Pattern.message} のように{}に囲まれているので外す
     if (messageTemplate.startsWith("{")) {
       messageTemplate = messageTemplate.replace("{", "").replace("}", "");
     }
-    this.rootClassName = cv.getRootBeanClass().getName();
-    this.leafClassName = cv.getLeafBean().getClass().getName();
-    this.invalidValue = (cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
-    this.instance = cv.getLeafBean();
 
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
@@ -109,7 +99,8 @@ public class ConstraintViolationBean {
     paramMap.put("annotation", getAnnotation());
 
     // In the case of ConditionalXxx validator
-    if (annotation.startsWith("jp.ecuacion.lib.core.jakartavalidation.validator.Conditional")) {
+    if (getAnnotation()
+        .startsWith("jp.ecuacion.lib.core.jakartavalidation.validator.Conditional")) {
       String conditionValueKind;
       String valuesOfConditionFieldToValidate = null;
       if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
@@ -122,7 +113,7 @@ public class ConstraintViolationBean {
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
         conditionValueKind = ConditionalValidator.FIELD_WHICH_HOLDS_CONDITOION_VALUE;
         valuesOfConditionFieldToValidate = (String) ConditionalValidator
-            .getFieldValue(conditionValueKind, instance, conditionValueKind);
+            .getFieldValue(conditionValueKind, getInstance(), conditionValueKind);
 
       } else {
         // conditionValue is used
@@ -192,7 +183,7 @@ public class ConstraintViolationBean {
    * @return annotation
    */
   public String getAnnotation() {
-    return annotation;
+    return cv.getConstraintDescriptor().getAnnotation().annotationType().getCanonicalName();
   }
 
   /**
@@ -201,7 +192,7 @@ public class ConstraintViolationBean {
    * @return annotationAttributes
    */
   public Map<String, Object> getAnnotationAttributes() {
-    return annotationAttributes;
+    return cv.getConstraintDescriptor().getAttributes();
   }
 
   /**
@@ -228,7 +219,7 @@ public class ConstraintViolationBean {
    * @return leafClassName
    */
   public String getLeafClassName() {
-    return leafClassName;
+    return cv.getLeafBean().getClass().getName();
   }
 
   /**
@@ -237,7 +228,7 @@ public class ConstraintViolationBean {
    * @return invalidValue
    */
   public String getInvalidValue() {
-    return invalidValue;
+    return (cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
   }
 
   /**
@@ -246,7 +237,7 @@ public class ConstraintViolationBean {
    * @return annotation
    */
   public @Nonnull String getMessageId() {
-    return annotation;
+    return getAnnotation();
   }
 
   /**
@@ -255,7 +246,7 @@ public class ConstraintViolationBean {
    * @return instance
    */
   public Object getInstance() {
-    return instance;
+    return cv.getLeafBean();
   }
 
   @Nonnull
