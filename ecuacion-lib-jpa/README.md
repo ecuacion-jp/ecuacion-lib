@@ -41,9 +41,9 @@ It offers customized entity class.
 
 - [javadoc](https://javadoc.ecuacion.jp/apidocs/ecuacion-lib-jpa/)
 
-## introduction
+## Installation
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page in `ecuacion-lib`.  
+Check [Installation](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` page in `ecuacion-lib`.  
 The description of dependent `ecuacion` modules is as follows.
 
 ```xml
