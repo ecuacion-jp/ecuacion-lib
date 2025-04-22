@@ -3,8 +3,7 @@
 ## What is it?
 
 `ecuacion-lib-core` provides utilities for `Jakarta Validation`.
-It also provides some utilities used by other ecuacion modules.  
-This is the base library which is used by other ecuacion apps and libraries.  
+It also provides some utilities used by other ecuacion modules and apps.  
 
 ## System Requirements
 
@@ -33,9 +32,9 @@ This is the base library which is used by other ecuacion apps and libraries.
 
 - [javadoc](https://javadoc.ecuacion.jp/apidocs/ecuacion-lib-core/)
 
-## introduction
+## Installation
 
-Check [Introduction](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` in `ecuacion-lib`.  
+Check [Installation](https://github.com/ecuacion-jp/ecuacion-lib) part of `README` in `ecuacion-lib`.  
 The description of dependent `ecuacion` modules is as follows.
 
 ```xml
