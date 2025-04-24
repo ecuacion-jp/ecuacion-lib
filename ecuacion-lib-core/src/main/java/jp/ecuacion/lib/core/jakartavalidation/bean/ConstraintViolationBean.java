@@ -120,19 +120,19 @@ public class ConstraintViolationBean {
         conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
         String[] strs = (String[]) paramMap.get(conditionValueKind);
-        String csv = "";
+        StringBuilder csv = new StringBuilder();
         boolean is1st = true;
         for (String str : strs) {
           if (is1st) {
             is1st = false;
           } else {
-            csv = csv + ", ";
+            csv.append(", ");
           }
 
-          csv = csv + str;
+          csv.append(str);
         }
 
-        valuesOfConditionFieldToValidate = csv;
+        valuesOfConditionFieldToValidate = csv.toString();
       }
 
       paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
