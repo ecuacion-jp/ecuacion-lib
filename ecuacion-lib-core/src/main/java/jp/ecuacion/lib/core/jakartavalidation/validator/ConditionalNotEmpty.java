@@ -99,7 +99,7 @@ public @interface ConditionalNotEmpty {
    * 
    * @return value
    */
-  String fieldWhichHoldsConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /** 
    * Returns message ID.
