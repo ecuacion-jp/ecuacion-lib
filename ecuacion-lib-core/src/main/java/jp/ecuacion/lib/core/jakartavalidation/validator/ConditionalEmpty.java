@@ -20,7 +20,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import jakarta.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -99,7 +98,7 @@ public @interface ConditionalEmpty {
    * 
    * @return value
    */
-  String fieldWhichHoldsConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /** 
    * Returns message ID.
