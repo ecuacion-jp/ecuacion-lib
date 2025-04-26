@@ -123,8 +123,6 @@ public @interface ConditionalEmpty {
 
   /**
    * Defines several {@link ConditionalEmpty} annotations on the same element.
-   *
-   * @see Pattern
    */
   @Target({TYPE})
   @Documented
