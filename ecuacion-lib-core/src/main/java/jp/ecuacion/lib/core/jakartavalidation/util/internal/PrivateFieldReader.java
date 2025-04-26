@@ -24,8 +24,10 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
  * A class is created only for this reason because spotbug declares an error for it.
  * 
  * <code>
- * Public method jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
- * uses reflection to modify a field it gets in its parameter which could increase the accessibility of any class. 
+ * Public method 
+ * jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
+ * uses reflection to modify a field it gets in its parameter 
+ * which could increase the accessibility of any class. 
  * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
  * </code>
  */

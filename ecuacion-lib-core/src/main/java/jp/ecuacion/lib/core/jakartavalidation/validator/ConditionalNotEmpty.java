@@ -20,7 +20,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import jakarta.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -124,8 +123,6 @@ public @interface ConditionalNotEmpty {
 
   /**
    * Defines several {@link ConditionalNotEmpty} annotations on the same element.
-   *
-   * @see Pattern
    */
   @Target({TYPE})
   @Documented
