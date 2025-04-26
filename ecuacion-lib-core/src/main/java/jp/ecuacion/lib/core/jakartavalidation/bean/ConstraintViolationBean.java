@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
 import java.util.Map;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 
 /** 
@@ -29,7 +30,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalVali
  *     which are not created by {@code Jakarata Validation} can also be treated 
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean {
+public class ConstraintViolationBean extends PrivateFieldReader {
   private ConstraintViolation<?> cv;
   private String message;
   private String propertyPath;
@@ -109,11 +110,11 @@ public class ConstraintViolationBean {
       } else if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY)) {
         conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY;
 
-      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_WHICH_HOLDS_CONDITOION_VALUE))
+      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITOION_VALUE))
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-        conditionValueKind = ConditionalValidator.FIELD_WHICH_HOLDS_CONDITOION_VALUE;
-        valuesOfConditionFieldToValidate = (String) ConditionalValidator
-            .getFieldValue(conditionValueKind, getInstance(), conditionValueKind);
+        conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITOION_VALUE;
+        valuesOfConditionFieldToValidate =
+            (String) getFieldValue(conditionValueKind, getInstance(), conditionValueKind);
 
       } else {
         // conditionValue is used
