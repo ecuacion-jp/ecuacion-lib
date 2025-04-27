@@ -30,12 +30,17 @@ public class ConditionalEmptyValidator extends ConditionalValidator
   public void initialize(ConditionalEmpty annotation) {
     super.initialize(annotation.field(), annotation.conditionField(), annotation.conditionValue(),
         annotation.conditionValueIsEmpty(), annotation.conditionValueIsNotEmpty(),
-        annotation.fieldHoldingConditionValue());
+        annotation.fieldHoldingConditionValue(), annotation.notEmptyForOtherValues());
   }
 
   @Override
   protected boolean isValid(Object valueOfField) {
     return valueOfField == null || valueOfField.equals("")
         || valueOfField.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL);
+  }
+
+  @Override
+  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
+    return !isValid(valueOfField);
   }
 }
