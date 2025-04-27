@@ -102,4 +102,30 @@ public class ConditinalCommonTest {
         new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass());
     Assertions.assertEquals(null, mae);
   }
+
+  @Test
+  public void multipleFieldsTest() {
+
+    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllTrue());
+    Assertions.assertEquals(null, mae);
+
+    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.OneFalse());
+    Assertions.assertEquals(1, mae.getList().size());
+
+    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllFalse());
+    Assertions.assertEquals(1, mae.getList().size());
+
+    mae = valUtil.validateThenReturn(
+        new ConditinalCommonTestBean.MultipleFields.AllTrueConditionNotSatisfied());
+    Assertions.assertEquals(1, mae.getList().size());
+
+    mae = valUtil.validateThenReturn(
+        new ConditinalCommonTestBean.MultipleFields.OneFalseConditionNotSatisfied());
+    Assertions.assertEquals(1, mae.getList().size());
+
+    mae = valUtil.validateThenReturn(
+        new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied());
+    Assertions.assertEquals(null, mae);
+
+  }
 }

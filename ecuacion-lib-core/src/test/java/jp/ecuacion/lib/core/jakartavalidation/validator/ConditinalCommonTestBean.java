@@ -93,4 +93,55 @@ public class ConditinalCommonTestBean {
       private String condField = "b";
     }
   }
+
+  public static class MultipleFields {
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a")
+    public static class AllTrue {
+      private String field1 = null;
+      private String field2 = "";
+      private String condField = "a";
+    }
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a")
+    public static class OneFalse {
+      private String field1 = null;
+      private String field2 = "X";
+      private String condField = "a";
+    }
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a")
+    public static class AllFalse {
+      private String field1 = "X";
+      private String field2 = "X";
+      private String condField = "a";
+    }
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a", notEmptyForOtherValues = true)
+    public static class AllTrueConditionNotSatisfied {
+      private String field1 = null;
+      private String field2 = "";
+      private String condField = "b";
+    }
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a", notEmptyForOtherValues = true)
+    public static class OneFalseConditionNotSatisfied {
+      private String field1 = null;
+      private String field2 = "X";
+      private String condField = "b";
+    }
+
+    @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
+        conditionValue = "a", notEmptyForOtherValues = true)
+    public static class AllFalseConditionNotSatisfied {
+      private String field1 = "X";
+      private String field2 = "X";
+      private String condField = "b";
+    }
+  }
 }

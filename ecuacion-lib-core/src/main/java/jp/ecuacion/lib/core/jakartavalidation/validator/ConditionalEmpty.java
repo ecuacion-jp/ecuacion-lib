@@ -48,7 +48,7 @@ public @interface ConditionalEmpty {
    * 
    * @return field name
    */
-  String field();
+  String[] field();
 
   /**
    * Conditional field. Validation check is executed 
