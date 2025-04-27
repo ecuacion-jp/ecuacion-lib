@@ -144,4 +144,18 @@ public class ConditinalCommonTestBean {
       private String condField = "b";
     }
   }
+
+  public static class FieldInParentClass {
+    public static class Parent {
+      private String field = "X";
+      private String condField = "a";
+      private String fieldHoldingConditionValue = "a";
+    }
+
+    @ConditionalEmpty(field = "field", conditionField = "condField",
+        fieldHoldingConditionValue = "fieldHoldingConditionValue")
+    public static class Child extends Parent {
+
+    }
+  }
 }

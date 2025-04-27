@@ -35,22 +35,32 @@ public class PrivateFieldReader {
 
   protected static Object getFieldValue(String fieldName, Object instance, String fieldKindName) {
     Field validationTargetField;
+    
+    // loop for finding fields in parent's class.
+    Class<?> cls = instance.getClass();
+    // store first exception
+    Exception ex = null;
+    
+    while (true) {
+      if (cls.equals(Object.class)) {
+        break;
+      }
+      
+      try {
+        validationTargetField = cls.getDeclaredField(fieldName);
+        validationTargetField.setAccessible(true);
+        return validationTargetField.get(instance);
 
-    try {
-      validationTargetField = instance.getClass().getDeclaredField(fieldName);
-      validationTargetField.setAccessible(true);
-
-    } catch (Exception ex) {
-      throw new EclibRuntimeException("'" + fieldKindName + "' instance cannot be obtained "
-          + "from the field name '" + fieldName + "'", ex);
+      } catch (Exception exception) {
+        if (ex == null) {
+          ex = exception;
+        }
+      }
+      
+      cls = cls.getSuperclass();
     }
-
-    try {
-      return validationTargetField.get(instance);
-
-    } catch (Exception ex) {
-      throw new EclibRuntimeException(
-          "The return value of '" + fieldName + "' instance cannot be obtained.", ex);
-    }
+    
+    throw new EclibRuntimeException("'" + fieldKindName + "' field value cannot be obtained "
+        + "from the field name '" + fieldName + "'", ex);
   }
 }
