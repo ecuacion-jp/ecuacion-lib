@@ -108,6 +108,13 @@ public @interface ConditionalNotEmpty {
    */
   boolean emptyForOtherValues() default false;
   
+  /**
+   * Specifies class part (= left part) of item ID.
+   * 
+   * @return String
+   */
+  String itemIdClass() default "";
+  
   /** 
    * Returns message ID.
    * 
