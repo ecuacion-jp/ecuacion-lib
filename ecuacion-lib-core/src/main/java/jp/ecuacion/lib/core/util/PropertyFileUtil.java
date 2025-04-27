@@ -482,7 +482,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessage(@RequireNonnull String key,
-      Map<String, String> argMap) {
+      Map<String, Object> argMap) {
     return getValidationMessage(null, key, argMap);
   }
 
@@ -496,7 +496,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessage(@Nullable Locale locale, @RequireNonnull String key,
-      Map<String, String> argMap) {
+      Map<String, Object> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
@@ -517,7 +517,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessageWithItemName(@RequireNonnull String key,
-      Map<String, String> argMap) {
+      Map<String, Object> argMap) {
     return getValidationMessageWithItemName(null, key, argMap);
   }
 
@@ -531,40 +531,45 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessageWithItemName(@Nullable Locale locale,
-      @RequireNonnull String key, Map<String, String> argMap) {
+      @RequireNonnull String key, Map<String, Object> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
   private static String substituteArgsToValidationMessages(Locale locale, String message,
-      Map<String, String> argMap) {
+      Map<String, Object> argMap) {
     String annotation;
     String key;
     String newKey;
     String newValue;
 
-    String argAnnotationValue = argMap.get("annotation");
+    String argAnnotationValue = (String) argMap.get("annotation");
     // get patternDescription from descriptionId (for @PatternWithDescription)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription";
     if (argAnnotationValue != null && argAnnotationValue.equals(annotation)) {
       key = "descriptionId";
       newKey = "patternDescription";
-      newValue = PropertyFileUtil.getValidationMessagePatternDescription(locale, argMap.get(key));
+      newValue =
+          PropertyFileUtil.getValidationMessagePatternDescription(locale, (String) argMap.get(key));
       argMap.put(newKey, newValue);
     }
 
     // get fieldName from field (for @ConditionalXxx)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
-      final String className =
-          argMap.get("leafClassName").substring(argMap.get("leafClassName").lastIndexOf(".") + 1);
+      final String className = ((String) argMap.get("leafClassName"))
+          .substring(((String) argMap.get("leafClassName")).lastIndexOf(".") + 1);
 
       // field -> fieldDisplayName
       key = "field";
       newKey = "fieldDisplayName";
-      newValue = PropertyFileUtil.getItemName(locale, className + "." + argMap.get(key));
-      argMap.put(newKey, newValue);
+      String[] fields = (String[]) argMap.get(key);
+      List<String> fieldDisplayNameList = new ArrayList<>();
+      for (String field : fields) {
+        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, className + "." + field));
+      }
+      argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
 
       // conditionField -> conditionFieldDisplayName
       key = ConditionalValidator.CONDITION_FIELD;
@@ -576,16 +581,16 @@ public class PropertyFileUtil {
       newKey = "conditionValueDescription";
       newValue = PropertyFileUtil.getMessage(locale,
           "jp.ecuacion.validation.constraints.Conditional.messagePart." + argMap.get(key),
-          argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
+          (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
       argMap.put(newKey, newValue);
     }
 
     String rtnMessage = message;
 
-    for (Entry<String, String> entry : argMap.entrySet()) {
+    for (Entry<String, Object> entry : argMap.entrySet()) {
       // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
       rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue() == null ? "''"
-          : entry.getValue().replace("{", "'{'").replace("}", "'}'"));
+          : ((String) entry.getValue()).replace("{", "'{'").replace("}", "'}'"));
     }
 
     return rtnMessage;
