@@ -17,13 +17,14 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
+import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class ConditionalValidator extends PrivateFieldReader {
-  private String field;
+  private String[] field;
   private String conditionField;
   private String[] conditionValue;
   private boolean conditionValueIsEmpty;
@@ -44,7 +45,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
   public static final String VALUE_OF_CONDITION_FIELD_TO_VALIDATE =
       "valuesOfConditionFieldToValidate";
 
-  public void initialize(String field, String conditionField, String[] conditionValue,
+  public void initialize(String[] field, String conditionField, String[] conditionValue,
       boolean conditionValueIsEmpty, boolean conditionValueIsNotEmpty,
       String fieldHoldingConditionValue, boolean validatesWhenConditionNotSatisfied) {
     this.field = field;
@@ -65,7 +66,21 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
-    Object valueOfField = getFieldValue(field, instance, VALIDATION_TARGET_FIELD);
+    List<Object> valueOfFieldList = Arrays.asList(field).stream()
+        .map(f -> getFieldValue(f, instance, VALIDATION_TARGET_FIELD)).toList();
+
+    for (Object valueOfField : valueOfFieldList) {
+      boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
+      
+      if (!result) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  private boolean isValidForSingleValueOfField(Object valueOfField, boolean satisfiesCondition) {
     if (satisfiesCondition) {
       return isValid(valueOfField);
 
