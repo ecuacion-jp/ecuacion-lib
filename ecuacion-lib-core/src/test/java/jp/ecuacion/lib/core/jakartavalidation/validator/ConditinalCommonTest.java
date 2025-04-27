@@ -126,6 +126,12 @@ public class ConditinalCommonTest {
     mae = valUtil.validateThenReturn(
         new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied());
     Assertions.assertEquals(null, mae);
-
   }
+
+  @Test
+  public void fieldInParentClassTest() {
+    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.FieldInParentClass.Child());
+    Assertions.assertEquals(1, mae.getList().size());
+  }
+  
 }
