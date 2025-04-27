@@ -29,6 +29,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
   private boolean conditionValueIsEmpty;
   private boolean conditionValueIsNotEmpty;
   private String fieldHoldingConditionValue;
+  private boolean validatesWhenConditionNotSatisfied;
 
   public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
 
@@ -45,13 +46,14 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
   public void initialize(String field, String conditionField, String[] conditionValue,
       boolean conditionValueIsEmpty, boolean conditionValueIsNotEmpty,
-      String fieldHoldingConditionValue) {
+      String fieldHoldingConditionValue, boolean validatesWhenConditionNotSatisfied) {
     this.field = field;
     this.conditionField = conditionField;
     this.conditionValue = conditionValue;
     this.conditionValueIsEmpty = conditionValueIsEmpty;
     this.conditionValueIsNotEmpty = conditionValueIsNotEmpty;
     this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+    this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
 
   protected abstract boolean isValid(Object valueOfField);
@@ -61,81 +63,108 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
    */
   public boolean isValid(Object instance, ConstraintValidatorContext context) {
 
+    boolean satisfiesCondition = getSatisfiesCondition(instance);
+
     Object valueOfField = getFieldValue(field, instance, VALIDATION_TARGET_FIELD);
+    if (satisfiesCondition) {
+      return isValid(valueOfField);
+
+    } else {
+      if (validatesWhenConditionNotSatisfied) {
+        return isValidWhenConditionNotSatisfied(valueOfField);
+
+      } else {
+        // Reaching here means valueOfConditionField is not equal to conditionValue. skipped.
+        return true;
+      }
+    }
+  }
+
+  boolean getSatisfiesCondition(Object instance) {
+
     Object valueOfConditionField = getFieldValue(conditionField, instance, CONDITION_FIELD);
 
-    if (!(conditionValue.length == 1
-        && conditionValue[0].equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))) {
-
-      conditionValueIsEmptyMustBeFalse(CONDITION_VALUE);
-      conditionValueIsNotEmptyMustBeFalse(CONDITION_VALUE);
-      fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE);
-
-      if (valueOfConditionField != null) {
-        // When you use 'conditionValue', datatype of valueOfConditionField must be String.
-        if (!(valueOfConditionField instanceof String)) {
-          throw new EclibRuntimeException(
-              "When 'conditionValue' is not null, 'validationConditionField' must be String.");
-        }
-
-        if (Arrays.asList(conditionValue).contains(valueOfConditionField)) {
-          return isValid(valueOfField);
-        }
-      }
-
-    } else if (conditionValueIsEmpty) {
-
+    if (conditionValueIsEmpty) {
       conditionValueIsNotEmptyMustBeFalse(CONDITION_VALUE_IS_EMPTY + " = true");
       fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
+      conditionValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
 
-      if ((valueOfConditionField instanceof String
-          && StringUtils.isEmpty((String) valueOfConditionField))
-          || valueOfConditionField == null) {
-        return isValid(valueOfField);
+      if (valueOfConditionField == null || (valueOfConditionField instanceof String
+          && StringUtils.isEmpty((String) valueOfConditionField))) {
+        return true;
       }
 
     } else if (conditionValueIsNotEmpty) {
-
       fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
+      conditionValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
 
-      if ((valueOfConditionField instanceof String
-          && !StringUtils.isEmpty((String) valueOfConditionField))
-          || valueOfConditionField != null) {
-        return isValid(valueOfField);
+      if ((!(valueOfConditionField instanceof String) && valueOfConditionField != null)
+          || valueOfConditionField instanceof String
+              && !StringUtils.isEmpty((String) valueOfConditionField)) {
+        return true;
       }
 
-    } else {
+    } else if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      conditionValueMustBeNull(FIELD_HOLDING_CONDITOION_VALUE);
+
       // conditionValue == null && conditionValueIsNotEmpty == false
 
       if (fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
         // This case means validation check should be executed
         // when the value of conditionField is null
         if (valueOfConditionField == null) {
-          return isValid(valueOfField);
+          return true;
         }
 
       } else {
-        Object valueOfFieldHoldingConditionalValue = getFieldValue(fieldHoldingConditionValue,
-            instance, FIELD_HOLDING_CONDITOION_VALUE);
+        Object valueOfFieldHoldingConditionValue =
+            getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITOION_VALUE);
 
-        if ((valueOfConditionField == null && valueOfFieldHoldingConditionalValue == null)
-            || (valueOfConditionField != null
-                && valueOfFieldHoldingConditionalValue.equals(valueOfConditionField))) {
-          return isValid(valueOfField);
+        // throws exception when the datatype differs
+        if (valueOfConditionField != null && valueOfFieldHoldingConditionValue != null
+            && !(valueOfConditionField.getClass()
+                .equals(valueOfFieldHoldingConditionValue.getClass()))) {
+          throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
+              + " and " + valueOfFieldHoldingConditionValue.getClass());
         }
+
+        if ((valueOfConditionField == null && valueOfFieldHoldingConditionValue == null)
+            || (valueOfConditionField != null
+                && valueOfConditionField.equals(valueOfFieldHoldingConditionValue))) {
+          return true;
+        }
+      }
+
+    } else {
+      if (valueOfConditionField == null) {
+        valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+      }
+
+      // When you use 'conditionValue', datatype of valueOfConditionField must be String.
+      if (!(valueOfConditionField instanceof String)) {
+        throw new EclibRuntimeException(
+            "When 'conditionValue' is not null, 'validationConditionField' must be String.");
+      }
+
+      if (Arrays.asList(conditionValue).contains(valueOfConditionField)) {
+        return true;
       }
     }
 
-    // Reaching here means valueOfConditionField is not equal to conditionValue. skipped.
-    return true;
+    return false;
   }
 
-  private void conditionValueIsEmptyMustBeFalse(String prerequisite) {
-    // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (conditionValueIsEmpty) {
-      throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + CONDITION_VALUE_IS_EMPTY + " = true'.");
-    }
+  /**
+   * Is called when {@code validatesWhenConditionNotSatisfied} is {@code true}.
+   * 
+   * <p>It's supposed to overrided by child classes.
+   *     This method is default method, that's why it always returns {@code true}.</p>
+   * 
+   * @param valueOfField valueOfField
+   * @return boolean
+   */
+  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
+    return true;
   }
 
   private void conditionValueIsNotEmptyMustBeFalse(String prerequisite) {
@@ -151,6 +180,14 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
     if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
       throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
           + FIELD_HOLDING_CONDITOION_VALUE + "'.");
+    }
+  }
+
+  private void conditionValueMustBeNull(String prerequisite) {
+    // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
+    if (!Arrays.asList(conditionValue).contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException(
+          "When you set '" + prerequisite + "', you cannot set '" + CONDITION_VALUE + " = true'.");
     }
   }
 }

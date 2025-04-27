@@ -31,7 +31,7 @@ public class ConditionalNotEmptyValidator extends ConditionalValidator
   public void initialize(ConditionalNotEmpty annotation) {
     super.initialize(annotation.field(), annotation.conditionField(), annotation.conditionValue(),
         annotation.conditionValueIsEmpty(), annotation.conditionValueIsNotEmpty(),
-        annotation.fieldHoldingConditionValue());
+        annotation.fieldHoldingConditionValue(), annotation.emptyForOtherValues());
   }
 
   @Override
@@ -46,5 +46,10 @@ public class ConditionalNotEmptyValidator extends ConditionalValidator
     } else {
       return valueOfField != null;
     }
+  }
+
+  @Override
+  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
+    return !isValid(valueOfField);
   }
 }

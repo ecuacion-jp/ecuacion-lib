@@ -100,6 +100,14 @@ public @interface ConditionalEmpty {
    */
   String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
+  /**
+   * Decides whether validation check is executed 
+   *     when the value of {@code conditionField} is not equal to the specified value.
+   * 
+   * @return boolean
+   */
+  boolean notEmptyForOtherValues() default false;
+  
   /** 
    * Returns message ID.
    * 
