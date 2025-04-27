@@ -125,9 +125,7 @@ public class ExceptionUtil {
         String message = null;
         try {
           ConstraintViolationBean bean = ex.getConstraintViolationBean();
-          final Map<String, String> map = new HashMap<>();
-          bean.getParamMap().entrySet().stream().forEach(entry -> map.put(entry.getKey(),
-              entry.getValue() == null ? null : entry.getValue().toString()));
+          final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           message = ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),

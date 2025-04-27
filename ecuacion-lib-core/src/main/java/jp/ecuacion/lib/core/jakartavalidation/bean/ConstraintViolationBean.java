@@ -39,8 +39,13 @@ public class ConstraintViolationBean extends PrivateFieldReader {
   private String messageTemplate;
   private String annotationDescriptionString;
 
+  private String[] itemIds;
+
   @Nonnull
   private Map<String, Object> paramMap;
+
+  private static final String CONDITIONAL_VALIDATOR_PREFIX =
+      "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -64,6 +69,13 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
+    if (paramMap.containsKey("field")) {
+      itemIds = (String[]) paramMap.get("field");
+      
+    } else {
+      itemIds = new String[] {propertyPath};
+    }
+
     // put additional params to paramMap
     putAdditionalParamsToParamMap(cv);
   }
@@ -75,16 +87,17 @@ public class ConstraintViolationBean extends PrivateFieldReader {
    * <p>This is used for {@code NotEmpty} validation logic.</p>
    * 
    * @param message message
-   * @param propertyPath propertyPath
    * @param validatorClass validatorClass
    */
-  public ConstraintViolationBean(String message, String propertyPath, String validatorClass,
-      String rootClassName) {
+  public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
+      String... itemIds) {
     this.message = message;
-    this.propertyPath = propertyPath;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
+
+    this.itemIds = itemIds;
+    this.propertyPath = itemIds[0];
     this.paramMap = new HashMap<>();
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
@@ -100,8 +113,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     paramMap.put("annotation", getAnnotation());
 
     // In the case of ConditionalXxx validator
-    if (getAnnotation()
-        .startsWith("jp.ecuacion.lib.core.jakartavalidation.validator.Conditional")) {
+    if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
       String conditionValueKind;
       String valuesOfConditionFieldToValidate = null;
       if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
@@ -249,6 +261,10 @@ public class ConstraintViolationBean extends PrivateFieldReader {
    */
   public Object getInstance() {
     return cv.getLeafBean();
+  }
+
+  public String[] getItemIds() {
+    return itemIds;
   }
 
   @Nonnull
