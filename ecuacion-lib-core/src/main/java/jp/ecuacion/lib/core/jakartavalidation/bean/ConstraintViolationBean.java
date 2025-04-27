@@ -17,11 +17,15 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /** 
  * Stores {@code ConstraintViolation} info.
@@ -71,10 +75,23 @@ public class ConstraintViolationBean extends PrivateFieldReader {
 
     if (paramMap.containsKey("field")) {
       itemIds = (String[]) paramMap.get("field");
-      
+
+      // Update itemIds when itemIdClass is specified.
+      String itemIdClass =
+          paramMap.containsKey("itemIdClass") ? (String) paramMap.get("itemIdClass") : null;
+      if (StringUtils.isNotEmpty(itemIdClass)) {
+        List<String> itemIdList = Arrays.asList(itemIds).stream()
+            .map(id -> itemIdClass
+                + (id.lastIndexOf(".") > 0 ? id.substring(id.lastIndexOf(".")) : "." + id))
+            .toList();
+        itemIds = itemIdList.toArray(new String[itemIdList.size()]);
+      }
+
     } else {
       itemIds = new String[] {propertyPath};
     }
+    
+    paramMap.put("itemIds", itemIds);
 
     // put additional params to paramMap
     putAdditionalParamsToParamMap(cv);
@@ -134,19 +151,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
         conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
         String[] strs = (String[]) paramMap.get(conditionValueKind);
-        StringBuilder csv = new StringBuilder();
-        boolean is1st = true;
-        for (String str : strs) {
-          if (is1st) {
-            is1st = false;
-          } else {
-            csv.append(", ");
-          }
-
-          csv.append(str);
-        }
-
-        valuesOfConditionFieldToValidate = csv.toString();
+        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
       paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);

@@ -37,6 +37,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -558,16 +559,20 @@ public class PropertyFileUtil {
     // get fieldName from field (for @ConditionalXxx)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
-      final String className = ((String) argMap.get("leafClassName"))
-          .substring(((String) argMap.get("leafClassName")).lastIndexOf(".") + 1);
+      String itemIdClass = (argMap.containsKey("itemIdClass")
+          && StringUtils.isNotEmpty((String) argMap.get("itemIdClass")))
+              ? (String) argMap.get("itemIdClass")
+              : null;
+      final String className = itemIdClass == null ? ((String) argMap.get("leafClassName"))
+          .substring(((String) argMap.get("leafClassName")).lastIndexOf(".") + 1) : itemIdClass;
 
       // field -> fieldDisplayName
-      key = "field";
+      key = "itemIds";
       newKey = "fieldDisplayName";
-      String[] fields = (String[]) argMap.get(key);
+      String[] itemIds = (String[]) argMap.get(key);
       List<String> fieldDisplayNameList = new ArrayList<>();
-      for (String field : fields) {
-        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, className + "." + field));
+      for (String itemId : itemIds) {
+        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, itemId));
       }
       argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
 
@@ -590,7 +595,7 @@ public class PropertyFileUtil {
     for (Entry<String, Object> entry : argMap.entrySet()) {
       // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
       rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue() == null ? "''"
-          : ((String) entry.getValue()).replace("{", "'{'").replace("}", "'}'"));
+          : entry.getValue().toString().replace("{", "'{'").replace("}", "'}'"));
     }
 
     return rtnMessage;
