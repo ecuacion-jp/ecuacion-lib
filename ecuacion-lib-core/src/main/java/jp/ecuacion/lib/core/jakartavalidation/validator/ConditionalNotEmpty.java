@@ -30,11 +30,9 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty.Cond
 
 /**
  * Checks if specified {@code field} is not empty 
- *     when {@code conditionField} has the value 
- *     which is equal to {@code conditionValue}, 
- *     or the value {@code fieldWhichHoldsConditionalValue} has.
+ *     only when {@code conditionField} has specified value.
  * 
- * @see ConditionalNotEmptyValidator
+ * @see ConditionalEmpty
  */
 @Target({TYPE})
 @Retention(RUNTIME)
@@ -99,7 +97,7 @@ public @interface ConditionalNotEmpty {
    * @return value
    */
   String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
-
+  
   /**
    * Decides whether validation check is executed 
    *     when the value of {@code conditionField} is not equal to the specified value.
