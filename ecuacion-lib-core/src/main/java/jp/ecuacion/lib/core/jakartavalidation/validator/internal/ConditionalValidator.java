@@ -40,7 +40,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
   public static final String CONDITION_VALUE = "conditionValue";
   public static final String CONDITION_VALUE_IS_EMPTY = "conditionValueIsEmpty";
   public static final String CONDITION_VALUE_IS_NOT_EMPTY = "conditionValueIsNotEmpty";
-  public static final String FIELD_HOLDING_CONDITOION_VALUE = "fieldHoldingConditionValue";
+  public static final String FIELD_HOLDING_CONDITION_VALUE = "fieldHoldingConditionValue";
 
   // Used to create messages from conditional validators.
   public static final String CONDITION_VALUE_KIND = "conditionValueKind";
@@ -122,10 +122,10 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
       }
 
     } else if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      conditionValueMustBeNull(FIELD_HOLDING_CONDITOION_VALUE);
+      conditionValueMustBeNull(FIELD_HOLDING_CONDITION_VALUE);
 
       Object valueOfFieldHoldingConditionValue =
-          getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITOION_VALUE);
+          getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITION_VALUE);
 
       // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
       List<Object> valueOfFieldHoldingConditionValueList = new ArrayList<>();
@@ -246,7 +246,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
     if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
       throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + FIELD_HOLDING_CONDITOION_VALUE + "'.");
+          + FIELD_HOLDING_CONDITION_VALUE + "'.");
     }
   }
 
