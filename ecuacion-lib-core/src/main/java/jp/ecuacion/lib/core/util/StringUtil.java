@@ -75,7 +75,7 @@ public class StringUtil {
     if (pattern.matcher(snakeCaseString).find()) {
       snakeCaseString = snakeCaseString.toLowerCase();
     }
-    
+
     String lowStr = StringUtils.uncapitalize(snakeCaseString);
     while (lowStr.indexOf("_") >= 0) {
       int firstUsPos = lowStr.indexOf("_");
@@ -141,6 +141,23 @@ public class StringUtil {
 
   /* ■□■□ csv関連 ■□■□ */
 
+  private static String getCsv(String[] array, String separator) {
+    boolean isFirstTime = true;
+    StringBuilder sb = new StringBuilder();
+    for (String str : array) {
+      if (isFirstTime) {
+        isFirstTime = false;
+
+      } else {
+        sb.append(separator);
+      }
+
+      sb.append(str);
+    }
+
+    return sb.toString();
+  }
+
   /**
    * Returns csv from string array.
    * 
@@ -148,18 +165,8 @@ public class StringUtil {
    * @return csv
    */
   @Nonnull
-  public String getCsv(@Nonnull String... array) {
-    boolean isFirstTime = true;
-    StringBuffer sb = new StringBuffer();
-    for (String str : array) {
-      if (isFirstTime) {
-        isFirstTime = false;
-        sb.append(str);
-      } else {
-        sb.append("," + str);
-      }
-    }
-    return sb.toString();
+  public static String getCsv(@RequireNonnull String... array) {
+    return getCsv(array, ",");
   }
 
   /**
@@ -169,7 +176,7 @@ public class StringUtil {
    * @return csv.
    */
   @Nonnull
-  public String getCsv(@Nonnull Collection<String> collection) {
+  public static String getCsv(@RequireNonnull Collection<String> collection) {
     return getCsv(collection.toArray(new String[collection.size()]));
   }
 
@@ -178,22 +185,12 @@ public class StringUtil {
    * 
    * <p>This is used not for creating csv file, but for logging or program code creation.</p>
    * 
-   * @param collection list of string.
+   * @param array list of string.
    * @return csv with spaces after commas.
    */
   @Nonnull
-  public String getCsvWithSpace(@RequireNonnull String[] collection) {
-    boolean isFirstTime = true;
-    StringBuffer sb = new StringBuffer();
-    for (String str : collection) {
-      if (isFirstTime) {
-        isFirstTime = false;
-        sb.append(str);
-      } else {
-        sb.append(", " + str);
-      }
-    }
-    return sb.toString();
+  public static String getCsvWithSpace(@RequireNonnull String[] array) {
+    return getCsv(array, ", ");
   }
 
   /**
@@ -205,7 +202,7 @@ public class StringUtil {
    * @return csv with spaces after commas.
    */
   @Nonnull
-  public String getCsvWithSpace(@Nonnull Collection<String> collection) {
+  public static String getCsvWithSpace(@RequireNonnull Collection<String> collection) {
     return getCsvWithSpace(collection.toArray(new String[collection.size()]));
   }
 

@@ -30,11 +30,22 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty.Conditi
 
 /**
  * Checks if specified {@code field} is empty 
- *     when {@code conditionField} has the value 
- *     which is equal to {@code conditionValue}, 
- *     or the value {@code fieldWhichHoldsConditionalValue} has.
+ *     only when {@code conditionField} has specified value.
+ *     
+ * <p>There are 4 ways to specify the value of {@code conditionField}.</p>
  * 
- * @see ConditionalEmptyValidator
+ * <ol>
+ * <li>{@code conditionValue}: You can set the specified value directly 
+ *     to {@code conditionValue} parameter.
+ *     This can be used only when the datatype of {@code conditionField} is String.</li>
+ * <li>{@code conditionValueIsEmpty}: You can set {@code true} to this parameter 
+ *     means that the value of {@code conditionField} is empty.</li>
+ * <li>{@code conditionValueIsNotEmpty}: You can set {@code true} to this parameter 
+ *     means that the value of {@code conditionField} is not empty.</li>
+ * <li>{@code fieldHoldingConditionValue}: You can set the field name to this parameter 
+ *     means that the value of {@code fieldHoldingConditionValue} is the specified value.<br>
+ *     (the datatype of {@code fieldHoldingConditionValue} is always an array)</li>
+ * </ol>
  */
 @Target({TYPE})
 @Retention(RUNTIME)
@@ -48,7 +59,7 @@ public @interface ConditionalEmpty {
    * 
    * @return field name
    */
-  String field();
+  String[] field();
 
   /**
    * Conditional field. Validation check is executed 
@@ -90,15 +101,39 @@ public @interface ConditionalEmpty {
   boolean conditionValueIsNotEmpty() default false;
 
   /**
-   * See {@code conditionField}.
-   * 
-   * <p>Originally 
-   *     The datatype of a parameter of annotation can only be String and primitive datatypes.
-   *     It cannot be {@code Object}. 
+   * Validation check is executed
+   *     only when the value of the field specified by this parameter holds
+   *     is equal to the value of {@code conditionField}.
    * 
    * @return value
    */
   String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+
+  /**
+   * Decides whether validation check is executed 
+   *     when the value of {@code conditionField} is not equal to the specified value.
+   * 
+   * @return boolean
+   */
+  boolean notEmptyForOtherValues() default false;
+
+  /**
+   * Specifies class part (= left part) of item ID.
+   * 
+   * @return String
+   */
+  String itemIdClass() default "";
+
+  /**
+   * Specifies a field which holds the display name of condition value.
+   * 
+   * <p>It can be an array datatype which has multiple values.<br>
+   *     When the value is new String[] {""}, the condionValue specified is displayed
+   *     as a part of an error message.</p>
+   * 
+   * @return String
+   */
+  String fieldHoldingConditionValueDisplayName() default "";
 
   /** 
    * Returns message ID.

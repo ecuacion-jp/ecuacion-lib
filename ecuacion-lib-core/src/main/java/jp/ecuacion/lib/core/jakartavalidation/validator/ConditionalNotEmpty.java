@@ -30,11 +30,9 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty.Cond
 
 /**
  * Checks if specified {@code field} is not empty 
- *     when {@code conditionField} has the value 
- *     which is equal to {@code conditionValue}, 
- *     or the value {@code fieldWhichHoldsConditionalValue} has.
+ *     only when {@code conditionField} has specified value.
  * 
- * @see ConditionalNotEmptyValidator
+ * @see ConditionalEmpty
  */
 @Target({TYPE})
 @Retention(RUNTIME)
@@ -48,7 +46,7 @@ public @interface ConditionalNotEmpty {
    * 
    * @return field name
    */
-  String field();
+  String[] field();
 
   /**
    * Conditional field. Validation check is executed 
@@ -99,7 +97,33 @@ public @interface ConditionalNotEmpty {
    * @return value
    */
   String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  
+  /**
+   * Decides whether validation check is executed 
+   *     when the value of {@code conditionField} is not equal to the specified value.
+   * 
+   * @return boolean
+   */
+  boolean emptyForOtherValues() default false;
+  
+  /**
+   * Specifies class part (= left part) of item ID.
+   * 
+   * @return String
+   */
+  String itemIdClass() default "";
 
+  /**
+   * Specifies a field which holds the display name of condition value.
+   * 
+   * <p>It can be an array datatype which has multiple values.<br>
+   *     When the value is new String[] {""}, the condionValue specified is displayed
+   *     as a part of an error message.</p>
+   * 
+   * @return String
+   */
+  String fieldHoldingConditionValueDisplayName() default "";
+  
   /** 
    * Returns message ID.
    * 

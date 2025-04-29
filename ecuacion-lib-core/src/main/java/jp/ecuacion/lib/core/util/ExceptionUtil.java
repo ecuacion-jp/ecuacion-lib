@@ -20,13 +20,12 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
@@ -126,9 +125,7 @@ public class ExceptionUtil {
         String message = null;
         try {
           ConstraintViolationBean bean = ex.getConstraintViolationBean();
-          Map<String, String> map = bean.getParamMap().entrySet().stream()
-              .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().toString()))
-              .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+          final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           message = ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),

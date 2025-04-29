@@ -17,11 +17,15 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /** 
  * Stores {@code ConstraintViolation} info.
@@ -39,8 +43,13 @@ public class ConstraintViolationBean extends PrivateFieldReader {
   private String messageTemplate;
   private String annotationDescriptionString;
 
+  private String[] itemIds;
+
   @Nonnull
   private Map<String, Object> paramMap;
+
+  private static final String CONDITIONAL_VALIDATOR_PREFIX =
+      "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -64,6 +73,26 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
+    if (paramMap.containsKey("field")) {
+      itemIds = (String[]) paramMap.get("field");
+
+      // Update itemIds when itemIdClass is specified.
+      String itemIdClass =
+          paramMap.containsKey("itemIdClass") ? (String) paramMap.get("itemIdClass") : null;
+      if (StringUtils.isNotEmpty(itemIdClass)) {
+        List<String> itemIdList = Arrays.asList(itemIds).stream()
+            .map(id -> itemIdClass
+                + (id.lastIndexOf(".") > 0 ? id.substring(id.lastIndexOf(".")) : "." + id))
+            .toList();
+        itemIds = itemIdList.toArray(new String[itemIdList.size()]);
+      }
+
+    } else {
+      itemIds = new String[] {propertyPath};
+    }
+
+    paramMap.put("itemIds", itemIds);
+
     // put additional params to paramMap
     putAdditionalParamsToParamMap(cv);
   }
@@ -75,16 +104,17 @@ public class ConstraintViolationBean extends PrivateFieldReader {
    * <p>This is used for {@code NotEmpty} validation logic.</p>
    * 
    * @param message message
-   * @param propertyPath propertyPath
    * @param validatorClass validatorClass
    */
-  public ConstraintViolationBean(String message, String propertyPath, String validatorClass,
-      String rootClassName) {
+  public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
+      String... itemIds) {
     this.message = message;
-    this.propertyPath = propertyPath;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
+
+    this.itemIds = itemIds;
+    this.propertyPath = itemIds[0];
     this.paramMap = new HashMap<>();
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
@@ -100,8 +130,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     paramMap.put("annotation", getAnnotation());
 
     // In the case of ConditionalXxx validator
-    if (getAnnotation()
-        .startsWith("jp.ecuacion.lib.core.jakartavalidation.validator.Conditional")) {
+    if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
       String conditionValueKind;
       String valuesOfConditionFieldToValidate = null;
       if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
@@ -110,35 +139,48 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       } else if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY)) {
         conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY;
 
-      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITOION_VALUE))
+      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-        conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITOION_VALUE;
-        valuesOfConditionFieldToValidate =
-            (String) getFieldValue(conditionValueKind, getInstance(), conditionValueKind);
+        conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
+        Object obj = (String) getFieldValue(
+            (String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
+            getInstance(), conditionValueKind);
+        if (obj instanceof String[]) {
+          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);          
+      
+        } else {
+          // String
+          valuesOfConditionFieldToValidate = (String) obj;          
+        }
 
       } else {
         // conditionValue is used
         conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
         String[] strs = (String[]) paramMap.get(conditionValueKind);
-        StringBuilder csv = new StringBuilder();
-        boolean is1st = true;
-        for (String str : strs) {
-          if (is1st) {
-            is1st = false;
-          } else {
-            csv.append(", ");
-          }
+        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
+      }
 
-          csv.append(str);
-        }
-
-        valuesOfConditionFieldToValidate = csv.toString();
+      // when fieldHoldingConditionValueDisplayName is not blank,
+      // valuesOfConditionFieldToValidate is overrided by its value.
+      String fieldHoldingConditionValueDisplayName =
+          (String) paramMap.get("fieldHoldingConditionValueDisplayName");
+      if (!fieldHoldingConditionValueDisplayName.equals("")) {
+        String[] strs = (String[]) getFieldValue(fieldHoldingConditionValueDisplayName,
+            getInstance(), "fieldHoldingConditionValueDisplayName");
+        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
       paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
       paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
           valuesOfConditionFieldToValidate);
+
+      // validatesWhenConditionNotSatisfied
+      boolean bl = getAnnotation().endsWith("ConditionalEmpty")
+          && (Boolean) paramMap.get("notEmptyForOtherValues")
+          || getAnnotation().endsWith("ConditionalNotEmpty")
+              && (Boolean) paramMap.get("emptyForOtherValues");
+      paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
   }
 
@@ -248,6 +290,10 @@ public class ConstraintViolationBean extends PrivateFieldReader {
    */
   public Object getInstance() {
     return cv.getLeafBean();
+  }
+
+  public String[] getItemIds() {
+    return itemIds;
   }
 
   @Nonnull
