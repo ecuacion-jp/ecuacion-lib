@@ -124,6 +124,17 @@ public @interface ConditionalEmpty {
    */
   String itemIdClass() default "";
 
+  /**
+   * Specifies a field which holds the display name of condition value.
+   * 
+   * <p>It can be an array datatype which has multiple values.<br>
+   *     When the value is new String[] {""}, the condionValue specified is displayed
+   *     as a part of an error message.</p>
+   * 
+   * @return String
+   */
+  String fieldHoldingConditionValueDisplayName() default "";
+
   /** 
    * Returns message ID.
    * 

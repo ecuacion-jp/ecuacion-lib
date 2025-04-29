@@ -90,7 +90,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     } else {
       itemIds = new String[] {propertyPath};
     }
-    
+
     paramMap.put("itemIds", itemIds);
 
     // put additional params to paramMap
@@ -151,6 +151,16 @@ public class ConstraintViolationBean extends PrivateFieldReader {
         conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
         String[] strs = (String[]) paramMap.get(conditionValueKind);
+        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
+      }
+
+      // when fieldHoldingConditionValueDisplayName is not blank,
+      // valuesOfConditionFieldToValidate is overrided by its value.
+      String fieldHoldingConditionValueDisplayName =
+          (String) paramMap.get("fieldHoldingConditionValueDisplayName");
+      if (!fieldHoldingConditionValueDisplayName.equals("")) {
+        String[] strs = (String[]) getFieldValue(fieldHoldingConditionValueDisplayName,
+            getInstance(), "fieldHoldingConditionValueDisplayName");
         valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
