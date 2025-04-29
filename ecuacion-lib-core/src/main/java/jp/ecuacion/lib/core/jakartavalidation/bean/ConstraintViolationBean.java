@@ -142,9 +142,16 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
         conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
-        valuesOfConditionFieldToValidate = (String) getFieldValue(
+        Object obj = (String) getFieldValue(
             (String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
             getInstance(), conditionValueKind);
+        if (obj instanceof String[]) {
+          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);          
+      
+        } else {
+          // String
+          valuesOfConditionFieldToValidate = (String) obj;          
+        }
 
       } else {
         // conditionValue is used
@@ -167,6 +174,13 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
       paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
           valuesOfConditionFieldToValidate);
+
+      // validatesWhenConditionNotSatisfied
+      boolean bl = getAnnotation().endsWith("ConditionalEmpty")
+          && (Boolean) paramMap.get("notEmptyForOtherValues")
+          || getAnnotation().endsWith("ConditionalNotEmpty")
+              && (Boolean) paramMap.get("emptyForOtherValues");
+      paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
   }
 
