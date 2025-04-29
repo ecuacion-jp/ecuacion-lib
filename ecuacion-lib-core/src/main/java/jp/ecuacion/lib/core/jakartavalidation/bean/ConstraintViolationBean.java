@@ -142,7 +142,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
         conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
-        Object obj = (String) getFieldValue(
+        Object obj = getFieldValue(
             (String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
             getInstance(), conditionValueKind);
         if (obj instanceof String[]) {
