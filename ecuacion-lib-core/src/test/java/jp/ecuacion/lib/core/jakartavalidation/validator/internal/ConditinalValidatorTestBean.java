@@ -7,7 +7,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty;
 public class ConditinalValidatorTestBean {
 
   public static enum TestEnum {
-    value1, value2;
+    value1, value2, value3;
   }
 
   public static class ConditionValue {
@@ -146,15 +146,27 @@ public class ConditinalValidatorTestBean {
       }
     }
 
-    public static class String {
+    public static class DataTypeNotMatchArray {
 
       private java.lang.String field;
       private java.lang.String condField;
+      private java.lang.Integer[] fieldHoldingConditionValue;
+
+      public DataTypeNotMatchArray(java.lang.String fieldValue, java.lang.String condFieldValue,
+          java.lang.Integer[] fieldHoldingConditionValue) {
+        this.field = fieldValue;
+        this.condField = condFieldValue;
+        this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+      }
+    }
+
+    public static class String {
+
+      private java.lang.String field = "X";
+      private java.lang.String condField;
       private java.lang.String fieldHoldingConditionValue;
 
-      public String(java.lang.String fieldValue, java.lang.String condFieldValue,
-          java.lang.String fieldHoldingConditionValue) {
-        this.field = fieldValue;
+      public String(java.lang.String condFieldValue, java.lang.String fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
@@ -162,13 +174,12 @@ public class ConditinalValidatorTestBean {
 
     public static class Integer {
 
-      private java.lang.String field;
+      private java.lang.String field = "X";
       private java.lang.Integer condField;
       private java.lang.Integer fieldHoldingConditionValue;
 
-      public Integer(java.lang.String fieldValue, java.lang.Integer condFieldValue,
+      public Integer(java.lang.Integer condFieldValue,
           java.lang.Integer fieldHoldingConditionValue) {
-        this.field = fieldValue;
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
@@ -176,13 +187,50 @@ public class ConditinalValidatorTestBean {
 
     public static class AnEnum {
 
-      private java.lang.String field;
+      private java.lang.String field = "X";
       private TestEnum condField;
       private TestEnum fieldHoldingConditionValue;
 
-      public AnEnum(java.lang.String fieldValue, TestEnum condFieldValue,
-          TestEnum fieldHoldingConditionValue) {
-        this.field = fieldValue;
+      public AnEnum(TestEnum condFieldValue, TestEnum fieldHoldingConditionValue) {
+        this.condField = condFieldValue;
+        this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+      }
+    }
+
+    public static class StringArray {
+
+      private java.lang.String field = "X";
+      private java.lang.String condField;
+      private java.lang.String[] fieldHoldingConditionValue;
+
+      public StringArray(java.lang.String condFieldValue,
+          java.lang.String[] fieldHoldingConditionValue) {
+        this.condField = condFieldValue;
+        this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+      }
+    }
+
+    public static class IntegerArray {
+
+      private java.lang.String field = "X";
+      private java.lang.Integer condField;
+      private java.lang.Integer[] fieldHoldingConditionValue;
+
+      public IntegerArray(java.lang.Integer condFieldValue,
+          java.lang.Integer[] fieldHoldingConditionValue) {
+        this.condField = condFieldValue;
+        this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+      }
+    }
+
+    public static class EnumArray {
+
+      private java.lang.String field = "X";
+      private TestEnum condField;
+      private TestEnum[] fieldHoldingConditionValue;
+
+      public EnumArray(TestEnum condFieldValue,
+          TestEnum[] fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
