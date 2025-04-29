@@ -584,9 +584,18 @@ public class PropertyFileUtil {
 
       key = ConditionalValidator.CONDITION_VALUE_KIND;
       newKey = "conditionValueDescription";
-      newValue = PropertyFileUtil.getMessage(locale,
-          "jp.ecuacion.validation.constraints.Conditional.messagePart." + argMap.get(key),
+      newValue = PropertyFileUtil.getMessage(locale, annotation + ".messagePart." + argMap.get(key),
           (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
+      argMap.put(newKey, newValue);
+
+      newKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
+      newValue = ((Boolean) argMap.get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED))
+          ? PropertyFileUtil.getMessage(locale,
+              argMap.get("annotation") + ".messagePart."
+                  + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
+              (String) argMap
+                  .get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE))
+          : "";
       argMap.put(newKey, newValue);
     }
 

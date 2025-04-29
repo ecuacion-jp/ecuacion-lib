@@ -46,6 +46,8 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
   public static final String CONDITION_VALUE_KIND = "conditionValueKind";
   public static final String VALUE_OF_CONDITION_FIELD_TO_VALIDATE =
       "valuesOfConditionFieldToValidate";
+  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
+      "validatesWhenConditionNotSatisfied";
 
   public void initialize(String[] field, String conditionField, String[] conditionValue,
       boolean conditionValueIsEmpty, boolean conditionValueIsNotEmpty,
