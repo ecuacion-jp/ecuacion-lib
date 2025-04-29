@@ -115,9 +115,9 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
       fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
       conditionValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
 
-      if ((!(valueOfConditionField instanceof String) && valueOfConditionField != null)
-          || valueOfConditionField instanceof String
-              && !StringUtils.isEmpty((String) valueOfConditionField)) {
+      boolean instanceOfString = valueOfConditionField instanceof String;
+      if ((!instanceOfString && valueOfConditionField != null)
+          || (instanceOfString && !StringUtils.isEmpty((String) valueOfConditionField))) {
         return true;
       }
 
@@ -181,28 +181,26 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
                 + " and " + valueOfFieldHoldingConditionValue.getClass());
           }
 
-          if ((valueOfConditionField != null && valueOfConditionField.equals(singleValue))) {
+          if (valueOfConditionField.equals(singleValue)) {
             return true;
           }
         }
 
       } else {
         // throws exception when the datatype differs
-        if (valueOfConditionField != null && valueOfFieldHoldingConditionValue != null
-            && !(valueOfConditionField.getClass()
-                .equals(valueOfFieldHoldingConditionValue.getClass()))) {
+        if (!(valueOfConditionField.getClass()
+            .equals(valueOfFieldHoldingConditionValue.getClass()))) {
           throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
               + " and " + valueOfFieldHoldingConditionValue.getClass());
         }
 
-        if ((valueOfConditionField != null
-            && valueOfConditionField.equals(valueOfFieldHoldingConditionValue))) {
+        if (valueOfConditionField.equals(valueOfFieldHoldingConditionValue)) {
           return true;
         }
       }
 
     } else {
-      
+
       if (valueOfConditionField == null) {
         valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
       }
