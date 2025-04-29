@@ -16,11 +16,13 @@
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class ConditionalValidator extends PrivateFieldReader {
@@ -71,12 +73,12 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
-      
+
       if (!result) {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -122,19 +124,69 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
     } else if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
       conditionValueMustBeNull(FIELD_HOLDING_CONDITOION_VALUE);
 
-      // conditionValue == null && conditionValueIsNotEmpty == false
+      Object valueOfFieldHoldingConditionValue =
+          getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITOION_VALUE);
 
-      if (fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-        // This case means validation check should be executed
-        // when the value of conditionField is null
-        if (valueOfConditionField == null) {
+      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
+      List<Object> valueOfFieldHoldingConditionValueList = new ArrayList<>();
+      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
+        for (Object val : (Object[]) valueOfFieldHoldingConditionValue) {
+          if (val == null) {
+            val = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+          }
+
+          valueOfFieldHoldingConditionValueList.add(val);
+        }
+      }
+
+      // valueOfConditionField == null
+      if (valueOfConditionField == null) {
+        if (valueOfFieldHoldingConditionValue == null
+            || valueOfFieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
+            || (valueOfFieldHoldingConditionValue instanceof Object[]
+                && valueOfFieldHoldingConditionValueList
+                    .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))) {
           return true;
+
+        } else {
+          return false;
+        }
+      }
+
+      // reaching here means valueOfConditionField != null
+      ObjectsUtil.requireNonNull(valueOfConditionField);
+
+      // Since valueOfConditionField != null, if valueOfFieldHoldingConditionValue == null,
+      // return value is always false.
+      if (valueOfFieldHoldingConditionValue == null) {
+        return false;
+      }
+
+      // reaching here means valueOfFieldHoldingConditionValue != null
+      ObjectsUtil.requireNonNull(valueOfFieldHoldingConditionValue);
+
+      // the case that valueOfFieldHoldingConditionValue is an instance of Object[]
+      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
+        for (Object singleValue : (Object[]) valueOfFieldHoldingConditionValue) {
+
+          // if the singleValue == null, return is always false so it should be skipped to the next
+          // loop.
+          if (singleValue == null) {
+            continue;
+          }
+
+          // throws exception when the datatype differs
+          if (!(valueOfConditionField.getClass().equals(singleValue.getClass()))) {
+            throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
+                + " and " + valueOfFieldHoldingConditionValue.getClass());
+          }
+
+          if ((valueOfConditionField != null && valueOfConditionField.equals(singleValue))) {
+            return true;
+          }
         }
 
       } else {
-        Object valueOfFieldHoldingConditionValue =
-            getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITOION_VALUE);
-
         // throws exception when the datatype differs
         if (valueOfConditionField != null && valueOfFieldHoldingConditionValue != null
             && !(valueOfConditionField.getClass()
@@ -143,14 +195,14 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
               + " and " + valueOfFieldHoldingConditionValue.getClass());
         }
 
-        if ((valueOfConditionField == null && valueOfFieldHoldingConditionValue == null)
-            || (valueOfConditionField != null
-                && valueOfConditionField.equals(valueOfFieldHoldingConditionValue))) {
+        if ((valueOfConditionField != null
+            && valueOfConditionField.equals(valueOfFieldHoldingConditionValue))) {
           return true;
         }
       }
 
     } else {
+      
       if (valueOfConditionField == null) {
         valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
       }
