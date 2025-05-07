@@ -54,9 +54,9 @@ public class AppWarningException extends Exception {
   protected Locale locale;
 
   /**
-   * fields.
+   * itemIds.
    */
-  protected AppExceptionFields fields;
+  protected AppExceptionItemIds itemIds;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -69,7 +69,7 @@ public class AppWarningException extends Exception {
   }
 
   /**
-   * Constructs a new instance with warn fields, messageId and message Arguments.
+   * Constructs a new instance with warn itemIds, messageId and message Arguments.
    *
    * @param locale locale. May be null, which means default locale is used.
    *        designated.
@@ -84,7 +84,7 @@ public class AppWarningException extends Exception {
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
     
-    this.fields = new AppExceptionFields();
+    this.itemIds = new AppExceptionItemIds();
   }
 
   /**
@@ -115,25 +115,25 @@ public class AppWarningException extends Exception {
   }
 
   /**
-   * Returns fields.
+   * Returns itemIds.
   
-   * @return fields
+   * @return itemIds
    */
-  public @Nonnull AppExceptionFields fields() {
-    return fields;
+  public @Nonnull AppExceptionItemIds itemIds() {
+    return itemIds;
   }
 
   /**
-   * Sets fields and return this instance to realize the method chain.
+   * Sets itemIds and return this instance to realize the method chain.
    *
    * @return AppWarningException
    */
-  public @Nonnull AppWarningException fields(@Nullable AppExceptionFields fields) {
-    if (fields != null) {
-      this.fields = fields;
+  public @Nonnull AppWarningException itemIds(@Nullable AppExceptionItemIds itemIds) {
+    if (itemIds != null) {
+      this.itemIds = itemIds;
 
     } else {
-      this.fields = new AppExceptionFields();
+      this.itemIds = new AppExceptionItemIds();
     }
     
     return this;

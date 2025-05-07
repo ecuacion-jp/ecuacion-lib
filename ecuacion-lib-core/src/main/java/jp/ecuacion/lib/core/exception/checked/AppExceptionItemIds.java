@@ -20,33 +20,33 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
- * Holds fields related to exceptions.
+ * Holds {@code itemId}s related to exceptions.
  * 
  * <p>Since a set of message parameters is also a message-related {@code String} array, 
  * this needs to be objectized to be easily distinguished from message arguments.</p>
  */
-public class AppExceptionFields {
+public class AppExceptionItemIds {
 
-  private String[] fields;
+  private String[] itemIds;
 
   /**
-   * Constructs a new instance with {@code fields}.
+   * Constructs a new instance with {@code itemId}s.
    * 
-   * @param fields the fields related to an exception.
+   * @param itemIds the {@code itemId}s related to an exception.
    *     An array of length zero is acceptable.
    */
-  public AppExceptionFields(@RequireNonnull String... fields) {
-    this.fields = fields;
+  public AppExceptionItemIds(@RequireNonnull String... itemIds) {
+    this.itemIds = itemIds;
 
-    ObjectsUtil.paramRequireNonNull(fields);
+    ObjectsUtil.paramRequireNonNull(itemIds);
   }
 
   /**
-   * Gets fields.
+   * Gets {@code itemId}s.
    * 
-   * @return the fields which holds in this instance
+   * @return the itemIds which holds in this instance
    */
-  public @Nonnull String[] getFields() {
-    return fields;
+  public @Nonnull String[] getItemIds() {
+    return itemIds;
   }
 }
