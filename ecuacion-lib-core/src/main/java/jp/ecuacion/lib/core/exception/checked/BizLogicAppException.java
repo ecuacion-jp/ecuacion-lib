@@ -60,7 +60,7 @@ public class BizLogicAppException extends SingleAppException {
    */
   public BizLogicAppException(@Nullable AppExceptionFields fields, @Nonnull String messageId,
       @Nonnull String... messageArgs) {
-    
+
     this(fields, ObjectsUtil.paramRequireNonNull(messageId),
         Arrays.asList(ObjectsUtil.paramRequireNonNull(messageArgs)).stream()
             .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
@@ -91,7 +91,7 @@ public class BizLogicAppException extends SingleAppException {
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = messageArgs;
   }
-  
+
   @Override
   public String getMessage() {
     return PropertyFileUtil.getMessage(messageId, messageArgs);
@@ -123,5 +123,16 @@ public class BizLogicAppException extends SingleAppException {
   @Nonnull
   public Arg[] getMessageArgs() {
     return messageArgs == null ? new Arg[] {} : messageArgs;
+  }
+
+  /**
+   * Provides {@link Exception#initCause(Throwable)} with method chain.
+   * 
+   * @param th throwable
+   * @return BizLogicAppException for method chain
+   */
+  public BizLogicAppException cause(Throwable th) {
+    super.initCause(th);
+    return this;
   }
 }
