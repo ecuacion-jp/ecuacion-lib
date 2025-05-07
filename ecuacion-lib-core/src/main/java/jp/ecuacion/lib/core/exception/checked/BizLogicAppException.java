@@ -38,7 +38,7 @@ public class BizLogicAppException extends SingleAppException {
   private Arg[] messageArgs;
 
   @Nullable
-  private AppExceptionFields fields;
+  private AppExceptionItemIds itemIds;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -51,23 +51,23 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Constructs a new instance with {@code locale},  {@code fields},
+   * Constructs a new instance with {@code locale},  {@code itemId}s,
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param fields the fields related to the exception
+   * @param itemIds the itemIds related to the exception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable AppExceptionFields fields, @Nonnull String messageId,
+  public BizLogicAppException(@Nullable AppExceptionItemIds itemIds, @Nonnull String messageId,
       @Nonnull String... messageArgs) {
-    
-    this(fields, ObjectsUtil.paramRequireNonNull(messageId),
+
+    this(itemIds, ObjectsUtil.paramRequireNonNull(messageId),
         Arrays.asList(ObjectsUtil.paramRequireNonNull(messageArgs)).stream()
             .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
   /**
-   * Constructs a new instance with {@code fields},
+   * Constructs a new instance with {@code itemIds},
    *     {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
@@ -78,32 +78,32 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Constructs a new instance with {@code fields},
+   * Constructs a new instance with {@code itemIds},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param fields the fields related to the exeception
+   * @param itemIds the itemIds related to the exeception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable AppExceptionFields fields, @RequireNonnull String messageId,
-      @RequireNonnull Arg[] messageArgs) {
-    this.fields = fields;
+  public BizLogicAppException(@Nullable AppExceptionItemIds itemIds,
+      @RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
+    this.itemIds = itemIds;
     this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
     this.messageArgs = messageArgs;
   }
-  
+
   @Override
   public String getMessage() {
     return PropertyFileUtil.getMessage(messageId, messageArgs);
   }
 
   /**
-   * Gets fields. 
+   * Gets itemIds. 
    * 
-   * @return fields
+   * @return itemIds
    */
-  public @Nullable AppExceptionFields getErrorFields() {
-    return fields;
+  public @Nullable AppExceptionItemIds getItemIds() {
+    return itemIds;
   }
 
   /**
@@ -123,5 +123,16 @@ public class BizLogicAppException extends SingleAppException {
   @Nonnull
   public Arg[] getMessageArgs() {
     return messageArgs == null ? new Arg[] {} : messageArgs;
+  }
+
+  /**
+   * Provides {@link Exception#initCause(Throwable)} with method chain.
+   * 
+   * @param th throwable
+   * @return BizLogicAppException for method chain
+   */
+  public BizLogicAppException cause(Throwable th) {
+    super.initCause(th);
+    return this;
   }
 }
