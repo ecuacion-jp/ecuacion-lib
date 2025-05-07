@@ -23,6 +23,7 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.logging.ErrorLogger;
+import org.slf4j.event.Level;
 
 /**
  * Provides logging-related utility methods, espacially log {@code Throable}.
@@ -105,6 +106,33 @@ public class LogUtil {
    */
   public void logError(@RequireNonnull Throwable throwable, @Nullable String additionalMessage,
       @Nullable Locale locale) {
+    logException(Level.ERROR, throwable, additionalMessage, locale);
+  }
+  
+  /**
+   * Logs Exception details with DEBUG loglevel.
+   * 
+   * <p>It's intended to use to show the cause of {@code BizLogicAppException} 
+   * in case that where it's thrown from or see what the original Exception is.</p>
+   * 
+   * @param throwable throwable
+   */
+  public void logDebug(@RequireNonnull Throwable throwable) {
+    logException(Level.DEBUG, throwable, null, null);
+  }
+
+  /**
+   * Logs throwable.
+   * 
+   * @param throwable throwable
+   * @param additionalMessage additionalMessage,
+   *     may be {@code null} if no {@code additionalMessage} is needed.
+   *     In the case o {@code null} no additional message is output.
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   */
+  private void logException(@Nonnull Level logLevel, @RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
     // errorLogへの出力
@@ -126,7 +154,18 @@ public class LogUtil {
       additionalMessage += "\n" + sb.toString();
     }
 
-    // detailLogへの出力
-    detailLog.error(exUtil.getErrLogString(throwable, additionalMessage, locale));
+    // Output to detailLog
+    log(logLevel, exUtil.getErrLogString(throwable, additionalMessage, locale));
+  }
+
+  private void log(@Nonnull Level logLevel, String message) {
+    switch (logLevel) {
+      case Level.ERROR -> detailLog.error(message);
+      case Level.WARN -> detailLog.warn(message);
+      case Level.INFO -> detailLog.info(message);
+      case Level.DEBUG -> detailLog.debug(message);
+      case Level.TRACE -> detailLog.trace(message);
+      default -> throw new IllegalArgumentException("Unexpected value: " + logLevel);
+    }
   }
 }
