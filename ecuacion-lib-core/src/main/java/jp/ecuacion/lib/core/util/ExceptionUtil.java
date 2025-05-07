@@ -115,7 +115,7 @@ public class ExceptionUtil {
         // この例外は、メッセージは持っていないのでnull
         continue;
 
-      } else if (th instanceof BizLogicAppException && th.getCause() == null) {
+      } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
         rtnList.add(PropertyFileUtil.getMsg(locale, ex.getMessageId(), ex.getMessageArgs()));
 
