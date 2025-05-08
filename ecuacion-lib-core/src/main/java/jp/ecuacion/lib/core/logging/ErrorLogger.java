@@ -15,8 +15,11 @@
  */
 package jp.ecuacion.lib.core.logging;
 
+import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.slf4j.event.Level;
 
 /**
  * Logs messages which are surveilled by survaillance service 
@@ -50,7 +53,7 @@ public class ErrorLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void info(@RequireNonnull String message) {
-    log(message, LogLevel.info);
+    log(Level.INFO, message);
   }
 
   /**
@@ -59,7 +62,7 @@ public class ErrorLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void warn(@RequireNonnull String message) {
-    log(message, LogLevel.warn);
+    log(Level.WARN, message);
   }
 
 
@@ -69,6 +72,33 @@ public class ErrorLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void error(@RequireNonnull String message) {
-    log(message, LogLevel.error);
+    log(Level.ERROR, message);
+  }
+
+  /**
+   * Logs system error.
+   * 
+   * @param throwable throwable
+   */
+  public void logSystemError(Throwable throwable) {
+    logSystemError(throwable, null);
+  }
+
+  /**
+   * Logs system error.
+   * 
+   * @param throwable throwable
+   * @param additionalMessage additionalMessage
+   */
+  public void logSystemError(Throwable throwable, String additionalMessage) {
+
+    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.paramRequireNonNull(additionalMessage);
+
+    String msg = (throwable.getMessage() == null) ? ""
+        : " - " + exUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()
+            .replace("\n", " ");
+    internalLogger.error("A system error has occurred: " + throwable.getClass().getName() + msg
+        + " (" + additionalMessage + ")");
   }
 }

@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import org.slf4j.event.Level;
 
 /**
  * Logs start and end time of the timer-triggered exections, 
@@ -50,7 +51,7 @@ public class SummaryLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void info(@RequireNonnull String message) {
-    log(message, LogLevel.info);
+    log(Level.INFO, message);
   }
 
   /** 
@@ -59,7 +60,7 @@ public class SummaryLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void warn(@RequireNonnull String message) {
-    log(message, LogLevel.warn);
+    log(Level.WARN, message);
   }
 
   /** 
@@ -68,6 +69,6 @@ public class SummaryLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void error(@RequireNonnull String message) {
-    log(message, LogLevel.error);
+    log(Level.ERROR, message);
   }
 }
