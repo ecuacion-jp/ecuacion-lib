@@ -366,7 +366,7 @@ public class ExceptionUtil {
 
     StringBuilder sb = new StringBuilder();
 
-    sb.append("=============== system error occured ===============" + RT);
+    sb.append("=============== system error occurred ===============" + RT);
     if (additionalMessage != null) {
       sb.append(additionalMessage + RT);
       sb.append(RT);

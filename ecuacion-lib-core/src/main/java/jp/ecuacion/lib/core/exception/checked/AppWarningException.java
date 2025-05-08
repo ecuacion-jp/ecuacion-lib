@@ -28,7 +28,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
  * the app shows the warning popup window on screen and proceed when a user presses "OK".</p>
  * 
  * <p>It is not a child of {@code AppException} 
- *     because {@code AppException} means an error occured in a business logic 
+ *     because {@code AppException} means an error occurred in a business logic 
  *     but {@code AppWarningException} doesn't mean it.<br>
  *     Localized message is needed for this, 
  *     so the class is the same constructure as {@code BizLogicAppException}.</p>
