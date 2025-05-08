@@ -16,9 +16,16 @@
 package jp.ecuacion.lib.core.logging;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.exception.checked.AppException;
+import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.slf4j.event.Level;
 
 /**
  * Logs anything you want to log.
@@ -59,7 +66,7 @@ public class DetailLogger extends EclibLogger {
    * @param message message to log
    */
   public void trace(@RequireNonnull String message) {
-    log(message, LogLevel.trace);
+    log(Level.TRACE, message);
   }
 
   /** 
@@ -68,7 +75,7 @@ public class DetailLogger extends EclibLogger {
    * @param message message to log
    */
   public void debug(@RequireNonnull String message) {
-    log(message, LogLevel.debug);
+    log(Level.DEBUG, message);
   }
 
   /**
@@ -77,7 +84,7 @@ public class DetailLogger extends EclibLogger {
    * @param message message to log
    */
   public void info(@RequireNonnull String message) {
-    log(message, LogLevel.info);
+    log(Level.INFO, message);
   }
 
   /**
@@ -86,7 +93,7 @@ public class DetailLogger extends EclibLogger {
    * @param message message to log
    */
   public void warn(@RequireNonnull String message) {
-    log(message, LogLevel.warn);
+    log(Level.WARN, message);
   }
 
   /**
@@ -95,7 +102,7 @@ public class DetailLogger extends EclibLogger {
    * @param message message to log
    */
   public void error(@RequireNonnull String message) {
-    log(message, LogLevel.error);
+    log(Level.ERROR, message);
   }
 
   /**
@@ -105,5 +112,86 @@ public class DetailLogger extends EclibLogger {
    */
   public void error(@RequireNonnull Throwable th) {
     logThrowable(th);
+  }
+
+  /** 
+   * Logs {@code Throwable}.
+   * 
+   * @param th throwable. Cannot be {@code null}.
+   */
+  protected void logThrowable(Throwable th) {
+    ObjectsUtil.paramRequireNonNull(th);
+    log(Level.ERROR, "A system error has occurred: ", th);
+  }
+
+  /**
+   * Logs system error.
+   * 
+   * @param throwable throwable
+   */
+  public void logSystemError(@RequireNonnull Throwable throwable) {
+    logSystemError(throwable, null);
+  }
+
+  /**
+   * Logs system error.
+   * 
+   * @param throwable throwable
+   * @param additionalMessage additionalMessage
+   */
+  public void logSystemError(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage) {
+    ObjectsUtil.paramRequireNonNull(throwable);
+
+    // additionalMessageへの追加
+    if (throwable instanceof AppException || throwable instanceof UncheckedAppException) {
+      // ビジネスエラーとしてクライアントに返すのみ。本サービスでのエラー発生関連処理はない。
+      StringBuilder sb = new StringBuilder();
+      AppException ae = throwable instanceof UncheckedAppException
+          ? (AppException) ((UncheckedAppException) throwable).getCause()
+          : (AppException) throwable;
+      new ExceptionUtil().getAppExceptionMessageList(ae, Locale.getDefault())
+          .forEach(tmpMsg -> sb.append(tmpMsg + "\n"));
+
+      additionalMessage += "\n" + sb.toString();
+    }
+
+    // Output to detailLog
+    log(Level.ERROR, exUtil.getErrLogString(throwable, additionalMessage, Locale.ENGLISH));
+  }
+
+  /**
+   * Logs Exception info for reference.
+   * 
+   * <p>It's used when you want to know where an {@code AppException} is thrown from with webapps
+   * (Usually AppException shows business error messages only, 
+   * no stack trace is recorded anywhere.).</p>
+   * 
+   * @param throwable throwable
+   */
+  public void logExceptionAsDebugInfo(Throwable throwable) {
+    internalLogger.debug(EclibCoreConstants.ECLIB_PREFIX
+        + "The following is only for reference. (No system error will occur)");
+
+  }
+
+  /** 
+   * Logs message and throwable with logLevel.
+   * 
+   * @param message message. Cannot be {@code null}.
+   * @param logLevel logLevel. Cannot be {@code null}.
+   */
+  private void log(Level logLevel, String message, Throwable throwable) {
+    ObjectsUtil.paramRequireNonNull(message);
+    ObjectsUtil.paramRequireNonNull(logLevel);
+
+    switch (logLevel) {
+      case Level.ERROR -> internalLogger.error(message, throwable);
+      case Level.WARN -> internalLogger.warn(message, throwable);
+      case Level.INFO -> internalLogger.info(message, throwable);
+      case Level.DEBUG -> internalLogger.debug(message, throwable);
+      case Level.TRACE -> internalLogger.trace(message, throwable);
+      default -> throw new IllegalArgumentException("Unexpected value: " + logLevel);
+    }
   }
 }

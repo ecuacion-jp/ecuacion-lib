@@ -45,7 +45,6 @@ import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
  */
 public class MailUtil {
 
-  private LogUtil logUtil = new LogUtil(this);
   private ExceptionUtil exUtil = new ExceptionUtil();
   private DetailLogger dtlLog = new DetailLogger(this);
 
@@ -86,7 +85,7 @@ public class MailUtil {
     }
 
     String mailTitle = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.title-prefix")
-        + "A system error has occured.";
+        + "A system error has occurred.";
 
     // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
     // なので、もし上がったらRuntimeExceptionとしている。
@@ -271,12 +270,12 @@ public class MailUtil {
 
       if (throwsException) {
         // エラーログ出力
-        logUtil.logError(th1);
+        LogUtil.logSystemError(dtlLog, th1);
         throw th1;
 
       } else {
         try {
-          logUtil.logError(th1);
+          LogUtil.logSystemError(dtlLog, th1);
 
         } catch (Throwable th2) {
           // ここまでくるとどうにもならないので標準出力に出力。それもダメなら何もしない

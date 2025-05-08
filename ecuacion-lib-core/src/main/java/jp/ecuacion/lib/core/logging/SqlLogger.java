@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import org.slf4j.event.Level;
 
 /**
  * Logs sqls and related info like sql parameters. 
@@ -43,7 +44,7 @@ public class SqlLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void trace(@RequireNonnull String message) {
-    log(message, LogLevel.trace);
+    log(Level.TRACE, message);
   }
 
   /** 
@@ -52,6 +53,6 @@ public class SqlLogger extends EclibLogger {
    * @param message message to log. Cannot be {@code null}.
    */
   public void debug(@RequireNonnull String message) {
-    log(message, LogLevel.debug);
+    log(Level.DEBUG, message);
   }
 }
