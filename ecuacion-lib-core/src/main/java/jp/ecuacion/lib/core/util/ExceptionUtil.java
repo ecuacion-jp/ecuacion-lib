@@ -48,7 +48,7 @@ public class ExceptionUtil {
    * Returns exception message for 1 exception.
    * 
    * <p>This method covers all the exceptions including Java standard exceptions, 
-   * ConstraintViolationException used in Bean Validation
+   * ConstraintViolationException used in Jakarta Validation
    * and AppExceptions defined in this library.</p>
    * 
    * <p>One exception normally has one message, 
@@ -71,7 +71,7 @@ public class ExceptionUtil {
    * Returns exception message for 1 exception.
    * 
    * <p>This method covers all the exceptions including Java standard exceptions, 
-   * ConstraintViolationException used in Bean Validation
+   * ConstraintViolationException used in Jakarta Validation
    * and AppExceptions defined in this library.</p>
    * 
    * <p>One exception normally has one message, 
