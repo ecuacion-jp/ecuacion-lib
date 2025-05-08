@@ -17,7 +17,7 @@
 /**
  * Provides basic functions used as common utilities.
  * 
- * <p>Classes and Utilities for {@code bean validation} are included 
+ * <p>Classes and Utilities for {@code jakarta validation} are included 
  * sinse it is used in wide variation of projects.</p>
  */
 module jp.ecuacion.lib.core {

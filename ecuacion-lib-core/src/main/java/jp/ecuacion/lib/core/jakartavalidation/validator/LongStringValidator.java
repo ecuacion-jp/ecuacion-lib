@@ -51,7 +51,7 @@ public class LongStringValidator implements ConstraintValidator<LongString, Stri
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
 
-    // nullの場合はtrueとする。（bean validationの仕様に合わせ空文字はtrueにはしない）
+    // true if value == null (which consists with the specification of jakarta validation)
     if (value == null) {
       return true;
     }
