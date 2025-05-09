@@ -36,13 +36,18 @@ import org.apache.commons.lang3.StringUtils;
 public class StringUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private StringUtil() {}
+
+  /**
    * Returns a lowerCamelCase string from a snake case string.
    * 
    * @param snakeCaseString snakeCaseString, may be null.
    * @return camel case string, may be null when snakeCaseString is null.
    */
   @Nullable
-  public String getLowerCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
+  public static String getLowerCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
     if (snakeCaseString == null) {
       return null;
     }
@@ -93,7 +98,7 @@ public class StringUtil {
    * @return camel case string, may be null when snakeCaseString is null.
    */
   @Nullable
-  public String getUpperCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
+  public static String getUpperCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
     return StringUtils.capitalize(getLowerCamelFromSnakeOrNullIfInputIsNull(snakeCaseString));
   }
 
@@ -104,7 +109,7 @@ public class StringUtil {
    * @return camel case string, may be null when camelCaseString is null.
    */
   @Nullable
-  public String getLowerSnakeFromCamel(@Nullable String camelCaseString) {
+  public static String getLowerSnakeFromCamel(@Nullable String camelCaseString) {
     if (camelCaseString == null) {
       return null;
     }
@@ -131,7 +136,7 @@ public class StringUtil {
    * @throws NumberFormatException NumberFormatException.
    */
   @Nonnull
-  public String toCurrencyFormat(@Nonnull String number) {
+  public static String toCurrencyFormat(@Nonnull String number) {
     if (number == null || number.equals("")) {
       throw new NumberFormatException();
     }
@@ -215,7 +220,7 @@ public class StringUtil {
    * @return html-escaped strings.
    */
   @Nonnull
-  public String escapeHtml(@Nonnull String str) {
+  public static String escapeHtml(@Nonnull String str) {
     StringBuffer result = new StringBuffer();
     for (char c : str.toCharArray()) {
       switch (c) {

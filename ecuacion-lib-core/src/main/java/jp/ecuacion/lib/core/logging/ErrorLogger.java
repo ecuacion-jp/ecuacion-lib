@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.logging;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.slf4j.event.Level;
 
@@ -96,7 +97,7 @@ public class ErrorLogger extends EclibLogger {
     ObjectsUtil.paramRequireNonNull(additionalMessage);
 
     String msg = (throwable.getMessage() == null) ? ""
-        : " - " + exUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()
+        : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()
             .replace("\n", " ");
     internalLogger.error("A system error has occurred: " + throwable.getClass().getName() + msg
         + " (" + additionalMessage + ")");

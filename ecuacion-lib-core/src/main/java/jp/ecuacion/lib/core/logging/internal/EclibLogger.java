@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.logging.internal;
 
-import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ import org.slf4j.event.Level;
  * Has common methods for concrete loggers.
  */
 public abstract class EclibLogger {
-
-  protected static ExceptionUtil exUtil = new ExceptionUtil();
 
   /** internalLogger. */
   protected Logger internalLogger;

@@ -37,6 +37,11 @@ import org.apache.commons.lang3.tuple.Pair;
 public class FileLockUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private FileLockUtil() {}
+
+  /**
    * Obtains the lock of the designated file.
    * 
    * <p>The argument {@code lockFile} is the file only for locks, not the business use files.</p>
