@@ -46,8 +46,7 @@ public class StringUtil {
    * @return camel case string
    */
   @Nonnull
-  public static String getLowerCamelFromSnakeOrNullIfInputIsNull(
-      @RequireNonnull String snakeCaseString) {
+  public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
     ObjectsUtil.paramRequireNonNull(snakeCaseString);
 
     // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
@@ -96,9 +95,8 @@ public class StringUtil {
    * @return camel case string
    */
   @Nonnull
-  public static String getUpperCamelFromSnakeOrNullIfInputIsNull(
-      @RequireNonnull String snakeCaseString) {
-    return StringUtils.capitalize(getLowerCamelFromSnakeOrNullIfInputIsNull(snakeCaseString));
+  public static String getUpperCamelFromSnake(@RequireNonnull String snakeCaseString) {
+    return StringUtils.capitalize(getLowerCamelFromSnake(snakeCaseString));
   }
 
   /**
