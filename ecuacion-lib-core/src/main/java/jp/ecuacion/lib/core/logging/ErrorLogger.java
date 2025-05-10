@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
+import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
@@ -81,7 +82,7 @@ public class ErrorLogger extends EclibLogger {
    * 
    * @param throwable throwable
    */
-  public void logSystemError(Throwable throwable) {
+  public void logSystemError(@RequireNonnull Throwable throwable) {
     logSystemError(throwable, null);
   }
 
@@ -91,10 +92,10 @@ public class ErrorLogger extends EclibLogger {
    * @param throwable throwable
    * @param additionalMessage additionalMessage
    */
-  public void logSystemError(Throwable throwable, String additionalMessage) {
+  public void logSystemError(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage) {
 
     ObjectsUtil.paramRequireNonNull(throwable);
-    ObjectsUtil.paramRequireNonNull(additionalMessage);
 
     String msg = (throwable.getMessage() == null) ? ""
         : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()
