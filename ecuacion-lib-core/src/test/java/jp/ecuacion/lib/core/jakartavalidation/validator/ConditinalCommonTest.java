@@ -19,16 +19,17 @@ import jakarta.validation.ValidationException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ValidationUtil;
+import jp.ecuacion.lib.core.util.ValidationUtil.ValidationExecutor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ConditinalCommonTest {
-  private ValidationUtil valUtil = new ValidationUtil();
   private MultipleAppException mae;
 
   @Test
   public void fieldNotExistTest() {
-
+    ValidationExecutor valUtil = ValidationUtil.builder().build();
+    
     // No Field
     try {
       valUtil.validateThenReturn(new ConditinalCommonTestBean.NoField("X", null));
@@ -49,6 +50,7 @@ public class ConditinalCommonTest {
 
   @Test
   public void multipleConditionsTest() {
+    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
     // ValueAndIsEmpty
     try {
@@ -106,6 +108,7 @@ public class ConditinalCommonTest {
 
   @Test
   public void validatesWhenConditionNotSatisfiedTest() {
+    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
     // true
     mae = valUtil.validateThenReturn(
@@ -120,6 +123,7 @@ public class ConditinalCommonTest {
 
   @Test
   public void multipleFieldsTest() {
+    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
     mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllTrue());
     Assertions.assertEquals(null, mae);
@@ -145,6 +149,8 @@ public class ConditinalCommonTest {
 
   @Test
   public void fieldInParentClassTest() {
+    ValidationExecutor valUtil = ValidationUtil.builder().build();
+
     mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.FieldInParentClass.Child());
     Assertions.assertEquals(1, mae.getList().size());
   }
