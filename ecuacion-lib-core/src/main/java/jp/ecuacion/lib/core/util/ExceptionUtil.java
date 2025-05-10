@@ -45,6 +45,11 @@ public class ExceptionUtil {
   private static final String RT = "\n";
 
   /**
+  * Prevents to create an instance.
+  */
+  private ExceptionUtil() {}
+  
+  /**
    * Returns exception message for 1 exception.
    * 
    * <p>This method covers all the exceptions including Java standard exceptions, 
@@ -62,7 +67,7 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
       boolean needsDetails) {
     return getExceptionMessage(throwable, Locale.getDefault(), needsDetails);
   }
@@ -87,7 +92,7 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
       @Nullable Locale locale, boolean needsDetails) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
@@ -198,7 +203,7 @@ public class ExceptionUtil {
    * @return a list of throables
    */
   @Nonnull
-  private List<Throwable> serializeExceptions(@RequireNonnull Throwable throwable) {
+  private static List<Throwable> serializeExceptions(@RequireNonnull Throwable throwable) {
     List<Throwable> list = new ArrayList<>();
     recursivelySerializeException(throwable, list);
     return ObjectsUtil.returnRequireNonNull(list);
@@ -213,7 +218,7 @@ public class ExceptionUtil {
    * 
    * @param arr 最終的に「階層のない単純なList」がこれになる。
    */
-  private void recursivelySerializeException(@RequireNonnull Throwable throwable,
+  private static void recursivelySerializeException(@RequireNonnull Throwable throwable,
       List<Throwable> arr) {
     // 自分をadd
     arr.add(throwable);
@@ -243,7 +248,7 @@ public class ExceptionUtil {
    * @return a list of Throwables
    */
   @Nonnull
-  public List<Throwable> getExceptionListWithMessages(@RequireNonnull Throwable throwable) {
+  public static List<Throwable> getExceptionListWithMessages(@RequireNonnull Throwable throwable) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
     List<Throwable> rtnList = new ArrayList<>();
@@ -278,7 +283,7 @@ public class ExceptionUtil {
    * @return list of SingleAppException
    */
   @Nonnull
-  public List<SingleAppException> getSingleAppExceptionList(
+  public static List<SingleAppException> getSingleAppExceptionList(
       @RequireNonnull AppException appException) {
     ObjectsUtil.paramRequireNonNull(appException);
 
@@ -312,7 +317,7 @@ public class ExceptionUtil {
    * @return list of SingleAppException
    */
   @Nonnull
-  public List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
+  public static List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
       @Nullable Locale locale) {
     // 呼び出し先でnullcheckをしているためここでは不要。
 
@@ -336,7 +341,7 @@ public class ExceptionUtil {
    * @return error log string
    */
   @Nonnull
-  public String getErrLogShortString(@RequireNonnull Throwable throwable,
+  public static String getErrLogShortString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale, int packagesShown) {
     return getErrLogString(throwable, additionalMessage, locale, packagesShown);
   }
@@ -353,13 +358,13 @@ public class ExceptionUtil {
    * @return error log string
    */
   @Nonnull
-  public String getErrLogString(@RequireNonnull Throwable throwable,
+  public static String getErrLogString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale) {
     return getErrLogString(throwable, additionalMessage, locale, null);
   }
 
   @Nonnull
-  private String getErrLogString(@RequireNonnull Throwable throwable,
+  private static String getErrLogString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale, Integer packagesShown) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = (locale == null) ? Locale.getDefault() : locale;
@@ -380,7 +385,7 @@ public class ExceptionUtil {
   }
 
   /* 再起的に呼び出してThrowableの内容を出力する。 */
-  private void getErrInfoRecursively(StringBuilder sb, Throwable th, Locale locale,
+  private static void getErrInfoRecursively(StringBuilder sb, Throwable th, Locale locale,
       Integer packagesShown) {
 
     locale = (locale == null) ? Locale.getDefault() : locale;
@@ -403,7 +408,7 @@ public class ExceptionUtil {
     }
   }
 
-  private String getStackTraceString(Throwable th, Integer packagesShown) {
+  private static String getStackTraceString(Throwable th, Integer packagesShown) {
     StringBuilder sb = new StringBuilder();
     for (StackTraceElement ste : th.getStackTrace()) {
       String[] spl = ste.getClassName().split("\\.");

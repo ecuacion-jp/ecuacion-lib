@@ -20,25 +20,28 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Objects;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.util.ValidationUtil.ValidationExecutor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class Test91_01_util_ValidationUtil extends TestTools {
 
-  private ValidationUtil util;
+  private ValidationExecutor util;
 
   @BeforeEach
   public void before() {
-    util = new ValidationUtil();
+     util = ValidationUtil.builder().build();
   }
 
   @Test
   public void test11_validateThenReturn_01_object_locale_01_objectがnull() {
+    ValidationExecutor util = ValidationUtil.builder().build();
+
     try {
       util.validateThenReturn(null);
       fail();
@@ -146,7 +149,8 @@ public class Test91_01_util_ValidationUtil extends TestTools {
 
     Assertions.assertThat(exMin == null).isFalse();
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getConstraintViolationBean().getMessage()).isEqualTo("must be greater than or equal to 3");
+    Assertions.assertThat(exMin.getConstraintViolationBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test
@@ -229,7 +233,8 @@ public class Test91_01_util_ValidationUtil extends TestTools {
 
     Assertions.assertThat(exMin == null).isFalse();
     Objects.requireNonNull(exMin);
-    Assertions.assertThat(exMin.getConstraintViolationBean().getMessage()).isEqualTo("must be greater than or equal to 3");
+    Assertions.assertThat(exMin.getConstraintViolationBean().getMessage())
+        .isEqualTo("must be greater than or equal to 3");
   }
 
   @Test

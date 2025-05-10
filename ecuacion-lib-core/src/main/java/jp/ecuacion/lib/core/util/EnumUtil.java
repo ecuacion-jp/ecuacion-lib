@@ -50,6 +50,11 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 public class EnumUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private EnumUtil() {}
+  
+  /**
   * Obtains the enum value from the code.
   *
   * <p>The return value may be null when the code is null.<br>
@@ -154,7 +159,7 @@ public class EnumUtil {
    *     "|" is the separator of values.</p>
    */
   @Nonnull
-  public <T> List<String[]> getListForHtmlSelect(@Nonnull Class<T> enumClass,
+  public static <T> List<String[]> getListForHtmlSelect(@Nonnull Class<T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
     String[] options = optionsString.split(",");

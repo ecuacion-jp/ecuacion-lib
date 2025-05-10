@@ -150,14 +150,14 @@ public class DetailLogger extends EclibLogger {
       AppException ae = throwable instanceof UncheckedAppException
           ? (AppException) ((UncheckedAppException) throwable).getCause()
           : (AppException) throwable;
-      new ExceptionUtil().getAppExceptionMessageList(ae, Locale.getDefault())
+      ExceptionUtil.getAppExceptionMessageList(ae, Locale.getDefault())
           .forEach(tmpMsg -> sb.append(tmpMsg + "\n"));
 
       additionalMessage += "\n" + sb.toString();
     }
 
     // Output to detailLog
-    log(Level.ERROR, exUtil.getErrLogString(throwable, additionalMessage, Locale.ENGLISH));
+    log(Level.ERROR, ExceptionUtil.getErrLogString(throwable, additionalMessage, Locale.ENGLISH));
   }
 
   /**

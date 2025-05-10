@@ -44,12 +44,12 @@ import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
  * Provides mail-related utility methods.
  */
 public class MailUtil {
+  private static DetailLogger dtlLog = new DetailLogger(MailUtil.class);
 
-  private ExceptionUtil exUtil = new ExceptionUtil();
-  private DetailLogger dtlLog = new DetailLogger(this);
-
-  /** Constructs a new instance. */
-  public MailUtil() {}
+  /**
+  * Prevents to create an instance.
+  */
+  private MailUtil() {}
 
   /**
    * Sends an error mail.
@@ -62,7 +62,7 @@ public class MailUtil {
    *     
    * @param throwable throwable
    */
-  public void sendErrorMail(@Nonnull Throwable throwable) {
+  public static void sendErrorMail(@Nonnull Throwable throwable) {
     sendErrorMail(throwable, null);
   }
 
@@ -74,7 +74,8 @@ public class MailUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    */
-  public void sendErrorMail(@Nonnull Throwable throwable, @Nullable String additionalMessage) {
+  public static void sendErrorMail(@Nonnull Throwable throwable,
+      @Nullable String additionalMessage) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
     List<String> errorMailAddressList = Arrays.asList(PropertyFileUtil
@@ -98,9 +99,9 @@ public class MailUtil {
     }
   }
 
-  private String getErrorMailContent(Throwable e, String additionalMessage) {
+  private static String getErrorMailContent(Throwable e, String additionalMessage) {
     StringBuffer msgSb = new StringBuffer();
-    msgSb.append(exUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
+    msgSb.append(ExceptionUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
     String rtn = msgSb.toString();
     return rtn;
@@ -112,7 +113,7 @@ public class MailUtil {
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
-  public void sendWarnMail(@Nullable String content, @Nonnull List<String> mailToList) {
+  public static void sendWarnMail(@Nullable String content, @Nonnull List<String> mailToList) {
     ObjectsUtil.paramRequireNonNull(mailToList);
     ObjectsUtil.paramSizeNonZero(mailToList);
 
@@ -152,14 +153,15 @@ public class MailUtil {
    * @param content content, may be {@code null} if no content needed.
    * @throws Exception Exception
    */
-  public void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
+  public static void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
       @Nonnull String title, @Nullable String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, title, content, true);
   }
 
-  private void sendMailCommon(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
-      @Nonnull String title, @Nullable String content, boolean throwsException) throws Exception {
+  private static void sendMailCommon(@Nullable List<String> mailToList,
+      @Nullable List<String> mailCcList, @Nonnull String title, @Nullable String content,
+      boolean throwsException) throws Exception {
     ObjectsUtil.paramRequireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
@@ -203,9 +205,9 @@ public class MailUtil {
    * また、エラー発生時のログ出力もこの中で行う。 多分これを呼び出す必要はないと思うのでprivateにしてある。必要があればpublicに変更してもよい。 throwsException =
    * trueの場合は、
    */
-  private void sendMailInternal(String mailFrom, String pass, @Nonnull List<String> mailToList,
-      List<String> mailCcList, String title, String content, MailUtilEmail emailInfo,
-      boolean throwsException) throws Exception {
+  private static void sendMailInternal(String mailFrom, String pass,
+      @Nonnull List<String> mailToList, List<String> mailCcList, String title, String content,
+      MailUtilEmail emailInfo, boolean throwsException) throws Exception {
     try {
       // 送信先が一人もいなければ終了
       if ((mailToList == null || mailToList.size() == 0)
@@ -290,7 +292,7 @@ public class MailUtil {
     }
   }
 
-  private void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
+  private static void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
       String mailFrom, String pass, Session session, InternetAddress[] addressTo)
       throws NoSuchProviderException, MessagingException {
     // smtpサーバへ接続・送信

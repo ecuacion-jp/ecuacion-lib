@@ -33,6 +33,11 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 public class ObjectsUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private ObjectsUtil() {}
+
+  /**
    * Validates the argument is not {@code null} and throws {@code NullPointerException} 
    * if {@code null}.
    * 

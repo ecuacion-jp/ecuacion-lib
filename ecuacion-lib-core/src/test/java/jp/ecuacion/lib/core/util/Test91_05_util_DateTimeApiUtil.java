@@ -24,17 +24,14 @@ import org.junit.jupiter.api.Test;
 
 public class Test91_05_util_DateTimeApiUtil extends TestTools {
 
-  private DateTimeApiUtil util;
-
   @BeforeEach
   public void before() {
-    util = new DateTimeApiUtil();
   }
 
   @Test
   public void test_getLocalDateTimeUserFriendlyString_arg_localDateTime_normal() {
     LocalDateTime dateTime = LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111);
-    String result = util.getLocalDateTimeDisplayString(dateTime);
+    String result = DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime);
 
     assertEquals("2001-01-01 01:01:01", result);
   }
@@ -42,7 +39,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   @Test
   public void test_getLocalDateTimeUserFriendlyString_arg_localDateTime_abnormal_null() {
     try {
-      util.getLocalDateTimeDisplayString(null);
+      DateTimeApiUtil.getLocalDateTimeDisplayString(null);
       fail();
 
     } catch (NullPointerException ex) {
@@ -54,7 +51,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   public void test_normal_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_normal() {
     OffsetDateTime dateTime =
         OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    String result = util.getLocalDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
+    String result = DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
 
     assertEquals("2001-01-01 10:01:01", result);
   }
@@ -62,7 +59,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   @Test
   public void test_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_abnormal_null_offsetDateTime() {
     try {
-      util.getLocalDateTimeDisplayString(null, ZoneOffset.UTC);
+      DateTimeApiUtil.getLocalDateTimeDisplayString(null, ZoneOffset.UTC);
       fail();
 
     } catch (NullPointerException ex) {
@@ -74,7 +71,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   public void test_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_abnormal_null_ZoneOffset() {
     // OffsetDateTime dateTime =
     // OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    // String result = util.getLocalDateTimeUserFriendlyString(dateTime, null);
+    // String result = DateTimeApiUtil.getLocalDateTimeUserFriendlyString(dateTime, null);
 
     // assertEquals(dateTime."2001-01-01 " + atZoneSameInstant(ZoneId.systemDefault()).getHour());
   }
@@ -83,7 +80,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   public void test_getOffsetDateTimeUserFriendlyString_normal() {
     OffsetDateTime dateTime =
         OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    String result = util.getOffsetDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
+    String result = DateTimeApiUtil.getOffsetDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
 
     assertEquals("2001-01-01 10:01:01 +09:00", result);
   }
@@ -91,7 +88,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   @Test
   public void test_getOffsetDateTimeUserFriendlyString_abnormal_null_offsetDateTime() {
     try {
-      util.getOffsetDateTimeDisplayString(null, ZoneOffset.UTC);
+      DateTimeApiUtil.getOffsetDateTimeDisplayString(null, ZoneOffset.UTC);
       fail();
 
     } catch (NullPointerException ex) {
@@ -103,7 +100,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   public void test_getOffsetDateTimeUserFriendlyString_abnormal_null_ZoneOffset() {
     // OffsetDateTime dateTime =
     // OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    // String result = util.getOffsetDateTimeUserFriendlyString(OffsetDateTime.now(), null);
+    // String result = DateTimeApiUtil.getOffsetDateTimeUserFriendlyString(OffsetDateTime.now(), null);
     //
     // assertEquals("2001-01-01 10:01:01 +09:00", result);
   }
@@ -113,7 +110,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getLocalDateTime_normal1() {
-    LocalDateTime result = util.getLocalDateTime("2001-01-01 01:01:01");
+    LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01 01:01:01");
 
     assertEquals(result.getYear(), 2001);
     assertEquals(result.getMonthValue(), 1);
@@ -128,7 +125,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getLocalDateTime_normal2() {
-    LocalDateTime result = util.getLocalDateTime("2001/01/01 01:01:01");
+    LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001/01/01 01:01:01");
 
     assertEquals(result.getYear(), 2001);
     assertEquals(result.getMonthValue(), 1);
@@ -143,7 +140,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getLocalDateTime_normal3() {
-    LocalDateTime result = util.getLocalDateTime("2001-01-01T01:01:01");
+    LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01T01:01:01");
 
     assertEquals(result.getYear(), 2001);
     assertEquals(result.getMonthValue(), 1);
@@ -158,7 +155,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getLocalDateTime_normal4() {
-    LocalDateTime result = util.getLocalDateTime("2001-01-01 01:01:01.123");
+    LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01 01:01:01.123");
 
     assertEquals(result.getYear(), 2001);
     assertEquals(result.getMonthValue(), 1);
@@ -175,7 +172,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
   @Test
   public void test_getLocalDateTime_abnormal1() {
     try {
-      util.getLocalDateTime("2001-01-1 01:01:01");
+      DateTimeApiUtil.getLocalDateTime("2001-01-1 01:01:01");
       fail();
       
     } catch (Exception ex) {
@@ -188,7 +185,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getOffsetDateTime_normal1() {
-    OffsetDateTime tmp = util.getOffsetDateTime("2001-01-01 01:01:01+00:00");
+    OffsetDateTime tmp = DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01+00:00");
     LocalDateTime result = tmp.withOffsetSameInstant(ZoneOffset.ofHours(9)).toLocalDateTime();
 
     assertEquals(result.getYear(), 2001);
@@ -204,7 +201,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
    */
   @Test
   public void test_getOffsetDateTime_normal2() {
-    OffsetDateTime tmp = util.getOffsetDateTime("2001-01-01 01:01:01 +00:00");
+    OffsetDateTime tmp = DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01 +00:00");
     LocalDateTime result = tmp.withOffsetSameInstant(ZoneOffset.ofHours(9)).toLocalDateTime();
 
     assertEquals(result.getYear(), 2001);

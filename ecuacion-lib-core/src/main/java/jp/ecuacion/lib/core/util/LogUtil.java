@@ -28,8 +28,6 @@ public class LogUtil {
 
   /**
   * Prevents to create an instance.
-  *
-  * @param instance instance which want to log.
   */
   private LogUtil() {}
 
