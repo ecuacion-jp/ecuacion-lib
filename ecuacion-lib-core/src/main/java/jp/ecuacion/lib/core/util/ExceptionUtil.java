@@ -48,7 +48,7 @@ public class ExceptionUtil {
   * Prevents to create an instance.
   */
   private ExceptionUtil() {}
-  
+
   /**
    * Returns exception message for 1 exception.
    * 
@@ -206,7 +206,7 @@ public class ExceptionUtil {
   private static List<Throwable> serializeExceptions(@RequireNonnull Throwable throwable) {
     List<Throwable> list = new ArrayList<>();
     recursivelySerializeException(throwable, list);
-    return ObjectsUtil.returnRequireNonNull(list);
+    return list;
   }
 
   /*
@@ -219,9 +219,9 @@ public class ExceptionUtil {
    * @param arr 最終的に「階層のない単純なList」がこれになる。
    */
   private static void recursivelySerializeException(@RequireNonnull Throwable throwable,
-      List<Throwable> arr) {
+      @RequireNonnull List<Throwable> arr) {
     // 自分をadd
-    arr.add(throwable);
+    ObjectsUtil.paramRequireNonNull(arr.add(ObjectsUtil.paramRequireNonNull(throwable)));
 
     // MultipleAppExceptionの場合は、その内部に保持している複数のApplicationExceptionを全てerrListに追加する
     // MultipleAppException.exArrに入るものはAppExceptionのみ
@@ -365,7 +365,8 @@ public class ExceptionUtil {
 
   @Nonnull
   private static String getErrLogString(@RequireNonnull Throwable throwable,
-      @Nullable String additionalMessage, @Nullable Locale locale, Integer packagesShown) {
+      @Nullable String additionalMessage, @Nullable Locale locale,
+      @Nullable Integer packagesShown) {
     ObjectsUtil.paramRequireNonNull(throwable);
     locale = (locale == null) ? Locale.getDefault() : locale;
 

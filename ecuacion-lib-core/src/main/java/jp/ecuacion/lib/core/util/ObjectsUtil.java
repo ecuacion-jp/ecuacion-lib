@@ -68,7 +68,7 @@ public class ObjectsUtil {
   @Nonnull
   public static void paramRequireNonNull(@RequireNonnull Object object1,
       @RequireNonnull Object object2, @RequireNonnull Object... objects) {
-    
+
     Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
 
     for (Object object : allObjects) {
@@ -90,7 +90,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T returnRequireNonNull(@Nonnull T object) {
+  public static <T> T returnRequireNonNull(@RequireNonnull T object) {
     return Objects.requireNonNull(object,
         EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
             + "ObjectsUtil#returnRequireNonNull(Object) : the return value: "
@@ -122,7 +122,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] paramSizeNonZero(@Nonnull T[] objects) {
+  public static <T> T[] paramSizeNonZero(@RequireNonnull T[] objects) {
     ObjectsUtil.paramRequireNonNull(objects);
 
     if (objects.length == 0) {
@@ -143,7 +143,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> Collection<T> paramSizeNonZero(@Nonnull Collection<T> colleciton) {
+  public static <T> Collection<T> paramSizeNonZero(@RequireNonnull Collection<T> colleciton) {
     ObjectsUtil.paramRequireNonNull(colleciton);
 
     if (colleciton.size() == 0) {
