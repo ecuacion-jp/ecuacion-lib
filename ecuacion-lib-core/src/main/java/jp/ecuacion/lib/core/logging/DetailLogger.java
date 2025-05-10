@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
@@ -42,7 +41,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param object caller object
    */
-  public DetailLogger(@Nonnull Object object) {
+  public DetailLogger(@RequireNonnull Object object) {
     this(object.getClass());
 
     ObjectsUtil.paramRequireNonNull(object);
@@ -54,7 +53,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param cls caller class.
    */
-  public DetailLogger(@Nonnull Class<?> cls) {
+  public DetailLogger(@RequireNonnull Class<?> cls) {
     super(cls);
 
     ObjectsUtil.paramRequireNonNull(cls);
@@ -111,15 +110,6 @@ public class DetailLogger extends EclibLogger {
    * @param th exception to log
    */
   public void error(@RequireNonnull Throwable th) {
-    logThrowable(th);
-  }
-
-  /** 
-   * Logs {@code Throwable}.
-   * 
-   * @param th throwable. Cannot be {@code null}.
-   */
-  protected void logThrowable(Throwable th) {
     ObjectsUtil.paramRequireNonNull(th);
     log(Level.ERROR, "A system error has occurred: ", th);
   }
@@ -169,7 +159,9 @@ public class DetailLogger extends EclibLogger {
    * 
    * @param throwable throwable
    */
-  public void logExceptionAsDebugInfo(Throwable throwable) {
+  public void logExceptionAsDebugInfo(@RequireNonnull Throwable throwable) {
+    ObjectsUtil.paramRequireNonNull(throwable);
+    
     internalLogger.debug(EclibCoreConstants.ECLIB_PREFIX
         + "The following is only for reference. (No system error will occur)");
 
@@ -181,9 +173,9 @@ public class DetailLogger extends EclibLogger {
    * @param message message. Cannot be {@code null}.
    * @param logLevel logLevel. Cannot be {@code null}.
    */
-  private void log(Level logLevel, String message, Throwable throwable) {
-    ObjectsUtil.paramRequireNonNull(message);
-    ObjectsUtil.paramRequireNonNull(logLevel);
+  private void log(@RequireNonnull Level logLevel, @RequireNonnull String message,
+      @RequireNonnull Throwable throwable) {
+    ObjectsUtil.paramRequireNonNull(message, logLevel, throwable);
 
     switch (logLevel) {
       case Level.ERROR -> internalLogger.error(message, throwable);

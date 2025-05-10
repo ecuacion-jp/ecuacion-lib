@@ -69,15 +69,10 @@ public class EnumUtil {
   @Nonnull
   public static <T> T getEnumFromCode(@RequireNonnull Class<T> enumClass,
       @RequireNonnull String code) {
-    ObjectsUtil.paramRequireNonNull(enumClass);
-    ObjectsUtil.paramRequireNonNull(code);
+    ObjectsUtil.paramRequireNonNull(enumClass, code);
 
     if (!enumClass.isEnum()) {
       throw new IllegalArgumentException();
-    }
-
-    if (code == null) {
-      return null;
     }
 
     for (EnumValueInfo<T> enumValue : getEnumInfo(enumClass).valueList) {
