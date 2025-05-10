@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmail;
@@ -62,7 +63,7 @@ public class MailUtil {
    *     
    * @param throwable throwable
    */
-  public static void sendErrorMail(@Nonnull Throwable throwable) {
+  public static void sendErrorMail(@RequireNonnull Throwable throwable) {
     sendErrorMail(throwable, null);
   }
 
@@ -74,7 +75,7 @@ public class MailUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    */
-  public static void sendErrorMail(@Nonnull Throwable throwable,
+  public static void sendErrorMail(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
@@ -99,7 +100,9 @@ public class MailUtil {
     }
   }
 
-  private static String getErrorMailContent(Throwable e, String additionalMessage) {
+  @Nonnull
+  private static String getErrorMailContent(@RequireNonnull Throwable e,
+      @Nullable String additionalMessage) {
     StringBuffer msgSb = new StringBuffer();
     msgSb.append(ExceptionUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
@@ -113,7 +116,9 @@ public class MailUtil {
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
-  public static void sendWarnMail(@Nullable String content, @Nonnull List<String> mailToList) {
+  @Nonnull
+  public static void sendWarnMail(@Nullable String content,
+      @RequireNonnull List<String> mailToList) {
     ObjectsUtil.paramRequireNonNull(mailToList);
     ObjectsUtil.paramSizeNonZero(mailToList);
 
@@ -154,13 +159,13 @@ public class MailUtil {
    * @throws Exception Exception
    */
   public static void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
-      @Nonnull String title, @Nullable String content) throws Exception {
+      @RequireNonnull String title, @Nullable String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, title, content, true);
   }
 
   private static void sendMailCommon(@Nullable List<String> mailToList,
-      @Nullable List<String> mailCcList, @Nonnull String title, @Nullable String content,
+      @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content,
       boolean throwsException) throws Exception {
     ObjectsUtil.paramRequireNonNull(title);
 

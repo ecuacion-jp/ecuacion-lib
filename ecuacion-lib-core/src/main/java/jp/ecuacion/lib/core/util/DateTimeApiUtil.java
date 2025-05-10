@@ -77,23 +77,7 @@ public class DateTimeApiUtil {
   public static String getLocalDateTimeDisplayString(
       @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
     ObjectsUtil.paramRequireNonNull(dateTime);
-    
-    return getLocalDateTimeDisplayStringOrNullIfDateTimeIsNull(dateTime, zoneId);
-  }
 
-  /**
-   *  Returns user-friendly LocalDateTime format string : {@code yyyy-MM-dd HH:mm:ss}.
-   *  
-   * @param dateTime offsetDateTime
-   * @param zoneId zoneId, may be {@code null} 
-   *     which is treated as {@code ZoneId.systemDefault()}.
-   *     {@code ZoneOffset} is also available, which extends {@code ZoneId}.
-   * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
-   */
-  @Nullable
-  public static String getLocalDateTimeDisplayStringOrNullIfDateTimeIsNull(
-      @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
-    ObjectsUtil.paramRequireNonNull(dateTime);
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
     return dateTime.atZoneSameInstant(zoneId).toLocalDateTime()

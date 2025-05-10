@@ -37,8 +37,9 @@ public class LogUtil {
   * @param detailLog DetailLogger instance
   * @param throwable throwable
   */
-  public static void logSystemError(DetailLogger detailLog, @RequireNonnull Throwable throwable) {
-    logSystemError(detailLog, throwable, (String) null);
+  public static void logSystemError(
+      @RequireNonnull DetailLogger detailLog, @RequireNonnull Throwable throwable) {
+    logSystemError(detailLog, throwable, null);
   }
 
   /**
@@ -52,7 +53,8 @@ public class LogUtil {
    */
   public static void logSystemError(@RequireNonnull DetailLogger detailLog,
       @RequireNonnull Throwable throwable, @Nullable String additionalMessage) {
-
+    ObjectsUtil.paramRequireNonNull(detailLog, throwable);
+    
     errLog.logSystemError(throwable, additionalMessage);
     detailLog.logSystemError(throwable, additionalMessage);
   }

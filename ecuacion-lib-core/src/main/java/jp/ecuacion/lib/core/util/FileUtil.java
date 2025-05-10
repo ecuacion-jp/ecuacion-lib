@@ -45,6 +45,8 @@ public class FileUtil {
    */
   @Nonnull
   public static String getFileSavableName(@RequireNonnull String origName) {
+    ObjectsUtil.paramRequireNonNull(origName);
+    
     String rtn = origName;
     if (origName.indexOf("\\") >= 0) {
       rtn = rtn.replaceAll("\\\\", "__yen__");
@@ -97,6 +99,7 @@ public class FileUtil {
   @Nonnull
   private static String concatTwoFilePaths(@RequireNonnull String path1,
       @RequireNonnull String path2) {
+    ObjectsUtil.paramRequireNonNull(path1, path2);
 
     if (path1.endsWith("/")) {
       path1 = path1.substring(0, path1.length() - 1);
@@ -134,6 +137,8 @@ public class FileUtil {
    * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br> 区切り位置が存在しない場合は-1を返す
    */
   private static int getFirstPathSeparatorIndex(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+
     int firstSlashIndex = path.indexOf("/");
     int firstBackSlashIndex = path.indexOf("\\");
 
@@ -166,6 +171,8 @@ public class FileUtil {
    */
   @Nonnull
   public static String cleanPathStrWithSlash(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+    
     String rtnStr = null;
     // 併せて、区切り文字を「/」に統一する
     rtnStr = path.replaceAll("\\\\", "/");
@@ -199,6 +206,8 @@ public class FileUtil {
    */
   @SuppressWarnings("resource")
   public static boolean isLocked(@RequireNonnull String path) throws IOException {
+    ObjectsUtil.paramRequireNonNull(path);
+    
     File file = new File(path);
     // FileLockによる実装がうまくいかない。ロックがかかっている状態でFileOutputStreamを取得しようとすると、
     // その時点でIOExceptionが発生してしまう。（なんでだろう・・）
@@ -264,7 +273,8 @@ public class FileUtil {
   /**
    * Returns true if the argument path contains wildcard strings.
    */
-  public static boolean containsWildCard(String path) {
+  @Nonnull
+  public static boolean containsWildCard(@RequireNonnull String path) {
     return (path.contains("?") || path.contains("*"));
   }
 
@@ -274,7 +284,8 @@ public class FileUtil {
    * <p>"*", "?" are supported, but "**" not supported.<br>
    * The separator of returning Paths is "/"</p>
    */
-  public static List<String> getPathListFromPathWithWildcard(String path)
+  @Nonnull
+  public static List<String> getPathListFromPathWithWildcard(@RequireNonnull String path)
       throws BizLogicAppException {
 
     final List<String> fullPathList = new ArrayList<>();
@@ -305,7 +316,8 @@ public class FileUtil {
    * @return true if the path is relative
    * @throws BizLogicAppException BizLogicAppException
    */
-  public static boolean isRelativePath(String path) throws BizLogicAppException {
+  @Nonnull
+  public static boolean isRelativePath(@RequireNonnull String path) throws BizLogicAppException {
     // pathに値が設定されていない場合はエラー
     if (path == null || path.equals("")) {
       throw new BizLogicAppException("MSG_ERR_PATH_IS_NULL");
@@ -327,7 +339,8 @@ public class FileUtil {
     return true;
   }
 
-  private static String changeRelPathToFullPath(String path) {
+  @Nonnull
+  private static String changeRelPathToFullPath(@RequireNonnull String path) {
     String curPath = new File(".").getAbsolutePath();
     String fullPath = concatFilePaths(curPath, path);
     // 変に「./」、「.\」が残らないように置き換えしておく
@@ -335,9 +348,11 @@ public class FileUtil {
     return fullPath;
   }
 
-  private static void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
-      List<String> rtnFullPathList) throws BizLogicAppException {
-
+  private static void getPathListFromPathWithWildcardRecursively(@RequireNonnull String fullPath,
+      @RequireNonnull String parentPath, @RequireNonnull List<String> rtnFullPathList)
+      throws BizLogicAppException {
+    ObjectsUtil.paramRequireNonNull(fullPath, parentPath, rtnFullPathList);
+    
     String myFileOrDirnameWithWildcard = null;
     boolean hasReachedFullPathDirDepth = false;
 
@@ -426,7 +441,10 @@ public class FileUtil {
    * @param origPath original path
    * @return the separator changed path
    */
-  public static String getParentDirPath(String origPath) {
+  @Nonnull
+  public static String getParentDirPath(@RequireNonnull String origPath) {
+    ObjectsUtil.paramRequireNonNull(origPath);
+
     // 使用されている区切りを"/"に統一
     String path = cleanPathStrWithSlash(origPath);
     return path.substring(0, path.lastIndexOf("/"));
@@ -440,7 +458,10 @@ public class FileUtil {
    * @param path path
    * @return filename
    */
-  public static String getFileNameFromFilePath(String path) {
+  @Nonnull
+  public static String getFileNameFromFilePath(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+
     // getParentDirPathの最後にパス区切り文字（"/"または"\"）があってもなくても影響が出ないように、頭のパス区切り文字を消しておく
     return path.substring(getParentDirPath(path).length()).replace("\\", "").replace("/", "");
   }
@@ -451,7 +472,10 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  public static String getFileSizeInMb(Long fileSize) {
+  @Nonnull
+  public static String getFileSizeInMb(@RequireNonnull Long fileSize) {
+    ObjectsUtil.paramRequireNonNull(fileSize);
+
     double d = Double.valueOf(fileSize);
     // 小数第二位で四捨五入したいので、一旦一桁少ない桁で割り算し、四捨五入後10で割る
     System.out.println(Math.round(d / 100000.0));
@@ -464,7 +488,8 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  public static String getFileSizeInMbWithUnit(Long fileSize) {
+  @Nonnull
+  public static String getFileSizeInMbWithUnit(@RequireNonnull Long fileSize) {
     return getFileSizeInMb(fileSize) + " MB";
   }
 }

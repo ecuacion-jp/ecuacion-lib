@@ -75,6 +75,7 @@ public class ValidationUtil {
      * @param isMessageWithItemName isMessageWithItemName
      * @return BeanValidationUtil
      */
+    @Nonnull
     public ValidationExecutorBuilder messageWithItemName(boolean isMessageWithItemName) {
       this.isMessageWithItemName = isMessageWithItemName;
       return this;
@@ -86,7 +87,8 @@ public class ValidationUtil {
      * @param messagePrefix messagePrefix
      * @return BeanValidationUtil
      */
-    public ValidationExecutorBuilder messagePrefix(Arg messagePrefix) {
+    @Nonnull
+    public ValidationExecutorBuilder messagePrefix(@RequireNonnull Arg messagePrefix) {
       this.messagePrefix = messagePrefix;
       return this;
     }
@@ -97,7 +99,8 @@ public class ValidationUtil {
      * @param messagePostfix messagePostfix
      * @return BeanValidationUtil
      */
-    public ValidationExecutorBuilder messagePostfix(Arg messagePostfix) {
+    @Nonnull
+    public ValidationExecutorBuilder messagePostfix(@RequireNonnull Arg messagePostfix) {
       this.messagePostfix = messagePostfix;
       return this;
     }
@@ -107,6 +110,7 @@ public class ValidationUtil {
      * 
      * @return ValidationExecutor
      */
+    @Nonnull
     public ValidationExecutor build() {
       return new ValidationExecutor(isMessageWithItemName, messagePrefix, messagePostfix);
     }
@@ -128,8 +132,8 @@ public class ValidationUtil {
      * @param messagePrefix messagePrefix
      * @param messagePostfix messagePostfix
      */
-    public ValidationExecutor(boolean isMessageWithItemName, Arg messagePrefix,
-        Arg messagePostfix) {
+    public ValidationExecutor(boolean isMessageWithItemName, @Nullable Arg messagePrefix,
+        @Nullable Arg messagePostfix) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;

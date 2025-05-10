@@ -15,6 +15,8 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,6 +28,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -58,8 +61,10 @@ public class FileLockUtil {
    * @return The {@code Pair} tuple which have {@code FileChannel} and {@code FileLock}.
    * @throws IOException IOException
    */
-  public static Pair<FileChannel, FileLock> lock(File lockFile, String version) throws IOException {
-
+  @Nonnull
+  public static Pair<FileChannel, FileLock> lock(@RequireNonnull File lockFile,
+      @Nullable String version) throws IOException {
+    ObjectsUtil.paramRequireNonNull(lockFile);
     FileLock lockedObject = null;
 
     FileChannel channel =
@@ -90,10 +95,11 @@ public class FileLockUtil {
    * @param channelAndLock the return object of the method {@code lock}.
    * @throws IOException IOException
    */
-  public static void release(Pair<FileChannel, FileLock> channelAndLock) throws IOException {
+  public static void release(@RequireNonnull Pair<FileChannel, FileLock> channelAndLock)
+      throws IOException {
     FileChannel channel = channelAndLock.getLeft();
     FileLock lockedObject = channelAndLock.getRight();
-    
+
     try {
       // 特に使用はしないのだが、lockFileを更新する目的でtimestampの文字列を書き込んでおく。
       byte[] bytes = LocalDateTime.now().toString().getBytes();
@@ -121,7 +127,8 @@ public class FileLockUtil {
    * @return The timestamp string in yyyy-mm-dd-hh-mi-ss.SSS format.
    *     To ignore the time offset, the time is always treated as UTC.
    */
-  public static String getLockFileVersion(File lockFile) throws IOException {
+  @Nonnull
+  public static String getLockFileVersion(@RequireNonnull File lockFile) throws IOException {
     // ディレクトリが存在しなければ作成
     lockFile.getParentFile().mkdirs();
 
