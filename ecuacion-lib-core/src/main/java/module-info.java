@@ -17,7 +17,7 @@
 /**
  * Provides basic functions used as common utilities.
  * 
- * <p>Classes and Utilities for {@code bean validation} are included 
+ * <p>Classes and Utilities for {@code jakarta validation} are included 
  * sinse it is used in wide variation of projects.</p>
  */
 module jp.ecuacion.lib.core {
@@ -35,7 +35,7 @@ module jp.ecuacion.lib.core {
   requires transitive jakarta.validation;
   requires jakarta.mail;
   requires jakarta.annotation;
-  requires org.slf4j;
+  requires transitive org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
   

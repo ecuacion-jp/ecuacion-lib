@@ -27,6 +27,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
  * Provides Utility methods related to {@code dateTime Api}.
  */
 public class DateTimeApiUtil {
+  
   private static final String REG_OF_DIFF = "\\+[0-9]{2}:[0-9]{2}";
   private static final String FM_OF_DIFF = "[xxx][xx][X]";
 
@@ -44,6 +45,12 @@ public class DateTimeApiUtil {
   private static final String USER_FRIENDLY_LOCAL_FORMAT = "yyyy-MM-dd HH:mm:ss";
   private static final String USER_FRIENDLY_OFFSET_FORMAT = "yyyy-MM-dd HH:mm:ss ZZZZZ";
 
+
+  /**
+  * Prevents to create an instance.
+  */
+  private DateTimeApiUtil() {}
+  
   /**
    * Returns user-friendly LocalDateTime format string : {@code yyyy-MM-dd HH:mm:ss}.
    *  
@@ -51,7 +58,7 @@ public class DateTimeApiUtil {
    * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
    */
   @Nonnull
-  public String getLocalDateTimeDisplayString(@RequireNonnull LocalDateTime localDateTime) {
+  public static String getLocalDateTimeDisplayString(@RequireNonnull LocalDateTime localDateTime) {
     ObjectsUtil.paramRequireNonNull(localDateTime);
 
     return localDateTime.format(DateTimeFormatter.ofPattern(USER_FRIENDLY_LOCAL_FORMAT));
@@ -67,26 +74,10 @@ public class DateTimeApiUtil {
    * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
    */
   @Nonnull
-  public String getLocalDateTimeDisplayString(
+  public static String getLocalDateTimeDisplayString(
       @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
     ObjectsUtil.paramRequireNonNull(dateTime);
-    
-    return getLocalDateTimeDisplayStringOrNullIfDateTimeIsNull(dateTime, zoneId);
-  }
 
-  /**
-   *  Returns user-friendly LocalDateTime format string : {@code yyyy-MM-dd HH:mm:ss}.
-   *  
-   * @param dateTime offsetDateTime
-   * @param zoneId zoneId, may be {@code null} 
-   *     which is treated as {@code ZoneId.systemDefault()}.
-   *     {@code ZoneOffset} is also available, which extends {@code ZoneId}.
-   * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
-   */
-  @Nullable
-  public String getLocalDateTimeDisplayStringOrNullIfDateTimeIsNull(
-      @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
-    ObjectsUtil.paramRequireNonNull(dateTime);
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
     return dateTime.atZoneSameInstant(zoneId).toLocalDateTime()
@@ -103,7 +94,7 @@ public class DateTimeApiUtil {
    * @return offsetDateTime string: {@code yyyy-MM-dd HH:mm:ss +HH:mm}
    */
   @Nonnull
-  public String getOffsetDateTimeDisplayString(@RequireNonnull OffsetDateTime offsetDateTime,
+  public static String getOffsetDateTimeDisplayString(@RequireNonnull OffsetDateTime offsetDateTime,
       @Nullable ZoneId zoneId) {
     ObjectsUtil.paramRequireNonNull(offsetDateTime);
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
@@ -129,7 +120,7 @@ public class DateTimeApiUtil {
    * @return LocalDateTime
    */
   @Nonnull
-  public LocalDateTime getLocalDateTime(@RequireNonnull String dateTimeString) {
+  public static LocalDateTime getLocalDateTime(@RequireNonnull String dateTimeString) {
     FormatHolder obj = getLocalDateTimePartFormat(dateTimeString);
     return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern(obj.fmStr));
   }
@@ -150,7 +141,7 @@ public class DateTimeApiUtil {
    * @return OffsetDateTime
    */
   @Nonnull
-  public OffsetDateTime getOffsetDateTime(@RequireNonnull String dateTimeString) {
+  public static OffsetDateTime getOffsetDateTime(@RequireNonnull String dateTimeString) {
     FormatHolder obj = getLocalDateTimePartFormat(dateTimeString);
 
     // 後ろの時差表現を判別
@@ -186,7 +177,7 @@ public class DateTimeApiUtil {
    * @return formatHolder
    */
   @Nonnull
-  private FormatHolder getLocalDateTimePartFormat(@RequireNonnull String dateTimeString) {
+  private static FormatHolder getLocalDateTimePartFormat(@RequireNonnull String dateTimeString) {
     ObjectsUtil.paramRequireNonNull(dateTimeString);
 
     FormatHolder obj = new FormatHolder();

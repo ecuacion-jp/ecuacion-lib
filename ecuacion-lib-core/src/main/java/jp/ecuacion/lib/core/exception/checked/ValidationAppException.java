@@ -23,7 +23,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
- * Holds a bean validations violation.
+ * Holds a Jakarta Validations violation.
  */
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
@@ -37,7 +37,7 @@ public class ValidationAppException extends SingleAppException {
   private Arg messagePostfix;
 
   /**
-   * Constructs a new instance with bean validation violation.
+   * Constructs a new instance with Jakarta Validation violation.
    *
    * @param violation violation result
    */

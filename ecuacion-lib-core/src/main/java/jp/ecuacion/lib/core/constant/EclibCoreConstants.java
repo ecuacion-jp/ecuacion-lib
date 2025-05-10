@@ -20,22 +20,34 @@ package jp.ecuacion.lib.core.constant;
  * Provides Constants.
  */
 public final class EclibCoreConstants {
-  
+
   /* Cannot be called from outside of the class. */
   private EclibCoreConstants() {
-    
+
   }
-  
+
   /** The common part of the package in ecuacion-lib. */
   public static final String PKG_PARENT = "jp.ecuacion.lib";
   public static final String PKG = "jp.ecuacion.lib.core";
-  
+
+  public static final String ECLIB_PREFIX = "[ecuacion-lib] ";
+
   /** The message contained in {@code RuntimeSystemException}. */
-  public static final String MSG_RUNTIME_EXCEPTION_PREFIX = "[ecuacion][RuntimeException] ";
-  
+  public static final String MSG_RUNTIME_EXCEPTION_PREFIX = ECLIB_PREFIX + "[RuntimeException] ";
+
   /**
    * Constants used when annotation parameter value is null 
    * because parameter cannot be null value.
    */
   public static final String VALIDATOR_PARAMETER_NULL = "[null]";
+  
+  /**
+   * is a large partition or separator which separates lines for log, mail or others.
+   */
+  public static final String PARTITION_LARGE = "===============";
+
+  /**
+   * is a medium partition or separator which separates lines for log, mail or others.
+   */
+  public static final String PARTITION_MEDIUM = "----------";
 }

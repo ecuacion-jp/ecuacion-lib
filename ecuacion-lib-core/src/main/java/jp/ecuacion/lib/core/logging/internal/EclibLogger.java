@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.logging.internal;
 
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Has common methods for concrete loggers.
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public abstract class EclibLogger {
 
   /** internalLogger. */
-  private Logger internalLogger;
+  protected Logger internalLogger;
 
   /** 
    * Constructs a new instance with a logger name.
@@ -53,42 +53,17 @@ public abstract class EclibLogger {
    * @param message message. Cannot be {@code null}.
    * @param logLevel logLevel. Cannot be {@code null}.
    */
-  protected void log(String message, LogLevel logLevel) {
+  public void log(Level logLevel, String message) {
     ObjectsUtil.paramRequireNonNull(message);
     ObjectsUtil.paramRequireNonNull(logLevel);
 
-    if (logLevel == LogLevel.error) {
-      internalLogger.error(message);
-
-    } else if (logLevel == LogLevel.warn) {
-      internalLogger.warn(message);
-
-    } else if (logLevel == LogLevel.info) {
-      internalLogger.info(message);
-
-    } else if (logLevel == LogLevel.debug) {
-      internalLogger.debug(message);
-
-    } else if (logLevel == LogLevel.trace) {
-      internalLogger.trace(message);
-
-    } else {
-      throw new EclibRuntimeException("nonexistent Loglevel : " + logLevel);
+    switch (logLevel) {
+      case Level.ERROR -> internalLogger.error(message);
+      case Level.WARN -> internalLogger.warn(message);
+      case Level.INFO -> internalLogger.info(message);
+      case Level.DEBUG -> internalLogger.debug(message);
+      case Level.TRACE -> internalLogger.trace(message);
+      default -> throw new IllegalArgumentException("Unexpected value: " + logLevel);
     }
-  }
-
-  /** 
-   * Logs {@code Throwable}.
-   * 
-   * @param th throwable. Cannot be {@code null}.
-   */
-  protected void logThrowable(Throwable th) {
-    ObjectsUtil.paramRequireNonNull(th);
-    internalLogger.error("A system error has occured: ", th);
-  }
-
-  /** Is used for describing loglevels.*/
-  public static enum LogLevel {
-    error, warn, info, debug, trace;
   }
 }

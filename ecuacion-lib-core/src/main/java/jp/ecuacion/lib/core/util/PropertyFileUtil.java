@@ -185,7 +185,9 @@ public class PropertyFileUtil {
     }
   }
 
-  /** Does not construct an instance.  */
+  /**
+  * Prevents to create an instance.
+  */
   private PropertyFileUtil() {}
 
   // ■□■ application ■□■
@@ -242,7 +244,7 @@ public class PropertyFileUtil {
    * @return the value (message) of the property key (message ID)
    */
   @Nonnull
-  public static String getMsg(@RequireNonnull String key, @RequireNonnull String... args) {
+  public static String getMsg(@RequireNonnull String key, @Nonnull String... args) {
     return getMessage(key, args);
   }
 
@@ -257,7 +259,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull String... args) {
+      @Nonnull String... args) {
     return getMessage(locale, key, args);
   }
 
@@ -380,6 +382,7 @@ public class PropertyFileUtil {
    * @param arg message arguments, which can be message ID.
    * @return the message corresponding to the message ID or the string set to {@code Arg}.
    */
+  @Nonnull
   public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
     return arg.isMessageId()
         ? PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs)
@@ -497,7 +500,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessage(@Nullable Locale locale, @RequireNonnull String key,
-      Map<String, Object> argMap) {
+      @Nullable Map<String, Object> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
@@ -518,7 +521,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessageWithItemName(@RequireNonnull String key,
-      Map<String, Object> argMap) {
+      @Nullable Map<String, Object> argMap) {
     return getValidationMessageWithItemName(null, key, argMap);
   }
 
@@ -532,14 +535,18 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getValidationMessageWithItemName(@Nullable Locale locale,
-      @RequireNonnull String key, Map<String, Object> argMap) {
+      @RequireNonnull String key, @Nullable Map<String, Object> argMap) {
     String message = getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
-  private static String substituteArgsToValidationMessages(Locale locale, String message,
-      Map<String, Object> argMap) {
+  @Nonnull
+  private static String substituteArgsToValidationMessages(@Nullable Locale locale,
+      @RequireNonnull String message, @Nullable Map<String, Object> argMap) {
+
+    argMap = argMap == null ? new HashMap<>() : argMap;
+
     String annotation;
     String key;
     String newKey;
@@ -593,8 +600,7 @@ public class PropertyFileUtil {
           ? PropertyFileUtil.getMessage(locale,
               argMap.get("annotation") + ".messagePart."
                   + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
-              (String) argMap
-                  .get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE))
+              (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE))
           : "";
       argMap.put(newKey, newValue);
     }
@@ -701,7 +707,7 @@ public class PropertyFileUtil {
    * 
    * @param postfix postfix
    */
-  public static void addResourceBundlePostfix(String postfix) {
+  public static void addResourceBundlePostfix(@RequireNonnull String postfix) {
     PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
   }
 

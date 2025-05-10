@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -36,16 +35,19 @@ import org.apache.commons.lang3.StringUtils;
 public class StringUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private StringUtil() {}
+
+  /**
    * Returns a lowerCamelCase string from a snake case string.
    * 
-   * @param snakeCaseString snakeCaseString, may be null.
-   * @return camel case string, may be null when snakeCaseString is null.
+   * @param snakeCaseString snakeCaseString
+   * @return camel case string
    */
-  @Nullable
-  public String getLowerCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
-    if (snakeCaseString == null) {
-      return null;
-    }
+  @Nonnull
+  public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
+    ObjectsUtil.paramRequireNonNull(snakeCaseString);
 
     // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
     if (snakeCaseString.startsWith("_")) {
@@ -89,12 +91,12 @@ public class StringUtil {
   /**
    * Returns a upperCamelCase string from a snake case string.
    * 
-   * @param snakeCaseString snakeCaseString, may be null.
-   * @return camel case string, may be null when snakeCaseString is null.
+   * @param snakeCaseString snakeCaseString
+   * @return camel case string
    */
-  @Nullable
-  public String getUpperCamelFromSnakeOrNullIfInputIsNull(@Nullable String snakeCaseString) {
-    return StringUtils.capitalize(getLowerCamelFromSnakeOrNullIfInputIsNull(snakeCaseString));
+  @Nonnull
+  public static String getUpperCamelFromSnake(@RequireNonnull String snakeCaseString) {
+    return StringUtils.capitalize(getLowerCamelFromSnake(snakeCaseString));
   }
 
   /**
@@ -103,11 +105,9 @@ public class StringUtil {
    * @param camelCaseString snakeCaseString, may be null.
    * @return camel case string, may be null when camelCaseString is null.
    */
-  @Nullable
-  public String getLowerSnakeFromCamel(@Nullable String camelCaseString) {
-    if (camelCaseString == null) {
-      return null;
-    }
+  @Nonnull
+  public static String getLowerSnakeFromCamel(@RequireNonnull String camelCaseString) {
+    ObjectsUtil.paramRequireNonNull(camelCaseString);
 
     // 一文字目は小文字にしておく
     camelCaseString = StringUtils.uncapitalize(camelCaseString);
@@ -131,17 +131,19 @@ public class StringUtil {
    * @throws NumberFormatException NumberFormatException.
    */
   @Nonnull
-  public String toCurrencyFormat(@Nonnull String number) {
-    if (number == null || number.equals("")) {
-      throw new NumberFormatException();
-    }
+  public static String toCurrencyFormat(@RequireNonnull String number) {
+    ObjectsUtil.paramRequireNonNull(number);
+
     NumberFormat formatter = NumberFormat.getNumberInstance();
     return formatter.format(Integer.valueOf(number));
   }
 
   /* ■□■□ csv関連 ■□■□ */
 
-  private static String getCsv(String[] array, String separator) {
+  @Nonnull
+  private static String getCsv(@RequireNonnull String[] array, @RequireNonnull String separator) {
+    ObjectsUtil.paramRequireNonNull(array, separator);
+
     boolean isFirstTime = true;
     StringBuilder sb = new StringBuilder();
     for (String str : array) {
@@ -165,7 +167,7 @@ public class StringUtil {
    * @return csv
    */
   @Nonnull
-  public static String getCsv(@RequireNonnull String... array) {
+  public static String getCsv(@Nonnull String... array) {
     return getCsv(array, ",");
   }
 
@@ -215,7 +217,7 @@ public class StringUtil {
    * @return html-escaped strings.
    */
   @Nonnull
-  public String escapeHtml(@Nonnull String str) {
+  public static String escapeHtml(@RequireNonnull String str) {
     StringBuffer result = new StringBuffer();
     for (char c : str.toCharArray()) {
       switch (c) {

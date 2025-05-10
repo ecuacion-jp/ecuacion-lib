@@ -15,6 +15,6 @@
  */
 
 /**
- * Provides {@code bean validation} validators.
+ * Provides {@code jakarta validation} validators.
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator;

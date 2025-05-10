@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmail;
@@ -44,13 +45,12 @@ import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
  * Provides mail-related utility methods.
  */
 public class MailUtil {
+  private static DetailLogger dtlLog = new DetailLogger(MailUtil.class);
 
-  private LogUtil logUtil = new LogUtil(this);
-  private ExceptionUtil exUtil = new ExceptionUtil();
-  private DetailLogger dtlLog = new DetailLogger(this);
-
-  /** Constructs a new instance. */
-  public MailUtil() {}
+  /**
+  * Prevents to create an instance.
+  */
+  private MailUtil() {}
 
   /**
    * Sends an error mail.
@@ -63,7 +63,7 @@ public class MailUtil {
    *     
    * @param throwable throwable
    */
-  public void sendErrorMail(@Nonnull Throwable throwable) {
+  public static void sendErrorMail(@RequireNonnull Throwable throwable) {
     sendErrorMail(throwable, null);
   }
 
@@ -75,7 +75,8 @@ public class MailUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    */
-  public void sendErrorMail(@Nonnull Throwable throwable, @Nullable String additionalMessage) {
+  public static void sendErrorMail(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage) {
     ObjectsUtil.paramRequireNonNull(throwable);
 
     List<String> errorMailAddressList = Arrays.asList(PropertyFileUtil
@@ -86,7 +87,7 @@ public class MailUtil {
     }
 
     String mailTitle = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.title-prefix")
-        + "A system error has occured.";
+        + "A system error has occurred.";
 
     // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
     // なので、もし上がったらRuntimeExceptionとしている。
@@ -99,9 +100,11 @@ public class MailUtil {
     }
   }
 
-  private String getErrorMailContent(Throwable e, String additionalMessage) {
+  @Nonnull
+  private static String getErrorMailContent(@RequireNonnull Throwable e,
+      @Nullable String additionalMessage) {
     StringBuffer msgSb = new StringBuffer();
-    msgSb.append(exUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
+    msgSb.append(ExceptionUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
     String rtn = msgSb.toString();
     return rtn;
@@ -113,7 +116,9 @@ public class MailUtil {
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
-  public void sendWarnMail(@Nullable String content, @Nonnull List<String> mailToList) {
+  @Nonnull
+  public static void sendWarnMail(@Nullable String content,
+      @RequireNonnull List<String> mailToList) {
     ObjectsUtil.paramRequireNonNull(mailToList);
     ObjectsUtil.paramSizeNonZero(mailToList);
 
@@ -153,14 +158,15 @@ public class MailUtil {
    * @param content content, may be {@code null} if no content needed.
    * @throws Exception Exception
    */
-  public void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
-      @Nonnull String title, @Nullable String content) throws Exception {
+  public static void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
+      @RequireNonnull String title, @Nullable String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, title, content, true);
   }
 
-  private void sendMailCommon(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
-      @Nonnull String title, @Nullable String content, boolean throwsException) throws Exception {
+  private static void sendMailCommon(@Nullable List<String> mailToList,
+      @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content,
+      boolean throwsException) throws Exception {
     ObjectsUtil.paramRequireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
@@ -204,9 +210,9 @@ public class MailUtil {
    * また、エラー発生時のログ出力もこの中で行う。 多分これを呼び出す必要はないと思うのでprivateにしてある。必要があればpublicに変更してもよい。 throwsException =
    * trueの場合は、
    */
-  private void sendMailInternal(String mailFrom, String pass, @Nonnull List<String> mailToList,
-      List<String> mailCcList, String title, String content, MailUtilEmail emailInfo,
-      boolean throwsException) throws Exception {
+  private static void sendMailInternal(String mailFrom, String pass,
+      @Nonnull List<String> mailToList, List<String> mailCcList, String title, String content,
+      MailUtilEmail emailInfo, boolean throwsException) throws Exception {
     try {
       // 送信先が一人もいなければ終了
       if ((mailToList == null || mailToList.size() == 0)
@@ -271,12 +277,12 @@ public class MailUtil {
 
       if (throwsException) {
         // エラーログ出力
-        logUtil.logError(th1);
+        LogUtil.logSystemError(dtlLog, th1);
         throw th1;
 
       } else {
         try {
-          logUtil.logError(th1);
+          LogUtil.logSystemError(dtlLog, th1);
 
         } catch (Throwable th2) {
           // ここまでくるとどうにもならないので標準出力に出力。それもダメなら何もしない
@@ -291,7 +297,7 @@ public class MailUtil {
     }
   }
 
-  private void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
+  private static void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
       String mailFrom, String pass, Session session, InternetAddress[] addressTo)
       throws NoSuchProviderException, MessagingException {
     // smtpサーバへ接続・送信

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Provides utility methods for {@code Objects.requireNonnull} and other checks.
@@ -31,6 +32,11 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
  * <p>Several other methods provided to clarify an exception is thrown from ecuacion apps.</p>
  */
 public class ObjectsUtil {
+
+  /**
+  * Prevents to create an instance.
+  */
+  private ObjectsUtil() {}
 
   /**
    * Validates the argument is not {@code null} and throws {@code NullPointerException} 
@@ -49,6 +55,28 @@ public class ObjectsUtil {
         + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
   }
 
+  /**
+   * Validates multiple arguments are not {@code null} and throws {@code NullPointerException} 
+   * if {@code null}.
+   * 
+   * <p>This is used to validate multiple arguments at one time.</p>
+   * 
+   * @param object1 Any object
+   * @param object2 Any object
+   * @param objects Any objects
+   */
+  @Nonnull
+  public static void paramRequireNonNull(@RequireNonnull Object object1,
+      @RequireNonnull Object object2, @RequireNonnull Object... objects) {
+
+    Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
+
+    for (Object object : allObjects) {
+      Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+          + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
+    }
+  }
+
 
   /**
    * Validates the return value is not {@code null} and throws {@code NullPointerException} 
@@ -62,7 +90,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T returnRequireNonNull(@Nonnull T object) {
+  public static <T> T returnRequireNonNull(@RequireNonnull T object) {
     return Objects.requireNonNull(object,
         EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
             + "ObjectsUtil#returnRequireNonNull(Object) : the return value: "
@@ -94,7 +122,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] paramSizeNonZero(@Nonnull T[] objects) {
+  public static <T> T[] paramSizeNonZero(@RequireNonnull T[] objects) {
     ObjectsUtil.paramRequireNonNull(objects);
 
     if (objects.length == 0) {
@@ -115,7 +143,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> Collection<T> paramSizeNonZero(@Nonnull Collection<T> colleciton) {
+  public static <T> Collection<T> paramSizeNonZero(@RequireNonnull Collection<T> colleciton) {
     ObjectsUtil.paramRequireNonNull(colleciton);
 
     if (colleciton.size() == 0) {

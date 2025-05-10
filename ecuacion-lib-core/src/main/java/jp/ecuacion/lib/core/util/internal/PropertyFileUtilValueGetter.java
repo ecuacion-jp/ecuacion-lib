@@ -262,8 +262,8 @@ public class PropertyFileUtilValueGetter {
       bundleNameForModule.set(bundleId);
       specifiedLocale.set(locale);
 
-      String bundle = "jp.ecuacion.lib.core." + new StringUtil()
-          .getUpperCamelFromSnakeOrNullIfInputIsNull(bundleId.replaceAll("-", "_"));
+      String bundle = "jp.ecuacion.lib.core."
+          + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
       return ResourceBundle.getBundle(bundle, locale);
 
     } catch (MissingResourceException ex) {

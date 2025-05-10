@@ -16,12 +16,20 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,6 +37,7 @@ import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Provides File-related utility methods.
@@ -36,10 +45,17 @@ import org.apache.commons.lang3.StringUtils;
 public class FileUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private FileUtil() {}
+
+  /**
    * Changes argument filename into file-savable name.
    */
   @Nonnull
-  public String getFileSavableName(@RequireNonnull String origName) {
+  public static String getFileSavableName(@RequireNonnull String origName) {
+    ObjectsUtil.paramRequireNonNull(origName);
+
     String rtn = origName;
     if (origName.indexOf("\\") >= 0) {
       rtn = rtn.replaceAll("\\\\", "__yen__");
@@ -90,7 +106,9 @@ public class FileUtil {
    * @return
    */
   @Nonnull
-  private String concatTwoFilePaths(@RequireNonnull String path1, @RequireNonnull String path2) {
+  private static String concatTwoFilePaths(@RequireNonnull String path1,
+      @RequireNonnull String path2) {
+    ObjectsUtil.paramRequireNonNull(path1, path2);
 
     if (path1.endsWith("/")) {
       path1 = path1.substring(0, path1.length() - 1);
@@ -110,7 +128,7 @@ public class FileUtil {
    * @return the concatenated path
    */
   @Nonnull
-  public String concatFilePaths(@Nonnull String... paths) {
+  public static String concatFilePaths(@Nonnull String... paths) {
     String concatPath = "";
     for (String path : paths) {
       if (concatPath.equals("")) {
@@ -127,7 +145,9 @@ public class FileUtil {
   /*
    * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br> 区切り位置が存在しない場合は-1を返す
    */
-  private int getFirstPathSeparatorIndex(@RequireNonnull String path) {
+  private static int getFirstPathSeparatorIndex(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+
     int firstSlashIndex = path.indexOf("/");
     int firstBackSlashIndex = path.indexOf("\\");
 
@@ -159,7 +179,9 @@ public class FileUtil {
    * @return the cleaned path
    */
   @Nonnull
-  public String cleanPathStrWithSlash(@RequireNonnull String path) {
+  public static String cleanPathStrWithSlash(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+
     String rtnStr = null;
     // 併せて、区切り文字を「/」に統一する
     rtnStr = path.replaceAll("\\\\", "/");
@@ -185,80 +207,10 @@ public class FileUtil {
   }
 
   /**
-   * Checks if file is locked.
-   * 
-   * @param path path, Both absolute and relativve path is acceptable.
-   * @return {@code true} when file is locked.
-   * @throws IOException IOException
-   */
-  @SuppressWarnings("resource")
-  public boolean isLocked(@RequireNonnull String path) throws IOException {
-    File file = new File(path);
-    // FileLockによる実装がうまくいかない。ロックがかかっている状態でFileOutputStreamを取得しようとすると、
-    // その時点でIOExceptionが発生してしまう。（なんでだろう・・）
-    // それも考慮して実装。ファイルが存在する・かつ読み取り専用ファイルでないのにfosを取得できない場合はロックエラーとみなす
-
-    // ファイルが存在しない場合はエラー
-    if (!file.exists()) {
-      throw new FileNotFoundException("ファイルが存在しません。");
-    }
-
-    // ファイルが読み取り専用の場合はロックがかけられないので常にfalseを返す
-    if (!file.canWrite()) {
-      return false;
-    }
-
-    // ファイルでなくフォルダの場合はfalseを返す（それでいいのかどうかよくわからないが・・・）
-    if (file.isDirectory()) {
-      return false;
-    }
-
-    FileOutputStream fos = null;
-    try {
-      fos = new FileOutputStream(file, true);
-    } catch (Exception e) {
-      // この場合はロックが取得されているとみなす
-      return true;
-    }
-
-    // 以下、教科書的なロック状態チェックロジック
-    FileChannel fc = null;
-    FileLock lock = null;
-    try {
-      fc = fos.getChannel();
-      lock = fc.tryLock();
-      // lock == nullの場合は、既にロックがかかっている状態
-      if (lock == null) {
-        return true;
-
-      } else {
-        return false;
-      }
-
-    } finally {
-      try {
-        if (lock != null) {
-          lock.release();
-        }
-
-        if (fc != null) {
-          fc.close();
-        }
-
-        if (fos != null) {
-          fos.close();
-        }
-
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-  }
-
-  /**
    * Returns true if the argument path contains wildcard strings.
    */
-  public boolean containsWildCard(String path) {
+  @Nonnull
+  public static boolean containsWildCard(@RequireNonnull String path) {
     return (path.contains("?") || path.contains("*"));
   }
 
@@ -268,7 +220,9 @@ public class FileUtil {
    * <p>"*", "?" are supported, but "**" not supported.<br>
    * The separator of returning Paths is "/"</p>
    */
-  public List<String> getPathListFromPathWithWildcard(String path) throws BizLogicAppException {
+  @Nonnull
+  public static List<String> getPathListFromPathWithWildcard(@RequireNonnull String path)
+      throws BizLogicAppException {
 
     final List<String> fullPathList = new ArrayList<>();
     // パス文字列をきれいにしておく
@@ -298,7 +252,8 @@ public class FileUtil {
    * @return true if the path is relative
    * @throws BizLogicAppException BizLogicAppException
    */
-  public boolean isRelativePath(String path) throws BizLogicAppException {
+  @Nonnull
+  public static boolean isRelativePath(@RequireNonnull String path) throws BizLogicAppException {
     // pathに値が設定されていない場合はエラー
     if (path == null || path.equals("")) {
       throw new BizLogicAppException("MSG_ERR_PATH_IS_NULL");
@@ -320,7 +275,8 @@ public class FileUtil {
     return true;
   }
 
-  private String changeRelPathToFullPath(String path) {
+  @Nonnull
+  private static String changeRelPathToFullPath(@RequireNonnull String path) {
     String curPath = new File(".").getAbsolutePath();
     String fullPath = concatFilePaths(curPath, path);
     // 変に「./」、「.\」が残らないように置き換えしておく
@@ -328,8 +284,10 @@ public class FileUtil {
     return fullPath;
   }
 
-  private void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
-      List<String> rtnFullPathList) throws BizLogicAppException {
+  private static void getPathListFromPathWithWildcardRecursively(@RequireNonnull String fullPath,
+      @RequireNonnull String parentPath, @RequireNonnull List<String> rtnFullPathList)
+      throws BizLogicAppException {
+    ObjectsUtil.paramRequireNonNull(fullPath, parentPath, rtnFullPathList);
 
     String myFileOrDirnameWithWildcard = null;
     boolean hasReachedFullPathDirDepth = false;
@@ -419,7 +377,10 @@ public class FileUtil {
    * @param origPath original path
    * @return the separator changed path
    */
-  public String getParentDirPath(String origPath) {
+  @Nonnull
+  public static String getParentDirPath(@RequireNonnull String origPath) {
+    ObjectsUtil.paramRequireNonNull(origPath);
+
     // 使用されている区切りを"/"に統一
     String path = cleanPathStrWithSlash(origPath);
     return path.substring(0, path.lastIndexOf("/"));
@@ -433,7 +394,10 @@ public class FileUtil {
    * @param path path
    * @return filename
    */
-  public String getFileNameFromFilePath(String path) {
+  @Nonnull
+  public static String getFileNameFromFilePath(@RequireNonnull String path) {
+    ObjectsUtil.paramRequireNonNull(path);
+
     // getParentDirPathの最後にパス区切り文字（"/"または"\"）があってもなくても影響が出ないように、頭のパス区切り文字を消しておく
     return path.substring(getParentDirPath(path).length()).replace("\\", "").replace("/", "");
   }
@@ -444,7 +408,10 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  public String getFileSizeInMb(Long fileSize) {
+  @Nonnull
+  public static String getFileSizeInMb(@RequireNonnull Long fileSize) {
+    ObjectsUtil.paramRequireNonNull(fileSize);
+
     double d = Double.valueOf(fileSize);
     // 小数第二位で四捨五入したいので、一旦一桁少ない桁で割り算し、四捨五入後10で割る
     System.out.println(Math.round(d / 100000.0));
@@ -457,7 +424,181 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  public String getFileSizeInMbWithUnit(Long fileSize) {
+  @Nonnull
+  public static String getFileSizeInMbWithUnit(@RequireNonnull Long fileSize) {
     return getFileSizeInMb(fileSize) + " MB";
   }
+
+  /* ■□■□ File Lock ■□■□ */
+
+  /**
+   * Obtains the lock of the designated file.
+   * 
+   * <p>The argument {@code lockFile} is the file only for locks, not the business use files.</p>
+   * 
+   * <p>This method also supports the optimistic exclusive control.<br>
+   *     The version is obtained from the timestamp string
+   *     of the file by {@code getLockFileVersion} method.<br>
+   *     When the lock is released, the lock file is updated by writing the timestamp to it.
+   *     </p>
+   * 
+   * @param lockFile lockFile
+   * @param version the version, may be {@code null} 
+   *     when you don't have to validate the version from the optimistic exclusive control.
+   * @return The {@code Pair} tuple which have {@code FileChannel} and {@code FileLock}.
+   * @throws IOException IOException
+   */
+  @Nonnull
+  public static Pair<FileChannel, FileLock> lock(@RequireNonnull File lockFile,
+      @Nullable String version) throws IOException {
+    ObjectsUtil.paramRequireNonNull(lockFile);
+    FileLock lockedObject = null;
+
+    FileChannel channel =
+        FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+
+    // ファイルロックを試行。例外発生ではなくlockedObjectがnullの場合は、ロック取得に失敗したことになる場合もあるらしい
+    lockedObject = channel.tryLock();
+    if (lockedObject == null) {
+      throw new OverlappingFileLockException();
+    }
+
+    // 画面表示時のtimestampとの差異比較
+    if (version != null) {
+      String fileTimestamp = getLockFileVersion(lockFile);
+      if (!version.equals(fileTimestamp)) {
+        throw new OverlappingFileLockException();
+      }
+    }
+
+    return Pair.of(channel, lockedObject);
+  }
+
+  /**
+   * Checks if file is locked.
+   * 
+   * @param path path, Both absolute and relativve path is acceptable.
+   * @return {@code true} when file is locked.
+   * @throws IOException IOException
+   */
+  @SuppressWarnings("resource")
+  public static boolean isLocked(@RequireNonnull String path) throws IOException {
+    ObjectsUtil.paramRequireNonNull(path);
+
+    File file = new File(path);
+    // FileLockによる実装がうまくいかない。ロックがかかっている状態でFileOutputStreamを取得しようとすると、
+    // その時点でIOExceptionが発生してしまう。（なんでだろう・・）
+    // それも考慮して実装。ファイルが存在する・かつ読み取り専用ファイルでないのにfosを取得できない場合はロックエラーとみなす
+
+    // ファイルが存在しない場合はエラー
+    if (!file.exists()) {
+      throw new FileNotFoundException("ファイルが存在しません。");
+    }
+
+    // ファイルが読み取り専用の場合はロックがかけられないので常にfalseを返す
+    if (!file.canWrite()) {
+      return false;
+    }
+
+    // ファイルでなくフォルダの場合はfalseを返す（それでいいのかどうかよくわからないが・・・）
+    if (file.isDirectory()) {
+      return false;
+    }
+
+    FileOutputStream fos = null;
+    try {
+      fos = new FileOutputStream(file, true);
+    } catch (Exception e) {
+      // この場合はロックが取得されているとみなす
+      return true;
+    }
+
+    // 以下、教科書的なロック状態チェックロジック
+    FileChannel fc = null;
+    FileLock lock = null;
+    try {
+      fc = fos.getChannel();
+      lock = fc.tryLock();
+      // lock == nullの場合は、既にロックがかかっている状態
+      if (lock == null) {
+        return true;
+
+      } else {
+        return false;
+      }
+
+    } finally {
+      try {
+        if (lock != null) {
+          lock.release();
+        }
+
+        if (fc != null) {
+          fc.close();
+        }
+
+        if (fos != null) {
+          fos.close();
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Releases the lock.
+   * 
+   * <p>The timestamp string is written to the lock file right before the lock is released.</p>
+   * 
+   * @param channelAndLock the return object of the method {@code lock}.
+   * @throws IOException IOException
+   */
+  public static void release(@RequireNonnull Pair<FileChannel, FileLock> channelAndLock)
+      throws IOException {
+    FileChannel channel = channelAndLock.getLeft();
+    FileLock lockedObject = channelAndLock.getRight();
+
+    try {
+      // 特に使用はしないのだが、lockFileを更新する目的でtimestampの文字列を書き込んでおく。
+      byte[] bytes = LocalDateTime.now().toString().getBytes();
+
+      ByteBuffer src = ByteBuffer.allocate(bytes.length);
+      src.put(bytes);
+      src.position(0);
+
+      channel.write(src);
+
+      lockedObject.release();
+
+    } catch (OverlappingFileLockException ex) {
+      throw new OverlappingFileLockException();
+    }
+  }
+
+  /**
+   * Obtains the last update timestamp string from the lock file.
+   * 
+   * <p>This is used to get the version for optimistic exclusive control.</p>
+   * 
+   * <p>If the file does not exist, this method creates it.</p>
+   *
+   * @return The timestamp string in yyyy-mm-dd-hh-mi-ss.SSS format.
+   *     To ignore the time offset, the time is always treated as UTC.
+   */
+  @Nonnull
+  public static String getLockFileVersion(@RequireNonnull File lockFile) throws IOException {
+    // ディレクトリが存在しなければ作成
+    lockFile.getParentFile().mkdirs();
+
+    // ファイルが存在しなければ作成
+    if (!lockFile.exists()) {
+      lockFile.createNewFile();
+    }
+
+    return Instant.ofEpochMilli(lockFile.lastModified()).atOffset(ZoneOffset.ofHours(0))
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss.SSS"));
+  }
+
 }

@@ -50,6 +50,11 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 public class EnumUtil {
 
   /**
+  * Prevents to create an instance.
+  */
+  private EnumUtil() {}
+
+  /**
   * Obtains the enum value from the code.
   *
   * <p>The return value may be null when the code is null.<br>
@@ -62,27 +67,10 @@ public class EnumUtil {
   * @return the enum value
   */
   @Nonnull
-  public static <T> T getEnumFromCode(@Nonnull Class<T> enumClass, @RequireNonnull String code) {
-    return ObjectsUtil.returnRequireNonNull(
-        getEnumFromCodeOrNullIfCodeIsNull(enumClass, ObjectsUtil.paramRequireNonNull(code)));
-  }
-
-  /**
-   * Obtains the enum value from the code.
-   * 
-   * <p>The return value may be null when the code is null.<br>
-   * When the code is not null and the enum value corresponding to the code is not found, 
-   * throw RuntimeExceptionWithMessageId.</p>
-   * 
-   * @param <T> any enum class
-   * @param enumClass enum class
-   * @param code code, may be null.
-   * @return the enum value, may be null when argument code is null.
-   */
-  @Nullable
-  public static <T> T getEnumFromCodeOrNullIfCodeIsNull(@Nonnull Class<T> enumClass,
-      @Nullable String code) {
+  public static <T> T getEnumFromCode(@RequireNonnull Class<T> enumClass,
+      @RequireNonnull String code) {
     ObjectsUtil.paramRequireNonNull(enumClass);
+    ObjectsUtil.paramRequireNonNull(code);
 
     if (!enumClass.isEnum()) {
       throw new IllegalArgumentException();
@@ -111,11 +99,12 @@ public class EnumUtil {
    * @param code code
    * @return enum value
    */
-  public static <T> boolean hasEnumFromCode(@Nonnull Class<T> enumClass, @Nonnull String code) {
-    ObjectsUtil.paramRequireNonNull(code);
+  public static <T> boolean hasEnumFromCode(@RequireNonnull Class<T> enumClass,
+      @RequireNonnull String code) {
 
     try {
-      T anEnum = getEnumFromCodeOrNullIfCodeIsNull(enumClass, code);
+      T anEnum = getEnumFromCode(ObjectsUtil.paramRequireNonNull(enumClass),
+          ObjectsUtil.paramRequireNonNull(code));
       return anEnum != null;
 
     } catch (RuntimeException ex) {
@@ -154,7 +143,7 @@ public class EnumUtil {
    *     "|" is the separator of values.</p>
    */
   @Nonnull
-  public <T> List<String[]> getListForHtmlSelect(@Nonnull Class<T> enumClass,
+  public static <T> List<String[]> getListForHtmlSelect(@RequireNonnull Class<T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
     String[] options = optionsString.split(",");
@@ -219,8 +208,9 @@ public class EnumUtil {
    * @param enumClass enum class
    * @return EnumClassInfo
    */
-  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<T> enumClass) {
-    return getEnumInfo(enumClass, Locale.getDefault());
+  @Nonnull
+  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(@RequireNonnull Class<T> enumClass) {
+    return getEnumInfo(enumClass, null);
   }
 
   /**
@@ -231,7 +221,12 @@ public class EnumUtil {
    * @param locale locale
    * @return EnumClassInfo 
    */
-  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<T> enumClass, Locale locale) {
+  @Nonnull
+  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(@RequireNonnull Class<T> enumClass,
+      @Nullable Locale locale) {
+    ObjectsUtil.paramRequireNonNull(enumClass);
+    locale = locale == null ? Locale.getDefault() : locale;
+    
     List<EnumUtil.EnumValueInfo<T>> valueList = new ArrayList<>();
     String enumClassName = enumClass.getSimpleName();
 

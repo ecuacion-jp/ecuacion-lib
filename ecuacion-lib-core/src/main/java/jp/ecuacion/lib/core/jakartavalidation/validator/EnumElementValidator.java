@@ -50,7 +50,7 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
   public boolean isValid(String value, ConstraintValidatorContext context) {
     Class<?> cls;
 
-    // nullの場合はtrueとする。（bean validationの仕様に合わせ空文字はtrueにはしない）
+    // true if value == null (which consists with the specification of jakarta validation)
     if (value == null) {
       return true;
 
