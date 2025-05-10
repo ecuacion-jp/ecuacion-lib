@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Provides utility methods for {@code Objects.requireNonnull} and other checks.
@@ -52,6 +53,28 @@ public class ObjectsUtil {
   public static <T> T paramRequireNonNull(@RequireNonnull T object) {
     return Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
         + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
+  }
+
+  /**
+   * Validates multiple arguments are not {@code null} and throws {@code NullPointerException} 
+   * if {@code null}.
+   * 
+   * <p>This is used to validate multiple arguments at one time.</p>
+   * 
+   * @param object1 Any object
+   * @param object2 Any object
+   * @param objects Any objects
+   */
+  @Nonnull
+  public static void paramRequireNonNull(@RequireNonnull Object object1,
+      @RequireNonnull Object object2, @RequireNonnull Object... objects) {
+    
+    Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
+
+    for (Object object : allObjects) {
+      Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
+          + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
+    }
   }
 
 
