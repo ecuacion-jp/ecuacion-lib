@@ -58,143 +58,88 @@ public class ValidationUtil {
   }
 
   /**
-   * Constructs a new instance.
+   * Validates and throws {@code MultipleAppException} if validation errors exist.
    * 
-   * @return ValidationExecutorBuilder
+   * @param <T> any class
+   * @param object object to validate
+   * @throws MultipleAppException MultipleAppException
    */
-  public static ValidationExecutorBuilder builder() {
-    return new ValidationExecutorBuilder();
+  public static <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
+    validateThenThrow(object, null, null, null);
   }
 
   /**
-   * Provides a builder of {@code ValidationExecutor}.
+   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @throws MultipleAppException MultipleAppException
    */
-  public static class ValidationExecutorBuilder {
-    private boolean isMessageWithItemName;
-    private Arg messagePrefix;
-    private Arg messagePostfix;
-
-    /**
-     * Sets {@code messageWithItemName} and returns this for method chain.
-     * 
-     * @param isMessageWithItemName isMessageWithItemName
-     * @return BeanValidationUtil
-     */
-    @Nonnull
-    public ValidationExecutorBuilder messageWithItemName(boolean isMessageWithItemName) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      return this;
-    }
-
-    /**
-     * Sets {@code messagePrefix} and returns this for method chain.
-     * 
-     * @param messagePrefix messagePrefix
-     * @return BeanValidationUtil
-     */
-    @Nonnull
-    public ValidationExecutorBuilder messagePrefix(@RequireNonnull Arg messagePrefix) {
-      this.messagePrefix = messagePrefix;
-      return this;
-    }
-
-    /**
-     * Sets {@code messagePostfix} and returns this for method chain.
-     * 
-     * @param messagePostfix messagePostfix
-     * @return BeanValidationUtil
-     */
-    @Nonnull
-    public ValidationExecutorBuilder messagePostfix(@RequireNonnull Arg messagePostfix) {
-      this.messagePostfix = messagePostfix;
-      return this;
-    }
-
-    /**
-     * Builds an executor.
-     * 
-     * @return ValidationExecutor
-     */
-    @Nonnull
-    public ValidationExecutor build() {
-      return new ValidationExecutor(isMessageWithItemName, messagePrefix, messagePostfix);
+  public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
+      @Nullable Arg messagePostfix) throws MultipleAppException {
+    MultipleAppException exList = validateThenReturn(object);
+    if (exList != null && exList.getList().size() > 0) {
+      throw exList;
     }
   }
 
   /**
-   * Executes validation.
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @return MultipleAppException, may be null when no validation errors exist.
    */
-  public static class ValidationExecutor {
 
-    private boolean isMessageWithItemName;
-    private Arg messagePrefix;
-    private Arg messagePostfix;
+  @Nullable
+  public static <T> MultipleAppException validateThenReturn(@RequireNonnull T object) {
+    return validateThenReturn(object, null, null, null);
+  }
 
-    /**
-     * Construct a new instance.
-     * 
-     * @param isMessageWithItemName isMessageWithItemName
-     * @param messagePrefix messagePrefix
-     * @param messagePostfix messagePostfix
-     */
-    public ValidationExecutor(boolean isMessageWithItemName, @Nullable Arg messagePrefix,
-        @Nullable Arg messagePostfix) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      this.messagePrefix = messagePrefix;
-      this.messagePostfix = messagePostfix;
-    }
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @param addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
+   *        It may be {@code null}, which is equal to {@code false}. 
+   * @param messagePrefix Used when you want to put an additional message 
+   *     before the original message. It may be {@code null}, which means no messages added.
+   * @param messagePostfix Used when you want to put an additional message 
+   *     after the original message. It may be {@code null}, which means no messages added.
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nullable
+  public static <T> MultipleAppException validateThenReturn(@RequireNonnull T object,
+      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
+      @Nullable Arg messagePostfix) {
+    Set<ConstraintViolation<T>> set = ValidationUtil.validate(object);
 
-    /**
-     * Validates and throws {@code MultipleAppException} if validation errors exist.
-     * 
-     * @param <T> any class
-     * @param object object to validate
-     * @throws MultipleAppException MultipleAppException
-     */
-    public <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
-      MultipleAppException exList = validateThenReturn(object);
-      if (exList != null && exList.getList().size() > 0) {
-        throw exList;
-      }
-    }
+    MultipleAppException exList = null;
+    if (set != null && set.size() > 0) {
+      List<SingleAppException> list = new ArrayList<>();
+      for (ConstraintViolation<T> v : set) {
+        ValidationAppException bvex =
+            new ValidationAppException(v).setMessageWithItemName(addsItemNameToMessage);
 
-    /**
-     * Validates and returns {@code MultipleAppException} if validation errors exist.
-     * 
-     * @param <T> any class
-     * @param object object
-     *     which is treated as {@code Locale.getDefault()}.
-     * @return MultipleAppException, may be null when no validation errors exist.
-     */
-    @Nullable
-    public <T> MultipleAppException validateThenReturn(@RequireNonnull T object) {
-      Set<ConstraintViolation<T>> set = ValidationUtil.validate(object);
-
-      MultipleAppException exList = null;
-      if (set != null && set.size() > 0) {
-        List<SingleAppException> list = new ArrayList<>();
-        for (ConstraintViolation<T> v : set) {
-          ValidationAppException bvex =
-              new ValidationAppException(v).setMessageWithItemName(isMessageWithItemName);
-
-          if (messagePrefix != null) {
-            bvex.setMessagePrefix(messagePrefix);
-          }
-
-          if (messagePostfix != null) {
-            bvex.setMessagePostfix(messagePostfix);
-          }
-
-          list.add(bvex);
+        if (messagePrefix != null) {
+          bvex.setMessagePrefix(messagePrefix);
         }
 
-        exList = new MultipleAppException(list);
+        if (messagePostfix != null) {
+          bvex.setMessagePostfix(messagePostfix);
+        }
 
-      } else {
-        exList = null;
+        list.add(bvex);
       }
 
-      return exList;
+      exList = new MultipleAppException(list);
+
+    } else {
+      exList = null;
     }
+
+    return exList;
   }
 }

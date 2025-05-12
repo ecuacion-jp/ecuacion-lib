@@ -19,7 +19,6 @@ import jakarta.validation.ValidationException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ValidationUtil;
-import jp.ecuacion.lib.core.util.ValidationUtil.ValidationExecutor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +27,10 @@ public class ConditinalCommonTest {
 
   @Test
   public void fieldNotExistTest() {
-    ValidationExecutor valUtil = ValidationUtil.builder().build();
-    
+
     // No Field
     try {
-      valUtil.validateThenReturn(new ConditinalCommonTestBean.NoField("X", null));
+      ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.NoField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
@@ -41,7 +39,7 @@ public class ConditinalCommonTest {
 
     // No Condition Field
     try {
-      valUtil.validateThenReturn(new ConditinalCommonTestBean.NoConditionField("X", null));
+      ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.NoConditionField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
@@ -50,11 +48,11 @@ public class ConditinalCommonTest {
 
   @Test
   public void multipleConditionsTest() {
-    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
     // ValueAndIsEmpty
     try {
-      valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleConditions.ValueAndIsEmpty());
+      ValidationUtil
+          .validateThenReturn(new ConditinalCommonTestBean.MultipleConditions.ValueAndIsEmpty());
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
@@ -62,7 +60,7 @@ public class ConditinalCommonTest {
 
     // ValueAndIsNotEmpty
     try {
-      valUtil
+      ValidationUtil
           .validateThenReturn(new ConditinalCommonTestBean.MultipleConditions.ValueAndIsNotEmpty());
       Assertions.fail();
     } catch (ValidationException ex) {
@@ -71,7 +69,7 @@ public class ConditinalCommonTest {
 
     // ValueAndFieldHoldingConditionValue
     try {
-      valUtil.validateThenReturn(
+      ValidationUtil.validateThenReturn(
           new ConditinalCommonTestBean.MultipleConditions.ValueAndFieldHoldingConditionValue());
       Assertions.fail();
     } catch (ValidationException ex) {
@@ -80,7 +78,7 @@ public class ConditinalCommonTest {
 
     // IsEmptyAndIsNotEmpty
     try {
-      valUtil.validateThenReturn(
+      ValidationUtil.validateThenReturn(
           new ConditinalCommonTestBean.MultipleConditions.IsEmptyAndIsNotEmpty());
       Assertions.fail();
     } catch (ValidationException ex) {
@@ -89,7 +87,7 @@ public class ConditinalCommonTest {
 
     // IsEmptyAndFieldHoldingConditionValue
     try {
-      valUtil.validateThenReturn(
+      ValidationUtil.validateThenReturn(
           new ConditinalCommonTestBean.MultipleConditions.IsEmptyAndFieldHoldingConditionValue());
       Assertions.fail();
     } catch (ValidationException ex) {
@@ -98,7 +96,7 @@ public class ConditinalCommonTest {
 
     // IsNotEmptyAndFieldHoldingConditionValue
     try {
-      valUtil.validateThenReturn(
+      ValidationUtil.validateThenReturn(
           new ConditinalCommonTestBean.MultipleConditions.IsNotEmptyAndFieldHoldingConditionValue());
       Assertions.fail();
     } catch (ValidationException ex) {
@@ -108,51 +106,47 @@ public class ConditinalCommonTest {
 
   @Test
   public void validatesWhenConditionNotSatisfiedTest() {
-    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
     // true
-    mae = valUtil.validateThenReturn(
+    mae = ValidationUtil.validateThenReturn(
         new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.TrueClass());
     Assertions.assertEquals(1, mae.getList().size());
 
     // false
-    mae = valUtil.validateThenReturn(
+    mae = ValidationUtil.validateThenReturn(
         new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass());
     Assertions.assertEquals(null, mae);
   }
 
   @Test
   public void multipleFieldsTest() {
-    ValidationExecutor valUtil = ValidationUtil.builder().build();
 
-    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllTrue());
+    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllTrue());
     Assertions.assertEquals(null, mae);
 
-    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.OneFalse());
+    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.OneFalse());
     Assertions.assertEquals(1, mae.getList().size());
 
-    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllFalse());
+    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllFalse());
     Assertions.assertEquals(1, mae.getList().size());
 
-    mae = valUtil.validateThenReturn(
+    mae = ValidationUtil.validateThenReturn(
         new ConditinalCommonTestBean.MultipleFields.AllTrueConditionNotSatisfied());
     Assertions.assertEquals(1, mae.getList().size());
 
-    mae = valUtil.validateThenReturn(
+    mae = ValidationUtil.validateThenReturn(
         new ConditinalCommonTestBean.MultipleFields.OneFalseConditionNotSatisfied());
     Assertions.assertEquals(1, mae.getList().size());
 
-    mae = valUtil.validateThenReturn(
+    mae = ValidationUtil.validateThenReturn(
         new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied());
     Assertions.assertEquals(null, mae);
   }
 
   @Test
   public void fieldInParentClassTest() {
-    ValidationExecutor valUtil = ValidationUtil.builder().build();
-
-    mae = valUtil.validateThenReturn(new ConditinalCommonTestBean.FieldInParentClass.Child());
+    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.FieldInParentClass.Child());
     Assertions.assertEquals(1, mae.getList().size());
   }
-  
+
 }
