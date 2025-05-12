@@ -186,8 +186,8 @@ public class PropertyFileUtil {
   }
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private PropertyFileUtil() {}
 
   // ■□■ application ■□■

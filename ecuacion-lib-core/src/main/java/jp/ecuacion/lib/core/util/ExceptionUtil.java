@@ -45,8 +45,8 @@ public class ExceptionUtil {
   private static final String RT = "\n";
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private ExceptionUtil() {}
 
   /**

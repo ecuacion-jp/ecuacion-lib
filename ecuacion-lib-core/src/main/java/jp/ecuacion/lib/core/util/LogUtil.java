@@ -27,8 +27,8 @@ public class LogUtil {
   private static ErrorLogger errLog = new ErrorLogger();
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private LogUtil() {}
 
   /**
