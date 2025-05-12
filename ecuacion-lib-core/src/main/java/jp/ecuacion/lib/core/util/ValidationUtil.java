@@ -120,8 +120,8 @@ public class ValidationUtil {
     if (set != null && set.size() > 0) {
       List<SingleAppException> list = new ArrayList<>();
       for (ConstraintViolation<T> v : set) {
-        ValidationAppException bvex =
-            new ValidationAppException(v).setMessageWithItemName(addsItemNameToMessage);
+        ValidationAppException bvex = new ValidationAppException(v)
+            .setMessageWithItemName(addsItemNameToMessage == null ? false : addsItemNameToMessage);
 
         if (messagePrefix != null) {
           bvex.setMessagePrefix(messagePrefix);
