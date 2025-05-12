@@ -34,8 +34,8 @@ import org.apache.commons.lang3.ArrayUtils;
 public class ObjectsUtil {
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private ObjectsUtil() {}
 
   /**

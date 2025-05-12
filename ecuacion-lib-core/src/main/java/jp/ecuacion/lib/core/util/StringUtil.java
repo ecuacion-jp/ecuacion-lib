@@ -35,8 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 public class StringUtil {
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private StringUtil() {}
 
   /**

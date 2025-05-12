@@ -50,8 +50,8 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 public class EnumUtil {
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private EnumUtil() {}
 
   /**
@@ -221,7 +221,7 @@ public class EnumUtil {
       @Nullable Locale locale) {
     ObjectsUtil.paramRequireNonNull(enumClass);
     locale = locale == null ? Locale.getDefault() : locale;
-    
+
     List<EnumUtil.EnumValueInfo<T>> valueList = new ArrayList<>();
     String enumClassName = enumClass.getSimpleName();
 

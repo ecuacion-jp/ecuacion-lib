@@ -35,6 +35,11 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 public class ValidationUtil {
 
   /**
+   * Prevents other classes from instantiating it.
+   */
+  private ValidationUtil() {}
+
+  /**
   * Validates and returns {@code ConstraintViolation} if validation errors exist.
   *
   * @param <T> any class

@@ -48,8 +48,8 @@ public class MailUtil {
   private static DetailLogger dtlLog = new DetailLogger(MailUtil.class);
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private MailUtil() {}
 
   /**
