@@ -45,8 +45,8 @@ import org.apache.commons.lang3.tuple.Pair;
 public class FileUtil {
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private FileUtil() {}
 
   /**

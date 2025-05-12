@@ -35,8 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 public class StringUtil {
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private StringUtil() {}
 
   /**
@@ -140,13 +140,23 @@ public class StringUtil {
 
   /* ■□■□ csv関連 ■□■□ */
 
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param array string array
+   * @param separator separator string
+   * @return String
+   */
   @Nonnull
-  private static String getCsv(@RequireNonnull String[] array, @RequireNonnull String separator) {
+  public static String getSeparatedValuesString(@RequireNonnull String[] array,
+      @RequireNonnull String separator) {
     ObjectsUtil.paramRequireNonNull(array, separator);
 
     boolean isFirstTime = true;
     StringBuilder sb = new StringBuilder();
-    for (String str : array) {
+    for (String value : array) {
       if (isFirstTime) {
         isFirstTime = false;
 
@@ -154,10 +164,24 @@ public class StringUtil {
         sb.append(separator);
       }
 
-      sb.append(str);
+      sb.append(value);
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param collection string collection
+   * @return String
+   */
+  @Nonnull
+  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
+      @RequireNonnull String separator) {
+    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
   }
 
   /**
@@ -168,7 +192,7 @@ public class StringUtil {
    */
   @Nonnull
   public static String getCsv(@Nonnull String... array) {
-    return getCsv(array, ",");
+    return getSeparatedValuesString(array, ",");
   }
 
   /**
@@ -192,7 +216,7 @@ public class StringUtil {
    */
   @Nonnull
   public static String getCsvWithSpace(@RequireNonnull String[] array) {
-    return getCsv(array, ", ");
+    return getSeparatedValuesString(array, ", ");
   }
 
   /**

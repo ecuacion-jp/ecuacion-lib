@@ -47,8 +47,8 @@ public class DateTimeApiUtil {
 
 
   /**
-  * Prevents to create an instance.
-  */
+   * Prevents other classes from instantiating it.
+   */
   private DateTimeApiUtil() {}
   
   /**
