@@ -24,26 +24,20 @@ import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.util.ValidationUtil.ValidationExecutor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class Test91_01_util_ValidationUtil extends TestTools {
 
-  private ValidationExecutor util;
-
   @BeforeEach
-  public void before() {
-     util = ValidationUtil.builder().build();
-  }
+  public void before() {}
 
   @Test
   public void test11_validateThenReturn_01_object_locale_01_objectがnull() {
-    ValidationExecutor util = ValidationUtil.builder().build();
 
     try {
-      util.validateThenReturn(null);
+      ValidationUtil.validateThenReturn(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -53,7 +47,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
 
   @Test
   public void test11_validateThenReturn_01_object_locale_11_locale指定() {
-    MultipleAppException exList = util.validateThenReturn(new SampleObj());
+    MultipleAppException exList = ValidationUtil.validateThenReturn(new SampleObj());
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
@@ -84,7 +78,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   @Test
   public void test11_validateThenReturn_02_object_01_objectがnull() {
     try {
-      util.validateThenReturn(null);
+      ValidationUtil.validateThenReturn(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -95,7 +89,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   @Test
   public void test11_validateThenReturn_02_object_02_正常() {
     Locale.setDefault(Locale.ENGLISH);
-    MultipleAppException exList = util.validateThenReturn(new SampleObj());
+    MultipleAppException exList = ValidationUtil.validateThenReturn(new SampleObj());
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
@@ -125,7 +119,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
 
   @Test
   public void test11_validateThenReturn_02_object_11_defaultLocaleを指定() {
-    MultipleAppException exList = util.validateThenReturn(new SampleObj());
+    MultipleAppException exList = ValidationUtil.validateThenReturn(new SampleObj());
 
     Assertions.assertThat(exList.getList().size()).isEqualTo(2);
     // listの順序は保証されていないはずなので、取得したい対象を確認の上変数に登録
@@ -157,7 +151,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   public void test21_validateThenThrow_01_object_locale_03_正常() {
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj());
+      ValidationUtil.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
@@ -199,7 +193,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   public void test21_validateThenThrow_01_object_locale_11_locale指定() {
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj());
+      ValidationUtil.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
@@ -240,7 +234,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   @Test
   public void test21_validateThenThrow_02_object_01_objectがnull() throws MultipleAppException {
     try {
-      util.validateThenThrow(null);
+      ValidationUtil.validateThenThrow(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -253,7 +247,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
     Locale.setDefault(Locale.ENGLISH);
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj());
+      ValidationUtil.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
@@ -295,7 +289,7 @@ public class Test91_01_util_ValidationUtil extends TestTools {
   public void test21_validateThenThrow_02_object_11_defaultLocaleを指定() {
     MultipleAppException exList = null;
     try {
-      util.validateThenThrow(new SampleObj());
+      ValidationUtil.validateThenThrow(new SampleObj());
       fail();
 
     } catch (MultipleAppException ex) {
