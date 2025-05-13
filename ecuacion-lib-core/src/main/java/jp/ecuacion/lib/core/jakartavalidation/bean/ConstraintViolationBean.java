@@ -88,7 +88,14 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       }
 
     } else {
-      itemIds = new String[] {propertyPath};
+      // When propertyPath doesn't have "." (= propertyPath doesn't have itemId class part),
+      // add the leafClass before propertyPath.
+      String leafClassWithPackage = cv.getLeafBean().getClass().getName();
+      String leafClass = leafClassWithPackage.contains(".")
+          ? leafClassWithPackage.substring(leafClassWithPackage.lastIndexOf(".") + 1)
+          : leafClassWithPackage;
+      String itemId = propertyPath.contains(".") ? propertyPath : leafClass + "." + propertyPath;
+      itemIds = new String[] {itemId};
     }
 
     paramMap.put("itemIds", itemIds);
@@ -142,15 +149,15 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
           .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
         conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
-        Object obj = getFieldValue(
-            (String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
-            getInstance(), conditionValueKind);
+        Object obj =
+            getFieldValue((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
+                getInstance(), conditionValueKind);
         if (obj instanceof String[]) {
-          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);          
-      
+          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);
+
         } else {
           // String
-          valuesOfConditionFieldToValidate = (String) obj;          
+          valuesOfConditionFieldToValidate = (String) obj;
         }
 
       } else {

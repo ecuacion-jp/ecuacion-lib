@@ -57,9 +57,8 @@ public class EnumUtil {
   /**
   * Obtains the enum value from the code.
   *
-  * <p>The return value may be null when the code is null.<br>
-  * When the code is not null and the enum value corresponding to the code is not found,
-  * throw RuntimeExceptionWithMessageId.</p>
+  * <p>When the enum value corresponding to the code is not found,
+  * throw RuntimeException.</p>
   *
   * @param <T> any enum class
   * @param enumClass enum class
