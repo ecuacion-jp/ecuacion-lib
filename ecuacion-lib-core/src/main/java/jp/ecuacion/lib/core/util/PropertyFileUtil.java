@@ -759,6 +759,30 @@ public class PropertyFileUtil {
      * Constructs a new instance of messageId and messageArgs.
      * 
      * @param messageId messageId
+     * @return Arg
+     */
+    public static Arg message(String messageId) {
+      return new Arg(true, messageId, new Arg[] {});
+    }
+
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
+     * @param stringArgs stringArgs
+     * @return Arg
+     */
+    public static Arg message(String messageId, String... stringArgs) {
+      List<String> stringArgList = Arrays.asList(stringArgs);
+      Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
+          .toArray(new Arg[stringArgList.size()]);
+      return new Arg(true, messageId, args);
+    }
+
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
      * @param messageArgs messageArgs
      * @return Arg
      */
