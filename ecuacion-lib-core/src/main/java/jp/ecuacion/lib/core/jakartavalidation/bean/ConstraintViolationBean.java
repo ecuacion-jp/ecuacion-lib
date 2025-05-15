@@ -73,30 +73,35 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
+    String[] itemIdFields = new String[] {};
+    String itemIdClass = null;
     if (paramMap.containsKey("field")) {
-      itemIds = (String[]) paramMap.get("field");
+      // Reaching here means the annotation is added to class, not field.
+      itemIdFields = (String[]) paramMap.get("field");
 
       // Update itemIds when itemIdClass is specified.
-      String itemIdClass =
+      String tmpItemIdClass =
           paramMap.containsKey("itemIdClass") ? (String) paramMap.get("itemIdClass") : null;
-      if (StringUtils.isNotEmpty(itemIdClass)) {
-        List<String> itemIdList = Arrays.asList(itemIds).stream()
-            .map(id -> itemIdClass
-                + (id.lastIndexOf(".") > 0 ? id.substring(id.lastIndexOf(".")) : "." + id))
-            .toList();
-        itemIds = itemIdList.toArray(new String[itemIdList.size()]);
-      }
+      // when itemIdClass is empty, obtain it from violation data.
+      String simpleclassName = StringUtils.isEmpty(propertyPath)
+          ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
+          : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+      itemIdClass = StringUtils.isEmpty(tmpItemIdClass) ? simpleclassName : tmpItemIdClass;
 
     } else {
-      // When propertyPath doesn't have "." (= propertyPath doesn't have itemId class part),
-      // add the leafClass before propertyPath.
-      String leafClassWithPackage = cv.getLeafBean().getClass().getName();
-      String leafClass = leafClassWithPackage.contains(".")
-          ? leafClassWithPackage.substring(leafClassWithPackage.lastIndexOf(".") + 1)
-          : leafClassWithPackage;
-      String itemId = propertyPath.contains(".") ? propertyPath : leafClass + "." + propertyPath;
-      itemIds = new String[] {itemId};
+      // Reaching here means the annotation is added to field.
+      // In that case propertyPath cannot be empty and the last part is always itemIdField.
+      itemIdFields = new String[] {propertyPath.split("\\.")[propertyPath.split("\\.").length - 1]};
+      itemIdClass = propertyPath.split("\\.").length > 1
+          ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
+          : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
     }
+
+    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
+    final String finalItemIdClass = itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
+    List<String> itemIdList =
+        Arrays.asList(itemIdFields).stream().map(field -> finalItemIdClass + "." + field).toList();
+    itemIds = itemIdList.toArray(new String[itemIdList.size()]);
 
     paramMap.put("itemIds", itemIds);
 
