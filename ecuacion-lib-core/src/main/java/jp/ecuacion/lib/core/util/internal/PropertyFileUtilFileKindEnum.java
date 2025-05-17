@@ -39,35 +39,41 @@ package jp.ecuacion.lib.core.util.internal;
 public enum PropertyFileUtilFileKindEnum {
 
   /** application.properties. */
-  APP("application", new String[][] {new String[] {"application"}}),
+  APP("application", new String[][] {new String[] {"application"}}, true),
 
   /** 
    * messages.properties. 
    */
-  MSG("messages", new String[][] {new String[] {"messages"}}),
+  MSG("messages", new String[][] {new String[] {"messages"}}, false),
 
   /** itemの名称を記述. */
-  ITEM_NAME("item_names", new String[][] {new String[] {"item_names"}}),
+  ITEM_NAME("item_names", new String[][] {new String[] {"item_names"}}, false),
 
   /** enumの名称を記述. */
-  ENUM_NAME("enum_names", new String[][] {new String[] {"enum_names"}}),
+  ENUM_NAME("enum_names", new String[][] {new String[] {"enum_names"}}, false),
 
   /** ValidationMessags */
-  VALIDATION_MESSAGES("ValidationMessages", new String[][] {new String[] {"ValidationMessages"}}),
+  VALIDATION_MESSAGES("ValidationMessages", new String[][] {new String[] {"ValidationMessages"}},
+      false),
 
   /** ValidationMessagsWithField */
-  VALIDATION_MESSAGES_WITH_ITEM_NAMES("ValidationMessagesWithItemNames", new String[][] {
-      new String[] {"ValidationMessagesWithItemNames"}, new String[] {"ValidationMessages"}}),
+  VALIDATION_MESSAGES_WITH_ITEM_NAMES(
+      "ValidationMessagesWithItemNames", new String[][] {
+          new String[] {"ValidationMessagesWithItemNames"}, new String[] {"ValidationMessages"}},
+      false),
 
   VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS("ValidationMessagesPatternDescriptions",
-      new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}});
+      new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}}, false);
 
   private String filePrefix;
   private String[][] actualFilePrefixes;
+  private boolean throwsExceptionWhenKeyDoesNotExist;
 
-  private PropertyFileUtilFileKindEnum(String filePrefix, String[][] actualFilePrefixes) {
+  private PropertyFileUtilFileKindEnum(String filePrefix, String[][] actualFilePrefixes,
+      boolean throwsExceptionWhenKeyDoesNotExist) {
     this.filePrefix = filePrefix;
     this.actualFilePrefixes = actualFilePrefixes;
+    this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;
   }
 
   public String getFilePrefix() {
@@ -76,6 +82,10 @@ public enum PropertyFileUtilFileKindEnum {
 
   public String[][] getActualFilePrefixes() {
     return actualFilePrefixes;
+  }
+
+  public boolean throwsExceptionWhenKeyDoesNotExist() {
+    return throwsExceptionWhenKeyDoesNotExist;
   }
 
   public static PropertyFileUtilFileKindEnum getEnumFromFilePrefix(String filePrefix) {
