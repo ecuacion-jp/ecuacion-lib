@@ -23,8 +23,7 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class EnumElementValidator implements ConstraintValidator<EnumElement, String> {
 
-  private String enumPackage;
-  private String enumClass;
+  private Class<?> enumClass;
 
   /**
    * Constructs a new instance.
@@ -36,7 +35,6 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
   /** Initializes an instance. */
   @Override
   public void initialize(EnumElement constraintAnnotation) {
-    enumPackage = constraintAnnotation.enumPackage();
     enumClass = constraintAnnotation.enumClass();
   }
 
@@ -48,36 +46,30 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
    */
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    Class<?> cls;
-
     // true if value == null (which consists with the specification of jakarta validation)
     if (value == null) {
       return true;
+    }
 
-    } else {
-      String classFullName = enumPackage + "." + enumClass;
-      try {
-        // enumクラスが存在するかを確認
-        cls = Class.forName(classFullName);
-        // 取得したクラスがenumかを確認
-        if (!cls.isEnum()) {
-          throw new RuntimeException(
-              "A class is found. An enum is supposed to be found: " + classFullName);
-        }
-
-        // 取得したenumがhasEnumFromNameメソッドを持つか確認
-        Object[] objs = cls.getEnumConstants();
-        for (Object obj : objs) {
-          if (obj.toString().equals(value)) {
-            return true;
-          }
-        }
-
-        return false;
-
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
+    try {
+      // 取得したクラスがenumかを確認
+      if (!enumClass.isEnum()) {
+        throw new RuntimeException(
+            "A class is found. An enum is supposed to be found: " + enumClass.getCanonicalName());
       }
+
+      // 取得したenumがhasEnumFromNameメソッドを持つか確認
+      Object[] objs = enumClass.getEnumConstants();
+      for (Object obj : objs) {
+        if (obj.toString().equals(value)) {
+          return true;
+        }
+      }
+
+      return false;
+
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
     }
   }
 }
