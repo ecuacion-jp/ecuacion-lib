@@ -17,12 +17,17 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -73,31 +78,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
-    if (paramMap.containsKey("field")) {
-      itemIds = (String[]) paramMap.get("field");
-
-      // Update itemIds when itemIdClass is specified.
-      String itemIdClass =
-          paramMap.containsKey("itemIdClass") ? (String) paramMap.get("itemIdClass") : null;
-      if (StringUtils.isNotEmpty(itemIdClass)) {
-        List<String> itemIdList = Arrays.asList(itemIds).stream()
-            .map(id -> itemIdClass
-                + (id.lastIndexOf(".") > 0 ? id.substring(id.lastIndexOf(".")) : "." + id))
-            .toList();
-        itemIds = itemIdList.toArray(new String[itemIdList.size()]);
-      }
-
-    } else {
-      // When propertyPath doesn't have "." (= propertyPath doesn't have itemId class part),
-      // add the leafClass before propertyPath.
-      String leafClassWithPackage = cv.getLeafBean().getClass().getName();
-      String leafClass = leafClassWithPackage.contains(".")
-          ? leafClassWithPackage.substring(leafClassWithPackage.lastIndexOf(".") + 1)
-          : leafClassWithPackage;
-      String itemId = propertyPath.contains(".") ? propertyPath : leafClass + "." + propertyPath;
-      itemIds = new String[] {itemId};
-    }
-
+    getItemIdsFromConstraintViolation(cv);
     paramMap.put("itemIds", itemIds);
 
     // put additional params to paramMap
@@ -126,6 +107,88 @@ public class ConstraintViolationBean extends PrivateFieldReader {
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
     annotationDescriptionString = "";
+  }
+
+  private void getItemIdsFromConstraintViolation(ConstraintViolation<?> cv) {
+    String[] itemIdFields = null;
+    String itemIdClass = null;
+
+    // checks if the validator is for class or field.
+    boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
+        .getAnnotation(PlacedAtClass.class) != null;
+
+    Optional<String> itemIdClassFromAnnotation = getItemIdClassFromAnnotation(isClassValidator,
+        cv.getLeafBean(), cv.getPropertyPath().toString());
+    String defaultItemIdClass = null;
+    if (isClassValidator) {
+      // Reaching here means the annotation is added to class, not field.
+      itemIdFields = (String[]) paramMap.get("field");
+
+      defaultItemIdClass = StringUtils.isEmpty(propertyPath)
+          ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
+          : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+
+    } else {
+      // Reaching here means the annotation is added to field.
+      // In that case propertyPath cannot be empty and the last part is always itemIdField.
+      itemIdFields = new String[] {propertyPath.split("\\.")[propertyPath.split("\\.").length - 1]};
+
+      defaultItemIdClass = propertyPath.split("\\.").length > 1
+          ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
+          : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
+    }
+
+    itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
+    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
+    final String finalItemIdClass = itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
+
+    List<String> itemIdList =
+        Arrays.asList(itemIdFields).stream().map(field -> finalItemIdClass + "." + field).toList();
+    itemIds = itemIdList.toArray(new String[itemIdList.size()]);
+  }
+
+  private Optional<String> getItemIdClassFromAnnotation(boolean isClassValidator, Object leafBean,
+      String propertyPath) {
+    try {
+      // search for @ItemIdClass at field
+      if (!isClassValidator) {
+        String value = getItemIdClassAtFieldFromAnnotation(leafBean, propertyPath);
+        if (value != null) {
+          return Optional.of(value);
+        }
+      }
+
+      return Optional.ofNullable(getItemIdClassAtClassFromAnnotation(leafBean));
+
+    } catch (Exception ex) {
+      throw new EclibRuntimeException(ex);
+    }
+  }
+
+  private String getItemIdClassAtFieldFromAnnotation(Object leafBean, String propertyPath)
+      throws Exception {
+
+    String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+    Field field = leafBean.getClass().getField(fieldName);
+    ItemIdClass an = field.getAnnotation(ItemIdClass.class);
+    return an == null ? null : an.value();
+  }
+
+  private String getItemIdClassAtClassFromAnnotation(Object leafBean) {
+    Class<?> cls = leafBean.getClass();
+    while (true) {
+      // No more ancestors
+      if (cls == Object.class) {
+        return null;
+      }
+      
+      ItemIdClass an = cls.getAnnotation(ItemIdClass.class);
+      if (an != null) {
+        return an.value();
+      }
+      
+      cls = cls.getSuperclass();
+    }
   }
 
   private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {

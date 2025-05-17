@@ -40,18 +40,11 @@ import java.lang.annotation.Target;
 public @interface EnumElement {
 
   /** 
-   * an enumPackage string. ex:{@code jp.ecuacion.app.sample.enums}
-   * 
-   * @return enumPackage.
-   */
-  String enumPackage();
-
-  /** 
    * an enumClass string. ex:{@code XxxEnum}
    * 
    * @return enumClass.
    */
-  String enumClass();
+  Class<?> enumClass();
 
   /** 
    * Returns message ID.

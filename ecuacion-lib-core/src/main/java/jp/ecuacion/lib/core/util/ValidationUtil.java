@@ -22,6 +22,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
@@ -78,9 +79,9 @@ public class ValidationUtil {
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
       @Nullable Arg messagePostfix) throws MultipleAppException {
-    MultipleAppException exList = validateThenReturn(object);
-    if (exList != null && exList.getList().size() > 0) {
-      throw exList;
+    Optional<MultipleAppException> exOpt = validateThenReturn(object);
+    if (exOpt.isPresent()) {
+      throw exOpt.get();
     }
   }
 
@@ -92,8 +93,8 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
 
-  @Nullable
-  public static <T> MultipleAppException validateThenReturn(@RequireNonnull T object) {
+  @Nonnull
+  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object) {
     return validateThenReturn(object, null, null, null);
   }
 
@@ -110,8 +111,8 @@ public class ValidationUtil {
    *     after the original message. It may be {@code null}, which means no messages added.
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-  @Nullable
-  public static <T> MultipleAppException validateThenReturn(@RequireNonnull T object,
+  @Nonnull
+  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
       @Nullable Arg messagePostfix) {
     Set<ConstraintViolation<T>> set = ValidationUtil.validate(object);
@@ -140,6 +141,6 @@ public class ValidationUtil {
       exList = null;
     }
 
-    return exList;
+    return Optional.ofNullable(exList);
   }
 }

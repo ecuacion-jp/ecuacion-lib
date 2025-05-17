@@ -54,6 +54,7 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class PropertyFileUtilValueGetter {
 
+  private boolean throwsExceptionWhenKeyDoesNotExist;
   /*
    * kindの中にfilePrefixを持っているので冗長な持ち方なのだが、
    * テストでPropertyFileUtilPropFileKindEnumにないfilePrefixを使用したい場合があるため別で持つ。
@@ -113,6 +114,7 @@ public class PropertyFileUtilValueGetter {
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
     this.filePrefixes = ObjectsUtil.paramRequireNonNull(fileKindEnum).getActualFilePrefixes();
+    this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
 
   /*
@@ -122,6 +124,7 @@ public class PropertyFileUtilValueGetter {
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
     this.filePrefixes = Objects.requireNonNull(filePrefixes);
+    throwsExceptionWhenKeyDoesNotExist = true;
   }
 
   /**
@@ -409,7 +412,17 @@ public class PropertyFileUtilValueGetter {
       throw new EclibRuntimeException("Message ID is blank.");
     }
 
-    return getValue(locale, key);
+    try {
+      return getValue(locale, key);
+      
+    } catch (NoKeyInPropertiesFileException ex) {
+      if (throwsExceptionWhenKeyDoesNotExist) {
+        throw ex;
+
+      } else {
+        return "[ " + key + " ]";
+      } 
+    }
   }
 
   private static class NoKeyInPropertiesFileException extends EclibRuntimeException {
