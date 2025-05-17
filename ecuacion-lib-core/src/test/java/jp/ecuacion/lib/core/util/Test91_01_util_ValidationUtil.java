@@ -23,6 +23,7 @@ import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,7 @@ public class Test91_01_util_ValidationUtil {
 
   @Test
   public void validateThenReturn_args_object_itemIdsTest() {
+
     // Normal classes
 
     // normal without form : <className>.<fieldname> (Manipulated so by ConstraintViolationBean)
@@ -133,15 +135,16 @@ public class Test91_01_util_ValidationUtil {
     // internal static classes
 
     // normal without form : <className>.<fieldname> (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new TestObjWithNormalValidator()).ifPresentOrElse(mae -> {
-      String[] itemIds = getItemIdForNotNullExceptionBean(mae);
-      Assertions.assertTrue(itemIds.length == 1);
-      Assertions.assertEquals("TestObjWithNormalValidator.str1", itemIds[0]);
+    ValidationUtil.validateThenReturn(new NoItemIdClass.ObjWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("ObjWithFieldValidator.str1", itemIds[0]);
 
-    }, () -> Assertions.fail());
+        }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new TestDirectContainerWithNormalValidator())
+    ValidationUtil.validateThenReturn(new NoItemIdClass.DirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = getItemIdForNotNullExceptionBean(mae);
           Assertions.assertTrue(itemIds.length == 1);
@@ -150,7 +153,7 @@ public class Test91_01_util_ValidationUtil {
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new TestIndirectContainerWithNormalValidator())
+    ValidationUtil.validateThenReturn(new NoItemIdClass.IndirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = getItemIdForNotNullExceptionBean(mae);
           Assertions.assertTrue(itemIds.length == 1);
@@ -160,17 +163,18 @@ public class Test91_01_util_ValidationUtil {
 
     // classValidator without form : <className>.<fieldname>
     // (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new TestObjWithClassValidator()).ifPresentOrElse(mae -> {
-      String[] itemIds =
-          ((ValidationAppException) mae.getList().get(0)).getConstraintViolationBean().getItemIds();
-      Assertions.assertTrue(itemIds.length == 1);
-      Assertions.assertEquals("TestObjWithClassValidator.value", itemIds[0]);
+    ValidationUtil.validateThenReturn(new NoItemIdClass.ObjWithClassValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("ObjWithClassValidator.value", itemIds[0]);
 
-    }, () -> Assertions.fail());
+        }, () -> Assertions.fail());
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new TestDirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new NoItemIdClass.DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
           String[] itemIds = ((ValidationAppException) mae.getList().get(0))
               .getConstraintViolationBean().getItemIds();
@@ -181,7 +185,7 @@ public class Test91_01_util_ValidationUtil {
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new TestIndirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new NoItemIdClass.IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
           String[] itemIds = ((ValidationAppException) mae.getList().get(0))
               .getConstraintViolationBean().getItemIds();
@@ -189,8 +193,154 @@ public class Test91_01_util_ValidationUtil {
           Assertions.assertEquals("classValidator.value", itemIds[0]);
 
         }, () -> Assertions.fail());
-    
-    
+
+    // @ItemIdClass at field (field validator only)
+
+    ValidationUtil.validateThenReturn(new ItemIdClassAtField.ObjWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    ValidationUtil.validateThenReturn(new ItemIdClassAtField.DirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    ValidationUtil.validateThenReturn(new ItemIdClassAtField.IndirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // @ItemIdClass at class
+
+    // ObjWithFieldValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.ObjWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // DirectContainerWithFieldValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.DirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // IndirectContainerWithFieldValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.IndirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // ObjWithClassValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.ObjWithClassValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // DirectContainerWithClassValidadtor
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.DirectContainerWithClassValidadtor())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // IndirectContainerWithClassValidadtor
+    ValidationUtil.validateThenReturn(new ItemIdClassAtClass.IndirectContainerWithClassValidadtor())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // @ItemIdClass at ancestor class
+
+    // ObjWithFieldValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtAncestorClass.ObjWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // DirectContainerWithFieldValidator
+    ValidationUtil
+        .validateThenReturn(new ItemIdClassAtAncestorClass.DirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // IndirectContainerWithFieldValidator
+    ValidationUtil
+        .validateThenReturn(new ItemIdClassAtAncestorClass.IndirectContainerWithFieldValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = getItemIdForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.str1", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // ObjWithClassValidator
+    ValidationUtil.validateThenReturn(new ItemIdClassAtAncestorClass.ObjWithClassValidator())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // DirectContainerWithClassValidadtor
+    ValidationUtil
+        .validateThenReturn(new ItemIdClassAtAncestorClass.DirectContainerWithClassValidadtor())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
+
+    // IndirectContainerWithClassValidadtor
+    ValidationUtil
+        .validateThenReturn(new ItemIdClassAtAncestorClass.IndirectContainerWithClassValidadtor())
+        .ifPresentOrElse(mae -> {
+          String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemIds();
+          Assertions.assertTrue(itemIds.length == 1);
+          Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+        }, () -> Assertions.fail());
   }
 
   private String[] getItemIdForNotNullExceptionBean(MultipleAppException mae) {
@@ -200,40 +350,163 @@ public class Test91_01_util_ValidationUtil {
         .toList().get(0)).getConstraintViolationBean().getItemIds();
   }
 
-  public static class TestObjWithNormalValidator {
-    @NotNull
-    public String str1 = null;
+  // No @ItemIdClasas
 
-    @Min(3)
-    public int int1 = 2;
+  public static class NoItemIdClass {
+
+    public static class ObjWithFieldValidator {
+      @NotNull
+      public String str1 = null;
+
+      @Min(3)
+      public int int1 = 2;
+    }
+
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    public static class ObjWithClassValidator {
+      public String conditionValue = "abc";
+      public String value = null;
+    }
+
+    public static class DirectContainerWithFieldValidator {
+      @Valid
+      public ObjWithFieldValidator normal = new ObjWithFieldValidator();
+    }
+
+    public static class DirectContainerWithClassValidadtor {
+      @Valid
+      public ObjWithClassValidator classValidator = new ObjWithClassValidator();
+    }
+
+    public static class IndirectContainerWithFieldValidator {
+      @Valid
+      public DirectContainerWithFieldValidator directContainer =
+          new DirectContainerWithFieldValidator();
+    }
+
+    public static class IndirectContainerWithClassValidadtor {
+      @Valid
+      public DirectContainerWithClassValidadtor directContainer =
+          new DirectContainerWithClassValidadtor();
+    }
   }
 
-  @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
-  public static class TestObjWithClassValidator {
-    public String conditionValue = "abc";
-    public String value = null;
+  // @ItemIdClasas at field
+
+  public static class ItemIdClassAtField {
+
+    public static class ObjWithFieldValidator {
+      @ItemIdClass("itemIdClass")
+      @NotNull
+      public String str1 = null;
+
+      @ItemIdClass("itemIdClass")
+      @Min(3)
+      public int int1 = 2;
+    }
+
+    public static class DirectContainerWithFieldValidator {
+      @Valid
+      public ObjWithFieldValidator normal = new ObjWithFieldValidator();
+    }
+
+    public static class IndirectContainerWithFieldValidator {
+      @Valid
+      public DirectContainerWithFieldValidator directContainer =
+          new DirectContainerWithFieldValidator();
+    }
   }
 
-  public static class TestDirectContainerWithNormalValidator {
-    @Valid
-    public TestObjWithNormalValidator normal = new TestObjWithNormalValidator();
+  // @ItemIdClasas at class
+
+  public static class ItemIdClassAtClass {
+
+    @ItemIdClass("itemIdClass")
+    public static class ObjWithFieldValidator {
+      @NotNull
+      public String str1 = null;
+
+      @Min(3)
+      public int int1 = 2;
+    }
+
+    @ItemIdClass("itemIdClass")
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    public static class ObjWithClassValidator {
+      public String conditionValue = "abc";
+      public String value = null;
+    }
+
+    public static class DirectContainerWithFieldValidator {
+      @Valid
+      public ObjWithFieldValidator normal = new ObjWithFieldValidator();
+    }
+
+    public static class DirectContainerWithClassValidadtor {
+      @Valid
+      public ObjWithClassValidator classValidator = new ObjWithClassValidator();
+    }
+
+    public static class IndirectContainerWithFieldValidator {
+      @Valid
+      public DirectContainerWithFieldValidator directContainer =
+          new DirectContainerWithFieldValidator();
+    }
+
+    public static class IndirectContainerWithClassValidadtor {
+      @Valid
+      public DirectContainerWithClassValidadtor directContainer =
+          new DirectContainerWithClassValidadtor();
+    }
   }
 
-  public static class TestDirectContainerWithClassValidadtor {
-    @Valid
-    public TestObjWithClassValidator classValidator = new TestObjWithClassValidator();
-  }
+  // @ItemIdClasas at ancestor class
 
-  public static class TestIndirectContainerWithNormalValidator {
-    @Valid
-    public TestDirectContainerWithNormalValidator directContainer =
-        new TestDirectContainerWithNormalValidator();
-  }
+  public static class ItemIdClassAtAncestorClass {
 
-  public class TestIndirectContainerWithClassValidadtor {
-    @Valid
-    public TestDirectContainerWithClassValidadtor directContainer =
-        new TestDirectContainerWithClassValidadtor();
-  }
+    @ItemIdClass("itemIdClass")
+    public static class GrandParent {
 
+    }
+
+    public static class Parent extends GrandParent {
+
+    }
+
+    public static class ObjWithFieldValidator extends Parent {
+      @NotNull
+      public String str1 = null;
+
+      @Min(3)
+      public int int1 = 2;
+    }
+
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    public static class ObjWithClassValidator extends Parent {
+      public String conditionValue = "abc";
+      public String value = null;
+    }
+
+    public static class DirectContainerWithFieldValidator {
+      @Valid
+      public ObjWithFieldValidator normal = new ObjWithFieldValidator();
+    }
+
+    public static class DirectContainerWithClassValidadtor {
+      @Valid
+      public ObjWithClassValidator classValidator = new ObjWithClassValidator();
+    }
+
+    public static class IndirectContainerWithFieldValidator {
+      @Valid
+      public DirectContainerWithFieldValidator directContainer =
+          new DirectContainerWithFieldValidator();
+    }
+
+    public static class IndirectContainerWithClassValidadtor {
+      @Valid
+      public DirectContainerWithClassValidadtor directContainer =
+          new DirectContainerWithClassValidadtor();
+    }
+  }
 }
