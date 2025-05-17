@@ -47,6 +47,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty.Conditi
  *     (the datatype of {@code fieldHoldingConditionValue} is always an array)</li>
  * </ol>
  */
+@PlacedAtClass
 @Target({TYPE})
 @Retention(RUNTIME)
 @Repeatable(ConditionalEmptyList.class)
@@ -116,13 +117,6 @@ public @interface ConditionalEmpty {
    * @return boolean
    */
   boolean notEmptyForOtherValues() default false;
-
-  /**
-   * Specifies class part (= left part) of item ID.
-   * 
-   * @return String
-   */
-  String itemIdClass() default "";
 
   /**
    * Specifies a field which holds the display name of condition value.

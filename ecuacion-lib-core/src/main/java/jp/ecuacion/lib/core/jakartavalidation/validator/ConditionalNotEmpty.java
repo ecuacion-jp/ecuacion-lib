@@ -34,6 +34,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty.Cond
  * 
  * @see ConditionalEmpty
  */
+@PlacedAtClass
 @Target({TYPE})
 @Retention(RUNTIME)
 @Repeatable(ConditionalNotEmptyList.class)
@@ -105,13 +106,6 @@ public @interface ConditionalNotEmpty {
    * @return boolean
    */
   boolean emptyForOtherValues() default false;
-  
-  /**
-   * Specifies class part (= left part) of item ID.
-   * 
-   * @return String
-   */
-  String itemIdClass() default "";
 
   /**
    * Specifies a field which holds the display name of condition value.
