@@ -124,6 +124,7 @@ public class PropertyFileUtilValueGetter {
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
     this.filePrefixes = Objects.requireNonNull(filePrefixes);
+    throwsExceptionWhenKeyDoesNotExist = true;
   }
 
   /**
