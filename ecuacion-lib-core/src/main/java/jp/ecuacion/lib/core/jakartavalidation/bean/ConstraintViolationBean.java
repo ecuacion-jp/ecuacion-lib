@@ -169,7 +169,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       throws Exception {
 
     String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-    Field field = leafBean.getClass().getField(fieldName);
+    Field field = leafBean.getClass().getDeclaredField(fieldName);
     ItemIdClass an = field.getAnnotation(ItemIdClass.class);
     return an == null ? null : an.value();
   }
