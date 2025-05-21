@@ -75,6 +75,8 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
   
   // for test
+  opens jp.ecuacion.lib.core.util to org.hibernate.validator;
+  
   uses jp.ecuacion.lib.core.spi.MessagesTestProvider;
   provides jp.ecuacion.lib.core.spi.MessagesTestProvider
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesTestProviderImpl;
