@@ -18,8 +18,10 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.exception.unchecked.RequireNonEmptyException;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -111,6 +113,29 @@ public class ObjectsUtil {
         EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
             + "ObjectsUtil#requireNonNull(Object) : the variable: " + object.getClass().getName()
             + "is null.");
+  }
+
+  /**
+   * Validates the variable is not {@code null} or {@code blank("")} 
+   *     and throws {@code RequireNonEmptyException}.
+   *     
+   * <p>It is valid only for String. 
+   *     For other datatatypes it's better to use {@code requireNonnull(Object)}.
+   *     But it's too strict for this method to throw an exception when the datatype is not String,
+   *     so then validate whether it's null or not and throw the same exception if null.</p>
+   * 
+   * @param <T> The class of the argument
+   * @param object Any object
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T requireNonEmpty(@RequireNonempty T object) {
+
+    if (object == null || (object instanceof String && ((String) object).equals(""))) {
+      throw new RequireNonEmptyException();
+    }
+    
+    return object;
   }
 
   /**
