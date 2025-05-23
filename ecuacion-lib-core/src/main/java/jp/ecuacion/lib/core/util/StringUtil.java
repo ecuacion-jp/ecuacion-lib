@@ -47,7 +47,7 @@ public class StringUtil {
    */
   @Nonnull
   public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
-    ObjectsUtil.paramRequireNonNull(snakeCaseString);
+    ObjectsUtil.requireNonNull(snakeCaseString);
 
     // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
     if (snakeCaseString.startsWith("_")) {
@@ -107,7 +107,7 @@ public class StringUtil {
    */
   @Nonnull
   public static String getLowerSnakeFromCamel(@RequireNonnull String camelCaseString) {
-    ObjectsUtil.paramRequireNonNull(camelCaseString);
+    ObjectsUtil.requireNonNull(camelCaseString);
 
     // 一文字目は小文字にしておく
     camelCaseString = StringUtils.uncapitalize(camelCaseString);
@@ -132,7 +132,7 @@ public class StringUtil {
    */
   @Nonnull
   public static String toCurrencyFormat(@RequireNonnull String number) {
-    ObjectsUtil.paramRequireNonNull(number);
+    ObjectsUtil.requireNonNull(number);
 
     NumberFormat formatter = NumberFormat.getNumberInstance();
     return formatter.format(Integer.valueOf(number));
@@ -152,7 +152,7 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator) {
-    ObjectsUtil.paramRequireNonNull(array, separator);
+    ObjectsUtil.requireNonNull(array, separator);
 
     boolean isFirstTime = true;
     StringBuilder sb = new StringBuilder();

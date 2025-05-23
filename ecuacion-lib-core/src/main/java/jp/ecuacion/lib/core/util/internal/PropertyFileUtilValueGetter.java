@@ -113,7 +113,7 @@ public class PropertyFileUtilValueGetter {
    * @param fileKindEnum fileKindEnum
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
-    this.filePrefixes = ObjectsUtil.paramRequireNonNull(fileKindEnum).getActualFilePrefixes();
+    this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
 
@@ -166,7 +166,7 @@ public class PropertyFileUtilValueGetter {
    */
   @Nonnull
   private String getValue(@Nullable Locale locale, @RequireNonnull String key) {
-    ObjectsUtil.paramRequireNonNull(key);
+    ObjectsUtil.requireNonNull(key);
 
     String value = null;
 
@@ -254,7 +254,7 @@ public class PropertyFileUtilValueGetter {
   private ResourceBundle getResourceBundle(@RequireNonnull String bundleId,
       @Nullable Locale locale) {
 
-    ObjectsUtil.paramRequireNonNull(bundleId);
+    ObjectsUtil.requireNonNull(bundleId);
 
     if (locale == null) {
       locale = Locale.ROOT;
@@ -405,7 +405,7 @@ public class PropertyFileUtilValueGetter {
    */
   @Nonnull
   public String getProp(@Nullable Locale locale, @RequireNonnull String key) {
-    ObjectsUtil.paramRequireNonNull(key);
+    ObjectsUtil.requireNonNull(key);
 
     // msgIdが空だったらエラー
     if (key.equals("")) {

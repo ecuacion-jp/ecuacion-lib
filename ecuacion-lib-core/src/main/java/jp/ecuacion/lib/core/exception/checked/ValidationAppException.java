@@ -43,7 +43,7 @@ public class ValidationAppException extends SingleAppException {
    */
   public ValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
     super(violation.getMessage());
-    this.bean = new ConstraintViolationBean(ObjectsUtil.paramRequireNonNull(violation));
+    this.bean = new ConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
   }
 
   /**
@@ -56,7 +56,7 @@ public class ValidationAppException extends SingleAppException {
    * @param bean BeanValidationErrorInfoBean
    */
   public ValidationAppException(@RequireNonnull ConstraintViolationBean bean) {
-    this.bean = ObjectsUtil.paramRequireNonNull(bean);
+    this.bean = ObjectsUtil.requireNonNull(bean);
   }
 
   /**

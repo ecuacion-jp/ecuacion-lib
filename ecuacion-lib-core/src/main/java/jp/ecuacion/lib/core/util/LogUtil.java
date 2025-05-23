@@ -53,7 +53,7 @@ public class LogUtil {
    */
   public static void logSystemError(@RequireNonnull DetailLogger detailLog,
       @RequireNonnull Throwable throwable, @Nullable String additionalMessage) {
-    ObjectsUtil.paramRequireNonNull(detailLog, throwable);
+    ObjectsUtil.requireNonNull(detailLog, throwable);
     
     errLog.logSystemError(throwable, additionalMessage);
     detailLog.logSystemError(throwable, additionalMessage);

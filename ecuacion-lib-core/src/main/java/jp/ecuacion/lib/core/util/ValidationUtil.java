@@ -51,7 +51,7 @@ public class ValidationUtil {
   */
   @Nonnull
   public static <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object) {
-    ObjectsUtil.paramRequireNonNull(object);
+    ObjectsUtil.requireNonNull(object);
     Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     // validator never returns null

@@ -61,8 +61,8 @@ public class BizLogicAppException extends SingleAppException {
   public BizLogicAppException(@Nullable AppExceptionItemIds itemIds, @Nonnull String messageId,
       @Nonnull String... messageArgs) {
 
-    this(itemIds, ObjectsUtil.paramRequireNonNull(messageId),
-        Arrays.asList(ObjectsUtil.paramRequireNonNull(messageArgs)).stream()
+    this(itemIds, ObjectsUtil.requireNonNull(messageId),
+        Arrays.asList(ObjectsUtil.requireNonNull(messageArgs)).stream()
             .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
@@ -88,7 +88,7 @@ public class BizLogicAppException extends SingleAppException {
   public BizLogicAppException(@Nullable AppExceptionItemIds itemIds,
       @RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
     this.itemIds = itemIds;
-    this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
+    this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = messageArgs;
   }
 
