@@ -40,8 +40,8 @@ public class MultipleAppException extends AppException {
   public MultipleAppException(@Nonnull List<? extends SingleAppException> list) {
     super();
 
-    ObjectsUtil.paramRequireNonNull(list);
-    ObjectsUtil.paramSizeNonZero(list);
+    ObjectsUtil.requireNonNull(list);
+    ObjectsUtil.requireSizeNonZero(list);
 
     // 本メソッドの引数としてはAppException、つまりMultipleAppExceptionも許しているが、
     // 内部的にはSingleAppExceptionのListとして保持するため、MultipleAppExceptionは分解する。

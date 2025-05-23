@@ -77,7 +77,7 @@ public class MailUtil {
    */
   public static void sendErrorMail(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
 
     List<String> errorMailAddressList = Arrays.asList(PropertyFileUtil
         .getApp("jp.ecuacion.lib.core.mail.address-csv-on-system-error").split(","));
@@ -119,8 +119,8 @@ public class MailUtil {
   @Nonnull
   public static void sendWarnMail(@Nullable String content,
       @RequireNonnull List<String> mailToList) {
-    ObjectsUtil.paramRequireNonNull(mailToList);
-    ObjectsUtil.paramSizeNonZero(mailToList);
+    ObjectsUtil.requireNonNull(mailToList);
+    ObjectsUtil.requireSizeNonZero(mailToList);
 
     String envSpecStr = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.title-prefix");
 
@@ -167,7 +167,7 @@ public class MailUtil {
   private static void sendMailCommon(@Nullable List<String> mailToList,
       @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content,
       boolean throwsException) throws Exception {
-    ObjectsUtil.paramRequireNonNull(title);
+    ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
     if ((mailToList == null || mailToList.size() == 0)

@@ -38,7 +38,7 @@ public class AppExceptionItemIds {
   public AppExceptionItemIds(@RequireNonnull String... itemIds) {
     this.itemIds = itemIds;
 
-    ObjectsUtil.paramRequireNonNull(itemIds);
+    ObjectsUtil.requireNonNull(itemIds);
   }
 
   /**

@@ -44,7 +44,7 @@ public class DetailLogger extends EclibLogger {
   public DetailLogger(@RequireNonnull Object object) {
     this(object.getClass());
 
-    ObjectsUtil.paramRequireNonNull(object);
+    ObjectsUtil.requireNonNull(object);
   }
 
   /** 
@@ -56,7 +56,7 @@ public class DetailLogger extends EclibLogger {
   public DetailLogger(@RequireNonnull Class<?> cls) {
     super(cls);
 
-    ObjectsUtil.paramRequireNonNull(cls);
+    ObjectsUtil.requireNonNull(cls);
   }
 
   /** 
@@ -110,7 +110,7 @@ public class DetailLogger extends EclibLogger {
    * @param th exception to log
    */
   public void error(@RequireNonnull Throwable th) {
-    ObjectsUtil.paramRequireNonNull(th);
+    ObjectsUtil.requireNonNull(th);
     log(Level.ERROR, "A system error has occurred: ", th);
   }
 
@@ -131,7 +131,7 @@ public class DetailLogger extends EclibLogger {
    */
   public void logSystemError(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
 
     // additionalMessageへの追加
     if (throwable instanceof AppException || throwable instanceof UncheckedAppException) {
@@ -160,7 +160,7 @@ public class DetailLogger extends EclibLogger {
    * @param throwable throwable
    */
   public void logExceptionAsDebugInfo(@RequireNonnull Throwable throwable) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
     
     internalLogger.debug(EclibCoreConstants.ECLIB_PREFIX
         + "The following is only for reference. (No system error will occur)");
@@ -175,7 +175,7 @@ public class DetailLogger extends EclibLogger {
    */
   private void log(@RequireNonnull Level logLevel, @RequireNonnull String message,
       @RequireNonnull Throwable throwable) {
-    ObjectsUtil.paramRequireNonNull(message, logLevel, throwable);
+    ObjectsUtil.requireNonNull(message, logLevel, throwable);
 
     switch (logLevel) {
       case Level.ERROR -> internalLogger.error(message, throwable);

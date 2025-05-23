@@ -80,9 +80,9 @@ public class AppWarningException extends Exception {
       @Nonnull String... messageArgs) {
     super();
 
-    this.locale = ObjectsUtil.paramRequireNonNull(locale);
-    this.messageId = ObjectsUtil.paramRequireNonNull(messageId);
-    this.messageArgs = ObjectsUtil.paramRequireNonNull(messageArgs);
+    this.locale = ObjectsUtil.requireNonNull(locale);
+    this.messageId = ObjectsUtil.requireNonNull(messageId);
+    this.messageArgs = ObjectsUtil.requireNonNull(messageArgs);
     
     this.itemIds = new AppExceptionItemIds();
   }

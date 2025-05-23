@@ -59,7 +59,7 @@ public class DateTimeApiUtil {
    */
   @Nonnull
   public static String getLocalDateTimeDisplayString(@RequireNonnull LocalDateTime localDateTime) {
-    ObjectsUtil.paramRequireNonNull(localDateTime);
+    ObjectsUtil.requireNonNull(localDateTime);
 
     return localDateTime.format(DateTimeFormatter.ofPattern(USER_FRIENDLY_LOCAL_FORMAT));
   }
@@ -76,7 +76,7 @@ public class DateTimeApiUtil {
   @Nonnull
   public static String getLocalDateTimeDisplayString(
       @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
-    ObjectsUtil.paramRequireNonNull(dateTime);
+    ObjectsUtil.requireNonNull(dateTime);
 
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
@@ -96,7 +96,7 @@ public class DateTimeApiUtil {
   @Nonnull
   public static String getOffsetDateTimeDisplayString(@RequireNonnull OffsetDateTime offsetDateTime,
       @Nullable ZoneId zoneId) {
-    ObjectsUtil.paramRequireNonNull(offsetDateTime);
+    ObjectsUtil.requireNonNull(offsetDateTime);
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
     return offsetDateTime.atZoneSameInstant(zoneId)
@@ -178,7 +178,7 @@ public class DateTimeApiUtil {
    */
   @Nonnull
   private static FormatHolder getLocalDateTimePartFormat(@RequireNonnull String dateTimeString) {
-    ObjectsUtil.paramRequireNonNull(dateTimeString);
+    ObjectsUtil.requireNonNull(dateTimeString);
 
     FormatHolder obj = new FormatHolder();
 

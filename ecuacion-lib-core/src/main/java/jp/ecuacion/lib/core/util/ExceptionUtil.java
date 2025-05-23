@@ -94,9 +94,9 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
       @Nullable Locale locale, boolean needsDetails) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
-    ObjectsUtil.paramRequireNonNull(needsDetails);
+    ObjectsUtil.requireNonNull(needsDetails);
 
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
@@ -221,7 +221,7 @@ public class ExceptionUtil {
   private static void recursivelySerializeException(@RequireNonnull Throwable throwable,
       @RequireNonnull List<Throwable> arr) {
     // 自分をadd
-    ObjectsUtil.paramRequireNonNull(arr.add(ObjectsUtil.paramRequireNonNull(throwable)));
+    ObjectsUtil.requireNonNull(arr.add(ObjectsUtil.requireNonNull(throwable)));
 
     // MultipleAppExceptionの場合は、その内部に保持している複数のApplicationExceptionを全てerrListに追加する
     // MultipleAppException.exArrに入るものはAppExceptionのみ
@@ -249,7 +249,7 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static List<Throwable> getExceptionListWithMessages(@RequireNonnull Throwable throwable) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
 
     List<Throwable> rtnList = new ArrayList<>();
     // return serializeExceptions(throwable).stream()
@@ -285,7 +285,7 @@ public class ExceptionUtil {
   @Nonnull
   public static List<SingleAppException> getSingleAppExceptionList(
       @RequireNonnull AppException appException) {
-    ObjectsUtil.paramRequireNonNull(appException);
+    ObjectsUtil.requireNonNull(appException);
 
     List<SingleAppException> rtnList = new ArrayList<>();
     serializeExceptions(appException).forEach(ex -> {
@@ -367,7 +367,7 @@ public class ExceptionUtil {
   private static String getErrLogString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
     locale = (locale == null) ? Locale.getDefault() : locale;
 
     StringBuilder sb = new StringBuilder();

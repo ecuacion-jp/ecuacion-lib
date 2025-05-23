@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.exception.unchecked;
 
 import jakarta.annotation.Nonnull;
+import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
@@ -32,10 +33,10 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param message message. May be null, which meaans it has no messages.
    */
-  public EclibRuntimeException(@Nonnull String message) {
+  public EclibRuntimeException(@RequireNonnull String message) {
     super(message);
 
-    ObjectsUtil.paramRequireNonNull(message);
+    ObjectsUtil.requireNonNull(message);
   }
 
   /**
@@ -43,10 +44,10 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param cause cause
    */
-  public EclibRuntimeException(@Nonnull Throwable cause) {
+  public EclibRuntimeException(@RequireNonnull Throwable cause) {
     super(cause);
 
-    ObjectsUtil.paramRequireNonNull(cause);
+    ObjectsUtil.requireNonNull(cause);
   }
 
   /**
@@ -55,11 +56,11 @@ public class EclibRuntimeException extends RuntimeException {
    * @param message message
    * @param cause cause
    */
-  public EclibRuntimeException(@Nonnull String message, @Nonnull Throwable cause) {
+  public EclibRuntimeException(@RequireNonnull String message, @Nonnull Throwable cause) {
     super(message, cause);
 
-    ObjectsUtil.paramRequireNonNull(message);
-    ObjectsUtil.paramRequireNonNull(cause);
+    ObjectsUtil.requireNonNull(message);
+    ObjectsUtil.requireNonNull(cause);
   }
 
   /**

@@ -95,7 +95,7 @@ public class ErrorLogger extends EclibLogger {
   public void logSystemError(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage) {
 
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
 
     String msg = (throwable.getMessage() == null) ? ""
         : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()

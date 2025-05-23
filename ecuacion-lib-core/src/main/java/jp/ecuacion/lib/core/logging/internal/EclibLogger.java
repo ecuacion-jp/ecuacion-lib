@@ -54,8 +54,8 @@ public abstract class EclibLogger {
    * @param logLevel logLevel. Cannot be {@code null}.
    */
   public void log(Level logLevel, String message) {
-    ObjectsUtil.paramRequireNonNull(message);
-    ObjectsUtil.paramRequireNonNull(logLevel);
+    ObjectsUtil.requireNonNull(message);
+    ObjectsUtil.requireNonNull(logLevel);
 
     switch (logLevel) {
       case Level.ERROR -> internalLogger.error(message);
