@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Test91_01_util_ValidationUtil {
+public class ValidationUtilTest {
 
   private static final String NOT_NULL = "jakarta.validation.constraints.NotNull";
 
@@ -47,7 +47,7 @@ public class Test91_01_util_ValidationUtil {
     }
 
     // ordinal error occurred (Tests that error created)
-    ValidationUtil.validateThenReturn(new Test91_01__ObjWithNormalValidator()).ifPresent(mae -> {
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator()).ifPresent(mae -> {
       Assertions.assertEquals(2, mae.getList().size());
       ValidationAppException exNotNull = null;
       ValidationAppException exMin = null;
@@ -73,16 +73,16 @@ public class Test91_01_util_ValidationUtil {
     // Normal classes
 
     // normal without form : <className>.<fieldname> (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new Test91_01__ObjWithNormalValidator())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = getItemIdForNotNullExceptionBean(mae);
           Assertions.assertTrue(itemIds.length == 1);
-          Assertions.assertEquals("Test91_01__ObjWithNormalValidator.str1", itemIds[0]);
+          Assertions.assertEquals("ValidationUtilTest_ObjWithNormalValidator.str1", itemIds[0]);
 
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new Test91_01__DirectContainerWithNormalValidator())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_DirectContainerWithNormalValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = getItemIdForNotNullExceptionBean(mae);
           Assertions.assertTrue(itemIds.length == 1);
@@ -91,7 +91,7 @@ public class Test91_01_util_ValidationUtil {
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new Test91_01__IndirectContainerWithNormalValidator())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_IndirectContainerWithNormalValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = getItemIdForNotNullExceptionBean(mae);
           Assertions.assertTrue(itemIds.length == 1);
@@ -101,18 +101,18 @@ public class Test91_01_util_ValidationUtil {
 
     // classValidator without form : <className>.<fieldname>
     // (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new Test91_01__ObjWithClassValidator())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithClassValidator())
         .ifPresentOrElse(mae -> {
           String[] itemIds = ((ValidationAppException) mae.getList().get(0))
               .getConstraintViolationBean().getItemIds();
           Assertions.assertTrue(itemIds.length == 1);
-          Assertions.assertEquals("Test91_01__ObjWithClassValidator.value", itemIds[0]);
+          Assertions.assertEquals("ValidationUtilTest_ObjWithClassValidator.value", itemIds[0]);
 
         }, () -> Assertions.fail());
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new Test91_01__DirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
           String[] itemIds = ((ValidationAppException) mae.getList().get(0))
               .getConstraintViolationBean().getItemIds();
@@ -123,7 +123,7 @@ public class Test91_01_util_ValidationUtil {
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new Test91_01__IndirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
           String[] itemIds = ((ValidationAppException) mae.getList().get(0))
               .getConstraintViolationBean().getItemIds();

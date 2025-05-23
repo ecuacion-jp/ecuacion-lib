@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
+import jakarta.validation.Valid;
 
-@ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
-public class Test91_01__ObjWithClassValidator {
-  public String conditionValue = "abc";
-  public String value = null;
+public class ValidationUtilTest_IndirectContainerWithClassValidadtor {
+  @Valid
+  public ValidationUtilTest_DirectContainerWithClassValidadtor directContainer =
+      new ValidationUtilTest_DirectContainerWithClassValidadtor();
 }

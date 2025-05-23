@@ -15,13 +15,9 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
 
-public class Test91_01__ObjWithNormalValidator {
-  @NotNull
-  public String str1 = null;
-
-  @Min(3)
-  public int int1 = 2;
+public class ValidationUtilTest_DirectContainerWithNormalValidator {
+  @Valid
+  public ValidationUtilTest_ObjWithNormalValidator normal = new ValidationUtilTest_ObjWithNormalValidator();
 }

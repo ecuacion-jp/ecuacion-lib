@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util;
+package jp.ecuacion.lib.core.annotation;
 
-import jakarta.validation.Valid;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public class Test91_01__IndirectContainerWithClassValidadtor {
-  @Valid
-  public Test91_01__DirectContainerWithClassValidadtor directContainer =
-      new Test91_01__DirectContainerWithClassValidadtor();
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+
+/**
+ * Designates that the method throws RequireNonEmptyException 
+ *     when the annotated arguments is empty. (= null or blank(""))
+ * 
+ * <p>This annnotation does nothing. 
+ *     Just for the explanation of the implementation of the method to developers.</p>
+ *
+ * @see jakarta.annotation.Nonnull
+ * @see java.util.Objects
+ */
+@Documented
+@Retention(RUNTIME)
+public @interface RequireNonempty {
+
 }
