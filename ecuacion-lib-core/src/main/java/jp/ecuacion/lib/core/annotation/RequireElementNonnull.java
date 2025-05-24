@@ -21,14 +21,11 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws RequireNonEmptyException 
- *     when the annotated arguments is empty. (= null or blank(""))
+ * Designates that the method throws {@code RequireElementNonNullException}
+ *     when each element of annotated arrays or collections is {@code null}.
  * 
  * <p>This annnotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
- *
- * @see jakarta.annotation.Nonnull
- * @see java.util.Objects
  */
 @Documented
 @Retention(RUNTIME)
