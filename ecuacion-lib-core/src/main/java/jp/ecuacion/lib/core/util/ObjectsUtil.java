@@ -18,6 +18,8 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireElementNonempty;
 import jp.ecuacion.lib.core.annotation.RequireElementNonnull;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
@@ -235,7 +237,48 @@ public class ObjectsUtil {
   }
 
   /**
-   * Designates non-empty is required.
+   * Validates elements of an array is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument array
+   * @param objects Any object, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T[] requireElementsNonDuplicated(@RequireElementNonnull T[] objects) {
+    requireElementsNonDuplicated(Arrays.asList(objects));
+
+    return objects;
+  }
+
+  /**
+   * Validates elements of a collection is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument collection
+   * @param collection Any collection, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> Collection<T> requireElementsNonDuplicated(
+      @RequireElementNonnull Collection<T> collection) {
+
+    Set<T> set = new HashSet<>();
+    if (collection != null) {
+      for (T object : collection) {
+        if (set.contains(object)) {
+          throw new RequireElementsNonDuplicatedException();
+        }
+      }
+    }
+
+    return collection;
+  }
+
+  /**
+   * Is an abstract exception class.
    */
   public abstract static class ObjectsUtilException extends EclibRuntimeException {
 
@@ -245,12 +288,12 @@ public class ObjectsUtil {
      * Construct a new instance.
      */
     public ObjectsUtilException(String message) {
-      super("Non-null required.");
+      super(message);
     }
   }
 
   /**
-   * Designates non-empty is required.
+   * Designates non-null is required.
    */
   public static class RequireNonNullException extends ObjectsUtilException {
 
@@ -295,7 +338,7 @@ public class ObjectsUtil {
   }
 
   /**
-   * Designates size non-zero is required.
+   * Designates element non-null is required.
    */
   public static class RequireElementNonNullException extends ObjectsUtilException {
 
@@ -310,7 +353,7 @@ public class ObjectsUtil {
   }
 
   /**
-   * Designates size non-zero is required.
+   * Designates element non-empty is required.
    */
   public static class RequireElementNonEmptyException extends ObjectsUtilException {
 
@@ -321,6 +364,21 @@ public class ObjectsUtil {
      */
     public RequireElementNonEmptyException() {
       super("Element non-empty required.");
+    }
+  }
+
+  /**
+   * Designates elements value non-duplicated required.
+   */
+  public static class RequireElementsNonDuplicatedException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireElementsNonDuplicatedException() {
+      super("Elements non-duplicated required.");
     }
   }
 }
