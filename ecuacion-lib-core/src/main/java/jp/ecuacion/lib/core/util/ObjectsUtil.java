@@ -93,9 +93,8 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static String requireNonEmpty(@RequireNonempty String string) {
-    ObjectsUtil.requireNonNull(string);
 
-    if (string.equals("")) {
+    if (string == null || string.equals("")) {
       throw new RequireNonEmptyException();
     }
 
@@ -189,7 +188,7 @@ public class ObjectsUtil {
     if (collection != null) {
       for (T object : collection) {
         if (object == null) {
-          throw new RequireElementNonEmptyException();
+          throw new RequireElementNonNullException();
         }
       }
     }
