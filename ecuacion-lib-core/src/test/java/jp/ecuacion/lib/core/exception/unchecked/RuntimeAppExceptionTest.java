@@ -20,8 +20,8 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import org.junit.jupiter.api.Test;
 
-public class Test21_31_exception_RuntimeAppException extends TestTools {
-  
+public class RuntimeAppExceptionTest extends TestTools {
+
   @Test
   public void test01_コンストラクタ_01_引数がnull() {
     try {
@@ -33,12 +33,12 @@ public class Test21_31_exception_RuntimeAppException extends TestTools {
       assertTrue(true);
     }
   }
-  
+
   @Test
   public void test01_コンストラクタ_02_引数がnull以外() {
     AppException appEx = new BizLogicAppException("MSG1");
     UncheckedAppException ex = new UncheckedAppException(appEx);
-    
+
     assertEquals(ex.getCause(), appEx);
   }
 }
