@@ -16,10 +16,11 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Test21_12_exception_BizLogicAppException extends TestTools {
+public class BizLogicAppExceptionTest extends TestTools {
   private static final String SAMPLE_MSG_ID = "MSG_ID";
 
   @Test
@@ -29,7 +30,7 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
       BizLogicAppException ex = new BizLogicAppException(null);
       fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
       assertTrue(true);
 
     } catch (Exception ex) {
@@ -51,7 +52,7 @@ public class Test21_12_exception_BizLogicAppException extends TestTools {
           new BizLogicAppException((String) null, (String[]) null);
       fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
       assertTrue(true);
 
     } catch (Exception ex) {

@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Test21_11_exception_BeanValidationAppException extends TestTools {
+public class BeanValidationAppExceptionTest extends TestTools {
 
   private ConstraintViolation<SampleObj> violation;
 

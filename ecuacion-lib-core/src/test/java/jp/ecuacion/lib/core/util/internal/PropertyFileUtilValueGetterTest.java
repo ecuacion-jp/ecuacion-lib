@@ -19,44 +19,38 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.AP
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
+public class PropertyFileUtilValueGetterTest extends TestTools {
 
   @Test
-  public void test01_constructor_01_PropertyFileUtilPropFileKindEnum_01_引数がnull() {
-    try {
-      new PropertyFileUtilValueGetter((PropertyFileUtilFileKindEnum) null);
-      fail();
+  public void constructor_test() {
 
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
+    PropertyFileUtilValueGetter obj;
+    
+    // argument: PropertyFileUtilFileKindEnum
+    
+    // null
+    org.junit.jupiter.api.Assertions.assertThrows(RequireNonNullException.class,
+        () -> new PropertyFileUtilValueGetter((PropertyFileUtilFileKindEnum) null));
 
-  @Test
-  public void test01_constructor_01_PropertyFileUtilPropFileKindEnum_02_引数がnull以外() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-    Assertions.assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test01_constructor_02_filePrefix_01_引数がnull() {
-    try {
-      new PropertyFileUtilValueGetter((String[][]) null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test01_constructor_02_filePrefix_02_引数がnull以外() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"messages"}});
-    Assertions.assertThat(store.getProp(Locale.CANADA, "TEST_KEY")).isEqualTo("TEST_VALUE");
+    // nonnull
+    obj = new PropertyFileUtilValueGetter(MSG);
+    org.junit.jupiter.api.Assertions.assertEquals("TEST_VALUE",
+        obj.getProp(Locale.CANADA, "TEST_KEY"));
+    
+    // argument: String[][]
+    
+    // null
+    org.junit.jupiter.api.Assertions.assertThrows(RequireNonNullException.class,
+        () -> new PropertyFileUtilValueGetter((String[][]) null));
+    
+    // nonnull
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"messages"}});
+    org.junit.jupiter.api.Assertions.assertEquals("TEST_VALUE",
+        obj.getProp(Locale.CANADA, "TEST_KEY"));
   }
 
   @Test
@@ -142,7 +136,7 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
       store.getProp(null);
       fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
       assertTrue(true);
     }
   }
@@ -162,8 +156,8 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
 
   @Test
   public void test22_getProp_01_key_12_キーが存在しない場合() {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-      Assertions.assertThat(store.getProp("non-exist-key")).isEqualTo("[ non-exist-key ]");
+    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
+    Assertions.assertThat(store.getProp("non-exist-key")).isEqualTo("[ non-exist-key ]");
   }
 
   @Test
@@ -191,7 +185,7 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
       store.getProp(Locale.JAPAN, null);
       fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
       assertTrue(true);
     }
   }
@@ -212,7 +206,8 @@ public class Test91_12_util_PropertyFileUtilValueGetter extends TestTools {
   @Test
   public void test22_getProp_02_locale_key_12_キーが存在しない場合() {
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "non-exist-key")).isEqualTo("[ non-exist-key ]");
+    Assertions.assertThat(store.getProp(Locale.JAPAN, "non-exist-key"))
+        .isEqualTo("[ non-exist-key ]");
   }
 
   @Test
