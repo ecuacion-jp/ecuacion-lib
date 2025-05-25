@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APP;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAME;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAME;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAMES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
@@ -213,7 +213,7 @@ public class PropertyFileUtil {
   @Nonnull
   @Deprecated
   public static String getApp(@RequireNonnull String key) {
-    return getterMap.get(APP).getProp(key);
+    return getterMap.get(APPLICATION).getProp(key);
   }
 
 
@@ -225,7 +225,7 @@ public class PropertyFileUtil {
    */
   @Deprecated
   public static boolean hasApp(@RequireNonnull String key) {
-    return getterMap.get(APP).hasProp(key);
+    return getterMap.get(APPLICATION).hasProp(key);
   }
 
   /**
@@ -236,7 +236,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getApplication(@RequireNonnull String key) {
-    return getterMap.get(APP).getProp(key);
+    return getterMap.get(APPLICATION).getProp(key);
   }
 
 
@@ -247,7 +247,7 @@ public class PropertyFileUtil {
    * @return boolean value that shows whether properties has the key
    */
   public static boolean hasApplication(@RequireNonnull String key) {
-    return getterMap.get(APP).hasProp(key);
+    return getterMap.get(APPLICATION).hasProp(key);
   }
 
   /**
@@ -350,7 +350,7 @@ public class PropertyFileUtil {
   public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
 
-    String msgStr = getterMap.get(MSG).getProp(locale, key);
+    String msgStr = getterMap.get(MESSAGES).getProp(locale, key);
 
     // データパターンにより処理を分岐
     return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
@@ -415,7 +415,7 @@ public class PropertyFileUtil {
    * @return boolean value that shows whether properties has the key (message ID)
    */
   public static boolean hasMessage(@RequireNonnull String key) {
-    return getterMap.get(MSG).hasProp(key);
+    return getterMap.get(MESSAGES).hasProp(key);
   }
 
   // ■□■ item_names ■□■
@@ -428,7 +428,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getItemName(@RequireNonnull String key) {
-    return getterMap.get(ITEM_NAME).getProp(null, key);
+    return getterMap.get(ITEM_NAMES).getProp(null, key);
   }
 
   /**
@@ -441,7 +441,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getItemName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ITEM_NAME).getProp(locale, key);
+    return getterMap.get(ITEM_NAMES).getProp(locale, key);
   }
 
   /**
@@ -451,7 +451,7 @@ public class PropertyFileUtil {
    * @return boolean value that shows whether properties has the key
    */
   public static boolean hasItemName(@RequireNonnull String key) {
-    return getterMap.get(ITEM_NAME).hasProp(key);
+    return getterMap.get(ITEM_NAMES).hasProp(key);
   }
 
   // ■□■ enum_names ■□■
@@ -464,7 +464,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getEnumName(@RequireNonnull String key) {
-    return getterMap.get(ENUM_NAME).getProp(null, key);
+    return getterMap.get(ENUM_NAMES).getProp(null, key);
   }
 
   /**
@@ -477,7 +477,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getEnumName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ENUM_NAME).getProp(locale, key);
+    return getterMap.get(ENUM_NAMES).getProp(locale, key);
   }
 
   /**
@@ -487,7 +487,7 @@ public class PropertyFileUtil {
    * @return boolean value that shows whether properties has the key
    */
   public static boolean hasEnumName(@RequireNonnull String key) {
-    return getterMap.get(ENUM_NAME).hasProp(key);
+    return getterMap.get(ENUM_NAMES).hasProp(key);
   }
 
   // ■□■ ValidationMessages ■□■
