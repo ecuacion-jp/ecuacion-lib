@@ -30,7 +30,9 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -322,56 +324,24 @@ public class PropertyFileUtilValueGetter {
    * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
    */
   private List<Pair<String, String>> analyze(String string) {
-    final String startBracket = "{";
-    final String endBracket = "}";
-    List<Pair<String, String>> list = new ArrayList<>();
+    List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
+        .map(en -> "{+" + en.toString().toLowerCase() + ":").toList();
 
-    String stringLeft = string;
+    // properties files are not managed by users
+    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
+    try {
+      List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
+          startSymbols.toArray(new String[startSymbols.size()]), "}");
 
-    while (true) {
-      int indexOfStartBracket = stringLeft.indexOf(startBracket);
-      int indexOfEndBracket = stringLeft.indexOf(endBracket);
+      // left of the pair starts with "{+" and ends with ":" but they're not needed
+      return list.stream()
+          .map(pair -> pair.getLeft() == null ? pair
+              : Pair.of(pair.getLeft().substring(2, pair.getLeft().length() - 1), pair.getRight()))
+          .toList();
 
-      if (indexOfStartBracket == -1) {
-        list.add(Pair.of(null, stringLeft));
-        break;
-      }
-
-      // the code below is executed when stringLeft contains the startBracket.
-
-      if (indexOfStartBracket > indexOfEndBracket) {
-        throw new EclibRuntimeException(
-            "startBracketFollowsEndBracket. the brackets in the string is somehow wrong. string: "
-                + stringLeft);
-      }
-
-      // front simple string part before startBracket
-      list.add(Pair.of(null, stringLeft.substring(0, indexOfStartBracket)));
-
-      String stringInBrackets =
-          stringLeft.substring(indexOfStartBracket + startBracket.length(), indexOfEndBracket);
-      PropertyFileUtilFileKindEnum fileKind = getFileKindFromStringInBrackets(stringInBrackets);
-
-      if (fileKind == null) {
-        list.add(Pair.of(null,
-            stringLeft.substring(indexOfStartBracket, indexOfEndBracket + endBracket.length())));
-
-      } else {
-        list.add(Pair.of(fileKind.toString(), stringInBrackets.split(":")[1]));
-      }
-
-      stringLeft = stringLeft.substring(indexOfEndBracket + endBracket.length());
+    } catch (AppException ex) {
+      throw new EclibRuntimeException(ex);
     }
-
-    return list;
-  }
-
-  private PropertyFileUtilFileKindEnum getFileKindFromStringInBrackets(String stringInBrackets) {
-    if (!stringInBrackets.contains(":")) {
-      return null;
-    }
-
-    return PropertyFileUtilFileKindEnum.valueOf(stringInBrackets.split(":")[0].toUpperCase());
   }
 
   /*

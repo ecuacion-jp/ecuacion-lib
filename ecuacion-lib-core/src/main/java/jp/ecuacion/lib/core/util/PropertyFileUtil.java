@@ -166,8 +166,8 @@ import org.apache.commons.lang3.StringUtils;
  *     message_test2=d-${messages:message_test3}-f
  *     message_test3=e</pre>
  * 
- * <p>Examples above uses {@code ${messages:...}} but you can also use other file kinds 
- * like {@code ${application:...}, ${item_names:...} and ${enum_names:...}}.</p>
+ * <p>Examples above uses {@code {+messages:...}} but you can also use other file kinds 
+ * like {@code {+application:...}, {+item_names:...} and {+enum_names:...}}.</p>
  *     
  * <p>Recursive resolution is supported, but multiple layer of key is not supported. 
  *     (which does not seem to be needed really)</p>
