@@ -30,8 +30,10 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
   private PropertyFileUtilValueGetter obj;
 
-  private static final PropertyFileUtilValueGetter OBJ_APP = new PropertyFileUtilValueGetter(APPLICATION);
-  private static final PropertyFileUtilValueGetter OBJ_MSG = new PropertyFileUtilValueGetter(MESSAGES);
+  private static final PropertyFileUtilValueGetter OBJ_APP =
+      new PropertyFileUtilValueGetter(APPLICATION);
+  private static final PropertyFileUtilValueGetter OBJ_MSG =
+      new PropertyFileUtilValueGetter(MESSAGES);
   private static final Class<NoKeyInPropertiesFileException> NO_KEY_EX =
       NoKeyInPropertiesFileException.class;
 
@@ -264,7 +266,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
   @Test
   public void resolvePropertyKeysInObtainedValueTest() {
-    Assertions.assertEquals("Hi, John.", OBJ_MSG.getProp(Locale.CANADA, "KEY_IN_VALUE_SAMPLE"));
+    Assertions.assertEquals("Hi, John.", OBJ_MSG.getProp("KEY_IN_MSG"));
 
 
   }

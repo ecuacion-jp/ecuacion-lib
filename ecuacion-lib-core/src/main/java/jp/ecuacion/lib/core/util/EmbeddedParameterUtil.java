@@ -26,7 +26,6 @@ import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.annotation.RequireSizeNonzero;
 import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.AppExceptionItemIds;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription;
@@ -101,11 +100,6 @@ public class EmbeddedParameterUtil {
 
     ObjectsUtil.requireNonNull(string);
     ObjectsUtil.requireNonEmpty(startSymbol, endSymbol);
-
-    if (startSymbol.length() == 0 || endSymbol.length() == 0) {
-      throw new BizLogicAppException(MSG_PREFIX + "symbolLengthZero.message", startSymbol,
-          endSymbol);
-    }
 
     // extract "${VAR}"
 
@@ -268,15 +262,15 @@ public class EmbeddedParameterUtil {
    * @param string string with parameters embedded
    * @param startSymbol left-side symbol enclosing parameters
    * @param endSymbol right-side symbol enclosing parameters
-   * @param map It stores parameter keys and those values.
+   * @param parameterMap It stores parameter keys and those values.
    * @return string with embedded parameters replaced
    * @throws AppException AppException
    */
   public static String getParameterReplacedString(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
-      @RequireNonnull Map<String, String> map) throws AppException {
-    
-    ObjectsUtil.requireNonNull(map);
+      @RequireNonnull Map<String, String> parameterMap) throws AppException {
+
+    ObjectsUtil.requireNonNull(parameterMap);
 
     List<Pair<String, String>> list = getPartList(string, new String[] {startSymbol}, endSymbol);
 
@@ -284,11 +278,11 @@ public class EmbeddedParameterUtil {
     for (Pair<String, String> pair : list) {
 
       // Throw an error when the map does not contain the key
-      if (pair.getLeft() != null && !map.containsKey(pair.getRight())) {
-        throw new BizLogicAppException(MSG_PREFIX + "paramNotFoundInMap.message", pair.getRight());
+      if (pair.getLeft() != null && !parameterMap.containsKey(pair.getRight())) {
+        throw new ParameterNotFoundException(pair.getRight());
       }
 
-      String partStr = pair.getLeft() != null ? map.get(pair.getRight()) : pair.getRight();
+      String partStr = pair.getLeft() != null ? parameterMap.get(pair.getRight()) : pair.getRight();
       sb.append(partStr);
     }
 
@@ -315,21 +309,27 @@ public class EmbeddedParameterUtil {
   public static class StringFormatIncorrectException extends BizLogicAppException {
 
     private static final long serialVersionUID = 1L;
-    private static final String MSG_ID = MSG_PREFIX + "variableFormatIncorrect.message";
 
     /**
      * Construct a new instance.
      */
     public StringFormatIncorrectException(String string, String startSymbol, String endSymbol) {
-      super(MSG_ID, new String[] {string, startSymbol, endSymbol});
+      super(MSG_PREFIX + "variableFormatIncorrect.message", string, startSymbol, endSymbol);
     }
+  }
+
+  /**
+   * Designates an exception which occurs because the format of an argument string is wrong.
+   */
+  public static class ParameterNotFoundException extends BizLogicAppException {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Construct a new instance.
      */
-    public StringFormatIncorrectException(AppExceptionItemIds itemIds, String string,
-        String startSymbol, String endSymbol) {
-      super(itemIds, MSG_ID, new String[] {string, startSymbol, endSymbol});
+    public ParameterNotFoundException(String key) {
+      super(MSG_PREFIX + "paramNotFoundInMap.message", key);
     }
   }
 }
