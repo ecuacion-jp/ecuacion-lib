@@ -679,7 +679,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String get(@RequireNonnull String propertyUtilFileKind,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .getProp(null, key);
   }
 
@@ -696,7 +696,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .getProp(locale, key);
   }
 
@@ -710,7 +710,7 @@ public class PropertyFileUtil {
    */
   public static boolean has(@RequireNonnull String propertyUtilFileKind,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(propertyUtilFileKind))
+    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .hasProp(key);
   }
 
