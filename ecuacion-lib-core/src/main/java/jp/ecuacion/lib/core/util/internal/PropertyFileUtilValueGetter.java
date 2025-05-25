@@ -179,15 +179,15 @@ public class PropertyFileUtilValueGetter {
     }
 
     // analyzes messageString
-    List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(value);
+    List<Pair<String, String>> list = analyze(value);
     StringBuilder sb = new StringBuilder();
 
-    for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
+    for (Pair<String, String> tuple : list) {
       if (tuple.getLeft() == null) {
         sb.append(tuple.getRight());
 
       } else {
-        sb.append(PropertyFileUtil.get(tuple.getLeft().getFilePrefix(), tuple.getRight()));
+        sb.append(PropertyFileUtil.get(tuple.getLeft(), tuple.getRight()));
       }
     }
 
@@ -321,10 +321,10 @@ public class PropertyFileUtilValueGetter {
    * @param string string
    * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
    */
-  private List<Pair<PropertyFileUtilFileKindEnum, String>> analyze(String string) {
+  private List<Pair<String, String>> analyze(String string) {
     final String startBracket = "{";
     final String endBracket = "}";
-    List<Pair<PropertyFileUtilFileKindEnum, String>> list = new ArrayList<>();
+    List<Pair<String, String>> list = new ArrayList<>();
 
     String stringLeft = string;
 
@@ -357,7 +357,7 @@ public class PropertyFileUtilValueGetter {
             stringLeft.substring(indexOfStartBracket, indexOfEndBracket + endBracket.length())));
 
       } else {
-        list.add(Pair.of(fileKind, stringInBrackets.split(":")[1]));
+        list.add(Pair.of(fileKind.toString(), stringInBrackets.split(":")[1]));
       }
 
       stringLeft = stringLeft.substring(indexOfEndBracket + endBracket.length());
@@ -371,7 +371,7 @@ public class PropertyFileUtilValueGetter {
       return null;
     }
 
-    return PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(stringInBrackets.split(":")[0]);
+    return PropertyFileUtilFileKindEnum.valueOf(stringInBrackets.split(":")[0].toUpperCase());
   }
 
   /*
@@ -414,14 +414,14 @@ public class PropertyFileUtilValueGetter {
 
     try {
       return getValue(locale, key);
-      
+
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {
         throw ex;
 
       } else {
         return "[ " + key + " ]";
-      } 
+      }
     }
   }
 
