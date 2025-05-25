@@ -15,8 +15,8 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APP;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MSG;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
@@ -30,8 +30,8 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
   private PropertyFileUtilValueGetter obj;
 
-  private static final PropertyFileUtilValueGetter OBJ_APP = new PropertyFileUtilValueGetter(APP);
-  private static final PropertyFileUtilValueGetter OBJ_MSG = new PropertyFileUtilValueGetter(MSG);
+  private static final PropertyFileUtilValueGetter OBJ_APP = new PropertyFileUtilValueGetter(APPLICATION);
+  private static final PropertyFileUtilValueGetter OBJ_MSG = new PropertyFileUtilValueGetter(MESSAGES);
   private static final Class<NoKeyInPropertiesFileException> NO_KEY_EX =
       NoKeyInPropertiesFileException.class;
 
@@ -50,8 +50,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
         () -> new PropertyFileUtilValueGetter((PropertyFileUtilFileKindEnum) null));
 
     // nonnull
-    Assertions.assertEquals("TEST_VALUE",
-        OBJ_MSG.getProp(Locale.CANADA, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", OBJ_MSG.getProp(Locale.CANADA, "TEST_KEY"));
 
     // argument: String[][]
 
@@ -61,15 +60,13 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
     // nonnull
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"messages"}});
-    Assertions.assertEquals("TEST_VALUE",
-        obj.getProp(Locale.CANADA, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", obj.getProp(Locale.CANADA, "TEST_KEY"));
   }
 
   @Test
   public void hasProp_basicTest() {
     // key is null
-    Assertions.assertThrows(NullPointerException.class,
-        () -> OBJ_MSG.hasProp(null));
+    Assertions.assertThrows(NullPointerException.class, () -> OBJ_MSG.hasProp(null));
 
     // file not exist
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
@@ -88,16 +85,14 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     // # argument: key
 
     // key is null
-    Assertions.assertThrows(RequireNonNullException.class,
-        () -> OBJ_APP.getProp(null));
+    Assertions.assertThrows(RequireNonNullException.class, () -> OBJ_APP.getProp(null));
 
     // file not exist
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
     Assertions.assertThrows(NO_KEY_EX, () -> obj.getProp("testkey"));
 
     // key not exist : throwsExceptionWhenKeyDoesNotExist = true (APP)
-    Assertions.assertThrows(NO_KEY_EX,
-        () -> OBJ_APP.getProp("non-exist-key"));
+    Assertions.assertThrows(NO_KEY_EX, () -> OBJ_APP.getProp("non-exist-key"));
 
     // key exist
     Assertions.assertEquals("TEST_APP", OBJ_APP.getProp("TEST_KEY"));
@@ -108,8 +103,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     Assertions.assertEquals("TEST_APP", OBJ_APP.getProp(null, "TEST_KEY"));
 
     // locale is not null
-    Assertions.assertEquals("TEST_APP",
-        OBJ_APP.getProp(Locale.JAPAN, "TEST_KEY"));
+    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp(Locale.JAPAN, "TEST_KEY"));
   }
 
   public void duplicatedKeyTest() {
@@ -127,73 +121,58 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     PropertyFileUtilValueGetter none =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
     // argument: no-locale
-    Assertions.assertEquals("TEST_VALUE",
-        none.getProp(Locale.ROOT, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.ROOT, "TEST_KEY"));
     // argument: lang
-    Assertions.assertEquals("TEST_VALUE",
-        none.getProp(Locale.JAPANESE, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.JAPANESE, "TEST_KEY"));
     // argument: lang and country
-    Assertions.assertEquals("TEST_VALUE",
-        none.getProp(Locale.JAPAN, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.JAPAN, "TEST_KEY"));
 
     // # properties file: lang
 
     PropertyFileUtilValueGetter lang =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-lang"}});
     // argument: lang
-    Assertions.assertEquals("TEST_VALUE",
-        none.getProp(Locale.ENGLISH, "TEST_KEY"));
+    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.ENGLISH, "TEST_KEY"));
     // argument: other lang
-    Assertions.assertThrows(NO_KEY_EX,
-        () -> lang.getProp(Locale.JAPAN, "TEST_KEY"));
+    Assertions.assertThrows(NO_KEY_EX, () -> lang.getProp(Locale.JAPAN, "TEST_KEY"));
 
     // # properties file: none-and-lang
 
     PropertyFileUtilValueGetter noneAndLang =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
     // argument: lang
-    Assertions.assertEquals("it",
-        noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE"));
+    Assertions.assertEquals("it", noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE"));
     // argument: lang-country
-    Assertions.assertEquals("it",
-        noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE"));
+    Assertions.assertEquals("it", noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE"));
     // argument: other lang
-    Assertions.assertEquals("none",
-        noneAndLang.getProp(Locale.JAPANESE, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLang.getProp(Locale.JAPANESE, "FILE_LOCALE"));
     // argument: other lang-country
-    Assertions.assertEquals("none",
-        noneAndLang.getProp(Locale.JAPAN, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLang.getProp(Locale.JAPAN, "FILE_LOCALE"));
 
     // # properties file: none-and-langCountry
 
     PropertyFileUtilValueGetter noneAndLangCountry = new PropertyFileUtilValueGetter(
         new String[][] {new String[] {"test92-none-and-lang-country"}});
     // argument: lang
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
     // argument: lang (other lang)
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE"));
     // argument: langCountry
     Assertions.assertEquals("fr_CA",
         noneAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE"));
     // argument: langCountry (other country)
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
     // argument: langCountry (other lang)
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE"));
     // argument: langCountry (other lang, other country)
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
 
     // # properties file: none-and-lang-and-langCountry
 
     PropertyFileUtilValueGetter noneAndLangAndLangCountry = new PropertyFileUtilValueGetter(
         new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
     // argument: lang
-    Assertions.assertEquals("fr",
-        noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
+    Assertions.assertEquals("fr", noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
     // argument: lang (other lang)
     Assertions.assertEquals("none",
         noneAndLangAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE"));
@@ -201,18 +180,22 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     Assertions.assertEquals("fr_CA",
         noneAndLangAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE"));
     // argument: langCountry (other country)
-    Assertions.assertEquals("fr",
-        noneAndLangAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
+    Assertions.assertEquals("fr", noneAndLangAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
     // argument: langCountry (other lang)
     Assertions.assertEquals("none",
         noneAndLangAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE"));
     // argument: langCountry (other lang, other country)
-    Assertions.assertEquals("none",
-        noneAndLangAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
+    Assertions.assertEquals("none", noneAndLangAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
   }
 
-  // To read all the ".properties" files in library modules and multiple modules in projects of an
-  // app
+  // To read multiple kinds of ".properties"
+  // ({@code application, messages, enum_names, item_names, ValidationMessages,
+  // ValidationMessagesWithItemNames})</li>
+
+  // (no test)
+
+  // To read all the ".properties" files in library modules and multiple modules
+  // in projects of an app
 
   @Test
   public void fileKindTest() {
@@ -240,15 +223,21 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     // app_core_profile
     PropertyFileUtilValueGetter store =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true,
-        store.getPostfixes().contains("core_profile"));
+    Assertions.assertEquals(true, store.getPostfixes().contains("core_profile"));
 
     // inter-file key duplication
 
     PropertyFileUtilValueGetter dup = new PropertyFileUtilValueGetter(
         new String[][] {new String[] {"test92-duplicate-in-multiple-files"}});
-    Assertions.assertThrows(KeyDupliccatedException.class,
-        () -> dup.getProp("KEY1"));
+    Assertions.assertThrows(KeyDupliccatedException.class, () -> dup.getProp("KEY1"));
+  }
+
+  // To remove default locale from candidate locales
+  public void defaultLocaleRemovedFromLocaleCandidateTest() {
+    Locale.setDefault(Locale.ITALY);
+    PropertyFileUtilValueGetter noneAndLang =
+        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
+    Assertions.assertEquals("none", noneAndLang.getProp("FILE_LOCALE"));
   }
 
   // To avoid throwing an exception exen if message Keys do not exist
@@ -262,5 +251,26 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     // getProp : No exception occurs and return key plus alpha string
     Assertions.assertEquals("[ non-exist-key ]", OBJ_MSG.getProp("non-exist-key"));
   }
+
+  // To use "default" message by putting the postfix of the message ID ".default"
+
+  // (no test)
+
+  // To have the override function by java launch parameter (-D) or System.setProperty(...)
+
+  // (no test)
+
+  // To resolve property keys in the obtained value
+
+  @Test
+  public void resolvePropertyKeysInObtainedValueTest() {
+    Assertions.assertEquals("Hi, John.", OBJ_MSG.getProp(Locale.CANADA, "KEY_IN_VALUE_SAMPLE"));
+
+
+  }
+
+  // To resolve property keys in arguments</li>
+
+  // (no test)
 
 }

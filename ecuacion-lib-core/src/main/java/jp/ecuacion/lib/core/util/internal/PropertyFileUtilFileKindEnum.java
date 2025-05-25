@@ -39,18 +39,18 @@ package jp.ecuacion.lib.core.util.internal;
 public enum PropertyFileUtilFileKindEnum {
 
   /** application.properties. */
-  APP("application", new String[][] {new String[] {"application"}}, true),
+  APPLICATION("application", new String[][] {new String[] {"application"}}, true),
 
   /** 
    * messages.properties. 
    */
-  MSG("messages", new String[][] {new String[] {"messages"}}, false),
+  MESSAGES("messages", new String[][] {new String[] {"messages"}}, false),
 
   /** itemの名称を記述. */
-  ITEM_NAME("item_names", new String[][] {new String[] {"item_names"}}, false),
+  ITEM_NAMES("item_names", new String[][] {new String[] {"item_names"}}, false),
 
   /** enumの名称を記述. */
-  ENUM_NAME("enum_names", new String[][] {new String[] {"enum_names"}}, false),
+  ENUM_NAMES("enum_names", new String[][] {new String[] {"enum_names"}}, false),
 
   /** ValidationMessags */
   VALIDATION_MESSAGES("ValidationMessages", new String[][] {new String[] {"ValidationMessages"}},
