@@ -33,6 +33,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.EmbeddedParameterUtil;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -331,7 +332,8 @@ public class PropertyFileUtilValueGetter {
     // so exceptions occurring while analyzing string are changed to unchecked exceptions.
     try {
       List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
-          startSymbols.toArray(new String[startSymbols.size()]), "}");
+          startSymbols.toArray(new String[startSymbols.size()]), "}",
+          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
       // left of the pair starts with "{+" and ends with ":" but they're not needed
       return list.stream()

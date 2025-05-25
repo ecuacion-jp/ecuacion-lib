@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
@@ -27,12 +28,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class EmbeddedParameterUtilTest {
+
   @BeforeEach
   public void before() {}
 
   // methodize to shorten the method name
   private String getVar(String string) throws AppException {
-    return EmbeddedParameterUtil.getFirstFoundEmbeddedParameter(string, "${", "}");
+    return EmbeddedParameterUtil.getFirstFoundEmbeddedParameter(string, "${", "}", null);
+  }
+
+  private String getVarWithOpt(String string, Options options) throws AppException {
+    return EmbeddedParameterUtil.getFirstFoundEmbeddedParameter(string, "${", "}", options);
   }
 
   @Test
@@ -41,7 +47,7 @@ public class EmbeddedParameterUtilTest {
     // string empty
     Assertions.assertThrows(RequireNonNullException.class, () -> getVar(null));
     Assertions.assertEquals(null, getVar(""));
-    
+
     // parameter none
     Assertions.assertEquals(null, getVar("abc"));
 
@@ -87,12 +93,26 @@ public class EmbeddedParameterUtilTest {
     Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}${abc"));
     Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}abc${"));
     Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a}bc${"));
+
+    // ignoresEmergenceOfEndSymbolOnly == true
+
+    Options opt = new EmbeddedParameterUtil.Options().setIgnoresEmergenceOfEndSymbolOnly(true);
+    // end symbol only
+    Assertions.assertEquals(null, getVarWithOpt("}abc", opt));
+    Assertions.assertEquals(null, getVarWithOpt("a}bc", opt));
+    Assertions.assertEquals(null, getVarWithOpt("abc}", opt));
+    Assertions.assertEquals(null, getVarWithOpt("}a}bc}", opt));
+    Assertions.assertEquals("b", getVarWithOpt("}a}${b}c}", opt));
+    // end symbol before start symbol
+    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}${abc"));
+    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}abc${"));
+    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a}bc${"));
   }
 
   // methodize to shorten the method name
   private Pair<String, String> getVarWithMultipleStartSymbols(String string) throws AppException {
     return EmbeddedParameterUtil.getFirstFoundEmbeddedParameter(string, new String[] {"${+", "${-"},
-        "}");
+        "}", null);
   }
 
   @Test
@@ -110,52 +130,49 @@ public class EmbeddedParameterUtilTest {
     Assertions.assertEquals(Pair.of("${+", "ab"), getVarWithMultipleStartSymbols("${+ab}${+cd}"));
     Assertions.assertEquals(Pair.of("${+", "b"), getVarWithMultipleStartSymbols("a${+b}c${-d}e"));
     Assertions.assertEquals(Pair.of("${+", "b"), getVarWithMultipleStartSymbols("a${+b}c${+d}e"));
-    
+
     // wrong format
     Assertions.assertThrows(AppException.class, () -> getVarWithMultipleStartSymbols("a}c${+d}e"));
   }
 
   // methodize to shorten the method name
   private List<Pair<String, String>> getPartList(String string) throws AppException {
-    return EmbeddedParameterUtil.getPartList(string, new String[] {"${+", "${-"},
-        "}");
+    return EmbeddedParameterUtil.getPartList(string, new String[] {"${+", "${-"}, "}");
   }
-  
-  
+
+
   @Test
   public void getPartListTest() throws AppException {
     List<Pair<String, String>> rtn = null;
-    
+
     // parameter none
     rtn = getPartList("abc");
     Assertions.assertEquals(1, rtn.size());
     Assertions.assertEquals(Pair.of(null, "abc"), rtn.get(0));
-    
+
     // parameter 1
     rtn = getPartList("${+abc}");
     Assertions.assertEquals(1, rtn.size());
     Assertions.assertEquals(Pair.of("${+", "abc"), rtn.get(0));
-    
+
     rtn = getPartList("${+a}bc");
     Assertions.assertEquals(2, rtn.size());
     Assertions.assertEquals(Pair.of("${+", "a"), rtn.get(0));
     Assertions.assertEquals(Pair.of(null, "bc"), rtn.get(1));
-    
+
     rtn = getPartList("a${+bc}");
     Assertions.assertEquals(2, rtn.size());
     Assertions.assertEquals(Pair.of(null, "a"), rtn.get(0));
     Assertions.assertEquals(Pair.of("${+", "bc"), rtn.get(1));
-    
+
     rtn = getPartList("a${+b}c");
     Assertions.assertEquals(3, rtn.size());
     Assertions.assertEquals(Pair.of(null, "a"), rtn.get(0));
     Assertions.assertEquals(Pair.of("${+", "b"), rtn.get(1));
     Assertions.assertEquals(Pair.of(null, "c"), rtn.get(2));
-    
+
     // complicated pattern
     rtn = getPartList("");
-    
-    
   }
 
   public String getReplacedString(String string) throws AppException {
