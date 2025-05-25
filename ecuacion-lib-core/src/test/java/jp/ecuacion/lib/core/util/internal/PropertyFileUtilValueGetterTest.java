@@ -20,382 +20,247 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MS
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
-import org.assertj.core.api.Assertions;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter.KeyDupliccatedException;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter.NoKeyInPropertiesFileException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PropertyFileUtilValueGetterTest extends TestTools {
 
+  private PropertyFileUtilValueGetter obj;
+
+  private static final PropertyFileUtilValueGetter OBJ_APP = new PropertyFileUtilValueGetter(APP);
+  private static final PropertyFileUtilValueGetter OBJ_MSG = new PropertyFileUtilValueGetter(MSG);
+  private static final Class<NoKeyInPropertiesFileException> NO_KEY_EX =
+      NoKeyInPropertiesFileException.class;
+
+  @BeforeAll
+  public static void beforeAll() {
+    PropertyFileUtilValueGetter.addToDynamicPostfixList("test");
+  }
+
   @Test
   public void constructor_test() {
 
-    PropertyFileUtilValueGetter obj;
-    
     // argument: PropertyFileUtilFileKindEnum
-    
+
     // null
-    org.junit.jupiter.api.Assertions.assertThrows(RequireNonNullException.class,
+    Assertions.assertThrows(RequireNonNullException.class,
         () -> new PropertyFileUtilValueGetter((PropertyFileUtilFileKindEnum) null));
 
     // nonnull
-    obj = new PropertyFileUtilValueGetter(MSG);
-    org.junit.jupiter.api.Assertions.assertEquals("TEST_VALUE",
-        obj.getProp(Locale.CANADA, "TEST_KEY"));
-    
+    Assertions.assertEquals("TEST_VALUE",
+        OBJ_MSG.getProp(Locale.CANADA, "TEST_KEY"));
+
     // argument: String[][]
-    
+
     // null
-    org.junit.jupiter.api.Assertions.assertThrows(RequireNonNullException.class,
+    Assertions.assertThrows(RequireNonNullException.class,
         () -> new PropertyFileUtilValueGetter((String[][]) null));
-    
+
     // nonnull
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"messages"}});
-    org.junit.jupiter.api.Assertions.assertEquals("TEST_VALUE",
+    Assertions.assertEquals("TEST_VALUE",
         obj.getProp(Locale.CANADA, "TEST_KEY"));
   }
 
   @Test
-  public void test11_読み込みファイル種類_01_ecuacion_lib_xxx() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("lib_core")).isEqualTo(true);
+  public void hasProp_basicTest() {
+    // key is null
+    Assertions.assertThrows(NullPointerException.class,
+        () -> OBJ_MSG.hasProp(null));
+
+    // file not exist
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
+    Assertions.assertFalse(obj.hasProp("testkey"));
+
+    // key not exist
+    Assertions.assertFalse(OBJ_MSG.hasProp("non-exist-key"));
+
+    // key exists
+    Assertions.assertTrue(OBJ_MSG.hasProp("TEST_KEY"));
   }
 
   @Test
-  public void test11_読み込みファイル種類_02_ecuacion_splib_xxx() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("splib_web")).isEqualTo(true);
+  public void getProp_basicTest() {
+
+    // # argument: key
+
+    // key is null
+    Assertions.assertThrows(RequireNonNullException.class,
+        () -> OBJ_APP.getProp(null));
+
+    // file not exist
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
+    Assertions.assertThrows(NO_KEY_EX, () -> obj.getProp("testkey"));
+
+    // key not exist : throwsExceptionWhenKeyDoesNotExist = true (APP)
+    Assertions.assertThrows(NO_KEY_EX,
+        () -> OBJ_APP.getProp("non-exist-key"));
+
+    // key exist
+    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp("TEST_KEY"));
+
+    // # argument: locale, key
+
+    // locale is null
+    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp(null, "TEST_KEY"));
+
+    // locale is not null
+    Assertions.assertEquals("TEST_APP",
+        OBJ_APP.getProp(Locale.JAPAN, "TEST_KEY"));
   }
 
-  @Test
-  public void test11_読み込みファイル種類_03_個別プロジェクト用標準ファイル() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("")).isEqualTo(true);
-  }
-
-  @Test
-  public void test11_読み込みファイル種類_04_個別プロジェクト用base() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("base")).isEqualTo(true);
-  }
-
-  @Test
-  public void test11_読み込みファイル種類_05_個別プロジェクト用_profile() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("profile")).isEqualTo(true);
-  }
-
-  @Test
-  public void test11_読み込みファイル種類_06_個別プロジェクト用_core_profile() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertThat(store.getPostfixes().contains("core_profile")).isEqualTo(true);
-  }
-
-  @Test
-  public void test21_hasProp_01_key_01_keyがnull() {
-    try {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(APP);
-      store.hasProp(null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test21_hasProp_01_key_11_ファイルが存在しない場合() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
-
-    assertFalse(store.hasProp("testkey"));
-  }
-
-  @Test
-  public void test21_hasProp_01_key_12_キーが存在しない場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-
-    assertFalse(store.hasProp("non-exist-key"));
-  }
-
-  @Test
-  public void test21_hasProp_01_key_21_キーが存在する場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-
-    assertTrue(store.hasProp("TEST_KEY"));
-  }
-
-  @Test
-  public void test22_getProp_01_key_01_keyがnull() {
-    try {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(APP);
-      store.getProp(null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test22_getProp_01_key_11_ファイルが存在しない場合() {
-    try {
-      PropertyFileUtilValueGetter store =
-          new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
-      store.getProp("testkey");
-      fail();
-
-    } catch (RuntimeException rte) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test22_getProp_01_key_12_キーが存在しない場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-    Assertions.assertThat(store.getProp("non-exist-key")).isEqualTo("[ non-exist-key ]");
-  }
-
-  @Test
-  public void test22_getProp_01_key_21_キーが存在する場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-
-    Assertions.assertThat(store.getProp("TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test22_getProp_02_locale_key_01_localeがnull() {
-    try {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-      store.getProp(null, "TEST_KEY");
-
-    } catch (NullPointerException npe) {
-      fail();
-    }
-  }
-
-  @Test
-  public void test22_getProp_02_locale_key_02_keyがnull() {
-    try {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-      store.getProp(Locale.JAPAN, null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test22_getProp_02_locale_key_11_ファイルが存在しない場合() {
-    try {
-      PropertyFileUtilValueGetter store =
-          new PropertyFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
-      store.getProp(Locale.JAPAN, "testkey");
-      fail();
-
-    } catch (RuntimeException re) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test22_getProp_02_locale_key_12_キーが存在しない場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "non-exist-key"))
-        .isEqualTo("[ non-exist-key ]");
-  }
-
-  @Test
-  public void test22_getProp_02_locale_key_21_キーが存在する場合() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(MSG);
-
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test31_複数locale_01_ファイル_localeなしのみ_01_client_locale_なし() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
-
-    Assertions.assertThat(store.getProp(Locale.ROOT, "TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test31_複数locale_01_ファイル_localeなしのみ_02_client_locale_言語() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
-
-    Assertions.assertThat(store.getProp(Locale.JAPANESE, "TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test31_複数locale_01_ファイル_localeなしのみ_03_client_locale_言語and国() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
-
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "TEST_KEY")).isEqualTo("TEST_VALUE");
-  }
-
-  @Test
-  public void test31_複数locale_02_ファイル_locale_言語_01_client_locale_別言語() {
-    try {
-      PropertyFileUtilValueGetter store =
-          new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-lang"}});
-
-      store.getProp(Locale.JAPAN, "TEST_KEY");
-      fail();
-
-    } catch (RuntimeException re) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test31_複数locale_11_ファイル_localeなし_言語_01_client_locale_同一言語and国() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.ITALIAN, "FILE_LOCALE")).isEqualTo("it");
-  }
-
-  @Test
-  public void test31_複数locale_11_ファイル_localeなし_言語_02_client_locale_同一言語() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.ITALY, "FILE_LOCALE")).isEqualTo("it");
-  }
-
-  @Test
-  public void test31_複数locale_11_ファイル_localeなし_言語_03_client_locale_別言語and国() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_11_ファイル_localeなし_言語_04_client_locale_別言語() {
-    PropertyFileUtilValueGetter store =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_01_client_locale_同一言語and同一国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_02_client_locale_同一言語and別国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_03_client_locale_同一言語() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_04_client_locale_別言語and同一国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_05_client_locale_別言語and別国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_12_ファイル_localeなし_言語and国_06_client_locale_別言語() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_01_client_locale_同一言語and同一国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE")).isEqualTo("fr_CA");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_02_client_locale_同一言語and別国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.FRANCE, "FILE_LOCALE")).isEqualTo("fr");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_03_client_locale_同一言語() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.FRENCH, "FILE_LOCALE")).isEqualTo("fr");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_04_client_locale_別言語and同一国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.CANADA, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_05_client_locale_別言語and別国() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.JAPAN, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test31_複数locale_13_ファイル_localeなし_言語_言語and国_06_client_locale_別言語() {
-    PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    Assertions.assertThat(store.getProp(Locale.JAPANESE, "FILE_LOCALE")).isEqualTo("none");
-  }
-
-  @Test
-  public void test41_キー重複_01_同一ファイル内() {
-    // この場合、ResourceBundleの仕様上エラーにならないので注意。残念・・・
+  public void duplicatedKeyTest() {
+    // By the specification of "ResourceBundle", it's not an error.
     PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
         new String[][] {new String[] {"test92-duplicate-in-one-file"}});
     store.getProp("KEY2");
-    assertTrue(true);
   }
 
   @Test
-  public void test41_キー重複_02_複数ファイル間() {
-    try {
-      PropertyFileUtilValueGetter store = new PropertyFileUtilValueGetter(
-          new String[][] {new String[] {"test92-duplicate-in-multiple-files"}});
-      store.getProp("KEY1");
-      fail();
+  public void localeTest() {
 
-    } catch (RuntimeException re) {
-      assertTrue(true);
-    }
-  }
+    // # properties file: non-locale only
 
-  @Test
-  public void test41_キー重複_11_別locale() {
-    // これはエラーにしてはいけない
-    // この場合、ResourceBundleの仕様上エラーにならないので注意。残念・・・
-    PropertyFileUtilValueGetter store =
+    PropertyFileUtilValueGetter none =
+        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
+    // argument: no-locale
+    Assertions.assertEquals("TEST_VALUE",
+        none.getProp(Locale.ROOT, "TEST_KEY"));
+    // argument: lang
+    Assertions.assertEquals("TEST_VALUE",
+        none.getProp(Locale.JAPANESE, "TEST_KEY"));
+    // argument: lang and country
+    Assertions.assertEquals("TEST_VALUE",
+        none.getProp(Locale.JAPAN, "TEST_KEY"));
+
+    // # properties file: lang
+
+    PropertyFileUtilValueGetter lang =
+        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-lang"}});
+    // argument: lang
+    Assertions.assertEquals("TEST_VALUE",
+        none.getProp(Locale.ENGLISH, "TEST_KEY"));
+    // argument: other lang
+    Assertions.assertThrows(NO_KEY_EX,
+        () -> lang.getProp(Locale.JAPAN, "TEST_KEY"));
+
+    // # properties file: none-and-lang
+
+    PropertyFileUtilValueGetter noneAndLang =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    store.getProp("FILE_LOCALE");
-    assertTrue(true);
+    // argument: lang
+    Assertions.assertEquals("it",
+        noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE"));
+    // argument: lang-country
+    Assertions.assertEquals("it",
+        noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE"));
+    // argument: other lang
+    Assertions.assertEquals("none",
+        noneAndLang.getProp(Locale.JAPANESE, "FILE_LOCALE"));
+    // argument: other lang-country
+    Assertions.assertEquals("none",
+        noneAndLang.getProp(Locale.JAPAN, "FILE_LOCALE"));
+
+    // # properties file: none-and-langCountry
+
+    PropertyFileUtilValueGetter noneAndLangCountry = new PropertyFileUtilValueGetter(
+        new String[][] {new String[] {"test92-none-and-lang-country"}});
+    // argument: lang
+    Assertions.assertEquals("none",
+        noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
+    // argument: lang (other lang)
+    Assertions.assertEquals("none",
+        noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE"));
+    // argument: langCountry
+    Assertions.assertEquals("fr_CA",
+        noneAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE"));
+    // argument: langCountry (other country)
+    Assertions.assertEquals("none",
+        noneAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
+    // argument: langCountry (other lang)
+    Assertions.assertEquals("none",
+        noneAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE"));
+    // argument: langCountry (other lang, other country)
+    Assertions.assertEquals("none",
+        noneAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
+
+    // # properties file: none-and-lang-and-langCountry
+
+    PropertyFileUtilValueGetter noneAndLangAndLangCountry = new PropertyFileUtilValueGetter(
+        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
+    // argument: lang
+    Assertions.assertEquals("fr",
+        noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE"));
+    // argument: lang (other lang)
+    Assertions.assertEquals("none",
+        noneAndLangAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE"));
+    // argument: langCountry
+    Assertions.assertEquals("fr_CA",
+        noneAndLangAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE"));
+    // argument: langCountry (other country)
+    Assertions.assertEquals("fr",
+        noneAndLangAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE"));
+    // argument: langCountry (other lang)
+    Assertions.assertEquals("none",
+        noneAndLangAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE"));
+    // argument: langCountry (other lang, other country)
+    Assertions.assertEquals("none",
+        noneAndLangAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE"));
   }
+
+  // To read all the ".properties" files in library modules and multiple modules in projects of an
+  // app
+
+  @Test
+  public void fileKindTest() {
+
+    // ecuacion_lib_xxx
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true, obj.getPostfixes().contains("lib_core"));
+
+    // ecuacion_splib_xxx
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true, obj.getPostfixes().contains("splib_web"));
+
+    // app
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true, obj.getPostfixes().contains(""));
+
+    // app-base
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true, obj.getPostfixes().contains("base"));
+
+    // app_profile
+    obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true, obj.getPostfixes().contains("profile"));
+
+    // app_core_profile
+    PropertyFileUtilValueGetter store =
+        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
+    Assertions.assertEquals(true,
+        store.getPostfixes().contains("core_profile"));
+
+    // inter-file key duplication
+
+    PropertyFileUtilValueGetter dup = new PropertyFileUtilValueGetter(
+        new String[][] {new String[] {"test92-duplicate-in-multiple-files"}});
+    Assertions.assertThrows(KeyDupliccatedException.class,
+        () -> dup.getProp("KEY1"));
+  }
+
+  // To avoid throwing an exception exen if message Keys do not exist
+  @Test
+  public void throwsExceptionWhenKeyDoesNotExistIsFalseTest() {
+    // key not exist : throwsExceptionWhenKeyDoesNotExist = false (MSG)
+
+    // hasProp : false
+    Assertions.assertEquals(false, OBJ_MSG.hasProp("non-exist-key"));
+
+    // getProp : No exception occurs and return key plus alpha string
+    Assertions.assertEquals("[ non-exist-key ]", OBJ_MSG.getProp("non-exist-key"));
+  }
+
 }
