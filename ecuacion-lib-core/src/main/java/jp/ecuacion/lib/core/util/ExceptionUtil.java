@@ -122,7 +122,7 @@ public class ExceptionUtil {
 
       } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
-        rtnList.add(PropertyFileUtil.getMsg(locale, ex.getMessageId(), ex.getMessageArgs()));
+        rtnList.add(PropertyFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs()));
 
       } else if (th instanceof ValidationAppException) {
         ValidationAppException ex = (ValidationAppException) th;

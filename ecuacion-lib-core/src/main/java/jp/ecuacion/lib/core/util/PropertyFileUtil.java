@@ -211,6 +211,7 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
+  @Deprecated
   public static String getApp(@RequireNonnull String key) {
     return getterMap.get(APP).getProp(key);
   }
@@ -222,6 +223,7 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
+  @Deprecated
   public static boolean hasApp(@RequireNonnull String key) {
     return getterMap.get(APP).hasProp(key);
   }
@@ -256,6 +258,7 @@ public class PropertyFileUtil {
    * @return the value (message) of the property key (message ID)
    */
   @Nonnull
+  @Deprecated
   public static String getMsg(@RequireNonnull String key, @Nonnull String... args) {
     return getMessage(key, args);
   }
@@ -270,6 +273,7 @@ public class PropertyFileUtil {
    * @return the value (message) of the property key (message ID)
    */
   @Nonnull
+  @Deprecated
   public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
       @Nonnull String... args) {
     return getMessage(locale, key, args);
@@ -286,6 +290,7 @@ public class PropertyFileUtil {
    * @return the value (message) of the property key (message ID)
    */
   @Nonnull
+  @Deprecated
   public static String getMsg(@RequireNonnull String key, @RequireNonnull Arg[] args) {
     return getMessage(key, args);
   }
@@ -303,6 +308,7 @@ public class PropertyFileUtil {
    * @return the message corresponding to the message ID
    */
   @Nonnull
+  @Deprecated
   public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull Arg[] args) {
     return getMessage(locale, key, args);
@@ -314,6 +320,7 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key (message ID)
    */
+  @Deprecated
   public static boolean hasMsg(@RequireNonnull String key) {
     return hasMessage(key);
   }
