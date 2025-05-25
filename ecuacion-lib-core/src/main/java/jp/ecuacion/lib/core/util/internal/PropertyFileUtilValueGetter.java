@@ -123,7 +123,7 @@ public class PropertyFileUtilValueGetter {
    * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
-    this.filePrefixes = Objects.requireNonNull(filePrefixes);
+    this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
   }
 
@@ -207,7 +207,7 @@ public class PropertyFileUtilValueGetter {
     // The program reaches here means key not exist in properties files.
     // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
     // 失敗したときはRuntimeExceptionとしておく
-    throw new NoKeyInPropertiesFileException("No key in .properties. key: " + key);
+    throw new NoKeyInPropertiesFileException(key);
   }
 
   /*
@@ -292,7 +292,7 @@ public class PropertyFileUtilValueGetter {
     for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
       if (entry.getValue() != null && entry.getValue().containsKey(key)) {
         if (messageString != null) {
-          throw new EclibRuntimeException("Key '" + key + "' in properties file duplicated. ");
+          throw new KeyDupliccatedException(key);
         }
 
         messageString = entry.getValue().getString(key);
@@ -425,12 +425,21 @@ public class PropertyFileUtilValueGetter {
     }
   }
 
-  private static class NoKeyInPropertiesFileException extends EclibRuntimeException {
+  public static class NoKeyInPropertiesFileException extends EclibRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public NoKeyInPropertiesFileException(String message) {
-      super(message);
+    public NoKeyInPropertiesFileException(String key) {
+      super("No key in .properties. key: " + key);
+    }
+  }
+
+  public static class KeyDupliccatedException extends EclibRuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    public KeyDupliccatedException(String key) {
+      super("Duplicated key in .properties. key: " + key);
     }
   }
 }
