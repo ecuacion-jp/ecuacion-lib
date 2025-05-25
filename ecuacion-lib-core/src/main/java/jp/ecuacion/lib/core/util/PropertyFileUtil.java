@@ -45,12 +45,13 @@ import org.apache.commons.lang3.StringUtils;
  * <p>It has following features added to {@code ResourceBundle} class packaged in JRE.</p>
  * 
  * <ol>
- * <li>To read all the ".properties" files in library modules 
- *     and multiple modules in projects of an app.</li>
  * <li>To read multiple kinds of ".properties" 
  *     ({@code application, messages, enum_names, item_names, ValidationMessages, 
  *     ValidationMessagesWithItemNames})</li>
+ * <li>To read all the ".properties" files in library modules 
+ *     and multiple modules in projects of an app.</li>
  * <li>To remove default locale from candidate locales</li>
+ * <li>To avoid throwing an exception exen if message Keys do not exist</li>
  * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
  * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
  * <li>To resolve property keys in the obtained value</li>
@@ -58,27 +59,7 @@ import org.apache.commons.lang3.StringUtils;
  * </ol>
  * <br>
  * 
- * <p><b>1. To read all the ".properties" files in library modules
- *     and multiple modules in app projects</b><br><br>
- *     If we talk about {@code messages[_xxx].properties}, 
- *     this class reads ones in ecuacion libraries, and ones in your apps.<br>
- *     In ecuacion libraries an app is assumed to devided to some modules
- *     (=usually called "projects" in IDE), 
- *     which are {@code base}, {@code core}, {@code web (or none)}, {@code batch}.<br><br>
- *     If the name of your app is {@code sample-app}, module names would be :<br>
- *     {@code sample-app-base : messages_base.properties}<br>
- *     {@code sample-app-core : messages_core.properties}<br>
- *     {@code sample-app-web  : messages.properties}<br>
- *     {@code sample-app-batch: messages.properties}<br><br>
- *     
- *     {@code PropertyFileUtil.getMsg(...)} will read all the messages properties above.<br>
- *     Duplicated definition detectable. (causes throwing exception)<br><br>
- *     And of course you can use localized files like {@code messages_core_ja.properties}
- *     because This class uses {@code ResourceBundle} inside to read properties files.
- * </p>
- * <br>
- * 
- * <p><b>2. To read multiple kinds of ".properties" 
+ * <p><b>1. To read multiple kinds of ".properties" 
  *     (application, messages, enum_names, item_names)</b><br><br>
  *     Firstly, In {@code ecuacion-lib} we have 4 kinds of property files.<br><br>
  *     
@@ -120,6 +101,26 @@ import org.apache.commons.lang3.StringUtils;
  * </table>
  * <br>
  * 
+ * <p><b>2. To read all the ".properties" files in library modules
+ *     and multiple modules in app projects</b><br><br>
+ *     If we talk about {@code messages[_xxx].properties}, 
+ *     this class reads ones in ecuacion libraries, and ones in your apps.<br>
+ *     In ecuacion libraries an app is assumed to devided to some modules
+ *     (=usually called "projects" in IDE), 
+ *     which are {@code base}, {@code core}, {@code web (or none)}, {@code batch}.<br><br>
+ *     If the name of your app is {@code sample-app}, module names would be :<br>
+ *     {@code sample-app-base : messages_base.properties}<br>
+ *     {@code sample-app-core : messages_core.properties}<br>
+ *     {@code sample-app-web  : messages.properties}<br>
+ *     {@code sample-app-batch: messages.properties}<br><br>
+ *     
+ *     {@code PropertyFileUtil.getMsg(...)} will read all the messages properties above.<br>
+ *     Duplicated definition detectable. (causes throwing exception)<br><br>
+ *     And of course you can use localized files like {@code messages_core_ja.properties}
+ *     because This class uses {@code ResourceBundle} inside to read properties files.
+ * </p>
+ * <br>
+ * 
  * <p><b>3. To remove default locale from candidate locales</b><br><br>
  *     Java Standard {@code ResourceBundle} uses default locale 
  *     (which is obtained by {@code Locale.getDefault()}) 
@@ -130,14 +131,25 @@ import org.apache.commons.lang3.StringUtils;
  * </p>
  * <br>
  * 
- * <p><b>4. To use "default" message by putting the postfix of the message ID ".default"</b><br><br>
+ * <p><b>4. To avoid throwing an exception exen if message Keys do not exist</b><br><br>
+ *     Since application.properties has settings, exception should be thrown 
+ *     when an assumed key does not exist.<br>
+ *     On the other hand, since messages.properties has messages only 
+ *     and even if it's shown on the screen, it's weird but not very fatal,
+ *     furthermore it's better when developing because which messages are not defined
+ *     (System error screen has no concrete information),
+ *     so exception should not be thrown and just show the message key.<br><br>
+ *     This feature offers shown key on screen with non-application properties.</p>
+ *     
+ * 
+ * <p><b>5. To use "default" message by putting the postfix of the message ID ".default"</b><br><br>
  * </p>
  * 
- * <p><b>5. To Have the override function by java launch parameter (-D) 
+ * <p><b>6. To Have the override function by java launch parameter (-D) 
  *     or System.setProperty(...)</b><br><br>
  * </p>
  * 
- * <p><b>6. To resolve property keys in the obtained value</b><br><br>
+ * <p><b>7. To resolve property keys in the obtained value</b><br><br>
  *     You can put a property key into a property value.<br>
  *     For example, you can define keys and values like this in {@code messages.properties}. 
  *     By executing {@code PropertyFileUtil.getMsg("message")} you'll get {@code "a-b-c"}.</p>
