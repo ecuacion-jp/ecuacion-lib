@@ -21,14 +21,14 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws {@code RequireNonEmptyException}
- *     when the annotated arguments is empty. (= {@code null or blank("")})
+ * Designates that the method throws RequireSizeNonZeroException 
+ *     when the length of the annotated list or array is zero.
  * 
  * <p>This annnotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
  */
 @Documented
 @Retention(RUNTIME)
-public @interface RequireNonempty {
+public @interface RequireSizeNonzero {
 
 }

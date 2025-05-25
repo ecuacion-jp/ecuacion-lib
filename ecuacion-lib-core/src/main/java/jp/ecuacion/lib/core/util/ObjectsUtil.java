@@ -16,13 +16,18 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
+import jp.ecuacion.lib.core.annotation.RequireElementNonempty;
+import jp.ecuacion.lib.core.annotation.RequireElementNonnull;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.core.exception.unchecked.RequireNonEmptyException;
+import jp.ecuacion.lib.core.annotation.RequireSizeNonzero;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods for {@code Objects.requireNonnull} and other checks.
@@ -41,25 +46,27 @@ public class ObjectsUtil {
   private ObjectsUtil() {}
 
   /**
-   * Validates the argument is not {@code null} and throws {@code NullPointerException} 
-   * if {@code null}.
-   * 
-   * <p>This is used for arguments of the method or constructor parameters 
-   *     as you can see it from the name of the method.</p>
+   * Validates the argument is not {@code null}  
+   *     and throws {@code RequireNonNullException} 
+   *     if the argument value does not match the condition.
    * 
    * @param <T> The class of the argument
    * @param object Any object
    * @return the argument
    */
   @Nonnull
-  public static <T> T paramRequireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-        + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
+  public static <T> T requireNonNull(@RequireNonnull T object) {
+    if (object == null) {
+      throw new RequireNonNullException();
+    }
+
+    return object;
   }
 
   /**
-   * Validates multiple arguments are not {@code null} and throws {@code NullPointerException} 
-   * if {@code null}.
+   * Validates multiple arguments are not {@code null}  
+   *     and throws {@code RequireNonNullException} 
+   *     if arguments value do not match the condition.
    * 
    * <p>This is used to validate multiple arguments at one time.</p>
    * 
@@ -68,114 +75,310 @@ public class ObjectsUtil {
    * @param objects Any objects
    */
   @Nonnull
-  public static void paramRequireNonNull(@RequireNonnull Object object1,
-      @RequireNonnull Object object2, @RequireNonnull Object... objects) {
+  public static void requireNonNull(@RequireNonnull Object object1, @RequireNonnull Object object2,
+      @RequireNonnull Object... objects) {
 
     Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
 
     for (Object object : allObjects) {
-      Objects.requireNonNull(object, EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-          + "ObjectsUtil#paramRequireNonNull(Object) : the argument is null.");
+      requireNonNull(object);
     }
   }
 
-
   /**
-   * Validates the return value is not {@code null} and throws {@code NullPointerException} 
-   * if {@code null}.
-   * 
-   * <p>This is used for return values of the method or constructor parameters 
-   *     as you can see it from the name of the method.</p>
-   * 
-   * @param <T> The class of the argument
-   * @param object Any object
-   * @return the argument
-   */
-  @Nonnull
-  public static <T> T returnRequireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object,
-        EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-            + "ObjectsUtil#returnRequireNonNull(Object) : the return value: "
-            + object.getClass().getName() + "is null.");
-  }
-
-  /**
-   * Validates the variable is not {@code null} and throws {@code NullPointerException} 
-   * if {@code null}.
-   * 
-   * @param <T> The class of the argument
-   * @param object Any object
-   * @return the argument
-   */
-  @Nonnull
-  public static <T> T requireNonNull(@RequireNonnull T object) {
-    return Objects.requireNonNull(object,
-        EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-            + "ObjectsUtil#requireNonNull(Object) : the variable: " + object.getClass().getName()
-            + "is null.");
-  }
-
-  /**
-   * Validates the variable is not {@code null} or {@code blank("")} 
-   *     and throws {@code RequireNonEmptyException}.
+   * Validates the argument is not {@code null} or {@code blank("")}  
+   *     and throws {@code RequireNonEmptyException} 
+   *     if the argument value does not match the condition.
    *     
-   * <p>It is valid only for String. 
-   *     For other datatatypes it's better to use {@code requireNonnull(Object)}.
-   *     But it's too strict for this method to throw an exception when the datatype is not String,
-   *     so then validate whether it's null or not and throw the same exception if null.</p>
-   * 
-   * @param <T> The class of the argument
-   * @param object Any object
+   * @param string Any string 
    * @return the argument
    */
   @Nonnull
-  public static <T> T requireNonEmpty(@RequireNonempty T object) {
+  public static String requireNonEmpty(@RequireNonempty String string) {
 
-    if (object == null || (object instanceof String && ((String) object).equals(""))) {
+    if (string == null || string.equals("")) {
       throw new RequireNonEmptyException();
     }
-    
-    return object;
+
+    return string;
   }
 
   /**
-   * Validates the length of the param array is not zero 
-   * and throws {@code IllegalArgumentException} if zero.
+   * Validates multiple arguments are not {@code null} or {@code blank("")}  
+   *     and throws {@code RequireNonEmptyException} 
+   *     if arguments value do not match the condition.
+   *     
+   * @param string1 Any string
+   * @param string2 Any string
+   * @param strings Any strings
+   */
+  @Nonnull
+  public static void requireNonEmpty(@RequireNonempty String string1,
+      @RequireNonempty String string2, @RequireNonempty String... strings) {
+
+    String[] allStrings = ArrayUtils.addAll(strings, string1, string2);
+
+    for (String string : allStrings) {
+      requireNonEmpty(string);
+    }
+  }
+
+  /**
+   * Validates the length of an array is not zero 
+   *     and throws {@code RequireSizeNonZeroException} 
+   *     if the argument value does not match the condition.
    * 
    * @param <T> The class of the argument array
-   * @param objects Any object
+   * @param objects Any object, {@code null} is acceptable.
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] paramSizeNonZero(@RequireNonnull T[] objects) {
-    ObjectsUtil.paramRequireNonNull(objects);
-
-    if (objects.length == 0) {
-      throw new IllegalArgumentException(EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-          + "ObjectsUtil#paramSizeNonZero(T[]) : The length of the array is zero.");
-    }
+  public static <T> T[] requireSizeNonZero(@RequireSizeNonzero T[] objects) {
+    requireSizeNonZero(Arrays.asList(objects));
 
     return objects;
   }
 
-
   /**
-   * Validates the size of the para collection is not zero 
-   * and throws {@code IllegalArgumentException} if zero.
+   * Validates the length of a collection is not zero 
+   *     and throws {@code RequireSizeNonZeroException} 
+   *     if the argument value does not match the condition.
    * 
    * @param <T> The class of the argument collection
-   * @param colleciton Any colleciton
+   * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
   @Nonnull
-  public static <T> Collection<T> paramSizeNonZero(@RequireNonnull Collection<T> colleciton) {
-    ObjectsUtil.paramRequireNonNull(colleciton);
+  public static <T> Collection<T> requireSizeNonZero(@RequireSizeNonzero Collection<T> collection) {
 
-    if (colleciton.size() == 0) {
-      throw new IllegalArgumentException(EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX
-          + "ObjectsUtil#paramSizeNonZero(Collection<T>) : The size of the collection is zero.");
+    if (collection != null && collection.size() == 0) {
+      throw new RequireSizeNonZeroException();
     }
 
-    return colleciton;
+    return collection;
+  }
+
+  /**
+   * Validates elements of an array is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument array
+   * @param objects Any object, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T[] requireElementNonNull(@RequireElementNonnull T[] objects) {
+    requireElementNonNull(Arrays.asList(objects));
+
+    return objects;
+  }
+
+  /**
+   * Validates elements of a collection is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument collection
+   * @param collection Any collection, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> Collection<T> requireElementNonNull(
+      @RequireElementNonnull Collection<T> collection) {
+
+    if (collection != null) {
+      for (T object : collection) {
+        if (object == null) {
+          throw new RequireElementNonNullException();
+        }
+      }
+    }
+
+    return collection;
+  }
+
+  /**
+   * Validates elements of an array is not {@code null} 
+   *     and throws {@code RequireElementNonEmptyException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param strings Any strings, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static String[] requireElementNonEmpty(@RequireElementNonempty String[] strings) {
+
+    if (strings != null) {
+      for (String string : strings) {
+        if (StringUtils.isEmpty(string)) {
+          throw new RequireElementNonEmptyException();
+        }
+      }
+    }
+
+    return strings;
+  }
+
+  /**
+   * Validates elements of a collection is not {@code null} 
+   *     and throws {@code RequireElementNonEmptyException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param collection Any collection, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static Collection<String> requireElementNonEmpty(
+      @RequireElementNonempty Collection<String> collection) {
+    requireElementNonEmpty(collection.toArray(new String[collection.size()]));
+
+    return collection;
+  }
+
+  /**
+   * Validates elements of an array is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument array
+   * @param objects Any object, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> T[] requireElementsNonDuplicated(@RequireElementNonnull T[] objects) {
+    requireElementsNonDuplicated(Arrays.asList(objects));
+
+    return objects;
+  }
+
+  /**
+   * Validates elements of a collection is not {@code null} 
+   *     and throws {@code RequireElementNonNullException} 
+   *     if the argument value does not match the condition.
+   * 
+   * @param <T> The class of the argument collection
+   * @param collection Any collection, {@code null} is acceptable.
+   * @return the argument
+   */
+  @Nonnull
+  public static <T> Collection<T> requireElementsNonDuplicated(
+      @RequireElementNonnull Collection<T> collection) {
+
+    Set<T> set = new HashSet<>();
+    if (collection != null) {
+      for (T object : collection) {
+        if (set.contains(object)) {
+          throw new RequireElementsNonDuplicatedException();
+        }
+      }
+    }
+
+    return collection;
+  }
+
+  /**
+   * Is an abstract exception class.
+   */
+  public abstract static class ObjectsUtilException extends EclibRuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public ObjectsUtilException(String message) {
+      super(message);
+    }
+  }
+
+  /**
+   * Designates non-null is required.
+   */
+  public static class RequireNonNullException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireNonNullException() {
+      super("Non-null required.");
+    }
+  }
+
+  /**
+   * Designates non-empty is required.
+   */
+  public static class RequireNonEmptyException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireNonEmptyException() {
+      super("Non-empty required.");
+    }
+  }
+
+  /**
+   * Designates size non-zero is required.
+   */
+  public static class RequireSizeNonZeroException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireSizeNonZeroException() {
+      super("Size non-zero required.");
+    }
+  }
+
+  /**
+   * Designates element non-null is required.
+   */
+  public static class RequireElementNonNullException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireElementNonNullException() {
+      super("Element non-null required.");
+    }
+  }
+
+  /**
+   * Designates element non-empty is required.
+   */
+  public static class RequireElementNonEmptyException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireElementNonEmptyException() {
+      super("Element non-empty required.");
+    }
+  }
+
+  /**
+   * Designates elements value non-duplicated required.
+   */
+  public static class RequireElementsNonDuplicatedException extends ObjectsUtilException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Construct a new instance.
+     */
+    public RequireElementsNonDuplicatedException() {
+      super("Elements non-duplicated required.");
+    }
   }
 }

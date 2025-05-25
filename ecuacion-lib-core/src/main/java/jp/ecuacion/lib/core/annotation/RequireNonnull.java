@@ -21,12 +21,13 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws NullPointerException when the annotated arguments is null.
+ * Designates that the method throws {@code RequireNonNullException} 
+ *     when the annotated arguments is {@code null}.
  * 
  * <p>This is almost equal to {@code jakarta.annotation.Nonnull}, 
  *     but {@code @Nonnull} is analyzed by the IDE and IDE warns the nullable parameter.
- *     If you want to show that the method throws NullPointerException 
- *     when the annotated arguments is null, but NO IDE warning needed, 
+ *     If you want to show that the method throws {@code RequireNonNullException}  
+ *     when the annotated arguments is {@code null}, but NO IDE warning needed, 
  *     use {@code RequireNonnull}.</p>
  * 
  * <p>This annnotation does nothing. 

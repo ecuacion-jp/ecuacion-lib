@@ -21,14 +21,14 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws {@code RequireNonEmptyException}
- *     when the annotated arguments is empty. (= {@code null or blank("")})
+ * Designates that the method throws {@code RequireElementNonEmptyException}
+ *     when each element of annotated arrays or collections is empty. (= {@code null or blank("")})
  * 
  * <p>This annnotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
  */
 @Documented
 @Retention(RUNTIME)
-public @interface RequireNonempty {
+public @interface RequireElementNonempty {
 
 }

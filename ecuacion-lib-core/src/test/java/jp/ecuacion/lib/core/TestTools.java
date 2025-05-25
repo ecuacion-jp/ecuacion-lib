@@ -15,16 +15,10 @@
  */
 package jp.ecuacion.lib.core;
 
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 
 public class TestTools {
   
-  @BeforeAll
-  public static void beforeAll() {
-    PropertyFileUtilValueGetter.addToDynamicPostfixList("test");
-  }
 
   //
   // static importが面倒なので、test methodをここに定義しておく。

@@ -18,10 +18,11 @@ package jp.ecuacion.lib.core.exception.checked;
 import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Test21_21_exception_MultipleAppException extends TestTools {
+public class MultipleAppExceptionTest extends TestTools {
 
   @Test
   public void test01_コンストラクタ_01_list_01_引数がnull() {
@@ -30,7 +31,7 @@ public class Test21_21_exception_MultipleAppException extends TestTools {
       MultipleAppException ex = new MultipleAppException((List<SingleAppException>) null);
       fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
       assertTrue(true);
     }
   }

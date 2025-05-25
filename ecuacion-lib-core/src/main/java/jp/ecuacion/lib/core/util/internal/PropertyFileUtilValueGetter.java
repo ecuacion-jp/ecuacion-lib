@@ -30,7 +30,10 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -113,7 +116,7 @@ public class PropertyFileUtilValueGetter {
    * @param fileKindEnum fileKindEnum
    */
   public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
-    this.filePrefixes = ObjectsUtil.paramRequireNonNull(fileKindEnum).getActualFilePrefixes();
+    this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
 
@@ -123,7 +126,7 @@ public class PropertyFileUtilValueGetter {
    * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
-    this.filePrefixes = Objects.requireNonNull(filePrefixes);
+    this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
   }
 
@@ -166,7 +169,7 @@ public class PropertyFileUtilValueGetter {
    */
   @Nonnull
   private String getValue(@Nullable Locale locale, @RequireNonnull String key) {
-    ObjectsUtil.paramRequireNonNull(key);
+    ObjectsUtil.requireNonNull(key);
 
     String value = null;
 
@@ -179,15 +182,15 @@ public class PropertyFileUtilValueGetter {
     }
 
     // analyzes messageString
-    List<Pair<PropertyFileUtilFileKindEnum, String>> list = analyze(value);
+    List<Pair<String, String>> list = analyze(value);
     StringBuilder sb = new StringBuilder();
 
-    for (Pair<PropertyFileUtilFileKindEnum, String> tuple : list) {
+    for (Pair<String, String> tuple : list) {
       if (tuple.getLeft() == null) {
         sb.append(tuple.getRight());
 
       } else {
-        sb.append(PropertyFileUtil.get(tuple.getLeft().getFilePrefix(), tuple.getRight()));
+        sb.append(PropertyFileUtil.get(tuple.getLeft(), tuple.getRight()));
       }
     }
 
@@ -207,7 +210,7 @@ public class PropertyFileUtilValueGetter {
     // The program reaches here means key not exist in properties files.
     // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
     // 失敗したときはRuntimeExceptionとしておく
-    throw new NoKeyInPropertiesFileException("No key in .properties. key: " + key);
+    throw new NoKeyInPropertiesFileException(key);
   }
 
   /*
@@ -254,7 +257,7 @@ public class PropertyFileUtilValueGetter {
   private ResourceBundle getResourceBundle(@RequireNonnull String bundleId,
       @Nullable Locale locale) {
 
-    ObjectsUtil.paramRequireNonNull(bundleId);
+    ObjectsUtil.requireNonNull(bundleId);
 
     if (locale == null) {
       locale = Locale.ROOT;
@@ -292,7 +295,7 @@ public class PropertyFileUtilValueGetter {
     for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
       if (entry.getValue() != null && entry.getValue().containsKey(key)) {
         if (messageString != null) {
-          throw new EclibRuntimeException("Key '" + key + "' in properties file duplicated. ");
+          throw new KeyDupliccatedException(key);
         }
 
         messageString = entry.getValue().getString(key);
@@ -321,57 +324,26 @@ public class PropertyFileUtilValueGetter {
    * @param string string
    * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
    */
-  private List<Pair<PropertyFileUtilFileKindEnum, String>> analyze(String string) {
-    final String startBracket = "{";
-    final String endBracket = "}";
-    List<Pair<PropertyFileUtilFileKindEnum, String>> list = new ArrayList<>();
+  private List<Pair<String, String>> analyze(String string) {
+    List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
+        .map(en -> "{+" + en.toString().toLowerCase() + ":").toList();
 
-    String stringLeft = string;
+    // properties files are not managed by users
+    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
+    try {
+      List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
+          startSymbols.toArray(new String[startSymbols.size()]), "}",
+          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-    while (true) {
-      int indexOfStartBracket = stringLeft.indexOf(startBracket);
-      int indexOfEndBracket = stringLeft.indexOf(endBracket);
+      // left of the pair starts with "{+" and ends with ":" but they're not needed
+      return list.stream()
+          .map(pair -> pair.getLeft() == null ? pair
+              : Pair.of(pair.getLeft().substring(2, pair.getLeft().length() - 1), pair.getRight()))
+          .toList();
 
-      if (indexOfStartBracket == -1) {
-        list.add(Pair.of(null, stringLeft));
-        break;
-      }
-
-      // the code below is executed when stringLeft contains the startBracket.
-
-      if (indexOfStartBracket > indexOfEndBracket) {
-        throw new EclibRuntimeException(
-            "startBracketFollowsEndBracket. the brackets in the string is somehow wrong. string: "
-                + stringLeft);
-      }
-
-      // front simple string part before startBracket
-      list.add(Pair.of(null, stringLeft.substring(0, indexOfStartBracket)));
-
-      String stringInBrackets =
-          stringLeft.substring(indexOfStartBracket + startBracket.length(), indexOfEndBracket);
-      PropertyFileUtilFileKindEnum fileKind = getFileKindFromStringInBrackets(stringInBrackets);
-
-      if (fileKind == null) {
-        list.add(Pair.of(null,
-            stringLeft.substring(indexOfStartBracket, indexOfEndBracket + endBracket.length())));
-
-      } else {
-        list.add(Pair.of(fileKind, stringInBrackets.split(":")[1]));
-      }
-
-      stringLeft = stringLeft.substring(indexOfEndBracket + endBracket.length());
+    } catch (AppException ex) {
+      throw new EclibRuntimeException(ex);
     }
-
-    return list;
-  }
-
-  private PropertyFileUtilFileKindEnum getFileKindFromStringInBrackets(String stringInBrackets) {
-    if (!stringInBrackets.contains(":")) {
-      return null;
-    }
-
-    return PropertyFileUtilFileKindEnum.getEnumFromFilePrefix(stringInBrackets.split(":")[0]);
   }
 
   /*
@@ -405,7 +377,7 @@ public class PropertyFileUtilValueGetter {
    */
   @Nonnull
   public String getProp(@Nullable Locale locale, @RequireNonnull String key) {
-    ObjectsUtil.paramRequireNonNull(key);
+    ObjectsUtil.requireNonNull(key);
 
     // msgIdが空だったらエラー
     if (key.equals("")) {
@@ -414,23 +386,32 @@ public class PropertyFileUtilValueGetter {
 
     try {
       return getValue(locale, key);
-      
+
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {
         throw ex;
 
       } else {
         return "[ " + key + " ]";
-      } 
+      }
     }
   }
 
-  private static class NoKeyInPropertiesFileException extends EclibRuntimeException {
+  public static class NoKeyInPropertiesFileException extends EclibRuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public NoKeyInPropertiesFileException(String message) {
-      super(message);
+    public NoKeyInPropertiesFileException(String key) {
+      super("No key in .properties. key: " + key);
+    }
+  }
+
+  public static class KeyDupliccatedException extends EclibRuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    public KeyDupliccatedException(String key) {
+      super("Duplicated key in .properties. key: " + key);
     }
   }
 }

@@ -46,6 +46,7 @@ import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
  */
 public class MailUtil {
   private static DetailLogger dtlLog = new DetailLogger(MailUtil.class);
+  private static final String APP_PREFIX = "jp.ecuacion.lib.core.mail.";
 
   /**
    * Prevents other classes from instantiating it.
@@ -77,17 +78,17 @@ public class MailUtil {
    */
   public static void sendErrorMail(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage) {
-    ObjectsUtil.paramRequireNonNull(throwable);
+    ObjectsUtil.requireNonNull(throwable);
 
-    List<String> errorMailAddressList = Arrays.asList(PropertyFileUtil
-        .getApp("jp.ecuacion.lib.core.mail.address-csv-on-system-error").split(","));
+    List<String> errorMailAddressList = Arrays.asList(
+        PropertyFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
 
     if (errorMailAddressList == null || errorMailAddressList.size() == 0) {
       return;
     }
 
-    String mailTitle = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.title-prefix")
-        + "A system error has occurred.";
+    String mailTitle =
+        PropertyFileUtil.getApplication("title-prefix") + "A system error has occurred.";
 
     // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
     // なので、もし上がったらRuntimeExceptionとしている。
@@ -119,10 +120,10 @@ public class MailUtil {
   @Nonnull
   public static void sendWarnMail(@Nullable String content,
       @RequireNonnull List<String> mailToList) {
-    ObjectsUtil.paramRequireNonNull(mailToList);
-    ObjectsUtil.paramSizeNonZero(mailToList);
+    ObjectsUtil.requireNonNull(mailToList);
+    ObjectsUtil.requireSizeNonZero(mailToList);
 
-    String envSpecStr = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.title-prefix");
+    String envSpecStr = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix");
 
     try {
       sendMailCommon(mailToList, (List<String>) null, envSpecStr + "Warn Message", content, true);
@@ -167,7 +168,7 @@ public class MailUtil {
   private static void sendMailCommon(@Nullable List<String> mailToList,
       @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content,
       boolean throwsException) throws Exception {
-    ObjectsUtil.paramRequireNonNull(title);
+    ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
     if ((mailToList == null || mailToList.size() == 0)
@@ -176,27 +177,26 @@ public class MailUtil {
           "Either mailToList or mailCcList need to have at least one element.");
     }
 
-    String mailFrom = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.sender");
-    String pass = PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.password");
+    String mailFrom = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.sender");
+    String pass = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.password");
 
     // サーバ接続設定
-    MailUtilEmailServer serverInfo =
-        new MailUtilEmailServer(PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.server"),
-            PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.port"),
-            (PropertyFileUtil.hasApp("jp.ecuacion.lib.core.mail.smtp.ssl-enabled")) ? Boolean
-                .parseBoolean(PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.ssl-enabled"))
-                : false,
-            Boolean.parseBoolean(
-                PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.authentication")),
-            Boolean.parseBoolean(
-                PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.checks-certificate")),
-            (PropertyFileUtil.hasApp("jp.ecuacion.lib.core.mail.smtp.bounce-address"))
-                ? PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.smtp.bounce-address")
-                : null);
+    MailUtilEmailServer serverInfo = new MailUtilEmailServer(
+        PropertyFileUtil.getApplication(APP_PREFIX + "smtp.server"),
+        PropertyFileUtil.getApplication(APP_PREFIX + "smtp.port"),
+        (PropertyFileUtil.hasApplication(APP_PREFIX + "smtp.ssl-enabled"))
+            ? Boolean.parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.ssl-enabled"))
+            : false,
+        Boolean.parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.authentication")),
+        Boolean
+            .parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.checks-certificate")),
+        (PropertyFileUtil.hasApplication(APP_PREFIX + "smtp.bounce-address"))
+            ? PropertyFileUtil.getApplication(APP_PREFIX + "smtp.bounce-address")
+            : null);
 
     // javaMail設定
-    boolean debug = (PropertyFileUtil.hasApp("jp.ecuacion.lib.core.mail.debug"))
-        ? Boolean.valueOf(PropertyFileUtil.getApp("jp.ecuacion.lib.core.mail.debug"))
+    boolean debug = (PropertyFileUtil.hasApplication(APP_PREFIX + "debug"))
+        ? Boolean.valueOf(PropertyFileUtil.getApplication(APP_PREFIX + "debug"))
         : false;
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, title, content,

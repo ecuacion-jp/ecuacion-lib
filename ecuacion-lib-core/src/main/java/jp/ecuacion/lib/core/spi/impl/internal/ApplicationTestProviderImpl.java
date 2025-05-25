@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.annotation;
+package jp.ecuacion.lib.core.spi.impl.internal;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import jp.ecuacion.lib.core.spi.ApplicationTestProvider;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-
-/**
- * Designates that the method throws {@code RequireNonEmptyException}
- *     when the annotated arguments is empty. (= {@code null or blank("")})
- * 
- * <p>This annnotation does nothing. 
- *     Just for the explanation of the implementation of the method to developers.</p>
- */
-@Documented
-@Retention(RUNTIME)
-public @interface RequireNonempty {
+public class ApplicationTestProviderImpl extends AbstractPropertyFileProviderImpl
+    implements ApplicationTestProvider {
 
 }

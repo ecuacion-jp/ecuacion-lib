@@ -24,6 +24,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
+import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ public class ValidationUtilTest {
       ValidationUtil.validateThenReturn(null);
       Assertions.fail();
 
-    } catch (NullPointerException npe) {
+    } catch (RequireNonNullException npe) {
     }
 
     // ordinal error occurred (Tests that error created)

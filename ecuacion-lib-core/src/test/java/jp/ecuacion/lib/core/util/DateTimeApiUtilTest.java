@@ -19,10 +19,11 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Test91_05_util_DateTimeApiUtil extends TestTools {
+public class DateTimeApiUtilTest extends TestTools {
 
   @BeforeEach
   public void before() {
@@ -42,7 +43,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
       DateTimeApiUtil.getLocalDateTimeDisplayString(null);
       fail();
 
-    } catch (NullPointerException ex) {
+    } catch (RequireNonNullException ex) {
 
     }
   }
@@ -62,7 +63,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
       DateTimeApiUtil.getLocalDateTimeDisplayString(null, ZoneOffset.UTC);
       fail();
 
-    } catch (NullPointerException ex) {
+    } catch (RequireNonNullException ex) {
 
     }
   }
@@ -91,7 +92,7 @@ public class Test91_05_util_DateTimeApiUtil extends TestTools {
       DateTimeApiUtil.getOffsetDateTimeDisplayString(null, ZoneOffset.UTC);
       fail();
 
-    } catch (NullPointerException ex) {
+    } catch (RequireNonNullException ex) {
 
     }
   }

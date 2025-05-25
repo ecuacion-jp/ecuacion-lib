@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class Test21_11_exception_BeanValidationAppException extends TestTools {
+public class BeanValidationAppExceptionTest extends TestTools {
 
   private ConstraintViolation<SampleObj> violation;
 
@@ -74,7 +74,7 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
   @Test
   public void test02_値の取得() {
     final String className = "jp.ecuacion.lib.core.exception.checked."
-        + "Test21_11_exception_BeanValidationAppException$SampleObj";
+        + "BeanValidationAppExceptionTest$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean bean = ex.getConstraintViolationBean();
@@ -101,9 +101,9 @@ public class Test21_11_exception_BeanValidationAppException extends TestTools {
   public void test12_toStringの取得() {
     String str = "message:null は許可されていません\n" + "annotation:jakarta.validation.constraints.NotNull\n"
         + "rootClassName:jp.ecuacion.lib.core.exception.checked."
-        + "Test21_11_exception_BeanValidationAppException$SampleObj\n"
+        + "BeanValidationAppExceptionTest$SampleObj\n"
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
-        + "Test21_11_exception_BeanValidationAppException$SampleObj\n"
+        + "BeanValidationAppExceptionTest$SampleObj\n"
         + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
     Assertions.assertThat(ex.toString()).isEqualTo(str);

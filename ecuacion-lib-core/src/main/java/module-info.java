@@ -76,7 +76,10 @@ module jp.ecuacion.lib.core {
   
   // for test
   opens jp.ecuacion.lib.core.util to org.hibernate.validator;
-  
+
+  uses jp.ecuacion.lib.core.spi.ApplicationTestProvider;
+  provides jp.ecuacion.lib.core.spi.ApplicationTestProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.ApplicationTestProviderImpl;
   uses jp.ecuacion.lib.core.spi.MessagesTestProvider;
   provides jp.ecuacion.lib.core.spi.MessagesTestProvider
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesTestProviderImpl;
