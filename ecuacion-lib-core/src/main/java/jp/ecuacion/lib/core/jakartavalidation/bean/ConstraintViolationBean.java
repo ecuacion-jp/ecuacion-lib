@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.Optional;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
  *     which are not created by {@code Jakarata Validation} can also be treated 
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean extends PrivateFieldReader {
+public class ConstraintViolationBean extends ReflectionUtil {
   private ConstraintViolation<?> cv;
   private String message;
   private String propertyPath;
@@ -169,7 +169,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       throws Exception {
 
     String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-    Field field = leafBean.getClass().getDeclaredField(fieldName);
+    Field field = getField(fieldName, leafBean);
     ItemIdClass an = field.getAnnotation(ItemIdClass.class);
     return an == null ? null : an.value();
   }
@@ -181,12 +181,12 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       if (cls == Object.class) {
         return null;
       }
-      
+
       ItemIdClass an = cls.getAnnotation(ItemIdClass.class);
       if (an != null) {
         return an.value();
       }
-      
+
       cls = cls.getSuperclass();
     }
   }
@@ -214,7 +214,7 @@ public class ConstraintViolationBean extends PrivateFieldReader {
         conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
         Object obj =
             getFieldValue((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
-                getInstance(), conditionValueKind);
+                getInstance());
         if (obj instanceof String[]) {
           valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);
 
@@ -236,8 +236,8 @@ public class ConstraintViolationBean extends PrivateFieldReader {
       String fieldHoldingConditionValueDisplayName =
           (String) paramMap.get("fieldHoldingConditionValueDisplayName");
       if (!fieldHoldingConditionValueDisplayName.equals("")) {
-        String[] strs = (String[]) getFieldValue(fieldHoldingConditionValueDisplayName,
-            getInstance(), "fieldHoldingConditionValueDisplayName");
+        String[] strs =
+            (String[]) getFieldValue(fieldHoldingConditionValueDisplayName, getInstance());
         valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
