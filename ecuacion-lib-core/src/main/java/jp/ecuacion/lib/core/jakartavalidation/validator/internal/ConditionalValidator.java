@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class ConditionalValidator extends PrivateFieldReader {
+public abstract class ConditionalValidator extends ReflectionUtil {
   private String[] field;
   private String conditionField;
   private String[] conditionValue;
@@ -71,7 +71,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
     List<Object> valueOfFieldList = Arrays.asList(field).stream()
-        .map(f -> getFieldValue(f, instance, VALIDATION_TARGET_FIELD)).toList();
+        .map(f -> getFieldValue(f, instance)).toList();
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
@@ -101,7 +101,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
   boolean getSatisfiesCondition(Object instance) {
 
-    Object valueOfConditionField = getFieldValue(conditionField, instance, CONDITION_FIELD);
+    Object valueOfConditionField = getFieldValue(conditionField, instance);
 
     if (conditionValueIsEmpty) {
       conditionValueIsNotEmptyMustBeFalse(CONDITION_VALUE_IS_EMPTY + " = true");
@@ -127,7 +127,7 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
       conditionValueMustBeNull(FIELD_HOLDING_CONDITION_VALUE);
 
       Object valueOfFieldHoldingConditionValue =
-          getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITION_VALUE);
+          getFieldValue(fieldHoldingConditionValue, instance);
 
       // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
       List<Object> valueOfFieldHoldingConditionValueList = new ArrayList<>();
