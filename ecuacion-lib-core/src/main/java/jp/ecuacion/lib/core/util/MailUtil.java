@@ -87,8 +87,8 @@ public class MailUtil {
       return;
     }
 
-    String mailTitle =
-        PropertyFileUtil.getApplication("title-prefix") + "A system error has occurred.";
+    String mailTitle = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix")
+        + "A system error has occurred.";
 
     // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
     // なので、もし上がったらRuntimeExceptionとしている。
