@@ -239,7 +239,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       // when fieldHoldingConditionValueDisplayName is not blank,
       // valuesOfConditionFieldToValidate is overrided by its value.
       String fieldHoldingConditionValueDisplayName =
-          (String) paramMap.get("fieldHoldingConditionValueDisplayName");
+          (String) paramMap.get(ConditionalValidator.VALUE_OF_CONDITION_VALUE_FIELD_FOR_DISPLAY);
       if (!fieldHoldingConditionValueDisplayName.equals("")) {
         String[] strs =
             (String[]) getFieldValue(fieldHoldingConditionValueDisplayName, getInstance());
@@ -251,9 +251,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
       // validatesWhenConditionNotSatisfied
       boolean bl = getAnnotation().endsWith("ConditionalEmpty")
-          && (Boolean) paramMap.get("notEmptyForOtherValues")
-          || getAnnotation().endsWith("ConditionalNotEmpty")
-              && (Boolean) paramMap.get("emptyForOtherValues");
+          && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY)
+          || getAnnotation().endsWith("ConditionalNotEmpty") && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY);
       paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
   }

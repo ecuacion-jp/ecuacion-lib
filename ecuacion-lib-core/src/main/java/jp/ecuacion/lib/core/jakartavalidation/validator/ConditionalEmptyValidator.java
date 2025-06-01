@@ -31,7 +31,7 @@ public class ConditionalEmptyValidator extends ConditionalValidator
     super.initialize(annotation.field(), annotation.conditionField(),
         annotation.conditionPattern(),
         annotation.conditionValueString(),
-        annotation.conditionValueField(), annotation.notEmptyForOtherValues());
+        annotation.conditionValueField(), annotation.notEmptyWhenConditionNotSatisfied());
   }
 
   @Override
