@@ -41,6 +41,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
   public static final String CONDITION_FIELD = "conditionField";
+  public static final String CONDITION_FIELD_ITEM_ID = "conditionFieldItemId";
+  public static final String CONDITION_FIELD_DISPLAY_NAME = "conditionFieldDisplayName";
   public static final String CONDITION_PATTERN = "conditionPattern";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_FIELD = "conditionValueField";

@@ -16,13 +16,45 @@
 package jp.ecuacion.lib.core.util.internal;
 
 import jakarta.annotation.Nonnull;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
  */
 public class ReflectionUtil {
+
+  /**
+   * Searches for a class annotation in the argument instance and its superClasses.
+   * 
+   * <p>The search starts at the argument instance, and if it doesn't have the annotation, 
+   *     It searches the superClass of the instance next.<br>
+   *     And if it continues to search the annotation and it reaches to Object.class,
+   *     it stops to search and returns empty Optional.</p>
+   *     
+   * <p>Search ends when it founds the first annotation.
+   *     Even if there is another anntation of same class, 
+   *     it ignores and it returns first-found annotation.
+   */
+  protected static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(Object instance,
+      Class<A> annotation) {
+    Class<?> cls = instance.getClass();
+    while (true) {
+      // No more ancestors
+      if (cls == Object.class) {
+        return Optional.empty();
+      }
+
+      A an = (A) cls.getAnnotation(annotation);
+      if (an != null) {
+        return Optional.of(an);
+      }
+
+      cls = cls.getSuperclass();
+    }
+  }
 
   /**
    * Obtains a field value with any scopes and searches fields in super classes.
