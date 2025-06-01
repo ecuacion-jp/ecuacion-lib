@@ -210,7 +210,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       ConditionPattern conditionPtn =
           (ConditionPattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
 
-      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionPtn);
+      paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
 
       String valuesOfConditionFieldToValidate = null;
       if (conditionPtn == valueOfConditionFieldIsEqualToValueOf
