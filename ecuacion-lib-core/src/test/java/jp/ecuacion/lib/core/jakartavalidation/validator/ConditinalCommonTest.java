@@ -47,64 +47,6 @@ public class ConditinalCommonTest {
   }
 
   @Test
-  public void multipleConditionsTest() {
-
-    // ValueAndIsEmpty
-    try {
-      ValidationUtil
-          .validateThenReturn(new ConditinalCommonTestBean.MultipleConditions.ValueAndIsEmpty());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-
-    // ValueAndIsNotEmpty
-    try {
-      ValidationUtil
-          .validateThenReturn(new ConditinalCommonTestBean.MultipleConditions.ValueAndIsNotEmpty());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-
-    // ValueAndFieldHoldingConditionValue
-    try {
-      ValidationUtil.validateThenReturn(
-          new ConditinalCommonTestBean.MultipleConditions.ValueAndFieldHoldingConditionValue());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-
-    // IsEmptyAndIsNotEmpty
-    try {
-      ValidationUtil.validateThenReturn(
-          new ConditinalCommonTestBean.MultipleConditions.IsEmptyAndIsNotEmpty());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-
-    // IsEmptyAndFieldHoldingConditionValue
-    try {
-      ValidationUtil.validateThenReturn(
-          new ConditinalCommonTestBean.MultipleConditions.IsEmptyAndFieldHoldingConditionValue());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-
-    // IsNotEmptyAndFieldHoldingConditionValue
-    try {
-      ValidationUtil.validateThenReturn(
-          new ConditinalCommonTestBean.MultipleConditions.IsNotEmptyAndFieldHoldingConditionValue());
-      Assertions.fail();
-    } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-    }
-  }
-
-  @Test
   public void validatesWhenConditionNotSatisfiedTest() {
 
     // true

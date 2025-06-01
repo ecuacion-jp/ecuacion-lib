@@ -24,6 +24,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,24 +49,25 @@ public class ValidationUtilTest {
     }
 
     // ordinal error occurred (Tests that error created)
-    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator()).ifPresent(mae -> {
-      Assertions.assertEquals(2, mae.getList().size());
-      ValidationAppException exNotNull = null;
-      ValidationAppException exMin = null;
-      for (SingleAppException singleEx : mae.getList()) {
-        ValidationAppException bvEx = (ValidationAppException) singleEx;
-        ConstraintViolationBean bean = bvEx.getConstraintViolationBean();
-        if (bean.getMessageId().equals(NOT_NULL)) {
-          exNotNull = bvEx;
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator())
+        .ifPresent(mae -> {
+          Assertions.assertEquals(2, mae.getList().size());
+          ValidationAppException exNotNull = null;
+          ValidationAppException exMin = null;
+          for (SingleAppException singleEx : mae.getList()) {
+            ValidationAppException bvEx = (ValidationAppException) singleEx;
+            ConstraintViolationBean bean = bvEx.getConstraintViolationBean();
+            if (bean.getMessageId().equals(NOT_NULL)) {
+              exNotNull = bvEx;
 
-        } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
-          exMin = bvEx;
-        }
-      }
+            } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
+              exMin = bvEx;
+            }
+          }
 
-      Assertions.assertFalse(exNotNull == null);
-      Assertions.assertFalse(exMin == null);
-    });
+          Assertions.assertFalse(exNotNull == null);
+          Assertions.assertFalse(exMin == null);
+        });
   }
 
   @Test
@@ -363,7 +365,9 @@ public class ValidationUtilTest {
       public int int1 = 2;
     }
 
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionFieldIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
       public String value = null;
@@ -432,7 +436,9 @@ public class ValidationUtilTest {
     }
 
     @ItemIdClass("itemIdClass")
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionFieldIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
       public String value = null;
@@ -482,7 +488,9 @@ public class ValidationUtilTest {
       public int int1 = 2;
     }
 
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionFieldIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator extends Parent {
       public String conditionValue = "abc";
       public String value = null;

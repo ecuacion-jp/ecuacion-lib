@@ -15,6 +15,11 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEqualToValueOf;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import java.lang.reflect.Field;
@@ -23,10 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
@@ -201,33 +206,33 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     // In the case of ConditionalXxx validator
     if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
-      String conditionValueKind;
+
+      ConditionPattern conditionPtn =
+          (ConditionPattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
+
+      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionPtn);
+
       String valuesOfConditionFieldToValidate = null;
-      if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_EMPTY;
+      if (conditionPtn == valueOfConditionFieldIsEqualToValueOf
+          || conditionPtn == valueOfConditionFieldIsNotEqualToValueOf) {
 
-      } else if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY)) {
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY;
-
-      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
-          .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-        conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
-        Object obj =
-            getFieldValue((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
-                getInstance());
-        if (obj instanceof String[]) {
-          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);
+        Object obj = getFieldValue(
+            (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_FIELD), getInstance());
+        if (obj instanceof Object[]) {
+          List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
+          valuesOfConditionFieldToValidate =
+              StringUtil.getCsvWithSpace((String[]) strList.toArray(new String[strList.size()]));
 
         } else {
           // String
-          valuesOfConditionFieldToValidate = (String) obj;
+          valuesOfConditionFieldToValidate = String.valueOf(obj);
         }
 
-      } else {
+      } else if (conditionPtn == stringValueOfConditionFieldIsEqualTo
+          || conditionPtn == stringValueOfConditionFieldIsNotEqualTo) {
         // conditionValue is used
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
-        String[] strs = (String[]) paramMap.get(conditionValueKind);
+        String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
         valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
@@ -241,7 +246,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
         valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
-      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
       paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
           valuesOfConditionFieldToValidate);
 
