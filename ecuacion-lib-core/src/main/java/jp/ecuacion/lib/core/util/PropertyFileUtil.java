@@ -37,7 +37,6 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -585,13 +584,6 @@ public class PropertyFileUtil {
     // get fieldName from field (for @ConditionalXxx)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
-      String itemIdClass = (argMap.containsKey("itemIdClass")
-          && StringUtils.isNotEmpty((String) argMap.get("itemIdClass")))
-              ? (String) argMap.get("itemIdClass")
-              : null;
-      final String className = itemIdClass == null ? ((String) argMap.get("leafClassName"))
-          .substring(((String) argMap.get("leafClassName")).lastIndexOf(".") + 1) : itemIdClass;
-
       // field -> fieldDisplayName
       key = "itemIds";
       newKey = "fieldDisplayName";
@@ -602,13 +594,12 @@ public class PropertyFileUtil {
       }
       argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
 
-      // conditionField -> conditionFieldDisplayName
-      key = ConditionalValidator.CONDITION_FIELD;
-      newKey = "conditionFieldDisplayName";
-      newValue = PropertyFileUtil.getItemName(locale, className + "." + argMap.get(key));
-      argMap.put(newKey, newValue);
+      // conditionFieldDisplayName
+      String val = (String) argMap.get(ConditionalValidator.CONDITION_FIELD_ITEM_ID);
+      argMap.put(ConditionalValidator.CONDITION_FIELD_DISPLAY_NAME,
+          val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
-      key = ConditionalValidator.CONDITION_VALUE_KIND;
+      key = ConditionalValidator.CONDITION_PATTERN;
       newKey = "conditionValueDescription";
       newValue = PropertyFileUtil.getMessage(locale, annotation + ".messagePart." + argMap.get(key),
           (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));

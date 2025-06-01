@@ -83,9 +83,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
-    getItemIdsFromConstraintViolation(cv);
-    paramMap.put("itemIds", itemIds);
-
     // put additional params to paramMap
     putAdditionalParamsToParamMap(cv);
   }
@@ -114,17 +111,51 @@ public class ConstraintViolationBean extends ReflectionUtil {
     annotationDescriptionString = "";
   }
 
-  private void getItemIdsFromConstraintViolation(ConstraintViolation<?> cv) {
-    String[] itemIdFields = null;
-    String itemIdClass = null;
+  private Optional<String> getItemIdClassFromAnnotation(boolean isClassValidator, Object leafBean,
+      String propertyPath) {
+    try {
+      // search for @ItemIdClass at field
+      if (!isClassValidator) {
+        String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+        Field field = getField(fieldName, leafBean);
+        ItemIdClass an = field.getAnnotation(ItemIdClass.class);
+        String value = an == null ? null : an.value();
+
+        if (value != null) {
+          return Optional.of(value);
+        }
+      }
+
+      Optional<ItemIdClass> an = searchAnnotationPlacedAtClass(leafBean, ItemIdClass.class);
+      return Optional.ofNullable(an.isPresent() ? an.get().value() : null);
+
+    } catch (Exception ex) {
+      throw new EclibRuntimeException(ex);
+    }
+  }
+
+  private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
+
+    // When localized messages are created, paramMap is an only parameter.
+    // So some values should be put into the map.
+    paramMap.put("leafClassName", getLeafClassName());
+    paramMap.put("invalidValue", getInvalidValue());
+    paramMap.put("annotation", getAnnotation());
+
+
 
     // checks if the validator is for class or field.
     boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
         .getAnnotation(PlacedAtClass.class) != null;
 
+    // itemIdClass
     Optional<String> itemIdClassFromAnnotation = getItemIdClassFromAnnotation(isClassValidator,
         cv.getLeafBean(), cv.getPropertyPath().toString());
     String defaultItemIdClass = null;
+
+    // itemIdField
+    String[] itemIdFields = null;
+
     if (isClassValidator) {
       // Reaching here means the annotation is added to class, not field.
       itemIdFields = (String[]) paramMap.get("field");
@@ -133,6 +164,11 @@ public class ConstraintViolationBean extends ReflectionUtil {
           ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
           : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
 
+      // conditionFieldItemId
+      String newValue = getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "."
+          + paramMap.get(ConditionalValidator.CONDITION_FIELD);
+      paramMap.put(ConditionalValidator.CONDITION_FIELD_ITEM_ID, newValue);
+      
     } else {
       // Reaching here means the annotation is added to field.
       // In that case propertyPath cannot be empty and the last part is always itemIdField.
@@ -143,66 +179,13 @@ public class ConstraintViolationBean extends ReflectionUtil {
           : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
     }
 
-    itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
-    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
-    final String finalItemIdClass = itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
-
+    // itemIds
+    final String finalItemIdClass =
+        getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass);
     List<String> itemIdList =
         Arrays.asList(itemIdFields).stream().map(field -> finalItemIdClass + "." + field).toList();
     itemIds = itemIdList.toArray(new String[itemIdList.size()]);
-  }
-
-  private Optional<String> getItemIdClassFromAnnotation(boolean isClassValidator, Object leafBean,
-      String propertyPath) {
-    try {
-      // search for @ItemIdClass at field
-      if (!isClassValidator) {
-        String value = getItemIdClassAtFieldFromAnnotation(leafBean, propertyPath);
-        if (value != null) {
-          return Optional.of(value);
-        }
-      }
-
-      return Optional.ofNullable(getItemIdClassAtClassFromAnnotation(leafBean));
-
-    } catch (Exception ex) {
-      throw new EclibRuntimeException(ex);
-    }
-  }
-
-  private String getItemIdClassAtFieldFromAnnotation(Object leafBean, String propertyPath)
-      throws Exception {
-
-    String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-    Field field = getField(fieldName, leafBean);
-    ItemIdClass an = field.getAnnotation(ItemIdClass.class);
-    return an == null ? null : an.value();
-  }
-
-  private String getItemIdClassAtClassFromAnnotation(Object leafBean) {
-    Class<?> cls = leafBean.getClass();
-    while (true) {
-      // No more ancestors
-      if (cls == Object.class) {
-        return null;
-      }
-
-      ItemIdClass an = cls.getAnnotation(ItemIdClass.class);
-      if (an != null) {
-        return an.value();
-      }
-
-      cls = cls.getSuperclass();
-    }
-  }
-
-  private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
-
-    // When localized messages are created, paramMap is an only parameter.
-    // So sume value are needed to put into the map.
-    paramMap.put("leafClassName", getLeafClassName());
-    paramMap.put("invalidValue", getInvalidValue());
-    paramMap.put("annotation", getAnnotation());
+    paramMap.put("itemIds", itemIds);
 
     // In the case of ConditionalXxx validator
     if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
@@ -210,7 +193,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       ConditionPattern conditionPtn =
           (ConditionPattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
 
-      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionPtn);
+      paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
 
       String valuesOfConditionFieldToValidate = null;
       if (conditionPtn == valueOfConditionFieldIsEqualToValueOf
@@ -239,7 +222,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       // when fieldHoldingConditionValueDisplayName is not blank,
       // valuesOfConditionFieldToValidate is overrided by its value.
       String fieldHoldingConditionValueDisplayName =
-          (String) paramMap.get("fieldHoldingConditionValueDisplayName");
+          (String) paramMap.get(ConditionalValidator.VALUE_OF_CONDITION_VALUE_FIELD_FOR_DISPLAY);
       if (!fieldHoldingConditionValueDisplayName.equals("")) {
         String[] strs =
             (String[]) getFieldValue(fieldHoldingConditionValueDisplayName, getInstance());
@@ -251,11 +234,20 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
       // validatesWhenConditionNotSatisfied
       boolean bl = getAnnotation().endsWith("ConditionalEmpty")
-          && (Boolean) paramMap.get("notEmptyForOtherValues")
-          || getAnnotation().endsWith("ConditionalNotEmpty")
-              && (Boolean) paramMap.get("emptyForOtherValues");
+          && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY)
+          || getAnnotation().endsWith("ConditionalNotEmpty") && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY);
       paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
+  }
+
+  private String getFinalItemIdClass(Optional<String> itemIdClassFromAnnotation,
+      String defaultItemIdClass) {
+    String itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
+
+    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
+    return itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
   }
 
   /**

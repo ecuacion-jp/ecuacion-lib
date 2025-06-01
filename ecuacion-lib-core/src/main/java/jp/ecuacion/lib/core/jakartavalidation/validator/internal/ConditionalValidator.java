@@ -41,12 +41,21 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
   public static final String CONDITION_FIELD = "conditionField";
-  public static final String CONDITION_PATTERN = "howToDetermineConditionIsValid";
+  public static final String CONDITION_FIELD_ITEM_ID = "conditionFieldItemId";
+  public static final String CONDITION_FIELD_DISPLAY_NAME = "conditionFieldDisplayName";
+  public static final String CONDITION_PATTERN = "conditionPattern";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_FIELD = "conditionValueField";
+  public static final String VALUE_OF_CONDITION_VALUE_FIELD_FOR_DISPLAY =
+      "valueOfConditionValueFieldForDisplay";
+
+  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY =
+      "notEmptyWhenConditionNotSatisfied";
+  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY =
+      "emptyWhenConditionNotSatisfied";
 
   // Used to create messages from conditional validators.
-  public static final String CONDITION_VALUE_KIND = "conditionValueKind";
+  // public static final String CONDITION_VALUE_KIND = "conditionValueKind";
   public static final String VALUE_OF_CONDITION_FIELD_TO_VALIDATE =
       "valuesOfConditionFieldToValidate";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =

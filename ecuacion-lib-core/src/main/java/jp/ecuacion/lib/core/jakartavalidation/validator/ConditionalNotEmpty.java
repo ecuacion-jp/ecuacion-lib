@@ -127,15 +127,15 @@ public @interface ConditionalNotEmpty {
    * 
    * @return String
    */
-  String fieldHoldingConditionValueDisplayName() default "";
-
+  String valueOfConditionValueFieldForDisplay() default "";
+  
   /**
    * Decides whether validation check is executed 
    *     when the value of {@code conditionField} is not equal to the specified value.
    * 
    * @return boolean
    */
-  boolean emptyForOtherValues() default false;
+  boolean emptyWhenConditionNotSatisfied() default false;
 
   /** 
    * Returns message ID.

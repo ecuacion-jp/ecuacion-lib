@@ -54,7 +54,7 @@ public class ConditinalCommonTestBean {
 
     @ConditionalEmpty(field = "field", conditionField = "condField",
         conditionPattern = stringValueOfConditionFieldIsEqualTo,
-        conditionValueString = "a", notEmptyForOtherValues = true)
+        conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class TrueClass {
       private String field = null;
       private String condField = "b";
@@ -62,7 +62,7 @@ public class ConditinalCommonTestBean {
 
     @ConditionalEmpty(field = "field", conditionField = "condField",
         conditionPattern = stringValueOfConditionFieldIsEqualTo,
-        conditionValueString = "a", notEmptyForOtherValues = false)
+        conditionValueString = "a", notEmptyWhenConditionNotSatisfied = false)
     public static class FalseClass {
       private String field = null;
       private String condField = "b";
@@ -100,7 +100,7 @@ public class ConditinalCommonTestBean {
 
     @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
         conditionPattern = stringValueOfConditionFieldIsEqualTo,
-        conditionValueString = "a", notEmptyForOtherValues = true)
+        conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class AllTrueConditionNotSatisfied {
       private String field1 = null;
       private String field2 = "";
@@ -109,7 +109,7 @@ public class ConditinalCommonTestBean {
 
     @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
         conditionPattern = stringValueOfConditionFieldIsEqualTo,
-            conditionValueString = "a", notEmptyForOtherValues = true)
+            conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class OneFalseConditionNotSatisfied {
       private String field1 = null;
       private String field2 = "X";
@@ -118,7 +118,7 @@ public class ConditinalCommonTestBean {
 
     @ConditionalEmpty(field = {"field1", "field2"}, conditionField = "condField",
         conditionPattern = stringValueOfConditionFieldIsEqualTo,
-            conditionValueString = "a", notEmptyForOtherValues = true)
+            conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class AllFalseConditionNotSatisfied {
       private String field1 = "X";
       private String field2 = "X";
