@@ -15,32 +15,35 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEqualToValueOf;
+
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
-import org.apache.commons.lang3.StringUtils;
 
 public abstract class ConditionalValidator extends ReflectionUtil {
   private String[] field;
   private String conditionField;
-  private String[] conditionValue;
-  private boolean conditionValueIsEmpty;
-  private boolean conditionValueIsNotEmpty;
-  private String fieldHoldingConditionValue;
+  private ConditionPattern conditionPattern;
+  private String[] conditionValueString;
+  private String conditionValueField;
   private boolean validatesWhenConditionNotSatisfied;
 
   public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
-
   public static final String CONDITION_FIELD = "conditionField";
-  public static final String CONDITION_VALUE = "conditionValue";
-  public static final String CONDITION_VALUE_IS_EMPTY = "conditionValueIsEmpty";
-  public static final String CONDITION_VALUE_IS_NOT_EMPTY = "conditionValueIsNotEmpty";
-  public static final String FIELD_HOLDING_CONDITION_VALUE = "fieldHoldingConditionValue";
+  public static final String CONDITION_PATTERN = "howToDetermineConditionIsValid";
+  public static final String CONDITION_VALUE_STRING = "conditionValueString";
+  public static final String CONDITION_VALUE_FIELD = "conditionValueField";
 
   // Used to create messages from conditional validators.
   public static final String CONDITION_VALUE_KIND = "conditionValueKind";
@@ -49,15 +52,14 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
-  public void initialize(String[] field, String conditionField, String[] conditionValue,
-      boolean conditionValueIsEmpty, boolean conditionValueIsNotEmpty,
-      String fieldHoldingConditionValue, boolean validatesWhenConditionNotSatisfied) {
+  public void initialize(String[] field, String conditionField, ConditionPattern conditionPattern,
+      String[] conditionValueString, String conditionValueField,
+      boolean validatesWhenConditionNotSatisfied) {
     this.field = field;
     this.conditionField = conditionField;
-    this.conditionValue = conditionValue;
-    this.conditionValueIsEmpty = conditionValueIsEmpty;
-    this.conditionValueIsNotEmpty = conditionValueIsNotEmpty;
-    this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+    this.conditionPattern = conditionPattern;
+    this.conditionValueString = conditionValueString;
+    this.conditionValueField = conditionValueField;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
 
@@ -70,8 +72,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
-    List<Object> valueOfFieldList = Arrays.asList(field).stream()
-        .map(f -> getFieldValue(f, instance)).toList();
+    List<Object> valueOfFieldList =
+        Arrays.asList(field).stream().map(f -> getFieldValue(f, instance)).toList();
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
@@ -103,105 +105,69 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
     Object valueOfConditionField = getFieldValue(conditionField, instance);
 
-    if (conditionValueIsEmpty) {
-      conditionValueIsNotEmptyMustBeFalse(CONDITION_VALUE_IS_EMPTY + " = true");
-      fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
-      conditionValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
+    if (conditionPattern == valueOfConditionFieldIsEmpty
+        || conditionPattern == valueOfConditionFieldIsNotEmpty) {
 
-      if (valueOfConditionField == null || (valueOfConditionField instanceof String
-          && StringUtils.isEmpty((String) valueOfConditionField))) {
+      conditionValueStringMustNotSet();
+      conditionValueFieldMustNotSet();
+
+      boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
+          && ((String) valueOfConditionField).equals(""));
+
+      if (isEmpty && conditionPattern == valueOfConditionFieldIsEmpty
+          || !isEmpty && conditionPattern == valueOfConditionFieldIsNotEmpty) {
         return true;
       }
 
-    } else if (conditionValueIsNotEmpty) {
-      fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
-      conditionValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
+    } else if (conditionPattern == valueOfConditionFieldIsEqualToValueOf
+        || conditionPattern == valueOfConditionFieldIsNotEqualToValueOf) {
 
-      boolean instanceOfString = valueOfConditionField instanceof String;
-      if ((!instanceOfString && valueOfConditionField != null)
-          || (instanceOfString && !StringUtils.isEmpty((String) valueOfConditionField))) {
-        return true;
-      }
+      conditionValueStringMustNotSet();
 
-    } else if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      conditionValueMustBeNull(FIELD_HOLDING_CONDITION_VALUE);
+      Object valueOfConditionValueField = getFieldValue(conditionValueField, instance);
 
-      Object valueOfFieldHoldingConditionValue =
-          getFieldValue(fieldHoldingConditionValue, instance);
-
-      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
-      List<Object> valueOfFieldHoldingConditionValueList = new ArrayList<>();
-      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
-        for (Object val : (Object[]) valueOfFieldHoldingConditionValue) {
-          if (val == null) {
-            val = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
-          }
-
-          valueOfFieldHoldingConditionValueList.add(val);
-        }
-      }
-
-      // valueOfConditionField == null
-      if (valueOfConditionField == null) {
-        if (valueOfFieldHoldingConditionValue == null
-            || valueOfFieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
-            || (valueOfFieldHoldingConditionValue instanceof Object[]
-                && valueOfFieldHoldingConditionValueList
-                    .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))) {
-          return true;
-
-        } else {
-          return false;
-        }
-      }
-
-      // reaching here means valueOfConditionField != null
-      ObjectsUtil.requireNonNull(valueOfConditionField);
-
-      // Since valueOfConditionField != null, if valueOfFieldHoldingConditionValue == null,
-      // return value is always false.
-      if (valueOfFieldHoldingConditionValue == null) {
-        return false;
-      }
-
-      // reaching here means valueOfFieldHoldingConditionValue != null
-      ObjectsUtil.requireNonNull(valueOfFieldHoldingConditionValue);
-
-      // the case that valueOfFieldHoldingConditionValue is an instance of Object[]
-      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
-        for (Object singleValue : (Object[]) valueOfFieldHoldingConditionValue) {
-
-          // if the singleValue == null, return is always false so it should be skipped to the next
-          // loop.
-          if (singleValue == null) {
-            continue;
-          }
-
-          // throws exception when the datatype differs
-          if (!(valueOfConditionField.getClass().equals(singleValue.getClass()))) {
-            throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
-                + " and " + valueOfFieldHoldingConditionValue.getClass());
-          }
-
-          if (valueOfConditionField.equals(singleValue)) {
-            return true;
-          }
+      List<Object> valueListOfConditionValueField = new ArrayList<>();
+      if (valueOfConditionValueField instanceof Object[]) {
+        for (Object val : (Object[]) valueOfConditionValueField) {
+          valueListOfConditionValueField.add(val);
         }
 
       } else {
-        // throws exception when the datatype differs
-        if (!(valueOfConditionField.getClass()
-            .equals(valueOfFieldHoldingConditionValue.getClass()))) {
-          throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
-              + " and " + valueOfFieldHoldingConditionValue.getClass());
-        }
+        valueListOfConditionValueField.add(valueOfConditionValueField);
+      }
 
-        if (valueOfConditionField.equals(valueOfFieldHoldingConditionValue)) {
-          return true;
+      // dataType difference check
+      List<Object> nonnullList =
+          valueListOfConditionValueField.stream().filter(v -> v != null).toList();
+      Object firstValueOfConditionValueField = nonnullList.size() == 0 ? null : nonnullList.get(0);
+      // if either of 2 values is null you cant check difference of datatype. So both is not null.
+      if (valueOfConditionField != null && firstValueOfConditionValueField != null) {
+        Class<?> valueOfCf = valueOfConditionField.getClass();
+        Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
+        if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
+          throw new EclibRuntimeException(
+              "Datatype not match. valueOfConditionField: " + valueOfConditionField
+                  + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
         }
       }
 
+      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
+      valueListOfConditionValueField
+          .replaceAll(x -> x == null ? EclibCoreConstants.VALIDATOR_PARAMETER_NULL : x);
+
+      boolean contains = (valueOfConditionField == null
+          && valueListOfConditionValueField.contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))
+          || (valueOfConditionField != null
+              && valueListOfConditionValueField.contains(valueOfConditionField));
+
+      if (contains && conditionPattern == valueOfConditionFieldIsEqualToValueOf
+          || !contains && conditionPattern == valueOfConditionFieldIsNotEqualToValueOf) {
+        return true;
+      }
+
     } else {
+
+      conditionValueFieldMustNotSet();
 
       if (valueOfConditionField == null) {
         valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
@@ -213,7 +179,9 @@ public abstract class ConditionalValidator extends ReflectionUtil {
             "When 'conditionValue' is not null, 'validationConditionField' must be String.");
       }
 
-      if (Arrays.asList(conditionValue).contains(valueOfConditionField)) {
+      boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
+      if (contains && conditionPattern == stringValueOfConditionFieldIsEqualTo
+          || !contains && conditionPattern == stringValueOfConditionFieldIsNotEqualTo) {
         return true;
       }
     }
@@ -234,27 +202,22 @@ public abstract class ConditionalValidator extends ReflectionUtil {
     return true;
   }
 
-  private void conditionValueIsNotEmptyMustBeFalse(String prerequisite) {
-    // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (conditionValueIsNotEmpty) {
-      throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + CONDITION_VALUE_IS_NOT_EMPTY + " = true'.");
-    }
-  }
-
-  private void fieldHoldingConditionalValueMustBeNull(String prerequisite) {
+  private void conditionValueFieldMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + FIELD_HOLDING_CONDITION_VALUE + "'.");
+    if (!Arrays.asList(conditionValueField).contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException("You cannot set 'conditionValueField' when "
+          + "howToDetermineConditionIsValid is not either 'valueOfConditionFieldIsEqualToValueOf' "
+          + "or 'valueOfConditionFieldIsNotEqualToValueOf'.");
     }
   }
 
-  private void conditionValueMustBeNull(String prerequisite) {
+  private void conditionValueStringMustNotSet() {
     // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (!Arrays.asList(conditionValue).contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException(
-          "When you set '" + prerequisite + "', you cannot set '" + CONDITION_VALUE + " = true'.");
+    if (!Arrays.asList(conditionValueString)
+        .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException("You cannot set 'conditionValueString' when "
+          + "howToDetermineConditionIsValid is not either "
+          + "'stringValueOfConditionFieldIsEqualTo' or 'stringValueOfConditionFieldIsNotEqualTo'.");
     }
   }
 }

@@ -15,6 +15,13 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEqualToValueOf;
+
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditinalValidatorTestBean.TestEnum;
@@ -30,458 +37,698 @@ public class ConditionalValidatorTest {
   };
 
   @Test
-  public void getSatisfiesConditionConditionValueTest() {
+  public void getSatisfiesConditionConditionValueStringIsEqualToTest() {
 
     // getSatisfiesCondition is true when the second argument value of StrA Constructor contains the
     // third String[] argument of initialize.
     // "X" is not related to getSatisfiesCondition() test.
 
     // null
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, false, false,
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // blank
-    obj.initialize(new String[] {"field"}, "condField", new String[] {""}, false, false,
-        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {""}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // non-empty value
-    obj.initialize(new String[] {"field"}, "condField", new String[] {"a"}, false, false,
-        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {"a"}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "b")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null % blank
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, ""}, false, false,
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, ""},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // null % non-empty value
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"}, false, false,
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "b")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"}, false, false,
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "b")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null & blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "", "a"}, false, false,
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "", "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", null)));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "a")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValue.StrA("X", "b")));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
+  }
+
+  @Test
+  public void getSatisfiesConditionConditionValueStringIsNotEqualToTest() {
+
+    // getSatisfiesCondition is true when the second argument value of StrA Constructor contains the
+    // third String[] argument of initialize.
+    // "X" is not related to getSatisfiesCondition() test.
+
+    // null
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    // blank
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {""}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    // non-empty value
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {"a"}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
+
+    // null % blank
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, ""},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    // null % non-empty value
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
+
+    // blank % non-empty value
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
+
+    // null & blank % non-empty value
+    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionFieldIsNotEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "", "a"},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
+
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
+
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
   }
 
   @Test
   public void getSatisfiesConditionConditionValueIsEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, true, false,
+    obj.initialize(new String[] {"field"}, "condField", valueOfConditionFieldIsEmpty,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
-    Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.String("X", null)));
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueIsEmpty.String(null)));
 
-    Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.String("X", "")));
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueIsEmpty.String("")));
 
-    Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.String("X", "a")));
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueIsEmpty.String("a")));
 
     // dataType of conditionField = Integer
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.Integer("X", null)));
+        new ConditinalValidatorTestBean.ConditionValueIsEmpty.Integer(null)));
 
-    Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.Integer("X", 1)));
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueIsEmpty.Integer(1)));
 
     // dataType of conditionField = TestEnum
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.TestEnum("X", null)));
+        new ConditinalValidatorTestBean.ConditionValueIsEmpty.TestEnum(null)));
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsEmpty.TestEnum("X", TestEnum.value1)));
+        new ConditinalValidatorTestBean.ConditionValueIsEmpty.TestEnum(TestEnum.value1)));
   }
 
   @Test
   public void getSatisfiesConditionConditionValueIsNotEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, false, true,
+    obj.initialize(new String[] {"field"}, "condField", valueOfConditionFieldIsNotEmpty,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String("X", null)));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String(null)));
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String("X", "")));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String("")));
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String("X", "a")));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.String("a")));
 
     // dataType of conditionField = Integer
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.Integer("X", null)));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.Integer(null)));
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.Integer("X", 1)));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.Integer(1)));
 
     // dataType of conditionField = TestEnum
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.TestEnum("X", null)));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.TestEnum(null)));
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.TestEnum("X", TestEnum.value1)));
+        new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.TestEnum(TestEnum.value1)));
   }
 
   @Test
-  public void getSatisfiesConditionFieldHoldingConditionValueTest() {
+  public void getSatisfiesConditionValueOfConditionFieldIsEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField",
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, false, false,
-        "fieldHoldingConditionValue", false);
+    obj.initialize(new String[] {"field"}, "condField", valueOfConditionFieldIsEqualToValueOf,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
+        false);
 
-    // fieldHoldingConditionValue not exist
-    try {
-      obj.getSatisfiesCondition(
-          new ConditinalValidatorTestBean.FieldHoldingConditionValue.NotExist("X", null));
-      Assertions.fail();
+    // conditionValueField not exist
+    Assertions.assertThrows(EclibRuntimeException.class, () -> obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.NotExist(null)));
 
-    } catch (EclibRuntimeException ex) {
-      Assertions.assertTrue(true);
+    // conditionValueField datatype not match
+    Assertions.assertThrows(EclibRuntimeException.class, () -> obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.DataTypeNotMatch("a", 1)));
 
-    } catch (Exception ex) {
-      Assertions.fail();
-    }
-
-    // fieldHoldingConditionValue datatype not match
-    try {
-      obj.getSatisfiesCondition(
-          new ConditinalValidatorTestBean.FieldHoldingConditionValue.DataTypeNotMatch("X", "a", 1));
-      Assertions.fail();
-
-    } catch (EclibRuntimeException ex) {
-      Assertions.assertTrue(true);
-
-    } catch (Exception ex) {
-      Assertions.fail();
-    }
-
-    // fieldHoldingConditionValue datatype not match(array)
-    try {
-      obj.getSatisfiesCondition(
-          new ConditinalValidatorTestBean.FieldHoldingConditionValue.DataTypeNotMatchArray("X", "a",
-              new Integer[] {1}));
-      Assertions.fail();
-
-    } catch (EclibRuntimeException ex) {
-      Assertions.assertTrue(true);
-
-    } catch (Exception ex) {
-      Assertions.fail();
-    }
+    // conditionValueField datatype not match(array)
+    Assertions.assertThrows(EclibRuntimeException.class,
+        () -> obj.getSatisfiesCondition(
+            new ConditinalValidatorTestBean.ConditionValueField.DataTypeNotMatchArray("a",
+                new Integer[] {1})));
 
     // String - null
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String(null, null)));
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String(null, "")));
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, "")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String(null, "a")));
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, "a")));
 
     // String - blank
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("", null)));
-    Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("", "")));
+        new ConditinalValidatorTestBean.ConditionValueField.String("", null)));
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.String("", "")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("", "a")));
+        new ConditinalValidatorTestBean.ConditionValueField.String("", "a")));
 
     // String - not empty
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("a", null)));
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("a", "")));
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "")));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("a", "a")));
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "a")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.String("a", "b")));
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "b")));
 
     // Integer
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.Integer(null, null)));
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(null, null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.Integer(null, 1)));
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(null, 1)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.Integer(1, null)));
-    Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.Integer(1, 1)));
-    Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.Integer(1, 2)));
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(1, null)));
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.Integer(1, 1)));
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.Integer(1, 2)));
 
     // enum
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.AnEnum(null, null)));
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(null, null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.AnEnum(null, TestEnum.value1)));
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(null, TestEnum.value1)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ConditinalValidatorTestBean.FieldHoldingConditionValue.AnEnum(TestEnum.value1, null)));
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(TestEnum.value1, null)));
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.FieldHoldingConditionValue.AnEnum(
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.AnEnum(
             TestEnum.value1, TestEnum.value1)));
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.FieldHoldingConditionValue.AnEnum(
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.AnEnum(
             TestEnum.value1, TestEnum.value2)));
 
     // String[] - null
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {null})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {null})));
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {""})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {"a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray(null, new String[] {""})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray(null, new String[] {"a"})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {null, "a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {null, "a"})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray(null,
-                new String[] {"", "a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {"", "a"})));
 
     // String[] - empty
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {null})));
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {null})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
-    Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {""})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {"a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {""})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {"a"})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {"", "a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {"", "a"})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("",
-                new String[] {null, "a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {null, "a"})));
 
     // String[] - not empty
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {null})));
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {null})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {""})));
-    Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {"a"})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {"b"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {""})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {"a"})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {"b"})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {null, "a"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {null, "a"})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.StringArray("a",
-                new String[] {"", "b"})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {"", "b"})));
 
     // Integer[] - null
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(null,
-                new Integer[] {null})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(null,
-                new Integer[] {1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {null})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(null, new Integer[] {1})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(null,
-                new Integer[] {null, 1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {null, 1})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(null,
-                new Integer[] {1, 2})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {1, 2})));
 
     // Integer[] - not null
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(1,
-                new Integer[] {null})));
-    Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(1,
-                new Integer[] {1})));
-    Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(1,
-                new Integer[] {2})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {null})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {1})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {2})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(1,
-                new Integer[] {null, 1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            1, new Integer[] {null, 1})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.IntegerArray(1,
-                new Integer[] {null, 2})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            1, new Integer[] {null, 2})));
 
     // Enum[] - null
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(null,
-                new TestEnum[] {null})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {null})));
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(null,
-                new TestEnum[] {TestEnum.value1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {TestEnum.value1})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(null,
-                new TestEnum[] {null, TestEnum.value1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {null, TestEnum.value1})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(null,
-                new TestEnum[] {TestEnum.value1, TestEnum.value2})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {TestEnum.value1, TestEnum.value2})));
 
     // Enum[] - not null
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(TestEnum.value1,
-                new TestEnum[] {null})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null})));
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(TestEnum.value1,
-                new TestEnum[] {TestEnum.value1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {TestEnum.value1})));
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(TestEnum.value1,
-                new TestEnum[] {TestEnum.value2})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {TestEnum.value2})));
     // multiple values & contains
     Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(TestEnum.value1,
-                new TestEnum[] {null, TestEnum.value1})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null, TestEnum.value1})));
     // multiple values & not contains
     Assertions.assertEquals(false,
-        obj.getSatisfiesCondition(
-            new ConditinalValidatorTestBean.FieldHoldingConditionValue.EnumArray(TestEnum.value1,
-                new TestEnum[] {null, TestEnum.value2})));
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null, TestEnum.value2})));
+  }
+
+  @Test
+  public void getSatisfiesConditionValueOfConditionFieldIsNotEqualToValueOfTest() {
+
+    obj.initialize(new String[] {"field"}, "condField", valueOfConditionFieldIsNotEqualToValueOf,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
+        false);
+
+    // conditionValueField not exist
+    Assertions.assertThrows(EclibRuntimeException.class, () -> obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.NotExist(null)));
+
+    // conditionValueField datatype not match
+    Assertions.assertThrows(EclibRuntimeException.class, () -> obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.DataTypeNotMatch("a", 1)));
+
+    // conditionValueField datatype not match(array)
+    Assertions.assertThrows(EclibRuntimeException.class,
+        () -> obj.getSatisfiesCondition(
+            new ConditinalValidatorTestBean.ConditionValueField.DataTypeNotMatchArray("a",
+                new Integer[] {1})));
+
+    // String - null
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, null)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, "")));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String(null, "a")));
+
+    // String - blank
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("", null)));
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.String("", "")));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("", "a")));
+
+    // String - not empty
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", null)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "")));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "a")));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.String("a", "b")));
+
+    // Integer
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(null, null)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(null, 1)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.Integer(1, null)));
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.Integer(1, 1)));
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.Integer(1, 2)));
+
+    // enum
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(null, null)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(null, TestEnum.value1)));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.AnEnum(TestEnum.value1, null)));
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.AnEnum(
+            TestEnum.value1, TestEnum.value1)));
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.AnEnum(
+            TestEnum.value1, TestEnum.value2)));
+
+    // String[] - null
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {null})));
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray(null, new String[] {""})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray(null, new String[] {"a"})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {null, "a"})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            null, new String[] {"", "a"})));
+
+    // String[] - empty
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {null})));
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {""})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("", new String[] {"a"})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {"", "a"})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "", new String[] {null, "a"})));
+
+    // String[] - not empty
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {null})));
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {""})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {"a"})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.StringArray("a", new String[] {"b"})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {null, "a"})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.StringArray(
+            "a", new String[] {"", "b"})));
+
+    // Integer[] - null
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {null})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(null, new Integer[] {1})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {null, 1})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            null, new Integer[] {1, 2})));
+
+    // Integer[] - not null
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {null})));
+    Assertions.assertEquals(false, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {1})));
+    Assertions.assertEquals(true, obj.getSatisfiesCondition(
+        new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(1, new Integer[] {2})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            1, new Integer[] {null, 1})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.IntegerArray(
+            1, new Integer[] {null, 2})));
+
+    // Enum[] - null
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {null})));
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {TestEnum.value1})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {null, TestEnum.value1})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            null, new TestEnum[] {TestEnum.value1, TestEnum.value2})));
+
+    // Enum[] - not null
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null})));
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {TestEnum.value1})));
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {TestEnum.value2})));
+    // multiple values & contains
+    Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null, TestEnum.value1})));
+    // multiple values & not contains
+    Assertions.assertEquals(true,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueField.EnumArray(
+            TestEnum.value1, new TestEnum[] {null, TestEnum.value2})));
   }
 }
