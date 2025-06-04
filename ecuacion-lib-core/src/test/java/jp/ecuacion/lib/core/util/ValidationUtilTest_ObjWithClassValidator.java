@@ -18,8 +18,8 @@ package jp.ecuacion.lib.core.util;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 
-@ConditionalNotEmpty(field = "value", conditionField = "conditionValue",
-    conditionPattern = ConditionPattern.stringValueOfConditionFieldIsEqualTo,
+@ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
+    conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
     conditionValueString = "abc")
 public class ValidationUtilTest_ObjWithClassValidator {
   public String conditionValue = "abc";

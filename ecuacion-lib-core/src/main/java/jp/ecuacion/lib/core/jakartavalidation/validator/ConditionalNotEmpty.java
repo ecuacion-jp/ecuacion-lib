@@ -46,18 +46,26 @@ public @interface ConditionalNotEmpty {
   /** 
    * Validated field.
    * 
-   * @return field name
+   * <p>Its name is {@code propertyPath}, not {@code field} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   * 
+   * @return propertyPath
    */
-  String[] field();
+  String[] propertyPath();
 
   /**
    * Conditional field. Validation check is executed 
-   * only when the condition determined by {@code HowToDetermineConditionIsValid}
-   * is satisfied with referring the value of conditionField.
+   * only when the value of this field is equal to the value 
+   * which {@code fieldWhichHoldsConditionalValue} holds.
    * 
+   * <p>Its name is {@code conditionPropertyPath}, not {@code conditionField} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     
    * @return condition field name
    */
-  String conditionField();
+  String conditionPropertyPath();
 
   /**
    * Specifies how to determine condition is valid.
@@ -114,9 +122,13 @@ public @interface ConditionalNotEmpty {
    *     if all of the values of the field {@code conditionValueField} specifies 
    *     is NOT equal to the value of conditionField.<br>
    * 
+   * <p>Its name is {@code conditionValuePropertyPath}, not {@code conditionValueField} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   * 
    * @return an array of string values
    */
-  String conditionValueField() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String conditionValuePropertyPath() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies a field which holds the display name of condition value.
@@ -124,11 +136,16 @@ public @interface ConditionalNotEmpty {
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
    *     as a part of an error message.</p>
+   *     
+   * <p>Its name is {@code valueOfConditionValuePropertyPathForDisplay}, 
+   * not {@code valueOfConditionValueFieldForDisplay} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>     
    * 
    * @return String
    */
-  String valueOfConditionValueFieldForDisplay() default "";
-  
+  String valueOfConditionValuePropertyPathForDisplay() default "";
+
   /**
    * Decides whether validation check is executed 
    *     when the value of {@code conditionField} is not equal to the specified value.

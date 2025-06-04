@@ -15,12 +15,12 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionFieldIsNotEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsEqualToValueOf;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionFieldIsNotEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -32,22 +32,23 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 
 public abstract class ConditionalValidator extends ReflectionUtil {
-  private String[] field;
-  private String conditionField;
+  private String[] propertyPath;
+  private String conditionPropertyPath;
   private ConditionPattern conditionPattern;
   private String[] conditionValueString;
-  private String conditionValueField;
+  private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
 
-  public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
-  public static final String CONDITION_FIELD = "conditionField";
-  public static final String CONDITION_FIELD_ITEM_ID = "conditionFieldItemId";
-  public static final String CONDITION_FIELD_DISPLAY_NAME = "conditionFieldDisplayName";
+  public static final String VALIDATION_TARGET_FIELD = "validationTargetPropertyPath";
+  public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
+  public static final String CONDITION_PROPERTY_PATH_ITEM_ID = "conditionPropertyPathItemId";
+  public static final String CONDITION_PROPERTY_PATH_DISPLAY_NAME =
+      "conditionPropertyPathDisplayName";
   public static final String CONDITION_PATTERN = "conditionPattern";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
-  public static final String CONDITION_VALUE_FIELD = "conditionValueField";
-  public static final String VALUE_OF_CONDITION_VALUE_FIELD_FOR_DISPLAY =
-      "valueOfConditionValueFieldForDisplay";
+  public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
+  public static final String VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY =
+      "valueOfConditionValuePropertyPathForDisplay";
 
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY =
       "notEmptyWhenConditionNotSatisfied";
@@ -61,14 +62,14 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
-  public void initialize(String[] field, String conditionField, ConditionPattern conditionPattern,
-      String[] conditionValueString, String conditionValueField,
-      boolean validatesWhenConditionNotSatisfied) {
-    this.field = field;
-    this.conditionField = conditionField;
+  public void initialize(String[] propertyPath, String conditionPropertyPath,
+      ConditionPattern conditionPattern, String[] conditionValueString,
+      String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
+    this.propertyPath = propertyPath;
+    this.conditionPropertyPath = conditionPropertyPath;
     this.conditionPattern = conditionPattern;
     this.conditionValueString = conditionValueString;
-    this.conditionValueField = conditionValueField;
+    this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
 
@@ -82,7 +83,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
     List<Object> valueOfFieldList =
-        Arrays.asList(field).stream().map(f -> getFieldValue(f, instance)).toList();
+        Arrays.asList(propertyPath).stream().map(f -> getFieldValue(f, instance)).toList();
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
@@ -112,10 +113,10 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   boolean getSatisfiesCondition(Object instance) {
 
-    Object valueOfConditionField = getFieldValue(conditionField, instance);
+    Object valueOfConditionField = getFieldValue(conditionPropertyPath, instance);
 
-    if (conditionPattern == valueOfConditionFieldIsEmpty
-        || conditionPattern == valueOfConditionFieldIsNotEmpty) {
+    if (conditionPattern == valueOfConditionPropertyPathIsEmpty
+        || conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
 
       conditionValueStringMustNotSet();
       conditionValueFieldMustNotSet();
@@ -123,17 +124,17 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
           && ((String) valueOfConditionField).equals(""));
 
-      if (isEmpty && conditionPattern == valueOfConditionFieldIsEmpty
-          || !isEmpty && conditionPattern == valueOfConditionFieldIsNotEmpty) {
+      if (isEmpty && conditionPattern == valueOfConditionPropertyPathIsEmpty
+          || !isEmpty && conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
         return true;
       }
 
-    } else if (conditionPattern == valueOfConditionFieldIsEqualToValueOf
-        || conditionPattern == valueOfConditionFieldIsNotEqualToValueOf) {
+    } else if (conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
+        || conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
 
       conditionValueStringMustNotSet();
 
-      Object valueOfConditionValueField = getFieldValue(conditionValueField, instance);
+      Object valueOfConditionValueField = getFieldValue(conditionValuePropertyPath, instance);
 
       List<Object> valueListOfConditionValueField = new ArrayList<>();
       if (valueOfConditionValueField instanceof Object[]) {
@@ -169,8 +170,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
           || (valueOfConditionField != null
               && valueListOfConditionValueField.contains(valueOfConditionField));
 
-      if (contains && conditionPattern == valueOfConditionFieldIsEqualToValueOf
-          || !contains && conditionPattern == valueOfConditionFieldIsNotEqualToValueOf) {
+      if (contains && conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
+          || !contains && conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
         return true;
       }
 
@@ -189,8 +190,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       }
 
       boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
-      if (contains && conditionPattern == stringValueOfConditionFieldIsEqualTo
-          || !contains && conditionPattern == stringValueOfConditionFieldIsNotEqualTo) {
+      if (contains && conditionPattern == stringValueOfConditionPropertyPathIsEqualTo
+          || !contains && conditionPattern == stringValueOfConditionPropertyPathIsNotEqualTo) {
         return true;
       }
     }
@@ -213,7 +214,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   private void conditionValueFieldMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!Arrays.asList(conditionValueField).contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+    if (!Arrays.asList(conditionValuePropertyPath)
+        .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
       throw new EclibRuntimeException("You cannot set 'conditionValueField' when "
           + "howToDetermineConditionIsValid is not either 'valueOfConditionFieldIsEqualToValueOf' "
           + "or 'valueOfConditionFieldIsNotEqualToValueOf'.");
