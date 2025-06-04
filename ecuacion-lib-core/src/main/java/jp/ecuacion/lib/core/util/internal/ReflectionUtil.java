@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -73,12 +74,14 @@ public class ReflectionUtil {
    * </code>
    */
   protected static Object getFieldValue(String fieldName, Object instance) {
-    Field field = getField(fieldName, instance);
+    Pair<Field, Object> pair = getField(fieldName, instance);
+    Field field = pair.getLeft();
+    Object instanceOfField = pair.getRight();
 
     field.setAccessible(true);
 
     try {
-      return field.get(instance);
+      return field.get(instanceOfField);
 
     } catch (IllegalArgumentException | IllegalAccessException ex) {
       throwRuntimeException(ex, fieldName, "Field value");
@@ -106,36 +109,44 @@ public class ReflectionUtil {
    * 
    * @param fieldName fieldName
    * @param instance instance
-   * @return Field
+   * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
+   *     right-hand side is its instance.
+   *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  protected static Field getField(String fieldName, Object instance) {
+  protected static Pair<Field, Object> getField(String fieldName, Object instance) {
     Field validationTargetField;
 
-    // loop for finding fields in parent's class.
     Class<?> cls = instance.getClass();
     // store first exception
     Exception ex = null;
+    
+    if (fieldName.contains(".")) {
+      Object chileIns = getFieldValue(fieldName.substring(0, fieldName.indexOf(".")), instance);
+      return getField(fieldName.substring(fieldName.indexOf(".") + 1), chileIns);
 
-    while (true) {
-      if (cls.equals(Object.class)) {
-        break;
-      }
-
-      try {
-        validationTargetField = cls.getDeclaredField(fieldName);
-        return validationTargetField;
-
-      } catch (Exception exception) {
-        if (ex == null) {
-          ex = exception;
+    } else {
+      // loop for finding fields in parent's class.
+      while (true) {
+        if (cls.equals(Object.class)) {
+          break;
         }
+
+        try {
+          validationTargetField = cls.getDeclaredField(fieldName);
+          return Pair.of(validationTargetField, instance);
+
+        } catch (Exception exception) {
+          if (ex == null) {
+            ex = exception;
+          }
+        }
+
+        cls = cls.getSuperclass();
       }
 
-      cls = cls.getSuperclass();
+      throwRuntimeException(ex, fieldName, "Field");
     }
-
-    throwRuntimeException(ex, fieldName, "Field");
 
     // throwRuntimeException always throws Exception so this will never executed.
     return null;
@@ -144,7 +155,7 @@ public class ReflectionUtil {
   private static void throwRuntimeException(Exception ex, String fieldName,
       String whatIsTriedToObtain) {
     throw new EclibRuntimeException(
-        whatIsTriedToObtain + "cannot be obtained " + "from the field name '" + fieldName + "'",
+        whatIsTriedToObtain + " cannot be obtained " + "from the field name '" + fieldName + "'",
         ex);
   }
 }

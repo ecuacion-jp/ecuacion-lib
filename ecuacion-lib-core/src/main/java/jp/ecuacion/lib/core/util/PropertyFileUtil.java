@@ -595,8 +595,8 @@ public class PropertyFileUtil {
       argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
 
       // conditionFieldDisplayName
-      String val = (String) argMap.get(ConditionalValidator.CONDITION_FIELD_ITEM_ID);
-      argMap.put(ConditionalValidator.CONDITION_FIELD_DISPLAY_NAME,
+      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_ID);
+      argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_DISPLAY_NAME,
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
       key = ConditionalValidator.CONDITION_PATTERN;
