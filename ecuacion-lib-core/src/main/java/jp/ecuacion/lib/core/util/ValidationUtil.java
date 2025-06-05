@@ -81,7 +81,6 @@ public class ValidationUtil {
       @Nullable Arg messagePostfix) throws MultipleAppException {
     Optional<MultipleAppException> exOpt =
         validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix);
-
     if (exOpt.isPresent()) {
       throw exOpt.get();
     }
