@@ -62,8 +62,8 @@ public class BizLogicAppException extends SingleAppException {
   public BizLogicAppException(@Nullable String[] itemPropertyPaths,
       @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
 
-    this(itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
-        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+    this(itemPropertyPaths, messageId, Arrays.asList(ObjectsUtil.requireNonNull(messageArgs))
+        .stream().map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
   /**
@@ -86,10 +86,10 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageArgs message Arguments
    */
   public BizLogicAppException(@Nullable String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
+      @RequireNonnull String messageId, @Nullable Arg[] messageArgs) {
     this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
-    this.messageArgs = messageArgs;
+    this.messageArgs = messageArgs == null ? new Arg[] {} : messageArgs;
   }
 
   @Override
