@@ -102,7 +102,7 @@ public class AppWarningException extends Exception {
   
    * @return itemPropertyPaths
    */
-  public @Nonnull String[] itemPropertyPaths() {
+  public @Nonnull String[] getItemPropertyPaths() {
     return itemPropertyPaths;
   }
 
