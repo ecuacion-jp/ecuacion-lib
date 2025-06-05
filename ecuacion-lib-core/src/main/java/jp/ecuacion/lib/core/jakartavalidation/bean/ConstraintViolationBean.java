@@ -15,21 +15,27 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
+
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -39,10 +45,12 @@ import org.apache.commons.lang3.StringUtils;
  *     which are not created by {@code Jakarata Validation} can also be treated 
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean extends PrivateFieldReader {
+public class ConstraintViolationBean extends ReflectionUtil {
   private ConstraintViolation<?> cv;
   private String message;
   private String propertyPath;
+  private String[] fieldPropertyPaths;
+
   private String validatorClass;
   private String rootClassName;
   private String messageTemplate;
@@ -78,9 +86,6 @@ public class ConstraintViolationBean extends PrivateFieldReader {
     this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
         : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
 
-    getItemIdsFromConstraintViolation(cv);
-    paramMap.put("itemIds", itemIds);
-
     // put additional params to paramMap
     putAdditionalParamsToParamMap(cv);
   }
@@ -95,163 +100,203 @@ public class ConstraintViolationBean extends PrivateFieldReader {
    * @param validatorClass validatorClass
    */
   public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
-      String... itemIds) {
+      String itemId) {
     this.message = message;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
 
-    this.itemIds = itemIds;
-    this.propertyPath = itemIds[0];
+    this.itemIds = new String[] {itemId};
+    // in this case itemId == propertyPath holds true.
+    this.propertyPath = itemId;
+    this.fieldPropertyPaths = new String[] {itemId};
+
     this.paramMap = new HashMap<>();
 
     // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
     annotationDescriptionString = "";
   }
 
-  private void getItemIdsFromConstraintViolation(ConstraintViolation<?> cv) {
-    String[] itemIdFields = null;
-    String itemIdClass = null;
-
-    // checks if the validator is for class or field.
-    boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
-        .getAnnotation(PlacedAtClass.class) != null;
-
-    Optional<String> itemIdClassFromAnnotation = getItemIdClassFromAnnotation(isClassValidator,
-        cv.getLeafBean(), cv.getPropertyPath().toString());
-    String defaultItemIdClass = null;
-    if (isClassValidator) {
-      // Reaching here means the annotation is added to class, not field.
-      itemIdFields = (String[]) paramMap.get("field");
-
-      defaultItemIdClass = StringUtils.isEmpty(propertyPath)
-          ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
-          : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-
-    } else {
-      // Reaching here means the annotation is added to field.
-      // In that case propertyPath cannot be empty and the last part is always itemIdField.
-      itemIdFields = new String[] {propertyPath.split("\\.")[propertyPath.split("\\.").length - 1]};
-
-      defaultItemIdClass = propertyPath.split("\\.").length > 1
-          ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
-          : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
-    }
-
-    itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
-    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
-    final String finalItemIdClass = itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
-
-    List<String> itemIdList =
-        Arrays.asList(itemIdFields).stream().map(field -> finalItemIdClass + "." + field).toList();
-    itemIds = itemIdList.toArray(new String[itemIdList.size()]);
-  }
-
   private Optional<String> getItemIdClassFromAnnotation(boolean isClassValidator, Object leafBean,
       String propertyPath) {
+
+    Object modifiedLeafBean = leafBean;
     try {
       // search for @ItemIdClass at field
       if (!isClassValidator) {
-        String value = getItemIdClassAtFieldFromAnnotation(leafBean, propertyPath);
+        String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+        Field field = getField(fieldName, modifiedLeafBean).getLeft();
+        ItemIdClass an = field.getAnnotation(ItemIdClass.class);
+        String value = an == null ? null : an.value();
+
         if (value != null) {
           return Optional.of(value);
         }
+
+      } else {
+        // If propertyPath is not empty, Obtain the real leaf bean
+        String tmpPp = propertyPath;
+        while (true) {
+          if (StringUtils.isEmpty(tmpPp)) {
+            break;
+          }
+
+          String fieldName = tmpPp.contains(".") ? tmpPp.substring(0, tmpPp.indexOf(".")) : tmpPp;
+          tmpPp = tmpPp.contains(".") ? tmpPp.substring(tmpPp.indexOf(".") + 1) : "";
+
+          modifiedLeafBean = getFieldValue(fieldName, modifiedLeafBean);
+        }
       }
 
-      return Optional.ofNullable(getItemIdClassAtClassFromAnnotation(leafBean));
+      Optional<ItemIdClass> an = searchAnnotationPlacedAtClass(modifiedLeafBean, ItemIdClass.class);
+      return Optional.ofNullable(an.isPresent() ? an.get().value() : null);
 
     } catch (Exception ex) {
       throw new EclibRuntimeException(ex);
     }
   }
 
-  private String getItemIdClassAtFieldFromAnnotation(Object leafBean, String propertyPath)
-      throws Exception {
-
-    String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-    Field field = leafBean.getClass().getDeclaredField(fieldName);
-    ItemIdClass an = field.getAnnotation(ItemIdClass.class);
-    return an == null ? null : an.value();
-  }
-
-  private String getItemIdClassAtClassFromAnnotation(Object leafBean) {
-    Class<?> cls = leafBean.getClass();
-    while (true) {
-      // No more ancestors
-      if (cls == Object.class) {
-        return null;
-      }
-      
-      ItemIdClass an = cls.getAnnotation(ItemIdClass.class);
-      if (an != null) {
-        return an.value();
-      }
-      
-      cls = cls.getSuperclass();
-    }
-  }
-
   private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
 
     // When localized messages are created, paramMap is an only parameter.
-    // So sume value are needed to put into the map.
+    // So some values should be put into the map.
     paramMap.put("leafClassName", getLeafClassName());
     paramMap.put("invalidValue", getInvalidValue());
     paramMap.put("annotation", getAnnotation());
 
+
+
+    // checks if the validator is for class or field.
+    boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
+        .getAnnotation(PlacedAtClass.class) != null;
+
+    // itemIdClass
+    String defaultItemIdClass = null;
+
+    // itemIdField
+    String[] propertyPaths = null;
+    List<String> itemIdList = new ArrayList<>();
+    if (isClassValidator) {
+      // Reaching here means the annotation is added to class, not field.
+      propertyPaths = (String[]) paramMap.get("propertyPath");
+
+      for (String fieldPropertyPath : propertyPaths) {
+        Optional<String> itemIdClassFromAnnotation =
+            getItemIdClassFromAnnotation(isClassValidator, cv.getLeafBean(),
+                fieldPropertyPath.contains(".")
+                    ? fieldPropertyPath.substring(0, fieldPropertyPath.lastIndexOf("."))
+                    : "");
+
+        defaultItemIdClass = StringUtils.isEmpty(propertyPath)
+            ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
+            : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+
+        String itemId = getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "."
+            + (fieldPropertyPath.contains(".")
+                ? (fieldPropertyPath.substring(fieldPropertyPath.lastIndexOf(".") + 1))
+                : fieldPropertyPath);
+        itemIdList.add(itemId);
+      }
+
+      // conditionFieldItemId
+      String conditionPropertyPath =
+          (String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH);
+      Optional<String> itemIdClassFromAnnotation =
+          getItemIdClassFromAnnotation(isClassValidator, cv.getLeafBean(), conditionPropertyPath);
+      String newValue = getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "."
+          + conditionPropertyPath;
+      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_ID, newValue);
+
+      // fieldPropertyPaths
+      List<String> list =
+          Arrays.asList(propertyPaths).stream().map(field -> propertyPath + "." + field).toList();
+      fieldPropertyPaths = list.toArray(new String[list.size()]);
+
+    } else {
+      // Reaching here means the annotation is added to field.
+      // In that case propertyPath cannot be empty and the last part is always itemIdField.
+
+      // itemId
+      Optional<String> itemIdClassFromAnnotation = getItemIdClassFromAnnotation(isClassValidator,
+          cv.getLeafBean(), cv.getPropertyPath().toString());
+      defaultItemIdClass = propertyPath.split("\\.").length > 1
+          ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
+          : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
+      String field = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
+      String itemId =
+          getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "." + field;
+      itemIdList.add(itemId);
+
+      // fieldPropertyPaths
+      fieldPropertyPaths = new String[] {propertyPath};
+    }
+
+    // itemIds
+    itemIds = itemIdList.toArray(new String[itemIdList.size()]);
+    paramMap.put("itemIds", itemIds);
+
     // In the case of ConditionalXxx validator
     if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
-      String conditionValueKind;
-      String valuesOfConditionFieldToValidate = null;
-      if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_EMPTY)) {
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_EMPTY;
 
-      } else if ((Boolean) paramMap.get(ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY)) {
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE_IS_NOT_EMPTY;
+      ConditionPattern conditionPtn =
+          (ConditionPattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
 
-      } else if (!((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE))
-          .equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-        conditionValueKind = ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE;
+      paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
+
+      String valuesOfConditionPropertyPathToValidate = null;
+      if (conditionPtn == valueOfConditionPropertyPathIsEqualToValueOf
+          || conditionPtn == valueOfConditionPropertyPathIsNotEqualToValueOf) {
+
         Object obj =
-            getFieldValue((String) paramMap.get(ConditionalValidator.FIELD_HOLDING_CONDITION_VALUE),
-                getInstance(), conditionValueKind);
-        if (obj instanceof String[]) {
-          valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace((String[]) obj);
+            getFieldValue((String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH),
+                getInstance());
+        if (obj instanceof Object[]) {
+          List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
+          valuesOfConditionPropertyPathToValidate =
+              StringUtil.getCsvWithSpace((String[]) strList.toArray(new String[strList.size()]));
 
         } else {
           // String
-          valuesOfConditionFieldToValidate = (String) obj;
+          valuesOfConditionPropertyPathToValidate = String.valueOf(obj);
         }
 
-      } else {
+      } else if (conditionPtn == stringValueOfConditionPropertyPathIsEqualTo
+          || conditionPtn == stringValueOfConditionPropertyPathIsNotEqualTo) {
         // conditionValue is used
-        conditionValueKind = ConditionalValidator.CONDITION_VALUE;
 
-        String[] strs = (String[]) paramMap.get(conditionValueKind);
-        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
+        String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
+        valuesOfConditionPropertyPathToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
       // when fieldHoldingConditionValueDisplayName is not blank,
       // valuesOfConditionFieldToValidate is overrided by its value.
-      String fieldHoldingConditionValueDisplayName =
-          (String) paramMap.get("fieldHoldingConditionValueDisplayName");
-      if (!fieldHoldingConditionValueDisplayName.equals("")) {
-        String[] strs = (String[]) getFieldValue(fieldHoldingConditionValueDisplayName,
-            getInstance(), "fieldHoldingConditionValueDisplayName");
-        valuesOfConditionFieldToValidate = StringUtil.getCsvWithSpace(strs);
+      String valueOfConditionValuePropertyPathForDisplay = (String) paramMap
+          .get(ConditionalValidator.VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY);
+      if (!valueOfConditionValuePropertyPathForDisplay.equals("")) {
+        String[] strs =
+            (String[]) getFieldValue(valueOfConditionValuePropertyPathForDisplay, getInstance());
+        valuesOfConditionPropertyPathToValidate = StringUtil.getCsvWithSpace(strs);
       }
 
-      paramMap.put(ConditionalValidator.CONDITION_VALUE_KIND, conditionValueKind);
       paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
-          valuesOfConditionFieldToValidate);
+          valuesOfConditionPropertyPathToValidate);
 
       // validatesWhenConditionNotSatisfied
       boolean bl = getAnnotation().endsWith("ConditionalEmpty")
-          && (Boolean) paramMap.get("notEmptyForOtherValues")
-          || getAnnotation().endsWith("ConditionalNotEmpty")
-              && (Boolean) paramMap.get("emptyForOtherValues");
+          && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY)
+          || getAnnotation().endsWith("ConditionalNotEmpty") && (Boolean) paramMap
+              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY);
       paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
+  }
+
+  private String getFinalItemIdClass(Optional<String> itemIdClassFromAnnotation,
+      String defaultItemIdClass) {
+    String itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
+
+    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
+    return itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
   }
 
   /**
@@ -370,4 +415,9 @@ public class ConstraintViolationBean extends PrivateFieldReader {
   public Map<String, Object> getParamMap() {
     return paramMap;
   }
+
+  public String[] getFieldPropertyPaths() {
+    return fieldPropertyPaths;
+  }
+
 }

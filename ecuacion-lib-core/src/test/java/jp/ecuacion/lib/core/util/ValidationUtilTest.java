@@ -24,6 +24,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,24 +49,25 @@ public class ValidationUtilTest {
     }
 
     // ordinal error occurred (Tests that error created)
-    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator()).ifPresent(mae -> {
-      Assertions.assertEquals(2, mae.getList().size());
-      ValidationAppException exNotNull = null;
-      ValidationAppException exMin = null;
-      for (SingleAppException singleEx : mae.getList()) {
-        ValidationAppException bvEx = (ValidationAppException) singleEx;
-        ConstraintViolationBean bean = bvEx.getConstraintViolationBean();
-        if (bean.getMessageId().equals(NOT_NULL)) {
-          exNotNull = bvEx;
+    ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator())
+        .ifPresent(mae -> {
+          Assertions.assertEquals(2, mae.getList().size());
+          ValidationAppException exNotNull = null;
+          ValidationAppException exMin = null;
+          for (SingleAppException singleEx : mae.getList()) {
+            ValidationAppException bvEx = (ValidationAppException) singleEx;
+            ConstraintViolationBean bean = bvEx.getConstraintViolationBean();
+            if (bean.getMessageId().equals(NOT_NULL)) {
+              exNotNull = bvEx;
 
-        } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
-          exMin = bvEx;
-        }
-      }
+            } else if (bean.getMessageId().equals("jakarta.validation.constraints.Min")) {
+              exMin = bvEx;
+            }
+          }
 
-      Assertions.assertFalse(exNotNull == null);
-      Assertions.assertFalse(exMin == null);
-    });
+          Assertions.assertFalse(exNotNull == null);
+          Assertions.assertFalse(exMin == null);
+        });
   }
 
   @Test
@@ -351,6 +353,21 @@ public class ValidationUtilTest {
         .toList().get(0)).getConstraintViolationBean().getItemIds();
   }
 
+
+  @Test
+  public void validateThenReturn_args_object_PropertyPathHasBeanInstanceTest() {
+    ValidationUtil
+    .validateThenReturn(new PropertyPathHasBeanInstance.ObjWithClassValidator())
+    .ifPresentOrElse(mae -> {
+      String[] itemIds = ((ValidationAppException) mae.getList().get(0))
+          .getConstraintViolationBean().getItemIds();
+      Assertions.assertTrue(itemIds.length == 1);
+      Assertions.assertEquals("itemIdClass.value", itemIds[0]);
+
+    }, () -> Assertions.fail());
+
+  }
+  
   // No @ItemIdClasas
 
   public static class NoItemIdClass {
@@ -363,7 +380,9 @@ public class ValidationUtilTest {
       public int int1 = 2;
     }
 
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
       public String value = null;
@@ -392,7 +411,7 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemIdClasas at field
+  // @ItemIdClass at field
 
   public static class ItemIdClassAtField {
 
@@ -418,7 +437,7 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemIdClasas at class
+  // @ItemIdClass at class
 
   public static class ItemIdClassAtClass {
 
@@ -432,7 +451,9 @@ public class ValidationUtilTest {
     }
 
     @ItemIdClass("itemIdClass")
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
       public String value = null;
@@ -461,7 +482,7 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemIdClasas at ancestor class
+  // @ItemIdClass at ancestor class
 
   public static class ItemIdClassAtAncestorClass {
 
@@ -482,7 +503,9 @@ public class ValidationUtilTest {
       public int int1 = 2;
     }
 
-    @ConditionalNotEmpty(field = "value", conditionField = "conditionValue", conditionValue = "abc")
+    @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
+        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionValueString = "abc")
     public static class ObjWithClassValidator extends Parent {
       public String conditionValue = "abc";
       public String value = null;
@@ -508,6 +531,33 @@ public class ValidationUtilTest {
       @Valid
       public DirectContainerWithClassValidadtor directContainer =
           new DirectContainerWithClassValidadtor();
+    }
+  }
+  
+  // propertyPath has bean instance
+
+  public static class PropertyPathHasBeanInstance {
+
+    @ItemIdClass("itemIdClass")
+    public static class GrandParentOfTargetBean {
+
+    }
+
+    public static class ParentTargetBean extends GrandParentOfTargetBean {
+
+    }
+
+    @ConditionalNotEmpty(propertyPath = "child.value", conditionPropertyPath = "child.conditionValue",
+        conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf,
+        conditionValuePropertyPath = "child.conditionValuePropertyPath")
+    public static class ObjWithClassValidator {
+      ChildObj child = new ChildObj();
+    }
+
+    public static class ChildObj extends ParentTargetBean {
+      public String value = null;
+      public String conditionValue = "abc";
+      public String conditionValuePropertyPath = "abc";
     }
   }
 }

@@ -28,9 +28,10 @@ public class ConditionalEmptyValidator extends ConditionalValidator
   /** Initializes an instance. */
   @Override
   public void initialize(ConditionalEmpty annotation) {
-    super.initialize(annotation.field(), annotation.conditionField(), annotation.conditionValue(),
-        annotation.conditionValueIsEmpty(), annotation.conditionValueIsNotEmpty(),
-        annotation.fieldHoldingConditionValue(), annotation.notEmptyForOtherValues());
+    super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
+        annotation.conditionPattern(),
+        annotation.conditionValueString(),
+        annotation.conditionValuePropertyPath(), annotation.notEmptyWhenConditionNotSatisfied());
   }
 
   @Override

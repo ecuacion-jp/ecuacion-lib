@@ -15,49 +15,61 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEmpty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
+
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.util.internal.PrivateFieldReader;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
-import org.apache.commons.lang3.StringUtils;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
+import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 
-public abstract class ConditionalValidator extends PrivateFieldReader {
-  private String[] field;
-  private String conditionField;
-  private String[] conditionValue;
-  private boolean conditionValueIsEmpty;
-  private boolean conditionValueIsNotEmpty;
-  private String fieldHoldingConditionValue;
+public abstract class ConditionalValidator extends ReflectionUtil {
+  private String[] propertyPath;
+  private String conditionPropertyPath;
+  private ConditionPattern conditionPattern;
+  private String[] conditionValueString;
+  private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
 
-  public static final String VALIDATION_TARGET_FIELD = "validationTargetField";
+  public static final String VALIDATION_TARGET_FIELD = "validationTargetPropertyPath";
+  public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
+  public static final String CONDITION_PROPERTY_PATH_ITEM_ID = "conditionPropertyPathItemId";
+  public static final String CONDITION_PROPERTY_PATH_DISPLAY_NAME =
+      "conditionPropertyPathDisplayName";
+  public static final String CONDITION_PATTERN = "conditionPattern";
+  public static final String CONDITION_VALUE_STRING = "conditionValueString";
+  public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
+  public static final String VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY =
+      "valueOfConditionValuePropertyPathForDisplay";
 
-  public static final String CONDITION_FIELD = "conditionField";
-  public static final String CONDITION_VALUE = "conditionValue";
-  public static final String CONDITION_VALUE_IS_EMPTY = "conditionValueIsEmpty";
-  public static final String CONDITION_VALUE_IS_NOT_EMPTY = "conditionValueIsNotEmpty";
-  public static final String FIELD_HOLDING_CONDITION_VALUE = "fieldHoldingConditionValue";
+  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY =
+      "notEmptyWhenConditionNotSatisfied";
+  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY =
+      "emptyWhenConditionNotSatisfied";
 
   // Used to create messages from conditional validators.
-  public static final String CONDITION_VALUE_KIND = "conditionValueKind";
+  // public static final String CONDITION_VALUE_KIND = "conditionValueKind";
   public static final String VALUE_OF_CONDITION_FIELD_TO_VALIDATE =
       "valuesOfConditionFieldToValidate";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
-  public void initialize(String[] field, String conditionField, String[] conditionValue,
-      boolean conditionValueIsEmpty, boolean conditionValueIsNotEmpty,
-      String fieldHoldingConditionValue, boolean validatesWhenConditionNotSatisfied) {
-    this.field = field;
-    this.conditionField = conditionField;
-    this.conditionValue = conditionValue;
-    this.conditionValueIsEmpty = conditionValueIsEmpty;
-    this.conditionValueIsNotEmpty = conditionValueIsNotEmpty;
-    this.fieldHoldingConditionValue = fieldHoldingConditionValue;
+  public void initialize(String[] propertyPath, String conditionPropertyPath,
+      ConditionPattern conditionPattern, String[] conditionValueString,
+      String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
+    this.propertyPath = propertyPath;
+    this.conditionPropertyPath = conditionPropertyPath;
+    this.conditionPattern = conditionPattern;
+    this.conditionValueString = conditionValueString;
+    this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
 
@@ -70,8 +82,8 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
-    List<Object> valueOfFieldList = Arrays.asList(field).stream()
-        .map(f -> getFieldValue(f, instance, VALIDATION_TARGET_FIELD)).toList();
+    List<Object> valueOfFieldList =
+        Arrays.asList(propertyPath).stream().map(f -> getFieldValue(f, instance)).toList();
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
@@ -101,107 +113,71 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
 
   boolean getSatisfiesCondition(Object instance) {
 
-    Object valueOfConditionField = getFieldValue(conditionField, instance, CONDITION_FIELD);
+    Object valueOfConditionField = getFieldValue(conditionPropertyPath, instance);
 
-    if (conditionValueIsEmpty) {
-      conditionValueIsNotEmptyMustBeFalse(CONDITION_VALUE_IS_EMPTY + " = true");
-      fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
-      conditionValueMustBeNull(CONDITION_VALUE_IS_EMPTY + " = true");
+    if (conditionPattern == valueOfConditionPropertyPathIsEmpty
+        || conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
 
-      if (valueOfConditionField == null || (valueOfConditionField instanceof String
-          && StringUtils.isEmpty((String) valueOfConditionField))) {
+      conditionValueStringMustNotSet();
+      conditionValueFieldMustNotSet();
+
+      boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
+          && ((String) valueOfConditionField).equals(""));
+
+      if (isEmpty && conditionPattern == valueOfConditionPropertyPathIsEmpty
+          || !isEmpty && conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
         return true;
       }
 
-    } else if (conditionValueIsNotEmpty) {
-      fieldHoldingConditionalValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
-      conditionValueMustBeNull(CONDITION_VALUE_IS_NOT_EMPTY + " = true");
+    } else if (conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
+        || conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
 
-      boolean instanceOfString = valueOfConditionField instanceof String;
-      if ((!instanceOfString && valueOfConditionField != null)
-          || (instanceOfString && !StringUtils.isEmpty((String) valueOfConditionField))) {
-        return true;
-      }
+      conditionValueStringMustNotSet();
 
-    } else if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      conditionValueMustBeNull(FIELD_HOLDING_CONDITION_VALUE);
+      Object valueOfConditionValueField = getFieldValue(conditionValuePropertyPath, instance);
 
-      Object valueOfFieldHoldingConditionValue =
-          getFieldValue(fieldHoldingConditionValue, instance, FIELD_HOLDING_CONDITION_VALUE);
-
-      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
-      List<Object> valueOfFieldHoldingConditionValueList = new ArrayList<>();
-      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
-        for (Object val : (Object[]) valueOfFieldHoldingConditionValue) {
-          if (val == null) {
-            val = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
-          }
-
-          valueOfFieldHoldingConditionValueList.add(val);
-        }
-      }
-
-      // valueOfConditionField == null
-      if (valueOfConditionField == null) {
-        if (valueOfFieldHoldingConditionValue == null
-            || valueOfFieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
-            || (valueOfFieldHoldingConditionValue instanceof Object[]
-                && valueOfFieldHoldingConditionValueList
-                    .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))) {
-          return true;
-
-        } else {
-          return false;
-        }
-      }
-
-      // reaching here means valueOfConditionField != null
-      ObjectsUtil.requireNonNull(valueOfConditionField);
-
-      // Since valueOfConditionField != null, if valueOfFieldHoldingConditionValue == null,
-      // return value is always false.
-      if (valueOfFieldHoldingConditionValue == null) {
-        return false;
-      }
-
-      // reaching here means valueOfFieldHoldingConditionValue != null
-      ObjectsUtil.requireNonNull(valueOfFieldHoldingConditionValue);
-
-      // the case that valueOfFieldHoldingConditionValue is an instance of Object[]
-      if (valueOfFieldHoldingConditionValue instanceof Object[]) {
-        for (Object singleValue : (Object[]) valueOfFieldHoldingConditionValue) {
-
-          // if the singleValue == null, return is always false so it should be skipped to the next
-          // loop.
-          if (singleValue == null) {
-            continue;
-          }
-
-          // throws exception when the datatype differs
-          if (!(valueOfConditionField.getClass().equals(singleValue.getClass()))) {
-            throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
-                + " and " + valueOfFieldHoldingConditionValue.getClass());
-          }
-
-          if (valueOfConditionField.equals(singleValue)) {
-            return true;
-          }
+      List<Object> valueListOfConditionValueField = new ArrayList<>();
+      if (valueOfConditionValueField instanceof Object[]) {
+        for (Object val : (Object[]) valueOfConditionValueField) {
+          valueListOfConditionValueField.add(val);
         }
 
       } else {
-        // throws exception when the datatype differs
-        if (!(valueOfConditionField.getClass()
-            .equals(valueOfFieldHoldingConditionValue.getClass()))) {
-          throw new EclibRuntimeException("DataType Differs: " + valueOfConditionField.getClass()
-              + " and " + valueOfFieldHoldingConditionValue.getClass());
-        }
+        valueListOfConditionValueField.add(valueOfConditionValueField);
+      }
 
-        if (valueOfConditionField.equals(valueOfFieldHoldingConditionValue)) {
-          return true;
+      // dataType difference check
+      List<Object> nonnullList =
+          valueListOfConditionValueField.stream().filter(v -> v != null).toList();
+      Object firstValueOfConditionValueField = nonnullList.size() == 0 ? null : nonnullList.get(0);
+      // if either of 2 values is null you cant check difference of datatype. So both is not null.
+      if (valueOfConditionField != null && firstValueOfConditionValueField != null) {
+        Class<?> valueOfCf = valueOfConditionField.getClass();
+        Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
+        if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
+          throw new EclibRuntimeException(
+              "Datatype not match. valueOfConditionField: " + valueOfConditionField
+                  + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
         }
       }
 
+      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
+      valueListOfConditionValueField
+          .replaceAll(x -> x == null ? EclibCoreConstants.VALIDATOR_PARAMETER_NULL : x);
+
+      boolean contains = (valueOfConditionField == null
+          && valueListOfConditionValueField.contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))
+          || (valueOfConditionField != null
+              && valueListOfConditionValueField.contains(valueOfConditionField));
+
+      if (contains && conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
+          || !contains && conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
+        return true;
+      }
+
     } else {
+
+      conditionValueFieldMustNotSet();
 
       if (valueOfConditionField == null) {
         valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
@@ -213,7 +189,9 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
             "When 'conditionValue' is not null, 'validationConditionField' must be String.");
       }
 
-      if (Arrays.asList(conditionValue).contains(valueOfConditionField)) {
+      boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
+      if (contains && conditionPattern == stringValueOfConditionPropertyPathIsEqualTo
+          || !contains && conditionPattern == stringValueOfConditionPropertyPathIsNotEqualTo) {
         return true;
       }
     }
@@ -234,27 +212,23 @@ public abstract class ConditionalValidator extends PrivateFieldReader {
     return true;
   }
 
-  private void conditionValueIsNotEmptyMustBeFalse(String prerequisite) {
-    // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (conditionValueIsNotEmpty) {
-      throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + CONDITION_VALUE_IS_NOT_EMPTY + " = true'.");
-    }
-  }
-
-  private void fieldHoldingConditionalValueMustBeNull(String prerequisite) {
+  private void conditionValueFieldMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!fieldHoldingConditionValue.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException("When you set '" + prerequisite + "', you cannot set '"
-          + FIELD_HOLDING_CONDITION_VALUE + "'.");
+    if (!Arrays.asList(conditionValuePropertyPath)
+        .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException("You cannot set 'conditionValueField' when "
+          + "howToDetermineConditionIsValid is not either 'valueOfConditionFieldIsEqualToValueOf' "
+          + "or 'valueOfConditionFieldIsNotEqualToValueOf'.");
     }
   }
 
-  private void conditionValueMustBeNull(String prerequisite) {
+  private void conditionValueStringMustNotSet() {
     // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (!Arrays.asList(conditionValue).contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException(
-          "When you set '" + prerequisite + "', you cannot set '" + CONDITION_VALUE + " = true'.");
+    if (!Arrays.asList(conditionValueString)
+        .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException("You cannot set 'conditionValueString' when "
+          + "howToDetermineConditionIsValid is not either "
+          + "'stringValueOfConditionFieldIsEqualTo' or 'stringValueOfConditionFieldIsNotEqualTo'.");
     }
   }
 }

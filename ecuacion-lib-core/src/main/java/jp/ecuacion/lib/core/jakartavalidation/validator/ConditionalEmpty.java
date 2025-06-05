@@ -27,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalEmpty.ConditionalEmptyList;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 
 /**
  * Checks if specified {@code field} is empty 
@@ -58,65 +59,89 @@ public @interface ConditionalEmpty {
   /** 
    * Validated field.
    * 
-   * @return field name
+   * <p>Its name is {@code propertyPath}, not {@code field} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   * 
+   * @return propertyPath
    */
-  String[] field();
+  String[] propertyPath();
 
   /**
    * Conditional field. Validation check is executed 
    * only when the value of this field is equal to the value 
    * which {@code fieldWhichHoldsConditionalValue} holds.
    * 
+   * <p>Its name is {@code conditionPropertyPath}, not {@code conditionField} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     
    * @return condition field name
    */
-  String conditionField();
+  String conditionPropertyPath();
 
   /**
-   * Validation check is executed 
-   *     only when the value {@code conditionField} holds is equal to to it.
+   * Specifies how to determine condition is valid.
    * 
-   * <p>You can use this value when the datatype of {@code conditionField} is {@code String}.
-   *     Otherwise you should use {@code fieldWhichHoldsConditionalValue}.</p>
+   * <p>For example, we can say condition is satisfied 
+   *     when the value of conditionField is not empty, 
+   *     or the value of conditionField is equal to "a".<br>
+   *     This field specifies how to determine that the condition is satisfied.</p>
    * 
-   * <p>Multiple values can be set to the parameter. In that case validation check is executed
-   *     when one of the values are equal to the value of conditionField.</p>
-   * 
-   * @return value
+   * @return ConditionPattern
    */
-  String[] conditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  ConditionPattern conditionPattern();
 
   /**
-   * Validation check is executed
-   *     only when it's true and the value {@code conditionField} holds is empty.
-   *      
-   * @return boolean
-   */
-  boolean conditionValueIsEmpty() default false;
-
-  /**
-   * Validation check is executed
-   *     only when it's true and the value {@code conditionField} holds is not empty.
-   *      
-   * @return boolean
-   */
-  boolean conditionValueIsNotEmpty() default false;
-
-  /**
-   * Validation check is executed
-   *     only when the value of the field specified by this parameter holds
-   *     is equal to the value of {@code conditionField}.
+   * Specifies condition value string.
    * 
-   * @return value
+   * <p>This is used when {@code HowToDetermineConditionIsValid} is either 
+   *     {@code stringValueOfConditionFieldIsEqualTo} 
+   *     or {@code stringValueOfConditionFieldIsNotEqualTo}.
+   *     Otherwise it must be unset.</p>
+   * 
+   * <p>When {@code stringValueOfConditionFieldIsEqualTo} is selected,
+   *     a condition is considered to be satisfied 
+   *     if one of the values of this field is equal to the value of conditionField.<br>
+   *     When {@code stringValueOfConditionFieldIsNotEqualTo} is selected,
+   *     a condition is considered to be satisfied 
+   *     if all of the values of this field is NOT equal to the value of conditionField.<br>
+   * 
+   * <p>You can use {@code stringValueOfConditionFieldIsEqualTo}
+   *     and {@code stringValueOfConditionFieldIsNotEqualTo} 
+   *     only when the datatype of conditionField is string. 
+   *     Otherwise you need to choose other choice.</p>
+   * 
+   * @return an array of string values
    */
-  String fieldHoldingConditionValue() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String[] conditionValueString() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
-   * Decides whether validation check is executed 
-   *     when the value of {@code conditionField} is not equal to the specified value.
+   * Specifies condition value field.
    * 
-   * @return boolean
+   * <p>This is used when {@code HowToDetermineConditionIsValid} is either 
+   *     {@code valueOfConditionFieldIsEqualToValueOf} 
+   *     or {@code valueOfConditionFieldIsNotEqualToValueOf}.
+   *     Otherwise it must be unset.</p>
+   * 
+   * <p>The datatype of the field specifies {@code conditionValueField} can be an array.</p>
+   * 
+   * <p>When {@code valueOfConditionFieldIsEqualToValueOf} is selected,
+   *     a condition is considered to be satisfied 
+   *     if one of the values of the field {@code conditionValueField} specifies 
+   *     is equal to the value of conditionField.<br>
+   *     When {@code valueOfConditionFieldIsNotEqualToValueOf} is selected,
+   *     a condition is considered to be satisfied 
+   *     if all of the values of the field {@code conditionValueField} specifies 
+   *     is NOT equal to the value of conditionField.<br>
+   * 
+   * <p>Its name is {@code conditionValuePropertyPath}, not {@code conditionValueField} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     
+   * @return an array of string values
    */
-  boolean notEmptyForOtherValues() default false;
+  String conditionValuePropertyPath() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies a field which holds the display name of condition value.
@@ -124,10 +149,23 @@ public @interface ConditionalEmpty {
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
    *     as a part of an error message.</p>
+   *     
+   * <p>Its name is {@code valueOfConditionValuePropertyPathForDisplay}, 
+   * not {@code valueOfConditionValueFieldForDisplay} 
+   *     because basically you set field names (like 'name'), 
+   *     but you can also set a field in a bean (like 'dept.name').</p>     
    * 
    * @return String
    */
-  String fieldHoldingConditionValueDisplayName() default "";
+  String valueOfConditionValuePropertyPathForDisplay() default "";
+
+  /**
+   * Decides whether validation check is executed 
+   *     when the value of {@code conditionField} is not equal to the specified value.
+   * 
+   * @return boolean
+   */
+  boolean notEmptyWhenConditionNotSatisfied() default false;
 
   /** 
    * Returns message ID.

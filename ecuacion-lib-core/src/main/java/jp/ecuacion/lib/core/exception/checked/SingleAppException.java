@@ -38,4 +38,11 @@ public abstract class SingleAppException extends AppException {
   public SingleAppException(String message) {
     super(message);
   }
+  
+  /**
+   * Provides the location of an item at which this error occured.
+   * 
+   * @return an array of fpropertyPath
+   */
+  public abstract String[] getItemPropertyPaths();
 }

@@ -127,4 +127,9 @@ public class ValidationAppException extends SingleAppException {
   public void setMessagePostfix(Arg messagePostfix) {
     this.messagePostfix = messagePostfix;
   }
+
+  @Override
+  public String[] getItemPropertyPaths() {
+    return bean.getFieldPropertyPaths();
+  }
 }
