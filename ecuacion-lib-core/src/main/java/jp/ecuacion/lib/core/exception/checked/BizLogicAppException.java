@@ -37,8 +37,8 @@ public class BizLogicAppException extends SingleAppException {
   @Nonnull
   private Arg[] messageArgs;
 
-  @Nullable
-  private AppExceptionItemIds itemIds;
+  @Nonnull
+  private String[] itemPropertyPaths;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -46,7 +46,8 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nonnull String messageId, @Nonnull String... messageArgs) {
+  public BizLogicAppException(@RequireNonnull String messageId,
+      @RequireNonnull String... messageArgs) {
     this(null, messageId, messageArgs);
   }
 
@@ -54,16 +55,15 @@ public class BizLogicAppException extends SingleAppException {
    * Constructs a new instance with {@code locale},  {@code itemId}s,
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param itemIds the itemIds related to the exception
+   * @param itemPropertyPaths the itemIds related to the exception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable AppExceptionItemIds itemIds, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
+  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
+      @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
 
-    this(itemIds, ObjectsUtil.requireNonNull(messageId),
-        Arrays.asList(ObjectsUtil.requireNonNull(messageArgs)).stream()
-            .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+    this(itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
+        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
   /**
@@ -81,13 +81,13 @@ public class BizLogicAppException extends SingleAppException {
    * Constructs a new instance with {@code itemIds},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param itemIds the itemIds related to the exeception
+   * @param itemPropertyPaths the itemIds related to the exeception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable AppExceptionItemIds itemIds,
+  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
       @RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
-    this.itemIds = itemIds;
+    this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = messageArgs;
   }
@@ -97,13 +97,21 @@ public class BizLogicAppException extends SingleAppException {
     return PropertyFileUtil.getMessage(messageId, messageArgs);
   }
 
+  @Override
+  public @Nonnull String[] getItemPropertyPaths() {
+    return itemPropertyPaths;
+  }
+
   /**
-   * Gets itemIds. 
+   * Sets propertyPath and returns self for method chain.
    * 
-   * @return itemIds
+   * @param itemPropertyPaths propertyPaths
+   * @return BizLogicAppException
    */
-  public @Nullable AppExceptionItemIds getItemIds() {
-    return itemIds;
+  public BizLogicAppException itemPropertyPaths(String... itemPropertyPaths) {
+    this.itemPropertyPaths = itemPropertyPaths;
+
+    return this;
   }
 
   /**
