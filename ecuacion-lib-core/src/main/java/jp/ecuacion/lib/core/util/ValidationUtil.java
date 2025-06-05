@@ -79,7 +79,9 @@ public class ValidationUtil {
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
       @Nullable Arg messagePostfix) throws MultipleAppException {
-    Optional<MultipleAppException> exOpt = validateThenReturn(object);
+    Optional<MultipleAppException> exOpt =
+        validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix);
+
     if (exOpt.isPresent()) {
       throw exOpt.get();
     }
