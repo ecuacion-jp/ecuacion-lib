@@ -16,8 +16,6 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
@@ -49,14 +47,9 @@ public class AppWarningException extends Exception {
   protected String[] messageArgs;
 
   /**
-   * locale.
+   * propertyPaths.
    */
-  protected Locale locale;
-
-  /**
-   * itemIds.
-   */
-  protected AppExceptionItemIds itemIds;
+  protected String[] itemPropertyPaths;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -64,36 +57,26 @@ public class AppWarningException extends Exception {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public AppWarningException(@Nonnull String messageId, @Nonnull String... messageArgs) {
-    this(Locale.getDefault(), messageId, messageArgs);
+  public AppWarningException(@RequireNonnull String messageId,
+      @RequireNonnull String... messageArgs) {
+    this(new String[] {}, messageId, messageArgs);
   }
 
   /**
-   * Constructs a new instance with warn itemIds, messageId and message Arguments.
+   * Constructs a new instance 
+   *     with {@code itemPropertyPaths}, {@code messageId} and {@code messageArgs}.
    *
-   * @param locale locale. May be null, which means default locale is used.
-   *        designated.
-   * @param messageId messageId. Cannot be {@code null}.
-   * @param messageArgs message Arguments. May be null, which means no message arguments designated.
+   * @param messageId message ID
+   * @param messageArgs message Arguments
    */
-  public AppWarningException(@RequireNonnull Locale locale, @Nonnull String messageId,
-      @Nonnull String... messageArgs) {
+  public AppWarningException(@RequireNonnull String[] itemPropertyPaths,
+      @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
     super();
 
-    this.locale = ObjectsUtil.requireNonNull(locale);
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = ObjectsUtil.requireNonNull(messageArgs);
-    
-    this.itemIds = new AppExceptionItemIds();
-  }
 
-  /**
-   * Returns locale.
-   * 
-   * @return locale
-   */
-  public @Nonnull Locale getLocale() {
-    return locale;
+    this.itemPropertyPaths = ObjectsUtil.requireNonNull(itemPropertyPaths);
   }
 
   /**
@@ -115,27 +98,23 @@ public class AppWarningException extends Exception {
   }
 
   /**
-   * Returns itemIds.
+   * Returns itemPropertyPaths.
   
-   * @return itemIds
+   * @return itemPropertyPaths
    */
-  public @Nonnull AppExceptionItemIds itemIds() {
-    return itemIds;
+  public @Nonnull String[] getItemPropertyPaths() {
+    return itemPropertyPaths;
   }
 
   /**
-   * Sets itemIds and return this instance to realize the method chain.
+   * Sets itemPropertyPaths and return this instance to realize the method chain.
    *
    * @return AppWarningException
    */
-  public @Nonnull AppWarningException itemIds(@Nullable AppExceptionItemIds itemIds) {
-    if (itemIds != null) {
-      this.itemIds = itemIds;
+  public @Nonnull AppWarningException itemPropertyPaths(
+      @RequireNonnull String[] itemPropertyPaths) {
+    this.itemPropertyPaths = ObjectsUtil.requireNonNull(itemPropertyPaths);
 
-    } else {
-      this.itemIds = new AppExceptionItemIds();
-    }
-    
     return this;
   }
 }
