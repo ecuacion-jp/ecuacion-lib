@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ItemIdClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ItemKindIdClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
@@ -56,7 +56,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
   private String messageTemplate;
   private String annotationDescriptionString;
 
-  private String[] itemIds;
+  private String[] itemKindIds;
 
   @Nonnull
   private Map<String, Object> paramMap;
@@ -100,16 +100,16 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * @param validatorClass validatorClass
    */
   public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
-      String itemId) {
+      String itemKindId) {
     this.message = message;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
 
-    this.itemIds = new String[] {itemId};
-    // in this case itemId == propertyPath holds true.
-    this.propertyPath = itemId;
-    this.fieldPropertyPaths = new String[] {itemId};
+    this.itemKindIds = new String[] {itemKindId};
+    // in this case itemKindId == propertyPath holds true.
+    this.propertyPath = itemKindId;
+    this.fieldPropertyPaths = new String[] {itemKindId};
 
     this.paramMap = new HashMap<>();
 
@@ -117,16 +117,16 @@ public class ConstraintViolationBean extends ReflectionUtil {
     annotationDescriptionString = "";
   }
 
-  private Optional<String> getItemIdClassFromAnnotation(boolean isClassValidator, Object leafBean,
-      String propertyPath) {
+  private Optional<String> getItemKindIdClassFromAnnotation(boolean isClassValidator,
+      Object leafBean, String propertyPath) {
 
     Object modifiedLeafBean = leafBean;
     try {
-      // search for @ItemIdClass at field
+      // search for @ItemKindIdClass at field
       if (!isClassValidator) {
         String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
         Field field = getField(fieldName, modifiedLeafBean).getLeft();
-        ItemIdClass an = field.getAnnotation(ItemIdClass.class);
+        ItemKindIdClass an = field.getAnnotation(ItemKindIdClass.class);
         String value = an == null ? null : an.value();
 
         if (value != null) {
@@ -148,7 +148,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
         }
       }
 
-      Optional<ItemIdClass> an = searchAnnotationPlacedAtClass(modifiedLeafBean, ItemIdClass.class);
+      Optional<ItemKindIdClass> an =
+          searchAnnotationPlacedAtClass(modifiedLeafBean, ItemKindIdClass.class);
       return Optional.ofNullable(an.isPresent() ? an.get().value() : null);
 
     } catch (Exception ex) {
@@ -170,42 +171,44 @@ public class ConstraintViolationBean extends ReflectionUtil {
     boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
         .getAnnotation(PlacedAtClass.class) != null;
 
-    // itemIdClass
-    String defaultItemIdClass = null;
+    // itemKindIdClass
+    String defaultItemKindIdClass = null;
 
-    // itemIdField
+    // itemKindIdField
     String[] propertyPaths = null;
-    List<String> itemIdList = new ArrayList<>();
+    List<String> itemKindIdList = new ArrayList<>();
     if (isClassValidator) {
       // Reaching here means the annotation is added to class, not field.
       propertyPaths = (String[]) paramMap.get("propertyPath");
 
       for (String fieldPropertyPath : propertyPaths) {
-        Optional<String> itemIdClassFromAnnotation =
-            getItemIdClassFromAnnotation(isClassValidator, cv.getLeafBean(),
+        Optional<String> itemKindIdClassFromAnnotation =
+            getItemKindIdClassFromAnnotation(isClassValidator, cv.getLeafBean(),
                 fieldPropertyPath.contains(".")
                     ? fieldPropertyPath.substring(0, fieldPropertyPath.lastIndexOf("."))
                     : "");
 
-        defaultItemIdClass = StringUtils.isEmpty(propertyPath)
+        defaultItemKindIdClass = StringUtils.isEmpty(propertyPath)
             ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
             : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
 
-        String itemId = getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "."
-            + (fieldPropertyPath.contains(".")
-                ? (fieldPropertyPath.substring(fieldPropertyPath.lastIndexOf(".") + 1))
-                : fieldPropertyPath);
-        itemIdList.add(itemId);
+        String itemKindId =
+            getFinalItemKindIdClass(itemKindIdClassFromAnnotation, defaultItemKindIdClass) + "."
+                + (fieldPropertyPath.contains(".")
+                    ? (fieldPropertyPath.substring(fieldPropertyPath.lastIndexOf(".") + 1))
+                    : fieldPropertyPath);
+        itemKindIdList.add(itemKindId);
       }
 
-      // conditionFieldItemId
+      // conditionFieldItemKindId
       String conditionPropertyPath =
           (String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH);
-      Optional<String> itemIdClassFromAnnotation =
-          getItemIdClassFromAnnotation(isClassValidator, cv.getLeafBean(), conditionPropertyPath);
-      String newValue = getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "."
-          + conditionPropertyPath;
-      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_ID, newValue);
+      Optional<String> itemKindIdClassFromAnnotation = getItemKindIdClassFromAnnotation(
+          isClassValidator, cv.getLeafBean(), conditionPropertyPath);
+      String newValue =
+          getFinalItemKindIdClass(itemKindIdClassFromAnnotation, defaultItemKindIdClass) + "."
+              + conditionPropertyPath;
+      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_KIND_ID, newValue);
 
       // fieldPropertyPaths
       List<String> list =
@@ -214,26 +217,27 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     } else {
       // Reaching here means the annotation is added to field.
-      // In that case propertyPath cannot be empty and the last part is always itemIdField.
+      // In that case propertyPath cannot be empty and the last part is always itemKindIdField.
 
-      // itemId
-      Optional<String> itemIdClassFromAnnotation = getItemIdClassFromAnnotation(isClassValidator,
-          cv.getLeafBean(), cv.getPropertyPath().toString());
-      defaultItemIdClass = propertyPath.split("\\.").length > 1
+      // itemKindId
+      Optional<String> itemKindIdClassFromAnnotation = getItemKindIdClassFromAnnotation(
+          isClassValidator, cv.getLeafBean(), cv.getPropertyPath().toString());
+      defaultItemKindIdClass = propertyPath.split("\\.").length > 1
           ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
           : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
       String field = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-      String itemId =
-          getFinalItemIdClass(itemIdClassFromAnnotation, defaultItemIdClass) + "." + field;
-      itemIdList.add(itemId);
+      String itemKindId =
+          getFinalItemKindIdClass(itemKindIdClassFromAnnotation, defaultItemKindIdClass) + "."
+              + field;
+      itemKindIdList.add(itemKindId);
 
       // fieldPropertyPaths
       fieldPropertyPaths = new String[] {propertyPath};
     }
 
-    // itemIds
-    itemIds = itemIdList.toArray(new String[itemIdList.size()]);
-    paramMap.put("itemIds", itemIds);
+    // itemKindIds
+    itemKindIds = itemKindIdList.toArray(new String[itemKindIdList.size()]);
+    paramMap.put("itemKindIds", itemKindIds);
 
     // In the case of ConditionalXxx validator
     if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
@@ -291,12 +295,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     }
   }
 
-  private String getFinalItemIdClass(Optional<String> itemIdClassFromAnnotation,
-      String defaultItemIdClass) {
-    String itemIdClass = itemIdClassFromAnnotation.orElse(defaultItemIdClass);
+  private String getFinalItemKindIdClass(Optional<String> itemKindIdClassFromAnnotation,
+      String defaultItemKindIdClass) {
+    String itemKindIdClass = itemKindIdClassFromAnnotation.orElse(defaultItemKindIdClass);
 
-    // Remove "aClass$" from "aClass$bClass" when itemIdClass is an internal class.
-    return itemIdClass.split("\\$")[itemIdClass.split("\\$").length - 1];
+    // Remove "aClass$" from "aClass$bClass" when itemKindIdClass is an internal class.
+    return itemKindIdClass.split("\\$")[itemKindIdClass.split("\\$").length - 1];
   }
 
   /**
@@ -407,8 +411,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return cv.getLeafBean();
   }
 
-  public String[] getItemIds() {
-    return itemIds;
+  public String[] getItemKindIds() {
+    return itemKindIds;
   }
 
   @Nonnull

@@ -52,10 +52,10 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Constructs a new instance with {@code locale},  {@code itemId}s,
+   * Constructs a new instance with {@code itemPropertyPath}s,
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param itemPropertyPaths the itemIds related to the exception
+   * @param itemPropertyPaths the itemPropertyPaths related to the exception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
@@ -67,8 +67,7 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Constructs a new instance with {@code itemIds},
-   *     {@code messageId} and {@code messageArgs}.
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
    * @param messageArgs message Arguments
@@ -78,10 +77,10 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Constructs a new instance with {@code itemIds},
+   * Constructs a new instance with {@code itemPropertyPaths},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param itemPropertyPaths the itemIds related to the exeception
+   * @param itemPropertyPaths the itemPropertyPaths related to the exception
    * @param messageId message ID
    * @param messageArgs message Arguments
    */

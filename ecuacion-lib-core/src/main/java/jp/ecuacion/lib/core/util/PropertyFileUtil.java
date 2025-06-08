@@ -585,17 +585,17 @@ public class PropertyFileUtil {
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
       // field -> fieldDisplayName
-      key = "itemIds";
+      key = "itemKindIds";
       newKey = "fieldDisplayName";
-      String[] itemIds = (String[]) argMap.get(key);
+      String[] itemKindIds = (String[]) argMap.get(key);
       List<String> fieldDisplayNameList = new ArrayList<>();
-      for (String itemId : itemIds) {
-        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, itemId));
+      for (String itemKindId : itemKindIds) {
+        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, itemKindId));
       }
       argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
 
       // conditionFieldDisplayName
-      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_ID);
+      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_KIND_ID);
       argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_DISPLAY_NAME,
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
