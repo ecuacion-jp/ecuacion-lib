@@ -24,9 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Specifies {@code itemIdClass} on validated by {@code ValidationUtil}.
+ * Specifies {@code itemKindIdClass} on validated by {@code ValidationUtil}.
  * 
- * <p>When {@code ValidationUtil} validates some object, itemId is set by default.
+ * <p>When {@code ValidationUtil} validates some object, itemKindId is set by default.
  *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
  * 
  * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
@@ -34,10 +34,10 @@ import java.lang.annotation.Target;
 @Target({FIELD, ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-public @interface ItemIdClass {
+public @interface ItemKindIdClass {
 
   /**
-   * Specifies itemIdClass.
+   * Specifies itemKindIdClass.
    */
   String value();
 }
