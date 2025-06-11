@@ -210,30 +210,6 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  @Deprecated
-  public static String getApp(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).getProp(key);
-  }
-
-
-  /**
-   * Returns the existence of the key in application_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return boolean value that shows whether properties has the key
-   */
-  @Deprecated
-  public static boolean hasApp(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).hasProp(key);
-  }
-
-  /**
-   * Returns the value in application_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return the value of the property
-   */
-  @Nonnull
   public static String getApplication(@RequireNonnull String key) {
     return getterMap.get(APPLICATION).getProp(key);
   }
@@ -247,81 +223,6 @@ public class PropertyFileUtil {
    */
   public static boolean hasApplication(@RequireNonnull String key) {
     return getterMap.get(APPLICATION).hasProp(key);
-  }
-
-  /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@RequireNonnull String key, @Nonnull String... args) {
-    return getMessage(key, args);
-  }
-
-  /**
-   * Returns the localized value in messages_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @Nonnull String... args) {
-    return getMessage(locale, key, args);
-  }
-
-  /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@RequireNonnull String key, @RequireNonnull Arg[] args) {
-    return getMessage(key, args);
-  }
-
-  /**
-   * Returns the localized value in messages_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the message corresponding to the message ID
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
-    return getMessage(locale, key, args);
-  }
-
-  /**
-   * Returns the existence of the key in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return boolean value that shows whether properties has the key (message ID)
-   */
-  @Deprecated
-  public static boolean hasMsg(@RequireNonnull String key) {
-    return hasMessage(key);
   }
 
   /**
