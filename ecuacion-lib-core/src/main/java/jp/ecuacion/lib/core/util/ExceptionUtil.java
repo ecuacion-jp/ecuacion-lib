@@ -94,6 +94,33 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
       @Nullable Locale locale, boolean needsDetails) {
+    return getExceptionMessage(throwable, locale, needsDetails, true);
+  }
+
+  /**
+   * Returns exception message for 1 exception.
+   * 
+   * <p>This method covers all the exceptions including Java standard exceptions, 
+   * ConstraintViolationException used in Jakarta Validation
+   * and AppExceptions defined in this library.</p>
+   * 
+   * <p>One exception normally has one message, 
+   * but one ConstraintViolationException can have multiple messages 
+   * so the return type is not a {@code String}, but a {@code List<String>}.
+   *
+   * @param throwable throwable
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param needsDetails Sets if detail message is needed. 
+   *     This is true with log output or batch processing. 
+   *     False when you show the message on screen.
+   * @param needsItemName true when itemName needed for ValidationAppException messages.
+   *     
+   * @return a list of messages
+   */
+  @Nonnull
+  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+      @Nullable Locale locale, boolean needsDetails, boolean needsItemName) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
     ObjectsUtil.requireNonNull(needsDetails);
@@ -132,7 +159,8 @@ public class ExceptionUtil {
           ConstraintViolationBean bean = ex.getConstraintViolationBean();
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
-          message = ex.isMessageWithItemName()
+
+          message = needsItemName || ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
                   map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
@@ -324,6 +352,33 @@ public class ExceptionUtil {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(appException).stream()
         .map(ex -> getExceptionMessage(ex, locale, false)).forEach(list -> rtnList.addAll(list));
+    return rtnList;
+  }
+
+  /**
+   * Returns listed SingleAppExceptions (= AppExceptions with messages).
+   * 
+   * <p>This is used for online.</p>
+   * 
+   * <p>The overload method with RuntimeAppException won't be created
+   * because getCause() of RuntimeAppException is AppException and 
+   * it is not needed by then.</p>
+   * 
+   * @param appException AppException
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param needsItemName true when itemName needed for ValidationAppException messages.
+   * @return list of SingleAppException
+   */
+  @Nonnull
+  public static List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
+      @Nullable Locale locale, boolean needsItemName) {
+    // 呼び出し先でnullcheckをしているためここでは不要。
+
+    List<String> rtnList = new ArrayList<>();
+    getSingleAppExceptionList(appException).stream()
+        .map(ex -> getExceptionMessage(ex, locale, false, needsItemName))
+        .forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
 
