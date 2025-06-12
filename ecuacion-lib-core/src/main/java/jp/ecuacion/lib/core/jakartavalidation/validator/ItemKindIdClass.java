@@ -24,7 +24,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Specifies {@code itemKindIdClass} on validated by {@code ValidationUtil}.
+ * THIS IS NOT A VALIDTOR. 
+ *     This specifies {@code itemKindIdClass} on validated by {@code ValidationUtil}.
  * 
  * <p>When {@code ValidationUtil} validates some object, itemKindId is set by default.
  *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
