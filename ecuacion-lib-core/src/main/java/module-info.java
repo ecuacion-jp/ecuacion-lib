@@ -39,6 +39,7 @@ module jp.ecuacion.lib.core {
   requires transitive org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
+  requires jakarta.el;
   
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
