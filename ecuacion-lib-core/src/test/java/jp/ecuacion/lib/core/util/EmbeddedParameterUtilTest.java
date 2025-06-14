@@ -71,14 +71,6 @@ public class EmbeddedParameterUtilTest {
     Assertions.assertEquals("a", getVar("${a}b${c}"));
     Assertions.assertEquals("a", getVar("${a}${b}${c}"));
 
-    // parameter name charactoer kind (a-zA-Z0-9.-_ only)
-
-    // ok
-    Assertions.assertDoesNotThrow(() -> getVar("${azAZ09.-_}"));
-
-    // NG
-    Assertions.assertThrows(AppException.class, () -> getVar("a${#b}c"));
-
     // wrong format
 
     // start symbol only

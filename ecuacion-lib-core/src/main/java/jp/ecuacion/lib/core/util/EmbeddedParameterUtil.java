@@ -29,7 +29,6 @@ import jp.ecuacion.lib.core.annotation.RequireSizeNonzero;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -131,7 +130,6 @@ public class EmbeddedParameterUtil {
     // return "VAR"
     String var =
         string.substring(startIndex + startSymbol.length(), endIndex - 1 + endSymbol.length());
-    ValidationUtil.validateThenThrow(new ValidationBean(var));
 
     return var;
   }
@@ -368,7 +366,7 @@ public class EmbeddedParameterUtil {
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @RequireNonnull Function<String, String> valueGetterFromKey)
       throws StringFormatIncorrectException, MultipleAppException, ParameterNotFoundException {
-   
+
     return getParameterReplacedString(string, startSymbol, endSymbol, valueGetterFromKey, null);
   }
 
@@ -446,20 +444,6 @@ public class EmbeddedParameterUtil {
       this.ignoresEmergenceOfEndSymbolOnly = ignoresEmergenceOfEndSymbolOnly;
 
       return this;
-    }
-  }
-
-  private static class ValidationBean {
-    @PatternWithDescription(regexp = "^[a-zA-Z0-9_\\-\\.]*$", descriptionId = "embeddedParameter")
-    private String value;
-
-    public ValidationBean(String value) {
-      this.value = value;
-    }
-
-    @SuppressWarnings("unused")
-    public String getValue() {
-      return value;
     }
   }
 

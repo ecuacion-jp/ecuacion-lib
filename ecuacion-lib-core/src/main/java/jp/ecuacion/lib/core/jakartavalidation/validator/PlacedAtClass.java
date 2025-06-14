@@ -22,7 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specifies that the validator is placed on class, like {@code ConditionalEmpty}.
+ * THIS IS NOT A VALIDTOR. 
+ *     It specifies that the validator is placed on class, like {@code ConditionalEmpty}.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

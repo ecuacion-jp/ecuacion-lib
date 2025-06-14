@@ -210,32 +210,8 @@ public class PropertyFileUtil {
    * @return the value of the property
    */
   @Nonnull
-  @Deprecated
-  public static String getApp(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).getProp(key);
-  }
-
-
-  /**
-   * Returns the existence of the key in application_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return boolean value that shows whether properties has the key
-   */
-  @Deprecated
-  public static boolean hasApp(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).hasProp(key);
-  }
-
-  /**
-   * Returns the value in application_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return the value of the property
-   */
-  @Nonnull
   public static String getApplication(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).getProp(key);
+    return getterMap.get(APPLICATION).getProp(key, null);
   }
 
 
@@ -247,81 +223,6 @@ public class PropertyFileUtil {
    */
   public static boolean hasApplication(@RequireNonnull String key) {
     return getterMap.get(APPLICATION).hasProp(key);
-  }
-
-  /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@RequireNonnull String key, @Nonnull String... args) {
-    return getMessage(key, args);
-  }
-
-  /**
-   * Returns the localized value in messages_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @Nonnull String... args) {
-    return getMessage(locale, key, args);
-  }
-
-  /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@RequireNonnull String key, @RequireNonnull Arg[] args) {
-    return getMessage(key, args);
-  }
-
-  /**
-   * Returns the localized value in messages_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the message corresponding to the message ID
-   */
-  @Nonnull
-  @Deprecated
-  public static String getMsg(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
-    return getMessage(locale, key, args);
-  }
-
-  /**
-   * Returns the existence of the key in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return boolean value that shows whether properties has the key (message ID)
-   */
-  @Deprecated
-  public static boolean hasMsg(@RequireNonnull String key) {
-    return hasMessage(key);
   }
 
   /**
@@ -349,7 +250,7 @@ public class PropertyFileUtil {
   public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
 
-    String msgStr = getterMap.get(MESSAGES).getProp(locale, key);
+    String msgStr = getterMap.get(MESSAGES).getProp(locale, key, null);
 
     // データパターンにより処理を分岐
     return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
@@ -427,7 +328,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getItemName(@RequireNonnull String key) {
-    return getterMap.get(ITEM_NAMES).getProp(null, key);
+    return getterMap.get(ITEM_NAMES).getProp(null, key, null);
   }
 
   /**
@@ -440,7 +341,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getItemName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ITEM_NAMES).getProp(locale, key);
+    return getterMap.get(ITEM_NAMES).getProp(locale, key, null);
   }
 
   /**
@@ -463,7 +364,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getEnumName(@RequireNonnull String key) {
-    return getterMap.get(ENUM_NAMES).getProp(null, key);
+    return getterMap.get(ENUM_NAMES).getProp(null, key, null);
   }
 
   /**
@@ -476,7 +377,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getEnumName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ENUM_NAMES).getProp(locale, key);
+    return getterMap.get(ENUM_NAMES).getProp(locale, key, null);
   }
 
   /**
@@ -519,7 +420,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getValidationMessage(@Nullable Locale locale, @RequireNonnull String key,
       @Nullable Map<String, Object> argMap) {
-    String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key);
+    String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
@@ -554,7 +455,8 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getValidationMessageWithItemName(@Nullable Locale locale,
       @RequireNonnull String key, @Nullable Map<String, Object> argMap) {
-    String message = getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key);
+    String message =
+        getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
@@ -654,7 +556,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getValidationMessagePatternDescription(@Nullable Locale locale,
       @RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS).getProp(locale, key);
+    return getterMap.get(VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS).getProp(locale, key, null);
   }
 
   // ■□■ abstract property ■□■
@@ -671,7 +573,7 @@ public class PropertyFileUtil {
   public static String get(@RequireNonnull String propertyUtilFileKind,
       @RequireNonnull String key) {
     return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
-        .getProp(null, key);
+        .getProp(null, key, null);
   }
 
   /**
@@ -688,7 +590,7 @@ public class PropertyFileUtil {
   public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
       @RequireNonnull String key) {
     return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
-        .getProp(locale, key);
+        .getProp(locale, key, null);
   }
 
   /**

@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.util.internal;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.el.ELProcessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,12 +32,15 @@ import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
+import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.EmbeddedParameterUtil;
 import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -168,20 +172,13 @@ public class PropertyFileUtilValueGetter {
    * @param key the key of the property
    */
   @Nonnull
-  private String getValue(@Nullable Locale locale, @RequireNonnull String key) {
+  private String getValue(@Nullable Locale locale, @RequireNonnull String key,
+      Map<String, Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
-    String value = null;
+    String value = getRawValue(locale, key);
 
-    if (System.getProperties().keySet().contains(key)) {
-      // If the key is in System.getProperties(), just return it.
-      value = System.getProperties().getProperty(key);
-
-    } else {
-      value = getValueFromPropertiesFiles(locale, key);
-    }
-
-    // analyzes messageString
+    // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
     List<Pair<String, String>> list = analyze(value);
     StringBuilder sb = new StringBuilder();
 
@@ -194,7 +191,52 @@ public class PropertyFileUtilValueGetter {
       }
     }
 
+    // Analyze messageString for ${xxx} (EL expression) format parameters.
+    try {
+      list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
+          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+
+    } catch (StringFormatIncorrectException | MultipleAppException ex) {
+      throw new EclibRuntimeException(ex);
+    }
+
+    sb = new StringBuilder();
+    ELProcessor elProcessor = new ELProcessor();
+    elParameterMap.forEach(elProcessor::setValue);
+
+    for (Pair<String, String> tuple : list) {
+      if (tuple.getLeft() == null) {
+        sb.append(tuple.getRight());
+
+      } else {
+        sb.append(elProcessor.eval(tuple.getRight()).toString());
+      }
+    }
+
     return sb.toString();
+  }
+
+  /**
+   * Obtains data from properties file or environment variable if exists.
+   * 
+   * <p>Raw means return data is not processed after obtainedd from properties file.</p>
+   * 
+   * <p>This is also used to find out whether the key exists.
+   * 
+   * @param locale locale
+   * @param key key
+   * @return raw value
+   */
+  private String getRawValue(Locale locale, String key) {
+    String value;
+    if (System.getProperties().keySet().contains(key)) {
+      // If the key is in System.getProperties(), just return it.
+      value = System.getProperties().getProperty(key);
+
+    } else {
+      value = getValueFromPropertiesFiles(locale, key);
+    }
+    return value;
   }
 
   private String getValueFromPropertiesFiles(Locale locale, String key) {
@@ -325,8 +367,9 @@ public class PropertyFileUtilValueGetter {
    * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
    */
   private List<Pair<String, String>> analyze(String string) {
+    String prefix = "${+";
     List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
-        .map(en -> "{+" + en.toString().toLowerCase() + ":").toList();
+        .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
     // properties files are not managed by users
     // so exceptions occurring while analyzing string are changed to unchecked exceptions.
@@ -338,7 +381,8 @@ public class PropertyFileUtilValueGetter {
       // left of the pair starts with "{+" and ends with ":" but they're not needed
       return list.stream()
           .map(pair -> pair.getLeft() == null ? pair
-              : Pair.of(pair.getLeft().substring(2, pair.getLeft().length() - 1), pair.getRight()))
+              : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
+                  pair.getRight()))
           .toList();
 
     } catch (AppException ex) {
@@ -353,7 +397,7 @@ public class PropertyFileUtilValueGetter {
     Objects.requireNonNull(key);
 
     try {
-      getValue(null, key);
+      getRawValue(null, key);
       return true;
 
     } catch (NoKeyInPropertiesFileException ex) {
@@ -364,8 +408,8 @@ public class PropertyFileUtilValueGetter {
   /*
    * プロパティファイルのシリーズごとに、キーに対する値を取得する。 application.propertiesなどlocale別ファイルが存在しないものはこちらを使用。
    */
-  public String getProp(String key) {
-    return getProp(null, key);
+  public String getProp(String key, Map<String, Object> elParameterMap) {
+    return getProp(null, key, elParameterMap);
   }
 
   /*
@@ -376,16 +420,17 @@ public class PropertyFileUtilValueGetter {
    * @param key the key of the property
    */
   @Nonnull
-  public String getProp(@Nullable Locale locale, @RequireNonnull String key) {
+  public String getProp(@Nullable Locale locale, @RequireNonnull String key,
+      Map<String, Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     // msgIdが空だったらエラー
-    if (key.equals("")) {
+    if (StringUtils.isEmpty(key)) {
       throw new EclibRuntimeException("Message ID is blank.");
     }
 
     try {
-      return getValue(locale, key);
+      return getValue(locale, key, elParameterMap == null ? new HashMap<>() : elParameterMap);
 
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {
