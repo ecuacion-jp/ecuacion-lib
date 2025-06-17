@@ -19,6 +19,7 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.AP
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAMES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAMES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.STRINGS;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
@@ -44,67 +45,106 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * <p>It has following features added to {@code ResourceBundle} class packaged in JRE.</p>
  * 
  * <ol>
- * <li>To read multiple kinds of ".properties" 
- *     ({@code application, messages, enum_names, item_names, ValidationMessages, 
- *     ValidationMessagesWithItemNames})</li>
- * <li>To read all the ".properties" files in library modules 
- *     and multiple modules in projects of an app.</li>
+ * <li>To read multiple kinds of {@code *.properties} files</li>
+ * <li>To read all the {@code *.properties} files in ecuacion modules 
+ *     and multiple modules of an app</li>
  * <li>To remove default locale from candidate locales</li>
- * <li>To avoid throwing an exception exen if message Keys do not exist</li>
- * <li>To use "default" message by putting the postfix of the message ID ".default"</li>
+ * <li>To avoid throwing an exception exen if a message key does not exist</li>
+ * <li>To use "default" value by putting ".default" postfix to the key</li>
  * <li>To have the override function by java launch parameter (-D) or System.setProperty(...) </li>
  * <li>To resolve property keys in the obtained value</li>
  * <li>To resolve property keys in arguments</li>
+ * <li>To resolve EL expression</li>
  * </ol>
  * <br>
  * 
- * <p><b>1. To read multiple kinds of ".properties" 
- *     (application, messages, enum_names, item_names)</b><br><br>
- *     Firstly, In {@code ecuacion-lib} we have 4 kinds of property files.<br><br>
- *     
- *     {@code PropertyFileUtil.getMsg(...) : messages[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getApp(...) : application[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getEnumName(...) : enum_names[_xxx].properties}<br>
- *     {@code PropertyFileUtil.getItemName(...) : item_names[_xxx].properties}<br><br>
- *     
- *     {@code messages.properties} and {@code application.properties} are well-known.<br>
- *     {@code enum_names.properties} stores the localized name of the enum element, and
- *     {@code item_names.properties} stores the localized name of the item.<br>
- *     Usually these are also stored in {@code messages.properties},
- *     but it's kind of messy so divided files are prepared.<br><br>
- *     
- *     {@code PropertyFileUtil} supports these 4 kinds of properties files.
- * </p>
+ * <p><b>1. To read multiple kinds of {@code *.properties} files</b><br><br>
+ *     It treats {@code *.properties} files below.<br>
+ *     Localized ones take {@code Locale} as an argument, 
+ *     and parameterized ones does {@code String[]} or {@code Arg[]}. 
+ *     (Details for {@code Arg} are in section 8.)</p>
+ * 
  * <table border="1">
- * <caption>kinds of property files</caption>
- * <tr>
- * <th>kind</th>
- * <th>data the file has</th>
- * </tr>
- * <tr>
- * <td>application</td>
- * <td>system settings</td>
- * </tr>
- * <tr>
- * <td>messages</td>
- * <td>messages</td>
- * </tr>
- * <tr>
- * <td>item_names</td>
- * <td>names of items</td>
- * </tr>
- * <tr>
- * <td>enum_names</td>
- * <td>names of the elements of enums</td>
- * </tr>
+ *   <caption>kinds of *.properties files</caption>
+ *   <tr>
+ *     <th>file name</th>
+ *     <th>method to obtain values from files</th>
+ *     <th>localized</th>
+ *     <th>parameterized</th>
+ *     <th>description</th>
+ *   </tr>
+ *   <tr>
+ *     <td>application[_xxx].properties</td>
+ *     <td>getApplication(...)<br>
+ *     <td style="text-align: center"></td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats app settings</td>
+ *   </tr>
+ *   <tr>
+ *     <td>messages[_xxx].properties</td>
+ *     <td>getMessage(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑️</td>
+ *     <td>Treats localized messages</td>
+ *   </tr>
+ *   <tr>
+ *     <td>strings[_xxx].properties</td>
+ *     <td>getString(...)<br>
+ *     <td style="text-align: center"></td>
+ *     <td style="text-align: center">☑️</td>
+ *     <td>Treats non-localized messages</td>
+ *   </tr>
+ *   <tr>
+ *     <td>item_names[_xxx].properties</td>
+ *     <td>getItemName(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats enum item names</td>
+ *   </tr>
+ *   <tr>
+ *     <td>enum_names[_xxx].properties</td>
+ *     <td>getEnumName(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats enum value names</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ValidationMessages[_xxx].properties</td>
+ *     <td>getValidationMessage(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats jakarta validation messages, 
+ *         but it's never called from apps. It's used only from ecuacion-modules. 
+ *         No item names in them.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ValidationMessagesWithItemNames[_xxx].properties</td>
+ *     <td>getValidationMessageWithItemName(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats jakarta validation messages, 
+ *         but it's never called from apps. It's used only from ecuacion-modules. 
+ *         Item names in them.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>ValidationMessagesPatternDescriptions[_xxx].properties</td>
+ *     <td>getValidationMessagePatternDescription(...)<br>
+ *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center"></td>
+ *     <td>Treats pattern expressing localized strings used for jakarta validation messages, 
+ *         but it's never called from apps. It's used only from ecuacion-modules. </td>
+ *   </tr>
  * </table>
+ *
  * <br>
  * 
- * <p><b>2. To read all the ".properties" files in library modules
- *     and multiple modules in app projects</b><br><br>
- *     If we talk about {@code messages[_xxx].properties}, 
- *     this class reads ones in ecuacion libraries, and ones in your apps.<br>
- *     In ecuacion libraries an app is assumed to devided to some modules
+ * <p><b>2. To read all the {@code *.properties} files in ecuacion modules 
+ *     and multiple modules of an app</b><br><br>
+ *     When we talk about {@code messages[_xxx].properties}, 
+ *     this class reads ones in ecuacion modules 
+ *     (like {@code messages_lib_core.properties} in {@code ecuacion-lib-core}), 
+ *     and ones in your apps.<br>
+ *     In ecuacion modules an app is assumed to divided into some modules
  *     (=usually called "projects" in IDE), 
  *     which are {@code base}, {@code core}, {@code web (or none)}, {@code batch}.<br><br>
  *     If the name of your app is {@code sample-app}, module names would be :<br>
@@ -113,10 +153,11 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  *     {@code sample-app-web  : messages.properties}<br>
  *     {@code sample-app-batch: messages.properties}<br><br>
  *     
- *     {@code PropertyFileUtil.getMsg(...)} will read all the messages properties above.<br>
- *     Duplicated definition detectable. (causes throwing exception)<br><br>
+ *     {@code PropertyFileUtil.getMessage(...)} will read all the properties above.<br>
+ *     Duplicated definition detectable. (causes exception)<br><br>
  *     And of course you can use localized files like {@code messages_core_ja.properties}
- *     because This class uses {@code ResourceBundle} inside to read properties files.
+ *     for localized files (see the table above) 
+ *     because this class uses {@code ResourceBundle} inside to read them.
  * </p>
  * <br>
  * 
@@ -124,43 +165,58 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  *     Java Standard {@code ResourceBundle} uses default locale 
  *     (which is obtained by {@code Locale.getDefault()}) 
  *     when the property file of specified locale is not found.<br>
- *     The default locale is usually equal to the locale of the OS,
+ *     The default locale is usually equal to the locale of the OS 
+ *     (of the server usually in web application environment),
  *     which means the result depends on the machine the program is executed on.<br><br>
- *     To avoid that situation deault locale is removed from candidate locales with this class.
+ *     To avoid that situation deault locale is removed 
+ *     from candidate locales with this class.<br><br>
+ *     Note that it uses default locale 
+ *     when you don't specify locale to get a string from localized *.properties files.
  * </p>
  * <br>
  * 
- * <p><b>4. To avoid throwing an exception exen if message Keys do not exist</b><br><br>
- *     Since application.properties has settings, exception should be thrown 
- *     when an assumed key does not exist.<br>
- *     On the other hand, since messages.properties has messages only 
+ * <p><b>4. To avoid throwing an exception exen if a message key does not exist</b><br><br>
+ *     Since {@code application.properties} has settings, exception should be thrown 
+ *     when a required key does not exist.<br>
+ *     On the other hand, since {@code messages.properties} has messages only 
  *     and even if it's shown on the screen, it's weird but not very fatal,
- *     furthermore it's better when developing because which messages are not defined
+ *     and furthermore it's better when developing because developers can see clearly
+ *     which messages are not defined
  *     (System error screen has no concrete information),
- *     so exception should not be thrown and just show the message key.<br><br>
+ *     so exception should not be thrown and just show the message key with [ ].<br><br>
  *     This feature offers shown key on screen with non-application properties.</p>
- *     
+ * <br>
  * 
- * <p><b>5. To use "default" message by putting the postfix of the message ID ".default"</b><br><br>
+ * <p><b>5. To use "default" value by putting ".default" postfix to the key</b><br><br>
+ *     It's kind of troublesome that you have to create {@code *.properties}
+ *     for pre-defined keys in ecuacion-modules.<br>
+ *     But on the other hand, it's better for app developers to be able to change it
+ *     when it has to be.
+ *     So the keys in {@code *.properties} files contained in ecuacion modules
+ *     have ".default" postfix and those can be overrided in app modules
+ *     by defining the key in app {@code *.properties} files without ".default".
  * </p>
  * 
  * <p><b>6. To Have the override function by java launch parameter (-D) 
  *     or System.setProperty(...)</b><br><br>
+ *     You can override values with those settings. 
+ *     (It's implemented for {@code application.properties})
  * </p>
  * 
  * <p><b>7. To resolve property keys in the obtained value</b><br><br>
  *     You can put a property key into a property value.<br>
  *     For example, you can define keys and values like this in {@code messages.properties}. 
- *     By executing {@code PropertyFileUtil.getMsg("message")} you'll get {@code "a-b-c"}.</p>
+ *     By executing {@code PropertyFileUtil.getMessage("message")} you'll get {@code "a-b-c"}.</p>
  * <pre>
- *     message=a-${messages:message_test1}-c
+ *     message=a-${+messages:message_test1}-c
  *     message_test1=b</pre>
  * 
  * <p>Recursive resolution is also supported so you can even define like the one below. <br>
- * By executing {@code PropertyFileUtil.getMsg("message")} you'll get {@code "a-b-c-d-e-f-g"}.</p>
+ * By executing {@code PropertyFileUtil.getMessage("message")} 
+ * you'll get {@code "a-b-c-d-e-f-g"}.</p>
  * 
  * <pre>
- *     message=a-${messages:message_test1}-c-${messages:message_test2}-g
+ *     message=a-${+messages:message_test1}-c-${+messages:message_test2}-g
  *     message_test1=b
  *     message_test2=d-${messages:message_test3}-f
  *     message_test3=e</pre>
@@ -169,21 +225,37 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * like {@code {+application:...}, {+item_names:...} and {+enum_names:...}}.</p>
  *     
  * <p>Recursive resolution is supported, but multiple layer of key is not supported. 
- *     (which does not seem to be needed really)</p>
+ *     (which does not seem to be needed)</p>
  *     <pre>
- *     message=a-${messages:${messages:message_prefix}_test1}-c
+ *     message=a-${+messages:${+messages:message_prefix}_test1}-c
  *     message_prefix=message
- *     message_test1=b</pre><br>
+ *     message_test1=b</pre>
+ * <br>
  * 
- * <p><b>7. To resolve property keys in arguments</b></p>
+ * <p><b>8. To resolve property keys in arguments</b><br><br>
+ *     Sometimes you want to put not a static string, but a dynamic one, 
+ *     and maybe localized one as a parameter 
+ *     of {@code messages.properties} or {@code strings.properties}.<br><br>
+ *     You can realize it by {@code Arg} instead of {@code String} as a parameter class.
+ * </p>
+ * <br>
+ * 
+ * <p><b>9. To resolve EL expression</b><br><br>
+ *     EL expression is supported. (Since jakarta validation does.)<br>
+ *     You can define it like this.
+ *     <pre>math.addition=1 + 1 = ${1 + 1}.</pre>
+ * </p>
+ * <br>
  * 
  * <p><b>Miscellaneous</b><br><br>
- * {@code messages[_xxx].properties}, {@code enum_names[_xxx].properties}, 
+ * <ul>
+ * <li>{@code messages[_xxx].properties}, {@code enum_names[_xxx].properties}, 
  * {@code fiels_names[_xxx].properties} need to have default locale file 
  * (like {@code messages.properties}. This is the rule of the library.<br>
  * It leads the conclusion that {@code hasXxx(...) (like hasMsg(...))} 
  * doesn't need to have {@code locale} argument. (default locale used)
- * </p>
+ * </li>
+ * </ul>
  */
 public class PropertyFileUtil {
 
@@ -294,21 +366,6 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Obtains string from {@code Arg}.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
-   * @param arg message arguments, which can be message ID.
-   * @return the message corresponding to the message ID or the string set to {@code Arg}.
-   */
-  @Nonnull
-  public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
-    return arg.isMessageId()
-        ? PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs)
-        : arg.getArgString();
-  }
-
-  /**
    * Returns the existence of the key in messages_xxx.properties.
    * 
    * @param key the key of the property
@@ -316,6 +373,49 @@ public class PropertyFileUtil {
    */
   public static boolean hasMessage(@RequireNonnull String key) {
     return getterMap.get(MESSAGES).hasProp(key);
+  }
+
+  // ■□■ strings ■□■
+
+  /**
+   * Returns the value in string_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @param args message arguments
+   * @return the value (message) of the property key (message ID)
+   */
+  @Nonnull
+  public static String getString(@RequireNonnull String key, @RequireNonnull String... args) {
+    List<Arg> list = Arrays.asList(args).stream().map(str -> Arg.string(str)).toList();
+    return getString(key, list.toArray(new Arg[list.size()]));
+  }
+
+  /**
+   * Returns the value in string_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @param args message arguments, which can be message ID.
+   *     The data type is {@code Arg[]}, not {@code Arg...} 
+   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
+   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
+   * @return the value (message) of the property key (message ID)
+   */
+  @Nonnull
+  public static String getString(@RequireNonnull String key, @RequireNonnull Arg[] args) {
+    String msgStr = getterMap.get(STRINGS).getProp(key, null);
+
+    // データパターンにより処理を分岐
+    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+  }
+
+  /**
+   * Returns the existence of the key in strings_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key
+   */
+  public static boolean hasString(@RequireNonnull String key) {
+    return getterMap.get(STRINGS).hasProp(key);
   }
 
   // ■□■ item_names ■□■
@@ -621,6 +721,21 @@ public class PropertyFileUtil {
    */
   public static void addResourceBundlePostfix(@RequireNonnull String postfix) {
     PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
+  }
+
+  /**
+   * Obtains string from {@code Arg}.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param arg message arguments, which can be message ID.
+   * @return the message corresponding to the message ID or the string set to {@code Arg}.
+   */
+  @Nonnull
+  public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
+    return arg.isMessageId()
+        ? PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs)
+        : arg.getArgString();
   }
 
   /**

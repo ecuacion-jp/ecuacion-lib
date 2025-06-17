@@ -38,7 +38,9 @@ package jp.ecuacion.lib.core.util.internal;
  */
 public enum PropertyFileUtilFileKindEnum {
 
-  /** application.properties. */
+  /** 
+   * application.properties. 
+   */
   APPLICATION(new String[][] {new String[] {"application"}}, true),
 
   /** 
@@ -46,6 +48,11 @@ public enum PropertyFileUtilFileKindEnum {
    */
   MESSAGES(new String[][] {new String[] {"messages"}}, false),
 
+  /**
+   * strings.properties.
+   */
+  STRINGS(new String[][] {new String[] {"strings"}}, false),
+  
   /** itemの名称を記述. */
   ITEM_NAMES(new String[][] {new String[] {"item_names"}}, false),
 
