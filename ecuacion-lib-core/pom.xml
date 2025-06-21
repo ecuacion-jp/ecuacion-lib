@@ -97,7 +97,7 @@
 			<artifactId>jakarta.mail-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- This is a jakarta module but spring framework not provides it -->
+		<!-- This is a jakarta module but spring framework does not provide it -->
 		<dependency>
 			<groupId>jakarta.el</groupId>
 			<artifactId>jakarta.el-api</artifactId>
