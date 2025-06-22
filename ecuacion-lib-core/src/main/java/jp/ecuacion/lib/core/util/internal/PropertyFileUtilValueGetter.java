@@ -176,40 +176,48 @@ public class PropertyFileUtilValueGetter {
       Map<String, Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
-    String value = getRawValue(locale, key);
-
-    // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
-    List<Pair<String, String>> list = analyze(value);
+    List<Pair<String, String>> list = null;
     StringBuilder sb = new StringBuilder();
+    sb.append(getRawValue(locale, key));
 
-    for (Pair<String, String> tuple : list) {
-      if (tuple.getLeft() == null) {
-        sb.append(tuple.getRight());
+    // conditional branch if el expression exists for processing speed.
+    if (sb.toString().contains("${+")) {
+      // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
+      list = analyze(sb.toString());
+      sb = new StringBuilder();
+      
+      for (Pair<String, String> tuple : list) {
+        if (tuple.getLeft() == null) {
+          sb.append(tuple.getRight());
 
-      } else {
-        sb.append(PropertyFileUtil.get(tuple.getLeft(), tuple.getRight()));
+        } else {
+          sb.append(PropertyFileUtil.get(tuple.getLeft(), tuple.getRight()));
+        }
       }
     }
 
-    // Analyze messageString for ${xxx} (EL expression) format parameters.
-    try {
-      list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
-          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+    // conditional branch if el expression exists for processing speed.
+    if (sb.toString().contains("${")) {
+      // Analyze messageString for ${xxx} (EL expression) format parameters.
+      try {
+        list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
+            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-    } catch (StringFormatIncorrectException | MultipleAppException ex) {
-      throw new EclibRuntimeException(ex);
-    }
+      } catch (StringFormatIncorrectException | MultipleAppException ex) {
+        throw new EclibRuntimeException(ex);
+      }
 
-    sb = new StringBuilder();
-    ELProcessor elProcessor = new ELProcessor();
-    elParameterMap.forEach(elProcessor::setValue);
+      sb = new StringBuilder();
+      ELProcessor elProcessor = new ELProcessor();
+      elParameterMap.forEach(elProcessor::setValue);
 
-    for (Pair<String, String> tuple : list) {
-      if (tuple.getLeft() == null) {
-        sb.append(tuple.getRight());
+      for (Pair<String, String> tuple : list) {
+        if (tuple.getLeft() == null) {
+          sb.append(tuple.getRight());
 
-      } else {
-        sb.append(elProcessor.eval(tuple.getRight()).toString());
+        } else {
+          sb.append(elProcessor.eval(tuple.getRight()).toString());
+        }
       }
     }
 

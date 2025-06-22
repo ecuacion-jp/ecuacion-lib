@@ -18,6 +18,7 @@ It also provides some utilities used by other ecuacion modules and apps.
 ### Automatically Loaded Libraries
 
 - `org.apache.commons:commons-lang3`
+- `jakarta.el:jakarta.el-api`
 
 ### Manual Load Needed Libraries
 
