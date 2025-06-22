@@ -242,9 +242,8 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * 
  * <p><b>9. To resolve EL expression</b><br><br>
  *     EL expression is supported. (Since jakarta validation does.)<br>
- *     You can define it like this.
+ *     You can define it like this.</p>
  *     <pre>math.addition=1 + 1 = ${1 + 1}.</pre>
- * </p>
  * <br>
  * 
  * <p><b>Miscellaneous</b><br><br>
