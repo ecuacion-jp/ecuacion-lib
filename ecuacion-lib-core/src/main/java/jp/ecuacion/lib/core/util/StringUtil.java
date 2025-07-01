@@ -70,10 +70,10 @@ public class StringUtil {
     // "ValidationMessages_ja".
     // Lower camel strings for these are supposed to be "validationMessagesJa",
     // "validationMessagesJa" and "validationMessagesJa".
-    // To realize 2nd one argument.toLowerCase() is needed but it makes "validationmessagesJa" (m is
-    // changed to lowercase).
+    // To realize the transformation of 2nd one, argument.toLowerCase() is needed
+    // but it makes "validationmessagesJa" (m is changed to lowercase).
     // It's not good so only the strings without lower case alphabets are changed to lower case.
-    Pattern pattern = Pattern.compile("^[A-Z_]*$");
+    Pattern pattern = Pattern.compile("^[A-Z0-9_]*$");
     if (pattern.matcher(snakeCaseString).find()) {
       snakeCaseString = snakeCaseString.toLowerCase();
     }
