@@ -27,7 +27,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
  * Provides Utility methods related to {@code dateTime Api}.
  */
 public class DateTimeApiUtil {
-  
+
   private static final String REG_OF_DIFF = "\\+[0-9]{2}:[0-9]{2}";
   private static final String FM_OF_DIFF = "[xxx][xx][X]";
 
@@ -45,12 +45,14 @@ public class DateTimeApiUtil {
   private static final String USER_FRIENDLY_LOCAL_FORMAT = "yyyy-MM-dd HH:mm:ss";
   private static final String USER_FRIENDLY_OFFSET_FORMAT = "yyyy-MM-dd HH:mm:ss ZZZZZ";
 
+  private static final String FILENAME_LOCAL_TIMESTAMP_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSSSSS";
+
 
   /**
    * Prevents other classes from instantiating it.
    */
   private DateTimeApiUtil() {}
-  
+
   /**
    * Returns user-friendly LocalDateTime format string : {@code yyyy-MM-dd HH:mm:ss}.
    *  
@@ -74,14 +76,26 @@ public class DateTimeApiUtil {
    * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
    */
   @Nonnull
-  public static String getLocalDateTimeDisplayString(
-      @RequireNonnull OffsetDateTime dateTime, @Nullable ZoneId zoneId) {
+  public static String getLocalDateTimeDisplayString(@RequireNonnull OffsetDateTime dateTime,
+      @Nullable ZoneId zoneId) {
     ObjectsUtil.requireNonNull(dateTime);
 
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
     return dateTime.atZoneSameInstant(zoneId).toLocalDateTime()
         .format(DateTimeFormatter.ofPattern(USER_FRIENDLY_LOCAL_FORMAT));
+  }
+
+  /**
+   *  Returns filename LocalDateTime format string : {@code yyyy-MM-dd-HH-mm-ss-SSSSSS}.
+   *  
+   * @param dateTime offsetDateTime
+   * @return localDateTime string
+   */
+  @Nonnull
+  public static String getTimestampStringForFilename(LocalDateTime dateTime) {
+    return ObjectsUtil.requireNonNull(dateTime)
+        .format(DateTimeFormatter.ofPattern(FILENAME_LOCAL_TIMESTAMP_FORMAT));
   }
 
   /**
