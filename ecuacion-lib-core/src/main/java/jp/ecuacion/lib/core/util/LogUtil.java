@@ -56,6 +56,6 @@ public class LogUtil {
     ObjectsUtil.requireNonNull(detailLog, throwable);
     
     errLog.logSystemError(throwable, additionalMessage);
-    detailLog.logSystemError(throwable, additionalMessage);
+    detailLog.error(throwable, additionalMessage);
   }
 }
