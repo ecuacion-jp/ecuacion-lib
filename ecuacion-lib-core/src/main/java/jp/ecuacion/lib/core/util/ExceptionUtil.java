@@ -42,6 +42,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ExceptionUtil {
 
+  public static final String SYSTEM_ERROR_OCCURED_SIGN =
+      "=============== system error occurred ===============";
   private static final String RT = "\n";
 
   /**
@@ -427,7 +429,7 @@ public class ExceptionUtil {
 
     StringBuilder sb = new StringBuilder();
 
-    sb.append("=============== system error occurred ===============" + RT);
+    sb.append(SYSTEM_ERROR_OCCURED_SIGN + RT);
     if (additionalMessage != null) {
       sb.append(additionalMessage + RT);
       sb.append(RT);
@@ -435,37 +437,63 @@ public class ExceptionUtil {
 
     sb.append(RT);
 
-    getErrInfoRecursively(sb, throwable, locale, packagesShown);
+    getMessageAndStackTraceStringRecursively(sb, throwable, locale, packagesShown);
 
     return sb.toString();
   }
 
-  /* 再起的に呼び出してThrowableの内容を出力する。 */
-  private static void getErrInfoRecursively(StringBuilder sb, Throwable th, Locale locale,
-      Integer packagesShown) {
+  /**
+   * Adds Throwable message and stackTrace string to argument stringBuilder 
+   *     for a throwable and its causes.
+   * 
+   * @param sb StringBuilder
+   * @param th throwable
+   * @param locale locale, may be null 
+   * @param packagesShown null means all package of a class is shown 
+   *     like "at jp.ecuacion.lib.core.util.ExceptionUtil.main(ExceptionUtil.java:468)".
+   *     "0" shows no packages like "at ..main(ExceptionUtil.java:468)".
+   *     "1" shows 1 package part like "at jp...main(ExceptionUtil.java:468)".
+   */
+  public static void getMessageAndStackTraceStringRecursively(StringBuilder sb, Throwable th,
+      Locale locale, Integer packagesShown) {
 
-    locale = (locale == null) ? Locale.getDefault() : locale;
+    getMessageAndStackTraceString(sb, th, locale, packagesShown);
 
-    // クラス名は共通で出力
-    sb.append(th.getClass().getName() + RT);
-
-    // メッセージは存在すれば出す
-    String errMsg = getExceptionMessage(th, locale, true).toString();
-    if (errMsg != null) {
-      sb.append(errMsg + RT);
-    }
-
-    // stackTraceを出力
-    sb.append(getStackTraceString(th, packagesShown));
-
-    // causeがあればそれも出力
+    // Also outputs for getCause().
     if (th.getCause() != null) {
-      getErrInfoRecursively(sb, th.getCause(), locale, packagesShown);
+      getMessageAndStackTraceStringRecursively(sb, th.getCause(), locale, packagesShown);
     }
   }
 
-  private static String getStackTraceString(Throwable th, Integer packagesShown) {
-    StringBuilder sb = new StringBuilder();
+  /**
+   * Adds Throwable message and stackTrace string to argument stringBuilder 
+   *     for one throwable. (getCause() ignored)
+   * 
+   * @param sb StringBuilder
+   * @param th throwable
+   * @param locale locale, may be null 
+   * @param packagesShown see getMessageAndStackTraceStringRecursively
+   */
+  private static void getMessageAndStackTraceString(StringBuilder sb, Throwable th, Locale locale,
+      Integer packagesShown) {
+    locale = (locale == null) ? Locale.ENGLISH : locale;
+
+    String errMsg = getExceptionMessage(th, locale, true).toString();
+    sb.append(th.getClass().getCanonicalName() + " " + (errMsg == null ? "" : errMsg) + RT);
+
+    // Output stackTrace string
+    getStackTraceString(sb, th, packagesShown);
+  }
+
+  /**
+   * get stackTrace string for one throwable. (getCause() ignored)
+   * 
+   * @param sb StringBuilder
+   * @param th throwable
+   * @param packagesShown see getMessageAndStackTraceStringRecursively
+   * @return stackTrace string
+   */
+  private static void getStackTraceString(StringBuilder sb, Throwable th, Integer packagesShown) {
     for (StackTraceElement ste : th.getStackTrace()) {
       String[] spl = ste.getClassName().split("\\.");
       String packageAndClass = ste.getClassName();
@@ -483,7 +511,5 @@ public class ExceptionUtil {
       sb.append("\tat " + packageAndClass + "." + ste.getMethodName() + "(" + ste.getFileName()
           + ":" + ste.getLineNumber() + ")" + RT);
     }
-
-    return sb.toString();
   }
 }
