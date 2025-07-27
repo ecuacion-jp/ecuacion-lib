@@ -479,7 +479,7 @@ public class ExceptionUtil {
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
     String errMsg = getExceptionMessage(th, locale, true).toString();
-    sb.append(th.getClass().getCanonicalName() + " " + (errMsg == null ? "" : errMsg) + RT);
+    sb.append(th.getClass().getCanonicalName() + " " + errMsg + RT);
 
     // Output stackTrace string
     getStackTraceString(sb, th, packagesShown);
