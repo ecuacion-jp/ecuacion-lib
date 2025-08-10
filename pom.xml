@@ -52,7 +52,7 @@
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.8.6.4</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.8.6</com.github.spotbugs.spotbugs.version>
 		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
-		<org.apache.commons.commons-lang3.version>3.17.0</org.apache.commons.commons-lang3.version>
+		<org.apache.commons.commons-lang3.version>3.18.0</org.apache.commons.commons-lang3.version>
 		<commons-io.commons-io.version>2.18.0</commons-io.commons-io.version>
 	</properties>
 	<distributionManagement>
