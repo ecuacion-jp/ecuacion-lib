@@ -204,11 +204,11 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
     // ecuacion_lib_xxx
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, obj.getPostfixes().contains("lib_core"));
+    Assertions.assertEquals(true, obj.getPostfixes().contains("_lib_core"));
 
     // ecuacion_splib_xxx
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, obj.getPostfixes().contains("splib_web"));
+    Assertions.assertEquals(true, obj.getPostfixes().contains("_splib_web"));
 
     // app
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
@@ -216,16 +216,16 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
     // app-base
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, obj.getPostfixes().contains("base"));
+    Assertions.assertEquals(true, obj.getPostfixes().contains("_base"));
 
     // app_profile
     obj = new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, obj.getPostfixes().contains("profile"));
+    Assertions.assertEquals(true, obj.getPostfixes().contains("-profile"));
 
     // app_core_profile
     PropertyFileUtilValueGetter store =
         new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, store.getPostfixes().contains("core_profile"));
+    Assertions.assertEquals(true, store.getPostfixes().contains("_core-profile"));
 
     // inter-file key duplication
 
