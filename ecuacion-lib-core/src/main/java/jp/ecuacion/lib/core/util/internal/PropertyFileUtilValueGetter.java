@@ -79,6 +79,14 @@ public class PropertyFileUtilValueGetter {
 
   private static final List<String> dynamicPostfixList = new ArrayList<>();
 
+  /**
+   * Offers a way to add postfixes dynamically.
+   * 
+   * <p>By adding "postfix" using this method, 
+   *     "application_postfix.properties" are added to the file list.</p>
+   * 
+   * @param postfix postfix
+   */
   public static void addToDynamicPostfixList(String postfix) {
     if (!dynamicPostfixList.contains(postfix)) {
       dynamicPostfixList.add(postfix);
@@ -86,7 +94,7 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
-   * テスト用に同一パッケージからはアクセス可能とする
+   * Is accessible only from the same package for unit test.
    */
   static List<String> getDynamicPostfixList() {
     return new ArrayList<>(dynamicPostfixList);
@@ -144,18 +152,18 @@ public class PropertyFileUtilValueGetter {
   List<String> getPostfixes() {
     List<String> rtnList = new ArrayList<>();
     rtnList.addAll(
-        Arrays.asList(LIB_MODULES).stream().map(str -> "lib_" + str).collect(Collectors.toList()));
-    rtnList.addAll(Arrays.asList(SPLIB_MODULES).stream().map(str -> "splib_" + str)
+        Arrays.asList(LIB_MODULES).stream().map(str -> "_lib_" + str).collect(Collectors.toList()));
+    rtnList.addAll(Arrays.asList(SPLIB_MODULES).stream().map(str -> "_splib_" + str)
         .collect(Collectors.toList()));
-    rtnList.addAll(Arrays.asList(UTIL_MODULES).stream().map(str -> "util_" + str).toList());
-    rtnList.addAll(dynamicPostfixList);
+    rtnList.addAll(Arrays.asList(UTIL_MODULES).stream().map(str -> "_util_" + str).toList());
+    rtnList.addAll(dynamicPostfixList.stream().map(str -> "_" + str).toList());
 
-    // SYSTEM_MODULESは、SYSTEM_ENVと組み合わせになる
-    for (String systemModuleName : APP_MODULES) {
+    // APP_MODULES are combined to APP_ENVS
+    for (String moduleName : APP_MODULES) {
       for (String envName : APP_ENVS) {
-        // envNameが""でない場合は、_を追加してappend。
-        boolean needsUs = !systemModuleName.equals("") && !envName.equals("");
-        rtnList.add(systemModuleName + ((needsUs) ? "_" : "") + envName);
+        // Add "-" and "_"
+        rtnList.add((moduleName.equals("") ? "" : "_" + moduleName)
+            + (envName.equals("") ? "" : "-" + envName));
       }
     }
 
@@ -185,7 +193,7 @@ public class PropertyFileUtilValueGetter {
       // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
       list = analyze(sb.toString());
       sb = new StringBuilder();
-      
+
       for (Pair<String, String> tuple : list) {
         if (tuple.getLeft() == null) {
           sb.append(tuple.getRight());
@@ -282,7 +290,7 @@ public class PropertyFileUtilValueGetter {
     for (String prefix : filePrefixesOfSamePriority) {
       for (int i = 0; i < postfixes.size(); i++) {
         String postfix = postfixes.get(i);
-        String filename = prefix + ((postfix.equals("")) ? "" : "_") + postfix;
+        String filename = prefix + postfix;
 
         ResourceBundle bundle = getResourceBundle(filename, locale);
         rbMap.put(filename, bundle);
