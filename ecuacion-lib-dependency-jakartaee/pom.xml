@@ -29,16 +29,16 @@
 	<properties>
 		<!-- 3rd party module versions -->
 		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
-		<jakarta.validation.jakarta.validation-api.version>3.0.0</jakarta.validation.jakarta.validation-api.version>
-		<org.hibernate.validator.hibernate-validator.version>8.0.1.Final</org.hibernate.validator.hibernate-validator.version>
+		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
+		<org.hibernate.validator.hibernate-validator.version>9.0.1.Final</org.hibernate.validator.hibernate-validator.version>
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
 		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
 		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
-		<jakarta.mail.jakarta.mail-api.version>2.1.3</jakarta.mail.jakarta.mail-api.version>
-		<org.slf4j.slf4j-api.version>2.0.16</org.slf4j.slf4j-api.version>
-		<com.fasterxml.jackson.core.jackson-databind.version>2.18.3</com.fasterxml.jackson.core.jackson-databind.version>
-		<org.junit.jupiter.junit-jupiter-api.version>5.12.0</org.junit.jupiter.junit-jupiter-api.version>
-		<org.assertj.assertj-core.version>3.27.3</org.assertj.assertj-core.version>
+		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
+		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
+		<com.fasterxml.jackson.core.jackson-databind.version>2.20.0</com.fasterxml.jackson.core.jackson-databind.version>
+		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
+		<org.assertj.assertj-core.version>3.27.4</org.assertj.assertj-core.version>
 	</properties>
 	
 	<build>
