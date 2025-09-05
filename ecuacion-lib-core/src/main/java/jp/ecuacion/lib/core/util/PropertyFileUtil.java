@@ -585,18 +585,18 @@ public class PropertyFileUtil {
     // get fieldName from field (for @ConditionalXxx)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
-      // field -> fieldDisplayName
-      key = "itemKindIds";
-      newKey = "fieldDisplayName";
-      String[] itemKindIds = (String[]) argMap.get(key);
-      List<String> fieldDisplayNameList = new ArrayList<>();
-      for (String itemKindId : itemKindIds) {
-        fieldDisplayNameList.add(PropertyFileUtil.getItemName(locale, itemKindId));
+      // field -> itemName
+      key = "itemNameKeys";
+      newKey = "itemName";
+      String[] itemNameKeys = (String[]) argMap.get(key);
+      List<String> itemNameList = new ArrayList<>();
+      for (String itemNameKey : itemNameKeys) {
+        itemNameList.add(PropertyFileUtil.getItemName(locale, itemNameKey));
       }
-      argMap.put(newKey, StringUtil.getCsvWithSpace(fieldDisplayNameList));
+      argMap.put(newKey, StringUtil.getCsvWithSpace(itemNameList));
 
-      // conditionFieldDisplayName
-      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_KIND_ID);
+      // conditionItemName
+      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY);
       argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_DISPLAY_NAME,
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
