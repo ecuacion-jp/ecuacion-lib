@@ -41,8 +41,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   public static final String VALIDATION_TARGET_FIELD = "validationTargetPropertyPath";
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
-  public static final String CONDITION_PROPERTY_PATH_ITEM_KIND_ID =
-      "conditionPropertyPathItemKindId";
+  public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
+      "conditionPropertyPathItemNameKey";
   public static final String CONDITION_PROPERTY_PATH_DISPLAY_NAME =
       "conditionPropertyPathDisplayName";
   public static final String CONDITION_PATTERN = "conditionPattern";
