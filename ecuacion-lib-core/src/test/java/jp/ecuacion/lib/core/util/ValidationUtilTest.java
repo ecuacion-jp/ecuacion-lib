@@ -23,7 +23,7 @@ import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ItemKindIdClass;
+import jp.ecuacion.lib.core.jakartavalidation.validator.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Assertions;
@@ -71,34 +71,34 @@ public class ValidationUtilTest {
   }
 
   @Test
-  public void validateThenReturn_args_object_itemKindIdsTest() {
+  public void validateThenReturn_args_object_itemNameKeysTest() {
 
     // Normal classes
 
     // normal without form : <className>.<fieldname> (Manipulated so by ConstraintViolationBean)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithNormalValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("ValidationUtilTest_ObjWithNormalValidator.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("ValidationUtilTest_ObjWithNormalValidator.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_DirectContainerWithNormalValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("normal.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("normal.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_IndirectContainerWithNormalValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("normal.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("normal.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
@@ -106,10 +106,10 @@ public class ValidationUtilTest {
     // (Manipulated so by ConstraintViolationBean)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_ObjWithClassValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("ValidationUtilTest_ObjWithClassValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("ValidationUtilTest_ObjWithClassValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
@@ -117,10 +117,10 @@ public class ValidationUtilTest {
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("classValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("classValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
@@ -128,229 +128,229 @@ public class ValidationUtilTest {
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
     ValidationUtil.validateThenReturn(new ValidationUtilTest_IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("classValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("classValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // internal static classes
 
     // normal without form : <className>.<fieldname> (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.ObjWithFieldValidator())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.ObjWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("ObjWithFieldValidator.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("ObjWithFieldValidator.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.DirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.DirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("normal.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("normal.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // normal with form : <fieldNameInForm>.<fieldName> (which is a standard pattern for splib-web)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.IndirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.IndirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("normal.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("normal.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // classValidator without form : <className>.<fieldname>
     // (Manipulated so by ConstraintViolationBean)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.ObjWithClassValidator())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.ObjWithClassValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("ObjWithClassValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("ObjWithClassValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.DirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("classValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("classValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // classValidator with form :
     // <fieldNameInForm>.<fieldName> (which is a standard pattern forsplib-web)
-    ValidationUtil.validateThenReturn(new NoItemKindIdClass.IndirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new NoItemNameKeyClass.IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("classValidator.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("classValidator.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
-    // @ItemKindIdClass at field (field validator only)
+    // @ItemNameKeyClass at field (field validator only)
 
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtField.ObjWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtField.ObjWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtField.DirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtField.DirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtField.IndirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtField.IndirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
-    // @ItemKindIdClass at class
+    // @ItemNameKeyClass at class
 
     // ObjWithFieldValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.ObjWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.ObjWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // DirectContainerWithFieldValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.DirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.DirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // IndirectContainerWithFieldValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.IndirectContainerWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.IndirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // ObjWithClassValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.ObjWithClassValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.ObjWithClassValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // DirectContainerWithClassValidadtor
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.DirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // IndirectContainerWithClassValidadtor
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtClass.IndirectContainerWithClassValidadtor())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtClass.IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
-    // @ItemKindIdClass at ancestor class
+    // @ItemNameKeyClass at ancestor class
 
     // ObjWithFieldValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtAncestorClass.ObjWithFieldValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtAncestorClass.ObjWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // DirectContainerWithFieldValidator
     ValidationUtil
-        .validateThenReturn(new ItemKindIdClassAtAncestorClass.DirectContainerWithFieldValidator())
+        .validateThenReturn(new ItemNameKeyClassAtAncestorClass.DirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // IndirectContainerWithFieldValidator
     ValidationUtil
-        .validateThenReturn(new ItemKindIdClassAtAncestorClass.IndirectContainerWithFieldValidator())
+        .validateThenReturn(new ItemNameKeyClassAtAncestorClass.IndirectContainerWithFieldValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = getItemKindIdForNotNullExceptionBean(mae);
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.str1", itemKindIds[0]);
+          String[] itemNameKeys = getItemNameKeyForNotNullExceptionBean(mae);
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.str1", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // ObjWithClassValidator
-    ValidationUtil.validateThenReturn(new ItemKindIdClassAtAncestorClass.ObjWithClassValidator())
+    ValidationUtil.validateThenReturn(new ItemNameKeyClassAtAncestorClass.ObjWithClassValidator())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // DirectContainerWithClassValidadtor
     ValidationUtil
-        .validateThenReturn(new ItemKindIdClassAtAncestorClass.DirectContainerWithClassValidadtor())
+        .validateThenReturn(new ItemNameKeyClassAtAncestorClass.DirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
 
     // IndirectContainerWithClassValidadtor
     ValidationUtil
-        .validateThenReturn(new ItemKindIdClassAtAncestorClass.IndirectContainerWithClassValidadtor())
+        .validateThenReturn(new ItemNameKeyClassAtAncestorClass.IndirectContainerWithClassValidadtor())
         .ifPresentOrElse(mae -> {
-          String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-              .getConstraintViolationBean().getItemKindIds();
-          Assertions.assertTrue(itemKindIds.length == 1);
-          Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+          String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+              .getConstraintViolationBean().getItemNameKeys();
+          Assertions.assertTrue(itemNameKeys.length == 1);
+          Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
         }, () -> Assertions.fail());
   }
 
-  private String[] getItemKindIdForNotNullExceptionBean(MultipleAppException mae) {
+  private String[] getItemNameKeyForNotNullExceptionBean(MultipleAppException mae) {
     return ((ValidationAppException) mae.getList().stream()
         .filter(ex -> ((ValidationAppException) ex).getConstraintViolationBean().getMessageId()
             .equals(NOT_NULL))
-        .toList().get(0)).getConstraintViolationBean().getItemKindIds();
+        .toList().get(0)).getConstraintViolationBean().getItemNameKeys();
   }
 
 
@@ -359,18 +359,18 @@ public class ValidationUtilTest {
     ValidationUtil
     .validateThenReturn(new PropertyPathHasBeanInstance.ObjWithClassValidator())
     .ifPresentOrElse(mae -> {
-      String[] itemKindIds = ((ValidationAppException) mae.getList().get(0))
-          .getConstraintViolationBean().getItemKindIds();
-      Assertions.assertTrue(itemKindIds.length == 1);
-      Assertions.assertEquals("itemKindIdClass.value", itemKindIds[0]);
+      String[] itemNameKeys = ((ValidationAppException) mae.getList().get(0))
+          .getConstraintViolationBean().getItemNameKeys();
+      Assertions.assertTrue(itemNameKeys.length == 1);
+      Assertions.assertEquals("itemNameKeyClass.value", itemNameKeys[0]);
 
     }, () -> Assertions.fail());
 
   }
   
-  // No @ItemKindIdClasas
+  // No @ItemNameKeyClass
 
-  public static class NoItemKindIdClass {
+  public static class NoItemNameKeyClass {
 
     public static class ObjWithFieldValidator {
       @NotNull
@@ -411,16 +411,16 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemKindIdClass at field
+  // @ItemNameKeyClass at field
 
-  public static class ItemKindIdClassAtField {
+  public static class ItemNameKeyClassAtField {
 
     public static class ObjWithFieldValidator {
-      @ItemKindIdClass("itemKindIdClass")
+      @ItemNameKeyClass("itemNameKeyClass")
       @NotNull
       public String str1 = null;
 
-      @ItemKindIdClass("itemKindIdClass")
+      @ItemNameKeyClass("itemNameKeyClass")
       @Min(3)
       public int int1 = 2;
     }
@@ -437,11 +437,11 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemKindIdClass at class
+  // @ItemNameKeyClass at class
 
-  public static class ItemKindIdClassAtClass {
+  public static class ItemNameKeyClassAtClass {
 
-    @ItemKindIdClass("itemKindIdClass")
+    @ItemNameKeyClass("itemNameKeyClass")
     public static class ObjWithFieldValidator {
       @NotNull
       public String str1 = null;
@@ -450,7 +450,7 @@ public class ValidationUtilTest {
       public int int1 = 2;
     }
 
-    @ItemKindIdClass("itemKindIdClass")
+    @ItemNameKeyClass("itemNameKeyClass")
     @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
         conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
         conditionValueString = "abc")
@@ -482,11 +482,11 @@ public class ValidationUtilTest {
     }
   }
 
-  // @ItemKindIdClass at ancestor class
+  // @ItemNameKeyClass at ancestor class
 
-  public static class ItemKindIdClassAtAncestorClass {
+  public static class ItemNameKeyClassAtAncestorClass {
 
-    @ItemKindIdClass("itemKindIdClass")
+    @ItemNameKeyClass("itemNameKeyClass")
     public static class GrandParent {
 
     }
@@ -538,7 +538,7 @@ public class ValidationUtilTest {
 
   public static class PropertyPathHasBeanInstance {
 
-    @ItemKindIdClass("itemKindIdClass")
+    @ItemNameKeyClass("itemNameKeyClass")
     public static class GrandParentOfTargetBean {
 
     }
