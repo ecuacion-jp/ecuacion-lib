@@ -15,12 +15,10 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.equalTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -28,13 +26,15 @@ import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 
 public abstract class ConditionalValidator extends ReflectionUtil {
   private String[] propertyPath;
   private String conditionPropertyPath;
-  private ConditionPattern conditionPattern;
+  private ConditionValuePattern conditionPattern;
+  private ConditionOperator conditionOperator;
   private String[] conditionValueString;
   private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
@@ -46,6 +46,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   public static final String CONDITION_PROPERTY_PATH_DISPLAY_NAME =
       "conditionPropertyPathDisplayName";
   public static final String CONDITION_PATTERN = "conditionPattern";
+  public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
   public static final String VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY =
@@ -64,11 +65,13 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       "validatesWhenConditionNotSatisfied";
 
   public void initialize(String[] propertyPath, String conditionPropertyPath,
-      ConditionPattern conditionPattern, String[] conditionValueString,
-      String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
+      ConditionValuePattern conditionPattern, ConditionOperator conditionOperator,
+      String[] conditionValueString, String conditionValuePropertyPath,
+      boolean validatesWhenConditionNotSatisfied) {
     this.propertyPath = propertyPath;
     this.conditionPropertyPath = conditionPropertyPath;
     this.conditionPattern = conditionPattern;
+    this.conditionOperator = conditionOperator;
     this.conditionValueString = conditionValueString;
     this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
@@ -116,8 +119,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
     Object valueOfConditionField = getFieldValue(conditionPropertyPath, instance);
 
-    if (conditionPattern == valueOfConditionPropertyPathIsEmpty
-        || conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
+    if (conditionPattern == empty) {
 
       conditionValueStringMustNotSet();
       conditionValueFieldMustNotSet();
@@ -125,13 +127,12 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
           && ((String) valueOfConditionField).equals(""));
 
-      if (isEmpty && conditionPattern == valueOfConditionPropertyPathIsEmpty
-          || !isEmpty && conditionPattern == valueOfConditionPropertyPathIsNotEmpty) {
+      if (isEmpty && conditionOperator == equalTo
+          || !isEmpty && conditionOperator == notEqualTo) {
         return true;
       }
 
-    } else if (conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
-        || conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
+    } else if (conditionPattern == valueOfItemPropertyPath) {
 
       conditionValueStringMustNotSet();
 
@@ -171,8 +172,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
           || (valueOfConditionField != null
               && valueListOfConditionValueField.contains(valueOfConditionField));
 
-      if (contains && conditionPattern == valueOfConditionPropertyPathIsEqualToValueOf
-          || !contains && conditionPattern == valueOfConditionPropertyPathIsNotEqualToValueOf) {
+      if (contains && conditionOperator == equalTo
+          || !contains && conditionOperator == notEqualTo) {
         return true;
       }
 
@@ -191,8 +192,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       }
 
       boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
-      if (contains && conditionPattern == stringValueOfConditionPropertyPathIsEqualTo
-          || !contains && conditionPattern == stringValueOfConditionPropertyPathIsNotEqualTo) {
+      if (contains && conditionOperator == equalTo
+          || !contains && conditionOperator == notEqualTo) {
         return true;
       }
     }

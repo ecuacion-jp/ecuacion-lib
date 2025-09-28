@@ -24,7 +24,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemNameKeyClass;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -381,7 +381,7 @@ public class ValidationUtilTest {
     }
 
     @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
-        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = ConditionValuePattern.string,
         conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
@@ -452,7 +452,7 @@ public class ValidationUtilTest {
 
     @ItemNameKeyClass("itemNameKeyClass")
     @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
-        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = ConditionValuePattern.string,
         conditionValueString = "abc")
     public static class ObjWithClassValidator {
       public String conditionValue = "abc";
@@ -504,7 +504,7 @@ public class ValidationUtilTest {
     }
 
     @ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
-        conditionPattern = ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = ConditionValuePattern.string,
         conditionValueString = "abc")
     public static class ObjWithClassValidator extends Parent {
       public String conditionValue = "abc";
@@ -548,7 +548,7 @@ public class ValidationUtilTest {
     }
 
     @ConditionalNotEmpty(propertyPath = "child.value", conditionPropertyPath = "child.conditionValue",
-        conditionPattern = ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf,
+        conditionPattern = ConditionValuePattern.valueOfItemPropertyPath,
         conditionValuePropertyPath = "child.conditionValuePropertyPath")
     public static class ObjWithClassValidator {
       ChildObj child = new ChildObj();

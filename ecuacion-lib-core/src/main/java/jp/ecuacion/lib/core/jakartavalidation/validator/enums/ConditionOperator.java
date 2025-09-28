@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util;
+package jp.ecuacion.lib.core.jakartavalidation.validator.enums;
 
-import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
-
-@ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
-    conditionPattern = ConditionValuePattern.string,
-    conditionValueString = "abc")
-public class ValidationUtilTest_ObjWithClassValidator {
-  public String conditionValue = "abc";
-  public String value = null;
+/**
+ * Specifies operator applied between the value of a condition field and the condition value.
+ */
+public enum ConditionOperator {
+  equalTo, notEqualTo;
 }

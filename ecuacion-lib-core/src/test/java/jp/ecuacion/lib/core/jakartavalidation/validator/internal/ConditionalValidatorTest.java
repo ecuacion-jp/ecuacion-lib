@@ -15,15 +15,15 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEmpty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.equalTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
 
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditinalValidatorTestBean.TestEnum;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class ConditionalValidatorTest {
     // "X" is not related to getSatisfiesCondition() test.
 
     // null
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -58,7 +58,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // blank
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {""}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false,
@@ -71,7 +71,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {"a"}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false,
@@ -87,7 +87,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null % blank
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, ""},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -101,7 +101,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // null % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -118,14 +118,13 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
-        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
-        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
-
-    Assertions.assertEquals(true,
-        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
+        new String[] {"", "a"}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(false,
+        obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
+
+    Assertions.assertEquals(true,
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("")));
 
     Assertions.assertEquals(true,
@@ -135,7 +134,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null & blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, ConditionOperator.equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "", "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -160,7 +159,7 @@ public class ConditionalValidatorTest {
     // "X" is not related to getSatisfiesCondition() test.
 
     // null
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -174,8 +173,8 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // blank
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
-        new String[] {""}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo, new String[] {""},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
@@ -187,8 +186,8 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
-        new String[] {"a"}, EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo, new String[] {"a"},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
     Assertions.assertEquals(true,
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString(null)));
@@ -203,7 +202,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null % blank
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, ""},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -217,7 +216,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("a")));
 
     // null % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -234,7 +233,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -251,7 +250,7 @@ public class ConditionalValidatorTest {
         obj.getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueString("b")));
 
     // null & blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", stringValueOfConditionPropertyPathIsNotEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", string, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL, "", "a"},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -272,7 +271,7 @@ public class ConditionalValidatorTest {
   public void getSatisfiesConditionConditionValueIsEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField", valueOfConditionPropertyPathIsEmpty,
+    obj.initialize(new String[] {"field"}, "condField", empty, equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -304,7 +303,7 @@ public class ConditionalValidatorTest {
   public void getSatisfiesConditionConditionValueIsNotEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField", valueOfConditionPropertyPathIsNotEmpty,
+    obj.initialize(new String[] {"field"}, "condField", empty, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
         EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
 
@@ -335,7 +334,7 @@ public class ConditionalValidatorTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", valueOfConditionPropertyPathIsEqualToValueOf,
+    obj.initialize(new String[] {"field"}, "condField", valueOfItemPropertyPath, equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
         false);
 
@@ -535,7 +534,7 @@ public class ConditionalValidatorTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsNotEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", valueOfConditionPropertyPathIsNotEqualToValueOf,
+    obj.initialize(new String[] {"field"}, "condField", valueOfItemPropertyPath, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
         false);
 
