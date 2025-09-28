@@ -27,7 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty.ConditionalNotEmptyList;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 
 /**
  * Checks if specified {@code field} is not empty 
@@ -77,7 +78,15 @@ public @interface ConditionalNotEmpty {
    * 
    * @return ConditionPattern
    */
-  ConditionPattern conditionPattern();
+  ConditionValuePattern conditionPattern();
+  
+  /**
+   * Specifies the operator applied between the value of a condition field and the condition value
+   *     To decide whether the condition is satisfied.
+   * 
+   * @return ConditionOperator
+   */
+  ConditionOperator conditionOperator() default ConditionOperator.equalTo;
 
   /**
    * Specifies condition value string.

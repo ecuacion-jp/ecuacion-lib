@@ -15,10 +15,8 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsNotEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsNotEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
@@ -32,7 +30,7 @@ import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
@@ -165,8 +163,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
     paramMap.put("invalidValue", getInvalidValue());
     paramMap.put("annotation", getAnnotation());
 
-
-
     // checks if the validator is for class or field.
     boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
         .getAnnotation(PlacedAtClass.class) != null;
@@ -242,14 +238,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     // In the case of ConditionalXxx validator
     if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
 
-      ConditionPattern conditionPtn =
-          (ConditionPattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
-
+      ConditionValuePattern conditionPtn =
+          (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
       paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
 
       String valuesOfConditionPropertyPathToValidate = null;
-      if (conditionPtn == valueOfConditionPropertyPathIsEqualToValueOf
-          || conditionPtn == valueOfConditionPropertyPathIsNotEqualToValueOf) {
+      if (conditionPtn == valueOfPropertyPath) {
 
         Object obj =
             getFieldValue((String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH),
@@ -264,10 +258,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
           valuesOfConditionPropertyPathToValidate = String.valueOf(obj);
         }
 
-      } else if (conditionPtn == stringValueOfConditionPropertyPathIsEqualTo
-          || conditionPtn == stringValueOfConditionPropertyPathIsNotEqualTo) {
+      } else if (conditionPtn == string) {
         // conditionValue is used
-
         String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
         valuesOfConditionPropertyPathToValidate = StringUtil.getCsvWithSpace(strs);
       }

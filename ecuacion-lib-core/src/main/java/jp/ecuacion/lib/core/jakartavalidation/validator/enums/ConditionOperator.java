@@ -16,16 +16,8 @@
 package jp.ecuacion.lib.core.jakartavalidation.validator.enums;
 
 /**
- * Enumerates how to determine condition is valid.
+ * Specifies operator applied between the value of a condition field and the condition value.
  */
-public enum ConditionPattern {
-  
-  // Setting value of conditionValueString is needed.
-  stringValueOfConditionPropertyPathIsEqualTo, stringValueOfConditionPropertyPathIsNotEqualTo, 
-
-  // no additional value selection is needed.
-  valueOfConditionPropertyPathIsEmpty, valueOfConditionPropertyPathIsNotEmpty, 
-
-  // Setting value of conditionValueField is needed.
-  valueOfConditionPropertyPathIsEqualToValueOf, valueOfConditionPropertyPathIsNotEqualToValueOf;
+public enum ConditionOperator {
+  equalTo, notEqualTo;
 }
