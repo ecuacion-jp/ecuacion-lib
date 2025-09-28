@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.equalTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
         return true;
       }
 
-    } else if (conditionPattern == valueOfItemPropertyPath) {
+    } else if (conditionPattern == valueOfPropertyPath) {
 
       conditionValueStringMustNotSet();
 

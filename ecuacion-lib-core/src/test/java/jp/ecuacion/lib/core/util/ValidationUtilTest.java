@@ -548,7 +548,7 @@ public class ValidationUtilTest {
     }
 
     @ConditionalNotEmpty(propertyPath = "child.value", conditionPropertyPath = "child.conditionValue",
-        conditionPattern = ConditionValuePattern.valueOfItemPropertyPath,
+        conditionPattern = ConditionValuePattern.valueOfPropertyPath,
         conditionValuePropertyPath = "child.conditionValuePropertyPath")
     public static class ObjWithClassValidator {
       ChildObj child = new ChildObj();

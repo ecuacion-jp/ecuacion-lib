@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
@@ -243,7 +243,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
 
       String valuesOfConditionPropertyPathToValidate = null;
-      if (conditionPtn == valueOfItemPropertyPath) {
+      if (conditionPtn == valueOfPropertyPath) {
 
         Object obj =
             getFieldValue((String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH),
