@@ -15,15 +15,15 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.validator;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.stringValueOfConditionPropertyPathIsEqualTo;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionPattern.valueOfConditionPropertyPathIsEqualToValueOf;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 
 @SuppressWarnings("unused")
 public class ConditinalCommonTestBean {
 
   @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+      conditionPattern = string,
       conditionValueString = EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoField {
 
@@ -37,7 +37,7 @@ public class ConditinalCommonTestBean {
   }
 
   @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+      conditionPattern = string,
       conditionValueString = EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoConditionField {
 
@@ -53,7 +53,7 @@ public class ConditinalCommonTestBean {
   public static class ValidatesWhenConditionNotSatisfied {
 
     @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class TrueClass {
       private String field = null;
@@ -61,7 +61,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a", notEmptyWhenConditionNotSatisfied = false)
     public static class FalseClass {
       private String field = null;
@@ -72,7 +72,7 @@ public class ConditinalCommonTestBean {
   public static class MultipleFields {
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a")
     public static class AllTrue {
       private String field1 = null;
@@ -81,7 +81,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a")
     public static class OneFalse {
       private String field1 = null;
@@ -90,7 +90,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a")
     public static class AllFalse {
       private String field1 = "X";
@@ -99,7 +99,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
         conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class AllTrueConditionNotSatisfied {
       private String field1 = null;
@@ -108,7 +108,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
             conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class OneFalseConditionNotSatisfied {
       private String field1 = null;
@@ -117,7 +117,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
-        conditionPattern = stringValueOfConditionPropertyPathIsEqualTo,
+        conditionPattern = string,
             conditionValueString = "a", notEmptyWhenConditionNotSatisfied = true)
     public static class AllFalseConditionNotSatisfied {
       private String field1 = "X";
@@ -134,7 +134,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-        conditionPattern = valueOfConditionPropertyPathIsEqualToValueOf,
+        conditionPattern = valueOfItemPropertyPath,
         conditionValuePropertyPath = "fieldHoldingConditionValue")
     public static class Child extends Parent {
 
