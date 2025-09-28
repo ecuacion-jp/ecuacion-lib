@@ -297,6 +297,24 @@ public class PropertyFileUtil {
   }
 
   /**
+   * Returns the value in application_xxx.properties if it exists. 
+   * Returns given default value if not.
+   * 
+   * @param key the key of the property
+   * @param defaultValue default value
+   * @return the value of the property
+   */
+  @Nullable
+  public static String getApplicationOrElse(@RequireNonnull String key, String defaultValue) {
+    if (getterMap.get(APPLICATION).hasProp(key)) {
+      return getterMap.get(APPLICATION).getProp(key, null);
+
+    } else {
+      return defaultValue;
+    }
+  }
+
+  /**
    * Returns the value of default locale in messages_xxx.properties.
    * 
    * @param key the key of the property
