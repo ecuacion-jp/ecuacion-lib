@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 
 @SuppressWarnings("unused")
@@ -134,7 +134,7 @@ public class ConditinalCommonTestBean {
     }
 
     @ConditionalEmpty(propertyPath = "field", conditionPropertyPath = "condField",
-        conditionPattern = valueOfItemPropertyPath,
+        conditionPattern = valueOfPropertyPath,
         conditionValuePropertyPath = "fieldHoldingConditionValue")
     public static class Child extends Parent {
 

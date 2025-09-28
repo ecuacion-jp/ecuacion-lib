@@ -19,7 +19,7 @@ import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOp
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfItemPropertyPath;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
@@ -334,7 +334,7 @@ public class ConditionalValidatorTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", valueOfItemPropertyPath, equalTo,
+    obj.initialize(new String[] {"field"}, "condField", valueOfPropertyPath, equalTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
         false);
 
@@ -534,7 +534,7 @@ public class ConditionalValidatorTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsNotEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", valueOfItemPropertyPath, notEqualTo,
+    obj.initialize(new String[] {"field"}, "condField", valueOfPropertyPath, notEqualTo,
         new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL}, "fieldHoldingConditionValue",
         false);
 

@@ -26,6 +26,6 @@ public enum ConditionValuePattern {
   // no additional value selection is needed.
   empty,  
 
-  // Setting value of conditionValueField is needed.
-  valueOfItemPropertyPath;
+  // Setting value of conditionValuePropertyPath is needed.
+  valueOfPropertyPath;
 }
