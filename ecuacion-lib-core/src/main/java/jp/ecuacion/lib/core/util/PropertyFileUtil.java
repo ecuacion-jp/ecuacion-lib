@@ -619,8 +619,10 @@ public class PropertyFileUtil {
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
       key = ConditionalValidator.CONDITION_PATTERN;
+      String keyOpe = ConditionalValidator.CONDITION_OPERATOR;
       newKey = "conditionValueDescription";
-      newValue = PropertyFileUtil.getMessage(locale, annotation + ".messagePart." + argMap.get(key),
+      newValue = PropertyFileUtil.getMessage(locale,
+          annotation + ".messagePart." + argMap.get(key) + "." + argMap.get(keyOpe),
           (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
       argMap.put(newKey, newValue);
 
