@@ -118,12 +118,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
   private Optional<String> getItemNameKeyClassFromAnnotation(boolean isClassValidator,
       Object leafBean, String propertyPath) {
 
-    Object modifiedLeafBean = leafBean;
+    Class<?> modifiedLeafBeanClass = leafBean.getClass();
     try {
       // search for @ItemNamClass at field
       if (!isClassValidator) {
         String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-        Field field = getField(fieldName, modifiedLeafBean).getLeft();
+        Field field = getField(fieldName, leafBean.getClass());
         ItemNameKeyClass an = field.getAnnotation(ItemNameKeyClass.class);
         String value = an == null ? null : an.value();
 
@@ -140,14 +140,15 @@ public class ConstraintViolationBean extends ReflectionUtil {
           }
 
           String fieldName = tmpPp.contains(".") ? tmpPp.substring(0, tmpPp.indexOf(".")) : tmpPp;
-          tmpPp = tmpPp.contains(".") ? tmpPp.substring(tmpPp.indexOf(".") + 1) : "";
+          modifiedLeafBeanClass = getField(fieldName, modifiedLeafBeanClass).getType();
 
-          modifiedLeafBean = getFieldValue(fieldName, modifiedLeafBean);
+          // 次のループのための値変更
+          tmpPp = tmpPp.contains(".") ? tmpPp.substring(tmpPp.indexOf(".") + 1) : "";
         }
       }
 
       Optional<ItemNameKeyClass> an =
-          searchAnnotationPlacedAtClass(modifiedLeafBean, ItemNameKeyClass.class);
+          searchAnnotationPlacedAtClass(modifiedLeafBeanClass, ItemNameKeyClass.class);
       return Optional.ofNullable(an.isPresent() ? an.get().value() : null);
 
     } catch (Exception ex) {

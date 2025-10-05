@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -28,7 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class ReflectionUtil {
 
   /**
-   * Searches for a class annotation in the argument instance and its superClasses.
+   * Searches for a class annotation in the argument class and its superClasses.
    * 
    * <p>The search starts at the argument instance, and if it doesn't have the annotation, 
    *     It searches the superClass of the instance next.<br>
@@ -39,21 +38,20 @@ public class ReflectionUtil {
    *     Even if there is another anntation of same class, 
    *     it ignores and it returns first-found annotation.
    */
-  protected static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(Object instance,
-      Class<A> annotation) {
-    Class<?> cls = instance.getClass();
+  protected static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(
+      Class<?> classOfTargetInstance, Class<A> annotation) {
     while (true) {
       // No more ancestors
-      if (cls == Object.class) {
+      if (classOfTargetInstance == Object.class) {
         return Optional.empty();
       }
 
-      A an = (A) cls.getAnnotation(annotation);
+      A an = (A) classOfTargetInstance.getAnnotation(annotation);
       if (an != null) {
         return Optional.of(an);
       }
 
-      cls = cls.getSuperclass();
+      classOfTargetInstance = classOfTargetInstance.getSuperclass();
     }
   }
 
@@ -73,18 +71,24 @@ public class ReflectionUtil {
    * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
    * </code>
    */
-  protected static Object getFieldValue(String fieldName, Object instance) {
-    Pair<Field, Object> pair = getField(fieldName, instance);
-    Field field = pair.getLeft();
-    Object instanceOfField = pair.getRight();
-
-    field.setAccessible(true);
-
+  protected static Object getFieldValue(String itemPropertyPath, Object instance) {
     try {
-      return field.get(instanceOfField);
+      String chileItemPropertyPath = itemPropertyPath.substring(itemPropertyPath.indexOf(".") + 1);
+      
+      while (true) {
+        if (itemPropertyPath.contains(".")) {
+          String rootFieldName = itemPropertyPath.substring(0, itemPropertyPath.indexOf("."));
+          return getFieldValue(chileItemPropertyPath, getFieldValue(rootFieldName, instance));
+
+        } else {
+          Field rootField = getField(itemPropertyPath, instance.getClass());
+          rootField.setAccessible(true);
+          return rootField.get(instance);
+        }
+      }
 
     } catch (IllegalArgumentException | IllegalAccessException ex) {
-      throwRuntimeException(ex, fieldName, "Field value");
+      throwRuntimeException(ex, itemPropertyPath, "Field value");
     }
 
     // throwRuntimeException always throws Exception so this will never executed.
@@ -114,27 +118,35 @@ public class ReflectionUtil {
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  protected static Pair<Field, Object> getField(String fieldName, Object instance) {
+  protected static Field getField(String fieldName, Class<?> classOfTargetInstance) {
     Field validationTargetField;
 
-    Class<?> cls = instance.getClass();
     // store first exception
     Exception ex = null;
-    
+
     if (fieldName.contains(".")) {
-      Object chileIns = getFieldValue(fieldName.substring(0, fieldName.indexOf(".")), instance);
-      return getField(fieldName.substring(fieldName.indexOf(".") + 1), chileIns);
+      // Object chileIns = getFieldValue(fieldName.substring(0, fieldName.indexOf(".")), instance);
+      try {
+        Field childField =
+            classOfTargetInstance.getDeclaredField(fieldName.substring(0, fieldName.indexOf(".")));
+        return getField(fieldName.substring(fieldName.indexOf(".") + 1), childField.getType());
+
+      } catch (Exception exception) {
+        if (ex == null) {
+          ex = exception;
+        }
+      }
 
     } else {
       // loop for finding fields in parent's class.
       while (true) {
-        if (cls.equals(Object.class)) {
+        if (classOfTargetInstance.equals(Object.class)) {
           break;
         }
 
         try {
-          validationTargetField = cls.getDeclaredField(fieldName);
-          return Pair.of(validationTargetField, instance);
+          validationTargetField = classOfTargetInstance.getDeclaredField(fieldName);
+          return validationTargetField;
 
         } catch (Exception exception) {
           if (ex == null) {
@@ -142,7 +154,7 @@ public class ReflectionUtil {
           }
         }
 
-        cls = cls.getSuperclass();
+        classOfTargetInstance = classOfTargetInstance.getSuperclass();
       }
 
       throwRuntimeException(ex, fieldName, "Field");
