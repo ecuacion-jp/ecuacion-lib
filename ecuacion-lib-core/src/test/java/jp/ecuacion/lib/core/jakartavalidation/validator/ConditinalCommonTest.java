@@ -99,5 +99,13 @@ public class ConditinalCommonTest {
         .get();
     Assertions.assertEquals(1, mae.getList().size());
   }
+  
+  @Test
+  public void itemNameKeyTest() {
+    // values are null.
+    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.ItemNameKey.Obj())
+        .get();
+    Assertions.assertEquals(1, mae.getList().size());
+  }
 
 }
