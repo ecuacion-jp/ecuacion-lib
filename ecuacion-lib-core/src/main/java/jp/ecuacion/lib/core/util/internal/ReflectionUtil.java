@@ -74,7 +74,7 @@ public class ReflectionUtil {
   protected static Object getFieldValue(String itemPropertyPath, Object instance) {
     try {
       String chileItemPropertyPath = itemPropertyPath.substring(itemPropertyPath.indexOf(".") + 1);
-      
+
       while (true) {
         if (itemPropertyPath.contains(".")) {
           String rootFieldName = itemPropertyPath.substring(0, itemPropertyPath.indexOf("."));
@@ -157,8 +157,9 @@ public class ReflectionUtil {
         classOfTargetInstance = classOfTargetInstance.getSuperclass();
       }
 
-      throwRuntimeException(ex, fieldName, "Field");
     }
+
+    throwRuntimeException(ex, fieldName, "Field");
 
     // throwRuntimeException always throws Exception so this will never executed.
     return null;
