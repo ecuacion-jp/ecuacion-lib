@@ -120,7 +120,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     Class<?> modifiedLeafBeanClass = leafBean.getClass();
     try {
-      // search for @ItemNamClass at field
+      // search for @ItemNameKeyClass at field
       if (!isClassValidator) {
         String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
         Field field = getField(fieldName, leafBean.getClass());
