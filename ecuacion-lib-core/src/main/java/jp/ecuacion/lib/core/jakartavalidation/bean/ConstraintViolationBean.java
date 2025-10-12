@@ -46,7 +46,12 @@ import org.apache.commons.lang3.StringUtils;
 public class ConstraintViolationBean extends ReflectionUtil {
   private ConstraintViolation<?> cv;
   private String message;
-  private String propertyPath;
+  
+  /** 
+   * When a validator added to a class detects a violation, 
+   * it can be a combination of values between multiple items. 
+   * In that case you want to set error multiple propertyPaths for those items.
+   */
   private String[] fieldPropertyPaths;
 
   private String validatorClass;
@@ -71,7 +76,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
     this.cv = cv;
 
     this.message = cv.getMessage();
-    this.propertyPath = cv.getPropertyPath().toString();
     this.validatorClass = cv.getConstraintDescriptor().getAnnotation().annotationType().getName();
     this.rootClassName = cv.getRootBeanClass().getName();
     this.annotationDescriptionString = cv.getConstraintDescriptor().getAnnotation().toString();
@@ -98,16 +102,14 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * @param validatorClass validatorClass
    */
   public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
-      String itemNameKey) {
+      String propertyPath) {
     this.message = message;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
 
-    this.itemNameKeys = new String[] {itemNameKey};
-    // in this case ItemNameKeyClass == propertyPath holds true.
-    this.propertyPath = itemNameKey;
-    this.fieldPropertyPaths = new String[] {itemNameKey};
+    this.fieldPropertyPaths = new String[] {propertyPath};
+    this.itemNameKeys = new String[] {propertyPath};
 
     this.paramMap = new HashMap<>();
 
@@ -120,7 +122,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     Class<?> modifiedLeafBeanClass = leafBean.getClass();
     try {
-      // search for @ItemNamClass at field
+      // search for @ItemNameKeyClass at field
       if (!isClassValidator) {
         String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
         Field field = getField(fieldName, leafBean.getClass());
@@ -158,6 +160,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
 
+    final String propertyPath = cv.getPropertyPath().toString();
+    
     // When localized messages are created, paramMap is an only parameter.
     // So some values should be put into the map.
     paramMap.put("leafClassName", getLeafClassName());
@@ -303,15 +307,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
    */
   public String getMessage() {
     return message;
-  }
-
-  /**
-   * Gets propertyPath.
-   * 
-   * @return propertyPath
-   */
-  public String getPropertyPath() {
-    return propertyPath;
   }
 
   /**

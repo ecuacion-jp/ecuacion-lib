@@ -21,6 +21,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.StringUtil;
 
 /**
  * Holds a Jakarta Validations violation.
@@ -29,11 +30,11 @@ public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
   private ConstraintViolationBean bean;
-  
+
   private boolean isMessageWithItemName;
 
   private Arg messagePrefix;
-  
+
   private Arg messagePostfix;
 
   /**
@@ -77,8 +78,9 @@ public class ValidationAppException extends SingleAppException {
   public @Nonnull String toString() {
     return "message:" + bean.getMessage() + "\n" + "annotation:" + bean.getAnnotation() + "\n"
         + "rootClassName:" + bean.getRootClassName() + "\n" + "leafClassName:"
-        + bean.getLeafClassName() + "\n" + "propertyPath:" + bean.getPropertyPath() + "\n"
-        + "invalidValue:" + bean.getInvalidValue();
+        + bean.getLeafClassName() + "\n" + "propertyPath:"
+        + StringUtil.getCsv(bean.getFieldPropertyPaths()) + "\n" + "invalidValue:"
+        + bean.getInvalidValue();
   }
 
   /**
@@ -99,7 +101,7 @@ public class ValidationAppException extends SingleAppException {
     this.isMessageWithItemName = isMessageWithItemName;
     return this;
   }
-  
+
   public Arg getMessagePrefix() {
     return messagePrefix;
   }
