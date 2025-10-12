@@ -35,7 +35,6 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
@@ -161,7 +160,6 @@ public class ExceptionUtil {
           ConstraintViolationBean bean = ex.getConstraintViolationBean();
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
-
           message = needsItemName || ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
                   map)
@@ -170,26 +168,26 @@ public class ExceptionUtil {
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
           // messageに {0} があったら entity.field に置き換える
           if (message.contains("{0}")) {
-            String className =
-                bean.getRootClassName().substring(bean.getRootClassName().lastIndexOf(".") + 1);
-            String itemName = StringUtils.uncapitalize(className) + "." + bean.getPropertyPath();
-            // itemNameの中に"."が2つ以上ある場合は不要に長いので上位のパスを削除
-            if (itemName.split("\\.").length > 2) {
+            String itemNameKey = bean.getItemNameKeys()[0] == null ? bean.getFieldPropertyPaths()[0]
+                : bean.getItemNameKeys()[0];
+            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths() 
+            // and it contains "." more than 1.
+            if (itemNameKey.split("\\.").length > 2) {
               while (true) {
-                itemName = itemName.substring(itemName.indexOf(".") + 1);
-                if (itemName.split("\\.").length == 2) {
+                itemNameKey = itemNameKey.substring(itemNameKey.indexOf(".") + 1);
+                if (itemNameKey.split("\\.").length == 2) {
                   break;
                 }
               }
             }
 
             // itemNameがmessages.propertiesにあったらそれに置き換える
-            if (PropertyFileUtil.hasItemName(itemName)) {
-              itemName = PropertyFileUtil.getItemName(locale, itemName);
+            if (PropertyFileUtil.hasItemName(itemNameKey)) {
+              itemNameKey = PropertyFileUtil.getItemName(locale, itemNameKey);
             }
 
             try {
-              message = MessageFormat.format(message, itemName);
+              message = MessageFormat.format(message, itemNameKey);
 
             } catch (IllegalArgumentException iae) {
               String msg = "ExceptionUtil#getExceptionMessage: MessageFormat.format throws "
