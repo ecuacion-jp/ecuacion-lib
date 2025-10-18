@@ -36,9 +36,9 @@ public class ReflectionUtil {
    *     
    * <p>Search ends when it founds the first annotation.
    *     Even if there is another anntation of same class, 
-   *     it ignores and it returns first-found annotation.
+   *     it ignores and it returns first-found annotation.</p>
    */
-  protected static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(
+  public static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(
       Class<?> classOfTargetInstance, Class<A> annotation) {
     while (true) {
       // No more ancestors
@@ -118,7 +118,7 @@ public class ReflectionUtil {
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  protected static Field getField(String fieldName, Class<?> classOfTargetInstance) {
+  public static Field getField(String fieldName, Class<?> classOfTargetInstance) {
     Field validationTargetField;
 
     // store first exception
@@ -156,7 +156,6 @@ public class ReflectionUtil {
 
         classOfTargetInstance = classOfTargetInstance.getSuperclass();
       }
-
     }
 
     throwRuntimeException(ex, fieldName, "Field");

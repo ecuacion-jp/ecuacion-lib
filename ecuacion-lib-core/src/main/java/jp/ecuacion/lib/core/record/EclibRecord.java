@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.record.item.EclibItem;
+import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -29,14 +31,14 @@ public interface EclibRecord {
    * Returns an array of items.
    */
   public abstract EclibItem[] getItems();
-  
+
   /**
    * Returns a new instance.
    */
   public default EclibItem getNewItem(String itemPropertyPath) {
     return new EclibItem(itemPropertyPath);
   }
-  
+
   /**
    * Returns {@code EclibItem} from {@code EclibItem[]} and {@code fieldId}. 
    * 
@@ -44,6 +46,16 @@ public interface EclibRecord {
    * @return HtmlItem
    */
   default EclibItem getItem(String rootRecordName, String itemPropertyPath) {
+
+    // field existence check
+    try {
+      ReflectionUtil.getField(itemPropertyPath, this.getClass());
+    } catch (Exception ex) {
+      // catching exception means field does not exist.
+      throw new EclibRuntimeException("itemPropertyPath '" + itemPropertyPath + "' not found in "
+          + this.getClass().getCanonicalName());
+    }
+
     Map<String, EclibItem> map = Arrays.asList(getItems()).stream()
         .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 

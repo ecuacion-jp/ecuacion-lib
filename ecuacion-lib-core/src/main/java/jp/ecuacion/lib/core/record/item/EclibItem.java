@@ -25,49 +25,26 @@ public class EclibItem {
 
   /**
    * Is a class part (= left part) of itemNameKey. (like "acc" from itemNameKey: "acc.name")
-   * 
-   * <p>The display name can be obtained by referring {@code item_names.properties} with it.</p>
    */
   protected String itemNameKeyClass;
 
   /**
    * Is a field part (= right part) of itemNameKey. (like "name" from itemNameKey: "acc.name")
-   * 
-   * <p>The display name can be obtained by referring {@code item_names.properties} with it.</p>
    */
   protected String itemNameKeyField;
 
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
    * 
-   * <p>Generally propertyPath starts with a rootRecord 
-   *     (a record field name which is directly defined in a form),
-   *     which should be like {@code user.name} or {@code user.dept.name}. 
-   *     (It's called {@code recordPropertyPath} in the library.)<br>
-   *     But here you need to set {@code itemPropertyPath}, 
-   *     which is a propertyPath with rootRecordName + "." removed at the start part of it.<br><br>
-   *     You cannot set recordPropertyPath here.
-   *     Setting it is considered as a duplication of rootRecordName.</p>
+   * <p>You cannot set recordPropertyPath here.
+   *     Setting it caauses a duplication of rootRecordName and it cannot be found.</p>
    * 
    * @param itemPropertyPath itemPropertyPath
    */
   public EclibItem(@RequireNonempty String itemPropertyPath) {
 
-    this.itemPropertyPath = ObjectsUtil.requireNonEmpty(itemPropertyPath);
-
-    // Remove far left part ("name" in "acc.name") from propertyPath.
-    // It's null when propertyPath doesn't contain ".".
-    String itemPropertyPathClass = itemPropertyPath.contains(".")
-        ? itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."))
-        : null;
-
-    this.itemNameKeyClass = itemPropertyPathClass == null ? null
-        : (itemPropertyPathClass.contains(".")
-            ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
-            : itemPropertyPathClass);
-    this.itemNameKeyField = itemPropertyPath.contains(".")
-        ? itemPropertyPath.substring(itemPropertyPath.lastIndexOf(".") + 1)
-        : itemPropertyPath;
+    this.itemPropertyPath =
+        ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(itemPropertyPath));
   }
 
   public String getItemPropertyPath() {
@@ -79,9 +56,9 @@ public class EclibItem {
    * 
    * <p>The format of itemNameKey is the same as itemNameKey, which is like "acc.name",
    *     always has one dot (not more than one) in the middle of the string.<br>
-   *     But the argument of the method can be like "name".
-   *     In that case itemNameKeyClass is used instead. 
-   *     When itemNameKeyClass is {@code null}, rootRecordName is used instead.</p>
+   *     But the argument of the method can be like "name", itemNameKeyField only.
+   *     In that case the value of itemnameKeyClass is determined by the rule 
+   *     written at {@code getItemNameKey(rootRecordName)} javadoc.</p>
    * 
    * @param itemNameKey itemNameKey
    * @return Item
@@ -94,23 +71,64 @@ public class EclibItem {
     this.itemNameKeyField =
         itemNameKey.contains(".") ? itemNameKey.substring(itemNameKey.lastIndexOf(".") + 1)
             : itemNameKey;
-    
+
     return this;
   }
 
   /**
    * Returns {@code itemNameKey} value.
    * 
-   * <p>Its value is {@code null} means 
-   *     the item's original itemNameKey is equal to itemNameKey.</p>
+   * <p>There can be 3 candidates for itemNameKeyClass,<br>
+   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
+   *     2: part of itemPropertyPath<br>
+   *     3: rootRecordName set to getItemNameKey(rootRecordName)<br><br>
+   *     
+   *     When 1 exists, 1 is always used. <br>
+   *     When 1 does not exist, if 2. contains "." the second last part of it<br>
+   *     (if the string is 1.2.3.4, second last part is "3").<br>
+   *     When 1 does not exist and 2. does not contain ".", 3. is used.<br>
+   * </p>
+   * 
+   * <p>Notice that the return value of this method does not consider 
+   *     {@code @ItemNameKeyClass} annotations, 
+   *     which means the return value should not be used 
+   *     for resolution of itemName directly. 
+   *     Use {@code EclibRecord#getItemNameKey()} for it.</p>
    * 
    * @return itemNameKeyFieldForName
    */
   public String getItemNameKey(String rootRecordName) {
-    String classPart = !StringUtils.isEmpty(itemNameKeyClass) ? itemNameKeyClass : rootRecordName;
-    String fieldPart = itemNameKeyField;
+    String tmpItemNameKeyClass;
+    String tmpItemNameKeyField;
 
-    return classPart + "." + fieldPart;
+    // tmpItemNameKeyClass
+    if (!StringUtils.isEmpty(itemNameKeyClass)) {
+      tmpItemNameKeyClass = itemNameKeyClass;
+
+    } else if (itemPropertyPath.contains(".")) {
+      // Remove far right part ("name" in "acc.name") from propertyPath.
+      // It's null when propertyPath doesn't contain ".".
+      String itemPropertyPathClass =
+          itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
+
+      tmpItemNameKeyClass = (itemPropertyPathClass.contains(".")
+          ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
+          : itemPropertyPathClass);
+
+    } else {
+      tmpItemNameKeyClass = rootRecordName;
+    }
+
+    // tmpItemNameKeyField
+    if (!StringUtils.isEmpty(itemNameKeyField)) {
+      tmpItemNameKeyField = itemNameKeyField;
+
+    } else {
+      tmpItemNameKeyField = itemPropertyPath.contains(".")
+          ? itemPropertyPath.substring(itemPropertyPath.lastIndexOf(".") + 1)
+          : itemPropertyPath;
+    }
+
+    return tmpItemNameKeyClass + "." + tmpItemNameKeyField;
   }
-  
 }

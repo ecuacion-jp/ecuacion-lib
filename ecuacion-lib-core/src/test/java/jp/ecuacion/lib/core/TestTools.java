@@ -18,10 +18,9 @@ package jp.ecuacion.lib.core;
 import org.junit.jupiter.api.Assertions;
 
 public class TestTools {
-  
 
   //
-  // static importが面倒なので、test methodをここに定義しておく。
+  // assertion methods are defined here because static imports are troublesome to define.
   //
 
   public void assertTrue(boolean bl) {
@@ -39,9 +38,4 @@ public class TestTools {
   public void fail() {
     Assertions.fail();
   }
-
-  // assertThat(..) は使いやすくしようがないので対象のクラスをコメントで記録しておく。。。
-  // assertThatを使う場合は、以下の方をimportしておく。
-  // org.assertj.core.api.Assertions
-
 }

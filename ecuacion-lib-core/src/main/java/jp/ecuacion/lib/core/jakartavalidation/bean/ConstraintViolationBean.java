@@ -55,7 +55,9 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * In that case you want to set error multiple propertyPaths for those items.
    */
   private String[] fieldPropertyPaths;
+  @Deprecated
   private String[] itemNameKeys;
+  private String[] itemNameKeyClasses;
 
   private String validatorClass;
   private String rootClassName;
@@ -399,8 +401,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
   }
 
   /**
-   * Obtains itemNameKeys.
-   */
+  * Obtains itemNameKeys.
+  */
   public String[] getItemNameKeys() {
     return itemNameKeys;
   }
@@ -415,5 +417,9 @@ public class ConstraintViolationBean extends ReflectionUtil {
    */
   public String[] getFieldPropertyPaths() {
     return fieldPropertyPaths;
+  }
+
+  public String[] getItemNameKeyClasses() {
+    return itemNameKeyClasses;
   }
 }

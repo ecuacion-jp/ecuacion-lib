@@ -130,7 +130,7 @@ public class ExceptionUtil {
     List<String> rtnList = new ArrayList<>();
 
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
-    // In that case it's not transformed to AppBeanValidationException, 
+    // In that case it's not transformed to AppBeanValidationException,
     // So the transformation procedure is added here.
     if (throwable instanceof ConstraintViolationException) {
       ConstraintViolationException cve = (ConstraintViolationException) throwable;
@@ -170,7 +170,7 @@ public class ExceptionUtil {
           if (message.contains("{0}")) {
             String itemNameKey = bean.getItemNameKeys()[0] == null ? bean.getFieldPropertyPaths()[0]
                 : bean.getItemNameKeys()[0];
-            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths() 
+            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths()
             // and it contains "." more than 1.
             if (itemNameKey.split("\\.").length > 2) {
               while (true) {
