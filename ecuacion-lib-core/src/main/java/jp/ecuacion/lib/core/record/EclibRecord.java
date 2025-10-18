@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.record.item.EclibItem;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -45,26 +43,21 @@ public interface EclibRecord {
    * @param itemPropertyPath itemPropertyPath
    * @return HtmlItem
    */
-  default EclibItem getItem(String rootRecordName, String itemPropertyPath) {
+  default EclibItem getItem(String itemPropertyPath) {
 
-    // field existence check
-    try {
-      ReflectionUtil.getField(itemPropertyPath, this.getClass());
-    } catch (Exception ex) {
-      // catching exception means field does not exist.
-      throw new EclibRuntimeException("itemPropertyPath '" + itemPropertyPath + "' not found in "
-          + this.getClass().getCanonicalName());
-    }
+    // // field existence check
+    // try {
+    // ReflectionUtil.getField(itemPropertyPath, this.getClass());
+    // } catch (Exception ex) {
+    // // catching exception means field does not exist.
+    // throw new EclibRuntimeException("itemPropertyPath '" + itemPropertyPath + "' not found in "
+    // + this.getClass().getCanonicalName());
+    // }
 
     Map<String, EclibItem> map = Arrays.asList(getItems()).stream()
         .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
     EclibItem field = map.get(itemPropertyPath);
-
-    // Try with itemPropertyPath
-    if (field == null && itemPropertyPath.startsWith(rootRecordName)) {
-      field = map.get(itemPropertyPath.substring(rootRecordName.length() + 1));
-    }
 
     return field == null ? getNewItem(itemPropertyPath) : field;
   }
@@ -96,4 +89,8 @@ public interface EclibRecord {
 
     return list.toArray(new EclibItem[list.size()]);
   }
+
+  // default String getItemNameKey(String rootRecordName, String itemPropertyPath) {
+  // return getItem(rootRecordName, itemPropertyPath).getItemNameKey(rootRecordName);
+  // }
 }

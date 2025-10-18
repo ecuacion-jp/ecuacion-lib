@@ -79,7 +79,7 @@ public class ValidationAppException extends SingleAppException {
     return "message:" + bean.getMessage() + "\n" + "annotation:" + bean.getAnnotation() + "\n"
         + "rootClassName:" + bean.getRootClassName() + "\n" + "leafClassName:"
         + bean.getLeafClassName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(bean.getFieldPropertyPaths()) + "\n" + "invalidValue:"
+        + StringUtil.getCsv(bean.getItemPropertyPaths()) + "\n" + "invalidValue:"
         + bean.getInvalidValue();
   }
 
@@ -132,6 +132,6 @@ public class ValidationAppException extends SingleAppException {
 
   @Override
   public String[] getItemPropertyPaths() {
-    return bean.getFieldPropertyPaths();
+    return bean.getItemPropertyPaths();
   }
 }

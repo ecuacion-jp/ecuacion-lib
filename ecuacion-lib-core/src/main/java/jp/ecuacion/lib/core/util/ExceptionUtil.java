@@ -168,7 +168,7 @@ public class ExceptionUtil {
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
           // messageに {0} があったら entity.field に置き換える
           if (message.contains("{0}")) {
-            String itemNameKey = bean.getItemNameKeys()[0] == null ? bean.getFieldPropertyPaths()[0]
+            String itemNameKey = bean.getItemNameKeys()[0] == null ? bean.getItemPropertyPaths()[0]
                 : bean.getItemNameKeys()[0];
             // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths()
             // and it contains "." more than 1.

@@ -32,6 +32,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.record.EclibRecord;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -52,12 +53,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
   /** 
    * When a validator added to a class detects a violation, 
    * it can be a combination of values between multiple items. 
-   * In that case you want to set error multiple propertyPaths for those items.
+   * In that case you want to set error multiple itemPropertyPaths for those items.
    */
-  private String[] fieldPropertyPaths;
-  @Deprecated
+  private String[] itemPropertyPaths;
   private String[] itemNameKeys;
-  private String[] itemNameKeyClasses;
 
   private String validatorClass;
   private String rootClassName;
@@ -103,16 +102,17 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * 
    * <p>This is used for {@code NotEmpty} validation logic.</p>
    */
-  public ConstraintViolationBean(Object rootBean, String message, String validatorClass,
-      String rootClassName, String propertyPath, String itemNameKey) {
+  public ConstraintViolationBean(EclibRecord rootBean, String message, String validatorClass,
+      String rootClassName, String itemPropertyPath) {
     this.rootBean = rootBean;
     this.message = message;
     this.validatorClass = validatorClass;
     this.rootClassName = rootClassName;
     this.messageTemplate = validatorClass + ".message";
 
-    this.fieldPropertyPaths = new String[] {propertyPath};
-
+    this.itemPropertyPaths = new String[] {itemPropertyPath};
+    this.itemNameKeys =
+        new String[] {rootBean.getItem(itemPropertyPath).getItemNameKey(rootClassName)};
     this.paramMap = new HashMap<>();
 
     // This is for @Pattern and not used when this constructor is called.
@@ -179,17 +179,20 @@ public class ConstraintViolationBean extends ReflectionUtil {
     String defaultItemNameKeyClass = null;
 
     // itemNameKeyField
-    String[] propertyPaths = null;
     List<String> itemNameKeyList = new ArrayList<>();
     if (isClassValidator) {
       // Reaching here means the annotation is added to class, not field.
-      propertyPaths = (String[]) paramMap.get("propertyPath");
+      itemPropertyPaths = (String[]) paramMap.get("propertyPath");
 
-      for (String fieldPropertyPath : propertyPaths) {
+      for (String itemPropertyPath : itemPropertyPaths) {
+        // String itemNameKey;
+        // if (rootBean instanceof )
+        // = rootBean instanceof EclibRecord ? ((EclibRecord)
+        // rootBean).getItem(fieldPropertyPath).getItemNameKey(defaultItemNameKeyClass)
         Optional<String> itemNameKeyClassFromAnnotation =
             getItemNameKeyClassFromAnnotation(isClassValidator, cv.getLeafBean(),
-                fieldPropertyPath.contains(".")
-                    ? fieldPropertyPath.substring(0, fieldPropertyPath.lastIndexOf("."))
+                itemPropertyPath.contains(".")
+                    ? itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."))
                     : "");
 
         defaultItemNameKeyClass = StringUtils.isEmpty(propertyPath)
@@ -198,9 +201,9 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
         String itemNameKey =
             getFinalItemNameKeyClass(itemNameKeyClassFromAnnotation, defaultItemNameKeyClass) + "."
-                + (fieldPropertyPath.contains(".")
-                    ? (fieldPropertyPath.substring(fieldPropertyPath.lastIndexOf(".") + 1))
-                    : fieldPropertyPath);
+                + (itemPropertyPath.contains(".")
+                    ? (itemPropertyPath.substring(itemPropertyPath.lastIndexOf(".") + 1))
+                    : itemPropertyPath);
 
         itemNameKeyList.add(itemNameKey);
       }
@@ -413,13 +416,9 @@ public class ConstraintViolationBean extends ReflectionUtil {
   }
 
   /**
-   * Obtains propertyPaths.
+   * Obtains itemPropertyPaths.
    */
-  public String[] getFieldPropertyPaths() {
-    return fieldPropertyPaths;
-  }
-
-  public String[] getItemNameKeyClasses() {
-    return itemNameKeyClasses;
+  public String[] getItemPropertyPaths() {
+    return itemPropertyPaths;
   }
 }

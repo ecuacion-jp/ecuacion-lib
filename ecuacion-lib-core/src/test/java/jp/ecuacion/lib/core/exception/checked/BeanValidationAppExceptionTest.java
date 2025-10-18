@@ -84,7 +84,7 @@ public class BeanValidationAppExceptionTest extends TestTools {
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
     Assertions.assertThat(bean.getRootClassName()).isEqualTo(className);
     Assertions.assertThat(bean.getLeafClassName()).isEqualTo(className);
-    Assertions.assertThat(bean.getFieldPropertyPaths()[0]).isEqualTo("str1");
+    Assertions.assertThat(bean.getItemPropertyPaths()[0]).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
     assertTrue(bean.getInstance() != null);
     assertTrue(bean.getAnnotationAttributes().size() == 3);
