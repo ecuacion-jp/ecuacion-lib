@@ -26,15 +26,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty.ConditionalNotEmptyList;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 
 /**
- * Checks if specified {@code field} is not empty 
- *     only when {@code conditionField} has specified value.
- * 
- * @see ConditionalEmpty
+ * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
  */
 @PlacedAtClass
 @Target({TYPE})
@@ -79,7 +77,7 @@ public @interface ConditionalNotEmpty {
    * @return ConditionPattern
    */
   ConditionValuePattern conditionPattern();
-  
+
   /**
    * Specifies the operator applied between the value of a condition field and the condition value
    *     To decide whether the condition is satisfied.
@@ -115,25 +113,18 @@ public @interface ConditionalNotEmpty {
   /**
    * Specifies condition value field.
    * 
-   * <p>This is used when {@code HowToDetermineConditionIsValid} is either 
-   *     {@code valueOfConditionFieldIsEqualToValueOf} 
-   *     or {@code valueOfConditionFieldIsNotEqualToValueOf}.
+   * <p>This is used when {@code valueOfPropertyPath} is  {@code valueOfPropertyPath}.
    *     Otherwise it must be unset.</p>
    * 
-   * <p>The datatype of the field specifies {@code conditionValueField} can be an array.</p>
-   * 
-   * <p>When {@code valueOfConditionFieldIsEqualToValueOf} is selected,
+   * <p>The datatype of the field specifies {@code conditionValueField} can be an array.<br><br>
+   *     When {@code ConditionOperator.equalTo} is selected,
    *     a condition is considered to be satisfied 
    *     if one of the values of the field {@code conditionValueField} specifies 
    *     is equal to the value of conditionField.<br>
-   *     When {@code valueOfConditionFieldIsNotEqualToValueOf} is selected,
+   *     When {@code ConditionOperator.notEqualTo} is selected,
    *     a condition is considered to be satisfied 
    *     if all of the values of the field {@code conditionValueField} specifies 
    *     is NOT equal to the value of conditionField.<br>
-   * 
-   * <p>Its name is {@code conditionValuePropertyPath}, not {@code conditionValueField} 
-   *     because basically you set field names (like 'name'), 
-   *     but you can also set a field in a bean (like 'dept.name').</p>
    * 
    * @return an array of string values
    */
@@ -145,15 +136,10 @@ public @interface ConditionalNotEmpty {
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
    *     as a part of an error message.</p>
-   *     
-   * <p>Its name is {@code valueOfConditionValuePropertyPathForDisplay}, 
-   * not {@code valueOfConditionValueFieldForDisplay} 
-   *     because basically you set field names (like 'name'), 
-   *     but you can also set a field in a bean (like 'dept.name').</p>     
    * 
    * @return String
    */
-  String valueOfConditionValuePropertyPathForDisplay() default "";
+  String displayStringPropertyPathOfConditionValuePropertyPath() default "";
 
   /**
    * Decides whether validation check is executed 

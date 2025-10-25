@@ -1,3 +1,18 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package jp.ecuacion.lib.core.record.item;
 
 import jakarta.annotation.Nonnull;
@@ -47,10 +62,6 @@ public class EclibItem {
         ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(itemPropertyPath));
   }
 
-  public String getItemPropertyPath() {
-    return itemPropertyPath;
-  }
-
   /**
    * Sets {@code itemNameKey} and returns this for method chain.
    * 
@@ -75,6 +86,19 @@ public class EclibItem {
     return this;
   }
 
+  public String getItemPropertyPath() {
+    return itemPropertyPath;
+  }
+  
+  /**
+   * Returns whether the itemNameKeyClass is set explicitly.
+   * 
+   * @return boolean
+   */
+  public boolean setsItemNameKeyClassExplicitly() {
+    return itemNameKeyClass != null;
+  }
+
   /**
    * Returns {@code itemNameKey} value.
    * 
@@ -97,7 +121,7 @@ public class EclibItem {
    * 
    * @return itemNameKeyFieldForName
    */
-  public String getItemNameKey(String rootRecordName) {
+  public String getItemNameKey(String defaultItemNameKeyClass) {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
@@ -116,7 +140,7 @@ public class EclibItem {
           : itemPropertyPathClass);
 
     } else {
-      tmpItemNameKeyClass = rootRecordName;
+      tmpItemNameKeyClass = defaultItemNameKeyClass;
     }
 
     // tmpItemNameKeyField

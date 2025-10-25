@@ -578,6 +578,13 @@ public class PropertyFileUtil {
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
+  /**
+   * Substitutes params to strings using argMap.
+   * 
+   * <p>argMap is created basically in {@code ConstraintViolationBean}, 
+   *     but locale needed string cannot be resolved in the instance
+   *     so some parameters are set to argMap here.</p>
+   */
   @Nonnull
   private static String substituteArgsToValidationMessages(@Nullable Locale locale,
       @RequireNonnull String message, @Nullable Map<String, Object> argMap) {
@@ -600,38 +607,33 @@ public class PropertyFileUtil {
       argMap.put(newKey, newValue);
     }
 
-    // get fieldName from field (for @ConditionalXxx)
-    annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
-    if (argAnnotationValue != null && argAnnotationValue.startsWith(annotation)) {
-      // field -> itemName
-      key = "itemNameKeys";
-      newKey = "itemName";
-      String[] itemNameKeys = (String[]) argMap.get(key);
-      List<String> itemNameList = new ArrayList<>();
-      for (String itemNameKey : itemNameKeys) {
-        itemNameList.add(PropertyFileUtil.getItemName(locale, itemNameKey));
-      }
-      argMap.put(newKey, StringUtil.getCsvWithSpace(itemNameList));
+    // for @ConditionalXxx
+    String annotationPrefix = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
+    if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
+      // itemName
+      String[] itemNameKeys = (String[]) argMap.get("itemNameKeys");
+      List<String> itemNameList = Arrays.asList(itemNameKeys).stream()
+          .map(ink -> PropertyFileUtil.getItemName(locale, ink)).toList();
+      argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
 
       // conditionItemName
       String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY);
-      argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_DISPLAY_NAME,
+      argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
-      key = ConditionalValidator.CONDITION_PATTERN;
-      String keyOpe = ConditionalValidator.CONDITION_OPERATOR;
-      newKey = "conditionValueDescription";
+      // conditionValueDescription
       newValue = PropertyFileUtil.getMessage(locale,
-          annotation + ".messagePart." + argMap.get(key) + "." + argMap.get(keyOpe),
-          (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE));
-      argMap.put(newKey, newValue);
+          annotationPrefix + ".messagePart." + argMap.get(ConditionalValidator.CONDITION_PATTERN)
+              + "." + argMap.get(ConditionalValidator.CONDITION_OPERATOR),
+          (String) argMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE));
+      argMap.put("displayStringOfConditionValue", newValue);
 
+      // validatesWhenConditionNotSatisfiedDescription
       newKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
       newValue = ((Boolean) argMap.get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED))
           ? PropertyFileUtil.getMessage(locale,
               argMap.get("annotation") + ".messagePart."
-                  + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
-              (String) argMap.get(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE))
+                  + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED)
           : "";
       argMap.put(newKey, newValue);
     }

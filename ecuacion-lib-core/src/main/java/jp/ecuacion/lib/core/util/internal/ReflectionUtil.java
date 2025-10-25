@@ -112,7 +112,7 @@ public class ReflectionUtil {
    * </code>
    * 
    * @param fieldName fieldName
-   * @param instance instance
+   * @param classOfTargetInstance classOfTargetInstance
    * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
    *     right-hand side is its instance.
    *     When you set "dept.name" to fieldName, instance would be "dept".

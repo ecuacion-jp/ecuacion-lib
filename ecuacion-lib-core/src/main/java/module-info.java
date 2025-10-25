@@ -26,6 +26,7 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.exception.checked;
   exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.jakartavalidation.bean;
+  exports jp.ecuacion.lib.core.jakartavalidation.annotation;
   exports jp.ecuacion.lib.core.jakartavalidation.validator;
   exports jp.ecuacion.lib.core.jakartavalidation.validator.enums;
   exports jp.ecuacion.lib.core.logging;
@@ -42,6 +43,9 @@ module jp.ecuacion.lib.core {
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
   requires jakarta.el;
+  
+  // for test
+  opens jp.ecuacion.lib.core.jakartavalidation.bean to org.hibernate.validator;
   
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;

@@ -22,13 +22,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
-import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BeanValidationAppExceptionTest extends TestTools {
+public class BeanValidationAppExceptionTest {
 
   private ConstraintViolation<SampleObj> violation;
 
@@ -48,14 +47,13 @@ public class BeanValidationAppExceptionTest extends TestTools {
       // NPEが起きるのが正解
       @SuppressWarnings("unused")
       ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
-      fail();
+      Assertions.fail();
 
     } catch (NullPointerException npe) {
       // OK
-      assertTrue(true);
 
     } catch (Exception e) {
-      fail();
+      Assertions.fail();
     }
   }
 
@@ -72,26 +70,24 @@ public class BeanValidationAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test02_値の取得() {
+  public void test02_obtaining_values() {
     final String className = "jp.ecuacion.lib.core.exception.checked."
         + "BeanValidationAppExceptionTest$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean bean = ex.getConstraintViolationBean();
-    Assertions.assertThat(bean.getAnnotation()).isEqualTo("jakarta.validation.constraints.NotNull");
-    Assertions.assertThat(bean.getMessage()).isEqualTo("null は許可されていません");
+    Assertions.assertThat(bean.getValidatorClass()).isEqualTo("jakarta.validation.constraints.NotNull");
+    Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
     Assertions.assertThat(bean.getMessageTemplate())
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
-    Assertions.assertThat(bean.getRootClassName()).isEqualTo(className);
+    Assertions.assertThat(bean.getRootRecordNameForForm()).isEqualTo(className);
     Assertions.assertThat(bean.getLeafClassName()).isEqualTo(className);
-    Assertions.assertThat(bean.getItemPropertyPaths()[0]).isEqualTo("str1");
+    Assertions.assertThat(bean.getItemPropertyPathsForForm()[0]).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
-    assertTrue(bean.getInstance() != null);
-    assertTrue(bean.getAnnotationAttributes().size() == 3);
   }
 
   @Test
-  public void test11_messageIdの取得() {
+  public void test11_obtaining_messageId() {
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getMessageId()).isEqualTo("jakarta.validation.constraints.NotNull");
