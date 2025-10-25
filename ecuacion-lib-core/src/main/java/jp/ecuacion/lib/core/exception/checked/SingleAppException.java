@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
+import jakarta.annotation.Nonnull;
 
 /** 
  * Is an abstract class describing an occurence of a single validation error.
@@ -44,5 +45,6 @@ public abstract class SingleAppException extends AppException {
    * 
    * @return an array of fpropertyPath
    */
+  @Nonnull
   public abstract String[] getItemPropertyPaths();
 }

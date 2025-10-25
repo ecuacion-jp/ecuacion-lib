@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core;
+package jp.ecuacion.lib.core.jakartavalidation.annotation;
 
-import org.junit.jupiter.api.Assertions;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class TestTools {
+/**
+ * THIS IS NOT A VALIDTOR. 
+ *     It specifies that the validator is placed on class, like {@code ConditionalEmpty}.
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.ANNOTATION_TYPE})
+public @interface PlacedAtClass {
 
-  //
-  // assertion methods are defined here because static imports are troublesome to define.
-  //
-
-  public void assertTrue(boolean bl) {
-    Assertions.assertTrue(bl);
-  }
-
-  public void assertFalse(boolean bl) {
-    Assertions.assertFalse(bl);
-  }
-
-  public void assertEquals(Object expected, Object actual) {
-    Assertions.assertEquals(expected, actual);
-  }
-
-  public void fail() {
-    Assertions.fail();
-  }
 }
