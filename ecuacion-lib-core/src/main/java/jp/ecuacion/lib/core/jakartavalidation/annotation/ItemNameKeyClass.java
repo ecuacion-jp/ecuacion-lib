@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.validator;
+package jp.ecuacion.lib.core.jakartavalidation.annotation;
 
-import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -32,7 +31,7 @@ import java.lang.annotation.Target;
  * 
  * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
  */
-@Target({FIELD, ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
 public @interface ItemNameKeyClass {

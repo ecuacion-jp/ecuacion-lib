@@ -129,9 +129,9 @@ public class ExceptionUtil {
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
 
-    // jakarta.validation.ConstraintViolationExceptionは、想定外箇所で発生する場合
-    // AppBeanValidationExceptionに変換できておらず直接投げられることも想定し、
-    // ここでAppBeanValidationExceptionに変換しておく。複数エラーを格納しているのでlistに格納。
+    // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
+    // In that case it's not transformed to AppBeanValidationException,
+    // So the transformation procedure is added here.
     if (throwable instanceof ConstraintViolationException) {
       ConstraintViolationException cve = (ConstraintViolationException) throwable;
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
@@ -168,9 +168,10 @@ public class ExceptionUtil {
           // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
           // messageに {0} があったら entity.field に置き換える
           if (message.contains("{0}")) {
-            String itemNameKey = bean.getItemNameKeys()[0] == null ? bean.getFieldPropertyPaths()[0]
-                : bean.getItemNameKeys()[0];
-            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths() 
+            String itemNameKey =
+                bean.getItemNameKeys()[0] == null ? bean.getItemPropertyPathsForForm()[0]
+                    : bean.getItemNameKeys()[0];
+            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths()
             // and it contains "." more than 1.
             if (itemNameKey.split("\\.").length > 2) {
               while (true) {

@@ -39,28 +39,19 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
 
-  public static final String VALIDATION_TARGET_FIELD = "validationTargetPropertyPath";
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
       "conditionPropertyPathItemNameKey";
-  public static final String CONDITION_PROPERTY_PATH_DISPLAY_NAME =
-      "conditionPropertyPathDisplayName";
+  public static final String CONDITION_PROPERTY_PATH_ITEM_NAME = "conditionPropertyPathItemName";
   public static final String CONDITION_PATTERN = "conditionPattern";
   public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
-  public static final String VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY =
-      "valueOfConditionValuePropertyPathForDisplay";
+  public static final String DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH =
+      "displayStringPropertyPathOfConditionValuePropertyPath";
 
-  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY =
-      "notEmptyWhenConditionNotSatisfied";
-  public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY =
-      "emptyWhenConditionNotSatisfied";
-
-  // Used to create messages from conditional validators.
-  // public static final String CONDITION_VALUE_KIND = "conditionValueKind";
-  public static final String VALUE_OF_CONDITION_FIELD_TO_VALIDATE =
-      "valuesOfConditionFieldToValidate";
+  public static final String DISPLAY_STRING_OF_CONDITION_VALUE =
+      "displayStringOfConditionValue";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
@@ -127,8 +118,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
           && ((String) valueOfConditionField).equals(""));
 
-      if (isEmpty && conditionOperator == equalTo
-          || !isEmpty && conditionOperator == notEqualTo) {
+      if (isEmpty && conditionOperator == equalTo || !isEmpty && conditionOperator == notEqualTo) {
         return true;
       }
 

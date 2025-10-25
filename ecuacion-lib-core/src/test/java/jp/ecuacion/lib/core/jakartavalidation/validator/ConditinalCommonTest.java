@@ -46,6 +46,7 @@ public class ConditinalCommonTest {
     }
   }
 
+  @SuppressWarnings("unused")
   @Test
   public void validatesWhenConditionNotSatisfiedTest() {
 

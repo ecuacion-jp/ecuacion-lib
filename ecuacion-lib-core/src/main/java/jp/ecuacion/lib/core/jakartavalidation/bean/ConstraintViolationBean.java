@@ -20,18 +20,18 @@ import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionVa
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.validator.ItemNameKeyClass;
-import jp.ecuacion.lib.core.jakartavalidation.validator.PlacedAtClass;
+import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.record.EclibRecord;
+import jp.ecuacion.lib.core.record.item.EclibItem;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -45,27 +45,83 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ConstraintViolationBean extends ReflectionUtil {
   private ConstraintViolation<?> cv;
-  private String message;
-  
+
+  // properties in ConstraintViolation
+
+  private Object rootBean;
+  private Object leafBean;
+  private String validatorClass;
+  private String messageTemplate;
+  private String originalMessage;
+
+  // values needed for all the patterns
+
+  /**
+   * Is a propertyPath which designate from rootBean to the violation-occurring field.
+   */
+  private String[] fullPropertyPaths;
+  private String[] itemNameKeys;
+
+  // values needed for validations for form
+
   /** 
    * When a validator added to a class detects a violation, 
    * it can be a combination of values between multiple items. 
-   * In that case you want to set error multiple propertyPaths for those items.
+   * In that case you want to set error multiple itemPropertyPaths for those items.
    */
-  private String[] fieldPropertyPaths;
-
-  private String validatorClass;
-  private String rootClassName;
-  private String messageTemplate;
-  private String annotationDescriptionString;
-
-  private String[] itemNameKeys;
+  private String[] itemPropertyPathsForForm;
+  private String rootRecordNameForForm;
 
   @Nonnull
-  private Map<String, Object> paramMap;
+  private Map<String, Object> paramMap = new HashMap<>();
 
   private static final String CONDITIONAL_VALIDATOR_PREFIX =
       "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
+
+  private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
+      String originalMessage, String messageTemplate, String[] fullPropertyPaths,
+      String[] itemPropertyPathsForForm, String rootRecordNameForForm) {
+    this.rootBean = rootBean;
+    this.validatorClass = validatorClass;
+    this.rootRecordNameForForm = rootRecordNameForForm;
+    this.originalMessage = originalMessage;
+    this.messageTemplate = messageTemplate;
+    this.fullPropertyPaths = fullPropertyPaths;
+    this.itemPropertyPathsForForm = itemPropertyPathsForForm;
+    this.leafBean = leafBean;
+
+    this.itemNameKeys = createItemNameKeys();
+  }
+
+  private void putArgsToParamMap(Object invalidValue) {
+    paramMap.put("invalidValue", invalidValue.toString());
+
+    // Put field in this instance to paramMap
+    paramMap.put("annotation", validatorClass);
+    paramMap.put("itemNameKeys", itemNameKeys);
+  }
+
+  /**
+   * Constructs a new instance with parameters, not a ConstraintViolation.
+   * 
+   * <p>This is used for {@code NotEmpty} validation logic.</p>
+   */
+  public ConstraintViolationBean(Object rootBean, String message, String validatorClass,
+      String rootRecordNameForForm, String itemPropertyPath) {
+
+    putArgsToFields(rootBean,
+        getLeafBeanFromPropertyPath(rootRecordNameForForm + "." + itemPropertyPath, rootBean),
+        validatorClass, message, validatorClass + ".message",
+        new String[] {rootRecordNameForForm + "." + itemPropertyPath},
+        new String[] {itemPropertyPath}, rootRecordNameForForm);
+
+    putArgsToParamMap("(empty)");
+
+    // "paramMap" is used to get strings to embed them to error messages,
+    // but @NotEmpty does not need parameter strings because the message is like
+    // "The input is empty." and that's all so params are not really needed.
+    // this.paramMap = new HashMap<>();
+  }
 
   /**
    * Constructs a new instance with {@code ConstraintViolation}.
@@ -75,328 +131,252 @@ public class ConstraintViolationBean extends ReflectionUtil {
   public ConstraintViolationBean(ConstraintViolation<?> cv) {
     this.cv = cv;
 
-    this.message = cv.getMessage();
-    this.validatorClass = cv.getConstraintDescriptor().getAnnotation().annotationType().getName();
-    this.rootClassName = cv.getRootBeanClass().getName();
-    this.annotationDescriptionString = cv.getConstraintDescriptor().getAnnotation().toString();
-    messageTemplate = cv.getMessageTemplate();
-    // 値が{jakarta.validation.constraints.Pattern.message} のように{}に囲まれているので外す
-    if (messageTemplate.startsWith("{")) {
-      messageTemplate = messageTemplate.replace("{", "").replace("}", "");
+    // Initialize paramMap.
+    if (cv.getConstraintDescriptor().getAttributes() != null) {
+      this.paramMap = new HashMap<>(cv.getConstraintDescriptor().getAttributes());
+      // Remove keys which are not used as message parameters.
+      paramMap.remove("groups");
+      paramMap.remove("message");
+      paramMap.remove("payload");
     }
 
-    this.paramMap = cv.getConstraintDescriptor().getAttributes() == null ? new HashMap<>()
-        : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
-
-    // put additional params to paramMap
-    putAdditionalParamsToParamMap(cv);
-  }
-
-  /**
-   * Constructs a new instance 
-   * with {@code message}, {@code propertyPath} and {@code validatorClass}.
-   * 
-   * <p>This is used for {@code NotEmpty} validation logic.</p>
-   * 
-   * @param message message
-   * @param validatorClass validatorClass
-   */
-  public ConstraintViolationBean(String message, String validatorClass, String rootClassName,
-      String propertyPath) {
-    this.message = message;
-    this.validatorClass = validatorClass;
-    this.rootClassName = rootClassName;
-    this.messageTemplate = validatorClass + ".message";
-
-    this.fieldPropertyPaths = new String[] {propertyPath};
-    this.itemNameKeys = new String[] {propertyPath};
-
-    this.paramMap = new HashMap<>();
-
-    // これは@Pattern用なので実質使用はしないのだが、nullだとcompareの際におかしくなると嫌なので空白にしておく
-    annotationDescriptionString = "";
-  }
-
-  private Optional<String> getItemNameKeyClassFromAnnotation(boolean isClassValidator,
-      Object leafBean, String propertyPath) {
-
-    Class<?> modifiedLeafBeanClass = leafBean.getClass();
-    try {
-      // search for @ItemNameKeyClass at field
-      if (!isClassValidator) {
-        String fieldName = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-        Field field = getField(fieldName, leafBean.getClass());
-        ItemNameKeyClass an = field.getAnnotation(ItemNameKeyClass.class);
-        String value = an == null ? null : an.value();
-
-        if (value != null) {
-          return Optional.of(value);
-        }
-
-      } else {
-        // If propertyPath is not empty, Obtain the real leaf bean
-        String tmpPp = propertyPath;
-        while (true) {
-          if (StringUtils.isEmpty(tmpPp)) {
-            break;
-          }
-
-          String fieldName = tmpPp.contains(".") ? tmpPp.substring(0, tmpPp.indexOf(".")) : tmpPp;
-          modifiedLeafBeanClass = getField(fieldName, modifiedLeafBeanClass).getType();
-
-          // 次のループのための値変更
-          tmpPp = tmpPp.contains(".") ? tmpPp.substring(tmpPp.indexOf(".") + 1) : "";
-        }
-      }
-
-      Optional<ItemNameKeyClass> an =
-          searchAnnotationPlacedAtClass(modifiedLeafBeanClass, ItemNameKeyClass.class);
-      return Optional.ofNullable(an.isPresent() ? an.get().value() : null);
-
-    } catch (Exception ex) {
-      throw new EclibRuntimeException(ex);
-    }
-  }
-
-  private void putAdditionalParamsToParamMap(ConstraintViolation<?> cv) {
-
-    final String propertyPath = cv.getPropertyPath().toString();
-    
-    // When localized messages are created, paramMap is an only parameter.
-    // So some values should be put into the map.
-    paramMap.put("leafClassName", getLeafClassName());
-    paramMap.put("invalidValue", getInvalidValue());
-    paramMap.put("annotation", getAnnotation());
-
-    // checks if the validator is for class or field.
+    // Check if the validator is for class or field.
     boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
         .getAnnotation(PlacedAtClass.class) != null;
 
-    // itemNameKeyClass
-    String defaultItemNameKeyClass = null;
-
-    // itemNameKeyField
-    String[] propertyPaths = null;
-    List<String> itemNameKeyList = new ArrayList<>();
+    // propertyPath
+    String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
+    List<String> fullPpList = null;
     if (isClassValidator) {
-      // Reaching here means the annotation is added to class, not field.
-      propertyPaths = (String[]) paramMap.get("propertyPath");
-
-      for (String fieldPropertyPath : propertyPaths) {
-        Optional<String> itemNameKeyClassFromAnnotation =
-            getItemNameKeyClassFromAnnotation(isClassValidator, cv.getLeafBean(),
-                fieldPropertyPath.contains(".")
-                    ? fieldPropertyPath.substring(0, fieldPropertyPath.lastIndexOf("."))
-                    : "");
-
-        defaultItemNameKeyClass = StringUtils.isEmpty(propertyPath)
-            ? rootClassName.split("\\.")[rootClassName.split("\\.").length - 1]
-            : propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-
-        String itemNameKey =
-            getFinalItemNameKeyClass(itemNameKeyClassFromAnnotation, defaultItemNameKeyClass) + "."
-                + (fieldPropertyPath.contains(".")
-                    ? (fieldPropertyPath.substring(fieldPropertyPath.lastIndexOf(".") + 1))
-                    : fieldPropertyPath);
-        itemNameKeyList.add(itemNameKey);
-      }
-
-      // conditionFieldItemNameKey
-      String conditionPropertyPath =
-          (String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH);
-      Optional<String> itemNameKeyClassFromAnnotation = getItemNameKeyClassFromAnnotation(
-          isClassValidator, cv.getLeafBean(), conditionPropertyPath);
-      String newValue =
-          getFinalItemNameKeyClass(itemNameKeyClassFromAnnotation, defaultItemNameKeyClass) + "."
-              + conditionPropertyPath;
-      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, newValue);
-
-      // fieldPropertyPaths
-      List<String> list =
-          Arrays.asList(propertyPaths).stream().map(field -> propertyPath + "." + field).toList();
-      fieldPropertyPaths = list.toArray(new String[list.size()]);
+      fullPpList = (Arrays.asList((String[]) paramMap.get("propertyPath")).stream()
+          .map(p -> (StringUtils.isEmpty(cvPp) ? "" : cvPp + ".") + p).toList());
 
     } else {
-      // Reaching here means the annotation is added to field.
-      // In that case propertyPath cannot be empty and the last part is always itemNameKeyField.
-
-      // itemNameKey
-      Optional<String> itemNameKeyClassFromAnnotation = getItemNameKeyClassFromAnnotation(
-          isClassValidator, cv.getLeafBean(), cv.getPropertyPath().toString());
-      defaultItemNameKeyClass = propertyPath.split("\\.").length > 1
-          ? propertyPath.split("\\.")[propertyPath.split("\\.").length - 2]
-          : rootClassName.split("\\.")[rootClassName.split("\\.").length - 1];
-      String field = propertyPath.split("\\.")[propertyPath.split("\\.").length - 1];
-      String itemNameKey =
-          getFinalItemNameKeyClass(itemNameKeyClassFromAnnotation, defaultItemNameKeyClass) + "."
-              + field;
-      itemNameKeyList.add(itemNameKey);
-
-      // fieldPropertyPaths
-      fieldPropertyPaths = new String[] {propertyPath};
+      fullPpList = new ArrayList<>();
+      fullPpList.add(cvPp);
     }
 
-    // itemNameKeys
-    itemNameKeys = itemNameKeyList.toArray(new String[itemNameKeyList.size()]);
-    paramMap.put("itemNameKeys", itemNameKeys);
+    String[] fullPropertyPaths = fullPpList.toArray(new String[fullPpList.size()]);
+    String fullPp0 = fullPpList.get(0);
+    String rootClassName = StringUtils.uncapitalize(cv.getRootBean().getClass().getSimpleName());
+    // remove "aClass$" from "aClass$bCLass" when the class is internal.
+    rootClassName = rootClassName.split("\\$")[rootClassName.split("\\$").length - 1];
+    String rootRecordNameForForm =
+        fullPp0.contains(".") ? fullPp0.substring(0, fullPp0.indexOf(".")) : rootClassName;
+
+    List<String> itemPpList = fullPpList.stream()
+        .map(str -> str.contains(".") ? str.substring(str.indexOf(".") + 1) : str).toList();
+    String[] itemPropertyPaths = itemPpList.toArray(new String[itemPpList.size()]);
+
+    // Substitute to common fields.
+    putArgsToFields(cv.getRootBean(), cv.getLeafBean(),
+        cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getMessage(),
+        // Remove {} since the value is usually enclosed with {} like
+        // {jakarta.validation.constraints.Pattern.message}.
+        cv.getMessageTemplate().replace("{", "").replace("}", ""), fullPropertyPaths,
+        itemPropertyPaths, rootRecordNameForForm);
+
+    // Put params to paramMap.
+    // When localized messages are created, parameters are refered from the map.
+
+    putArgsToParamMap(getInvalidValue());
 
     // In the case of ConditionalXxx validator
-    if (getAnnotation().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
+    if (getValidatorClass().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
+      // conditionFieldItemNameKey
+      String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
+          : cv.getPropertyPath().toString() + ".")
+          + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
+      String value = getItemNameKey(conditionPropertyPath,
+          getLeafBeanFromPropertyPath(conditionPropertyPath, rootBean).getClass());
+      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, value);
 
+      // displayStringOfConditionValue
       ConditionValuePattern conditionPtn =
           (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
-      paramMap.put(ConditionalValidator.CONDITION_PATTERN, conditionPtn);
-
-      String valuesOfConditionPropertyPathToValidate = null;
+      String displayStringOfConditionValue = null;
       if (conditionPtn == valueOfPropertyPath) {
-
         Object obj =
             getFieldValue((String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH),
-                getInstance());
+                cv.getLeafBean());
         if (obj instanceof Object[]) {
           List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
-          valuesOfConditionPropertyPathToValidate =
+          displayStringOfConditionValue =
               StringUtil.getCsvWithSpace((String[]) strList.toArray(new String[strList.size()]));
 
         } else {
           // String
-          valuesOfConditionPropertyPathToValidate = String.valueOf(obj);
+          displayStringOfConditionValue = String.valueOf(obj);
         }
 
       } else if (conditionPtn == string) {
         // conditionValue is used
         String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
-        valuesOfConditionPropertyPathToValidate = StringUtil.getCsvWithSpace(strs);
+        displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
       }
 
       // when fieldHoldingConditionValueDisplayName is not blank,
       // valuesOfConditionFieldToValidate is overrided by its value.
-      String valueOfConditionValuePropertyPathForDisplay = (String) paramMap
-          .get(ConditionalValidator.VALUE_OF_CONDITION_VALUE_PROPERTY_PATH_FOR_DISPLAY);
-      if (!valueOfConditionValuePropertyPathForDisplay.equals("")) {
-        String[] strs =
-            (String[]) getFieldValue(valueOfConditionValuePropertyPathForDisplay, getInstance());
-        valuesOfConditionPropertyPathToValidate = StringUtil.getCsvWithSpace(strs);
-      }
+      String displayStringPropertyPathOfConditionValuePropertyPath = (String) paramMap
+          .get(ConditionalValidator.DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH);
+      if (!displayStringPropertyPathOfConditionValuePropertyPath.equals("")) {
+        Object obj =
+            getFieldValue(displayStringPropertyPathOfConditionValuePropertyPath, cv.getLeafBean());
 
-      paramMap.put(ConditionalValidator.VALUE_OF_CONDITION_FIELD_TO_VALIDATE,
-          valuesOfConditionPropertyPathToValidate);
+        String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
+        displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
+      }
+      paramMap.put(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
+          displayStringOfConditionValue);
 
       // validatesWhenConditionNotSatisfied
-      boolean bl = getAnnotation().endsWith("ConditionalEmpty")
-          && (Boolean) paramMap
-              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_EMPTY)
-          || getAnnotation().endsWith("ConditionalNotEmpty") && (Boolean) paramMap
-              .get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED_NOT_EMPTY);
+      boolean bl = getValidatorClass().endsWith("ConditionalEmpty")
+          && (Boolean) paramMap.get("notEmptyWhenConditionNotSatisfied")
+          || getValidatorClass().endsWith("ConditionalNotEmpty")
+              && (Boolean) paramMap.get("emptyWhenConditionNotSatisfied");
       paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
     }
   }
 
-  private String getFinalItemNameKeyClass(Optional<String> itemNameKeyClassFromAnnotation,
-      String defaultItemNameKeyClass) {
-    String itemNameKeyClass = itemNameKeyClassFromAnnotation.orElse(defaultItemNameKeyClass);
+  private Object getLeafBeanFromPropertyPath(String propertyPath, Object rootBean) {
+    String leafBeanItemPropertyPath =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
+            : null;
 
-    // Remove "aClass$" from "aClass$bClass" when itemNameKeyClass is an internal class.
-    return itemNameKeyClass.split("\\$")[itemNameKeyClass.split("\\$").length - 1];
+    return leafBeanItemPropertyPath == null ? rootBean
+        : ReflectionUtil.getFieldValue(leafBeanItemPropertyPath, rootBean);
   }
 
   /**
-   * Gets message.
-   * 
-   * @return message
+   * Creates itemNameKeys.
    */
-  public String getMessage() {
-    return message;
+  private String[] createItemNameKeys() {
+
+    List<String> itemNameKeyList = new ArrayList<>();
+
+    for (String fullPropertyPath : fullPropertyPaths) {
+      itemNameKeyList.add(getItemNameKey(fullPropertyPath, leafBean.getClass()));
+    }
+
+    return itemNameKeyList.toArray(new String[itemNameKeyList.size()]);
   }
 
   /**
-   * Gets validatorClass.
+   * Returns itemNameKey.
    * 
-   * @return validatorClass
+   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
+   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
+   *     needs to be used together.</p>
+   * 
+   * @param fullPropertyPath itemPropertyPath
+   * @param defaultItemNameKeyClass defaultItemNameKeyClass
+   * @return itemNameKey
    */
+  private String getItemNameKey(String fullPropertyPath, Class<?> leafBeanClass) {
+
+    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
+        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
+        : null;
+    Object firstChild = fullPropertyPath1stPart == null ? null
+        : ReflectionUtil.getFieldValue(fullPropertyPath1stPart, rootBean);
+
+    String itemNameKey;
+
+    boolean setsItemNameKeyClassExplicitly = false;
+
+    // Obtain itemNameKey from rootBean (which does not consider @ItemNameKeyClass)
+    if (rootBean instanceof EclibRecord) {
+      // the case that rootBean is an EclibRecord
+      EclibItem item = ((EclibRecord) rootBean).getItem(fullPropertyPath);
+      itemNameKey = item.getItemNameKey(rootRecordNameForForm);
+      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+
+    } else if (firstChild != null && firstChild instanceof EclibRecord) {
+      // the case that EclibRecord is stored in form or something
+      EclibItem item = ((EclibRecord) firstChild)
+          .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
+      itemNameKey = item.getItemNameKey(fullPropertyPath1stPart);
+      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+
+    } else {
+      String itemNameKeyField = fullPropertyPath.contains(".")
+          ? fullPropertyPath.substring(fullPropertyPath.lastIndexOf(".") + 1)
+          : fullPropertyPath;
+
+      String fullPropertyPathWithoutInkf = fullPropertyPath.contains(".")
+          ? fullPropertyPath.substring(0, fullPropertyPath.length() - itemNameKeyField.length() - 1)
+          : null;
+
+      String itemNameKeyClass = fullPropertyPathWithoutInkf == null ? rootRecordNameForForm
+          : (fullPropertyPathWithoutInkf.contains(".")
+              ? fullPropertyPathWithoutInkf.substring(
+                  fullPropertyPathWithoutInkf.lastIndexOf(".") + 1)
+              : fullPropertyPathWithoutInkf);
+
+      itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
+    }
+
+    // Check existence of itemNameKeyClass to determine rootRecordName.
+    Optional<ItemNameKeyClass> opItemNameKeyClassAn =
+        searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
+    String itemNameKeyClass =
+        opItemNameKeyClassAn.isPresent() ? opItemNameKeyClassAn.get().value() : null;
+    if (itemNameKeyClass != null && !setsItemNameKeyClassExplicitly) {
+      itemNameKey = itemNameKeyClass + itemNameKey.substring(itemNameKey.indexOf("."));
+    }
+
+    return itemNameKey;
+  }
+
+  public Object getRootBean() {
+    return rootBean;
+  }
+
+  public Object getLeafBean() {
+    return leafBean;
+  }
+
+  /**
+   * Gets message created by jakarta validation.
+   * 
+   * <p>DO NOT USE for user interface. Use the message obtained by ExceptionUtil instead.</p>
+   * 
+   * @return original message
+   */
+  public String getOriginalMessage() {
+    return originalMessage;
+  }
+
   public String getValidatorClass() {
     return validatorClass;
   }
 
-  /**
-   * Gets annotationDescriptionString.
-   * 
-   * @return annotationDescriptionString
-   */
-  public String getAnnotationDescriptionString() {
-    return annotationDescriptionString;
-  }
-
-  /**
-   * Gets annotation.
-   * 
-   * @return annotation
-   */
-  public String getAnnotation() {
-    return cv.getConstraintDescriptor().getAnnotation().annotationType().getCanonicalName();
-  }
-
-  /**
-   * Gets annotationAttributes.
-   * 
-   * @return annotationAttributes
-   */
-  public Map<String, Object> getAnnotationAttributes() {
-    return cv.getConstraintDescriptor().getAttributes();
-  }
-
-  /**
-   * Gets messageTemplate.
-   * 
-   * @return messageTemplate
-   */
   public String getMessageTemplate() {
     return messageTemplate;
   }
 
-  /**
-   * Gets rootClassName.
-   * 
-   * @return rootClassName
-   */
-  public String getRootClassName() {
-    return rootClassName;
+  public String[] getFullPropertyPaths() {
+    return fullPropertyPaths;
   }
 
-  /**
-   * Gets leafClassName.
-   * 
-   * @return leafClassName
-   */
   public String getLeafClassName() {
-    return cv.getLeafBean().getClass().getName();
+    return cv == null ? null : cv.getLeafBean().getClass().getName();
   }
 
-  /**
-   * Gets invalidValue.
-   * 
-   * @return invalidValue
-   */
   public String getInvalidValue() {
-    return (cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
+    return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
   }
 
-  /**
-   * Gets messageId.
-   * 
-   * @return annotation
-   */
   public @Nonnull String getMessageId() {
-    return getAnnotation();
+    return getValidatorClass();
   }
 
-  /**
-   * Gets instance.
-   * 
-   * @return instance
-   */
-  public Object getInstance() {
-    return cv.getLeafBean();
+  public String getRootRecordNameForForm() {
+    return rootRecordNameForForm;
+  }
+
+  public String[] getItemPropertyPathsForForm() {
+    return itemPropertyPathsForForm;
   }
 
   public String[] getItemNameKeys() {
@@ -407,9 +387,4 @@ public class ConstraintViolationBean extends ReflectionUtil {
   public Map<String, Object> getParamMap() {
     return paramMap;
   }
-
-  public String[] getFieldPropertyPaths() {
-    return fieldPropertyPaths;
-  }
-
 }

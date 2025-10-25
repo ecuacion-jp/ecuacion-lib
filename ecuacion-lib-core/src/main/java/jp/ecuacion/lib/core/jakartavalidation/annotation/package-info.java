@@ -13,29 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core;
 
-import org.junit.jupiter.api.Assertions;
-
-public class TestTools {
-
-  //
-  // assertion methods are defined here because static imports are troublesome to define.
-  //
-
-  public void assertTrue(boolean bl) {
-    Assertions.assertTrue(bl);
-  }
-
-  public void assertFalse(boolean bl) {
-    Assertions.assertFalse(bl);
-  }
-
-  public void assertEquals(Object expected, Object actual) {
-    Assertions.assertEquals(expected, actual);
-  }
-
-  public void fail() {
-    Assertions.fail();
-  }
-}
+/**
+ * Provides {@code jakarta validation} annotations.
+ */
+package jp.ecuacion.lib.core.jakartavalidation.annotation;
