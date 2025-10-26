@@ -80,8 +80,8 @@ public class BeanValidationAppExceptionTest {
     Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
     Assertions.assertThat(bean.getMessageTemplate())
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
-    Assertions.assertThat(bean.getRootRecordNameForForm()).isEqualTo(className);
-    Assertions.assertThat(bean.getLeafClassName()).isEqualTo(className);
+    Assertions.assertThat(bean.getRootBean().getClass().getName()).isEqualTo(className);
+    Assertions.assertThat(bean.getLeafBean().getClass().getName()).isEqualTo(className);
     Assertions.assertThat(bean.getItemPropertyPathsForForm()[0]).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
   }

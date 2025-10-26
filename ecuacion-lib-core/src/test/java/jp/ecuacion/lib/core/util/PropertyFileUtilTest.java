@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// package jp.ecuacion.lib.core.util.old;
-
+// package jp.ecuacion.lib.core.util;
 //
 // import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.APP;
-// import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.ENUM_NAME;
-// import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.FIELD_NAME;
-// import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.MSG;
-// import static org.hamcrest.CoreMatchers.equalTo;
-// import static org.hamcrest.CoreMatchers.is;
-// import static org.junit.Assert.assertThat;
-// import static org.junit.Assert.assertTrue;
-// import java.lang.reflect.Constructor;
-// import java.lang.reflect.InvocationTargetException;
-// import java.lang.reflect.Method;
-// import java.util.Locale;
-// import java.util.ResourceBundle;
-// import jp.ecuacion.lib.core.constant.ConstantsInLibCore;
-// import jp.ecuacion.lib.core.util.internal.PropertyFileUtilMultiLangPropStore;
-// import org.junit.Before;
-// import org.junit.Test;
+//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.ENUM_NAME;
+//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.FIELD_NAME;
+//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.MSG;
+//import java.lang.reflect.Constructor;
+//import java.lang.reflect.InvocationTargetException;
+//import java.lang.reflect.Method;
+//import java.util.Locale;
+//import java.util.ResourceBundle;
+//import jp.ecuacion.lib.core.constant.ConstantsInLibCore;
+//import jp.ecuacion.lib.core.util.internal.PropertyFileUtilMultiLangPropStore;
+//import org.junit.jupiter.api.Test;
 //
 // public class Test21_01_utilパッケージ_PropertyFileUtil {
 //
@@ -207,6 +201,6 @@
 //
 //
 // }
-
+//
 
 

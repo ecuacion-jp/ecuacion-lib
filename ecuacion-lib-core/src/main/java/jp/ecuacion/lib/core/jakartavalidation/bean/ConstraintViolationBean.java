@@ -359,10 +359,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return fullPropertyPaths;
   }
 
-  public String getLeafClassName() {
-    return cv == null ? null : cv.getLeafBean().getClass().getName();
-  }
-
   public String getInvalidValue() {
     return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
   }
