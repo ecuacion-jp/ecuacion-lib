@@ -77,8 +77,8 @@ public class ValidationAppException extends SingleAppException {
   @Override
   public @Nonnull String toString() {
     return "message:" + bean.getOriginalMessage() + "\n" + "annotation:" + bean.getValidatorClass()
-        + "\n" + "rootClassName:" + bean.getRootRecordNameForForm() + "\n" + "leafClassName:"
-        + bean.getLeafClassName() + "\n" + "propertyPath:"
+        + "\n" + "rootClassName:" + bean.getRootBean().getClass().getName() + "\n"
+        + "leafClassName:" + bean.getLeafBean().getClass().getName() + "\n" + "propertyPath:"
         + StringUtil.getCsv(bean.getItemPropertyPathsForForm()) + "\n" + "invalidValue:"
         + bean.getInvalidValue();
   }
