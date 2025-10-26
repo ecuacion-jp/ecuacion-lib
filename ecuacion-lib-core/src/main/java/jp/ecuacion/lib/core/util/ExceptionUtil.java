@@ -21,6 +21,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -143,9 +144,8 @@ public class ExceptionUtil {
     }
 
     for (Throwable th : exList) {
-      // メッセージが存在しない場合はnullを返す
       if (th instanceof MultipleAppException) {
-        // この例外は、メッセージは持っていないのでnull
+        // Continue because this exception doesn't have a message.
         continue;
 
       } else if (th instanceof BizLogicAppException) {
@@ -165,37 +165,11 @@ public class ExceptionUtil {
                   map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
 
-          // 標準validatorを使用するにあたってのspring likeな項目名追加処理。
-          // messageに {0} があったら entity.field に置き換える
+          // Additional procedure which is like spring like itemName method to add itemName to
+          // messages.
+          // Replace {0} in messages to itemName.
           if (message.contains("{0}")) {
-            String itemNameKey =
-                bean.getItemNameKeys()[0] == null ? bean.getItemPropertyPathsForForm()[0]
-                    : bean.getItemNameKeys()[0];
-            // Remove superior paths when itemNameKey is obtained from getFieldPropertyPaths()
-            // and it contains "." more than 1.
-            if (itemNameKey.split("\\.").length > 2) {
-              while (true) {
-                itemNameKey = itemNameKey.substring(itemNameKey.indexOf(".") + 1);
-                if (itemNameKey.split("\\.").length == 2) {
-                  break;
-                }
-              }
-            }
-
-            // itemNameがmessages.propertiesにあったらそれに置き換える
-            if (PropertyFileUtil.hasItemName(itemNameKey)) {
-              itemNameKey = PropertyFileUtil.getItemName(locale, itemNameKey);
-            }
-
-            try {
-              message = MessageFormat.format(message, itemNameKey);
-
-            } catch (IllegalArgumentException iae) {
-              String msg = "ExceptionUtil#getExceptionMessage: MessageFormat.format throws "
-                  + "an IllegalArgumentException because message template has {x} "
-                  + "with x not a number. (message template: " + message + ")";
-              throw new EclibRuntimeException(msg, iae);
-            }
+            message = MessageFormat.format(message, getItemNames(locale, bean.getItemNameKeys()));
           }
 
           // add prefix and postfix messages.
@@ -220,6 +194,25 @@ public class ExceptionUtil {
     return rtnList;
   }
 
+  @Nonnull
+  private static String getItemNames(Locale locale, @RequireNonnull String[] itemNameKeys) {
+    final String prependParenthesis = PropertyFileUtil.getMessage(locale,
+        "jp.ecuacion.lib.core.common.itemName.prependParenthesis");
+    final String appendParenthesis = PropertyFileUtil.getMessage(locale,
+        "jp.ecuacion.lib.core.common.itemName.appendParenthesis");
+    final String separator = PropertyFileUtil.getMessage(locale,
+        "jp.ecuacion.lib.core.common.itemName.separator");
+
+    List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(itemNameKeys)).stream()
+        .map(key -> PropertyFileUtil.hasItemName(key)
+            ? PropertyFileUtil.getItemName(locale, key)
+            : key)
+        .map(name -> prependParenthesis + name + appendParenthesis)
+        .toList();
+
+    return StringUtil.getSeparatedValuesString(itemNameList, separator);
+  }
+
   /*
    * Returun a list of exceptions.
    * 
@@ -238,29 +231,18 @@ public class ExceptionUtil {
     return list;
   }
 
-  /*
-   * serializeException(Throwable th)から呼び出される内部メソッド。再帰呼び出しされるので、serializeExceptionとは別メソッドとしている。<br>
-   * getCause()の中の例外と、MultipleAppException#exArrの中の例外を、全て階層なしのArrayListに詰める
-   * 本メソッドは再帰的に呼び出されることから、引数と戻り値に両方リストがあると非常にわかりにくいので、引数に渡したlistに例外を追加していく形とする。
-   *
-   * @param th 例外
-   * 
-   * @param arr 最終的に「階層のない単純なList」がこれになる。
-   */
   private static void recursivelySerializeException(@RequireNonnull Throwable throwable,
       @RequireNonnull List<Throwable> arr) {
-    // 自分をadd
+    // Add itself to the list.
     ObjectsUtil.requireNonNull(arr.add(ObjectsUtil.requireNonNull(throwable)));
 
-    // MultipleAppExceptionの場合は、その内部に保持している複数のApplicationExceptionを全てerrListに追加する
-    // MultipleAppException.exArrに入るものはAppExceptionのみ
+    // Add "cause" or related exceptions to the list.
     if (throwable instanceof MultipleAppException) {
       for (AppException childAe : ((MultipleAppException) throwable).getList()) {
         recursivelySerializeException(childAe, arr);
       }
 
     } else if (throwable.getCause() != null) {
-      // causeがあればそれも追加
       recursivelySerializeException((Throwable) throwable.getCause(), arr);
     }
   }
@@ -323,7 +305,7 @@ public class ExceptionUtil {
       }
     });
 
-    // AppExceptionが上がってきたのにmessageがないのは想定外例外なので、改めて例外を投げてしまう。
+    // Throw RuntimeException when there's an exception but there's no messages.
     if (rtnList.isEmpty()) {
       throw new RuntimeException(appException);
     }
@@ -348,10 +330,8 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
       @Nullable Locale locale) {
-    // 呼び出し先でnullcheckをしているためここでは不要。
-
     List<String> rtnList = new ArrayList<>();
-    getSingleAppExceptionList(appException).stream()
+    getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
         .map(ex -> getExceptionMessage(ex, locale, false)).forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
@@ -374,10 +354,8 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
       @Nullable Locale locale, boolean needsItemName) {
-    // 呼び出し先でnullcheckをしているためここでは不要。
-
     List<String> rtnList = new ArrayList<>();
-    getSingleAppExceptionList(appException).stream()
+    getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
         .map(ex -> getExceptionMessage(ex, locale, false, needsItemName))
         .forEach(list -> rtnList.addAll(list));
     return rtnList;
