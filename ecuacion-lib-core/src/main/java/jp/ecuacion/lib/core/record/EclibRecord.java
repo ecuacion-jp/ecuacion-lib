@@ -60,15 +60,6 @@ public interface EclibRecord {
    */
   default EclibItem getItem(String itemPropertyPath) {
 
-    // // field existence check
-    // try {
-    // ReflectionUtil.getField(itemPropertyPath, this.getClass());
-    // } catch (Exception ex) {
-    // // catching exception means field does not exist.
-    // throw new EclibRuntimeException("itemPropertyPath '" + itemPropertyPath + "' not found in "
-    // + this.getClass().getCanonicalName());
-    // }
-
     Map<String, EclibItem> map = Arrays.asList(getItems()).stream()
         .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
@@ -84,28 +75,24 @@ public interface EclibRecord {
    *     but it's frequently used in record instance and not used outside 
    *     so let it be defined here.</p>
    */
-  default EclibItem[] mergeItems(EclibItem[] fields1, EclibItem[] fields2) {
-    List<EclibItem> list = new ArrayList<>(Arrays.asList(fields1));
+  default EclibItem[] mergeItems(EclibItem[] items1, EclibItem[] items2) {
+    List<EclibItem> list = new ArrayList<>(Arrays.asList(items1));
 
     // Throw an exception if item is duplicated.
     List<String> propertyPath1List =
-        Arrays.asList(fields1).stream().map(e -> e.getItemPropertyPath()).toList();
+        Arrays.asList(items1).stream().map(e -> e.getItemPropertyPath()).toList();
 
-    for (String propertyPath2 : Arrays.asList(fields2).stream().map(e -> e.getItemPropertyPath())
+    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getItemPropertyPath())
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
-            "'itemPropertyPath' of EclibItem[] duplicated with commonHtmlItems. key: "
+            "'itemPropertyPath' of EclibItem[] duplicated in Items. key: "
                 + propertyPath2);
       }
     }
 
-    list.addAll(Arrays.asList(fields2));
+    list.addAll(Arrays.asList(items2));
 
     return list.toArray(new EclibItem[list.size()]);
   }
-
-  // default String getItemNameKey(String rootRecordName, String itemPropertyPath) {
-  // return getItem(rootRecordName, itemPropertyPath).getItemNameKey(rootRecordName);
-  // }
 }
