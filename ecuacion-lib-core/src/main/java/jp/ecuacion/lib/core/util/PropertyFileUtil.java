@@ -621,12 +621,20 @@ public class PropertyFileUtil {
       argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
           val == null ? null : PropertyFileUtil.getItemName(locale, val));
 
-      // conditionValueDescription
+      // displayStringOfConditionValue
+      String keyOrVal = (String) argMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE);
+      if (PropertyFileUtil.hasMessage(keyOrVal)) {
+        keyOrVal = PropertyFileUtil.getMessage(locale, keyOrVal);
+      } else if (PropertyFileUtil.hasItemName(keyOrVal)) {
+        keyOrVal = PropertyFileUtil.getItemName(locale, keyOrVal);
+      } else if (PropertyFileUtil.hasEnumName(keyOrVal)) {
+        keyOrVal = PropertyFileUtil.getEnumName(locale, keyOrVal);
+      }
       newValue = PropertyFileUtil.getMessage(locale,
           annotationPrefix + ".messagePart." + argMap.get(ConditionalValidator.CONDITION_PATTERN)
               + "." + argMap.get(ConditionalValidator.CONDITION_OPERATOR),
-          (String) argMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE));
-      argMap.put("displayStringOfConditionValue", newValue);
+          keyOrVal);
+      argMap.put(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE, newValue);
 
       // validatesWhenConditionNotSatisfiedDescription
       newKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
