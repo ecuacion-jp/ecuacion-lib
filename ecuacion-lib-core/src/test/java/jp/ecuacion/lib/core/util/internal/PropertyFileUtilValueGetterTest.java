@@ -15,11 +15,12 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APPLICATION;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES;
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter.KeyDupliccatedException;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter.NoKeyInPropertiesFileException;
 import org.junit.jupiter.api.Assertions;

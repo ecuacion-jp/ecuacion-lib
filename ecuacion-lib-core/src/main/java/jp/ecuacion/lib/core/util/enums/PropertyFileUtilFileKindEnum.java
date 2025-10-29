@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util.internal;
+package jp.ecuacion.lib.core.util.enums;
 
 /** 
  * Holds kinds of property files.
@@ -59,10 +59,10 @@ public enum PropertyFileUtilFileKindEnum {
   /** enumの名称を記述. */
   ENUM_NAMES(new String[][] {new String[] {"enum_names"}}, false),
 
-  /** ValidationMessags */
+  /** ValidationMessags. */
   VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}}, false),
 
-  /** ValidationMessagsWithField */
+  /** ValidationMessagsWithField. */
   VALIDATION_MESSAGES_WITH_ITEM_NAMES(new String[][] {
       new String[] {"ValidationMessagesWithItemNames"}, new String[] {"ValidationMessages"}},
       false),
@@ -83,6 +83,9 @@ public enum PropertyFileUtilFileKindEnum {
     return actualFilePrefixes;
   }
 
+  /**
+   * Returns throwsExceptionWhenKeyDoesNotExist.
+   */
   public boolean throwsExceptionWhenKeyDoesNotExist() {
     return throwsExceptionWhenKeyDoesNotExist;
   }

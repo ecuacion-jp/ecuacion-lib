@@ -15,14 +15,14 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.APPLICATION;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAMES;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAMES;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.STRINGS;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
-import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ENUM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.STRINGS;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 
 /**

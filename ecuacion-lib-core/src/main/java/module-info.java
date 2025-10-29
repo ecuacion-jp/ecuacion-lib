@@ -35,6 +35,7 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.spi;
   exports jp.ecuacion.lib.core.spi.impl;
   exports jp.ecuacion.lib.core.util;
+  exports jp.ecuacion.lib.core.util.enums;
 
   requires transitive jakarta.validation;
   requires jakarta.mail;
