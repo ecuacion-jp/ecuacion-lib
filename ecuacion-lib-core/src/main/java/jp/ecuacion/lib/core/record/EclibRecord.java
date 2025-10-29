@@ -15,12 +15,14 @@
  */
 package jp.ecuacion.lib.core.record;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.record.item.EclibItem;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -94,5 +96,43 @@ public interface EclibRecord {
     list.addAll(Arrays.asList(items2));
 
     return list.toArray(new EclibItem[list.size()]);
+  }
+
+  /**
+   * Gets value from itemPropertyPath.
+   * 
+   * @param itemPropertyPath itemName
+   * @return Object
+   */
+  default Object getValue(String itemPropertyPath) {
+    Object rtn = null;
+
+    try {
+      if (itemPropertyPath.contains(".")) {
+        String fieldName = itemPropertyPath.substring(0, itemPropertyPath.indexOf("."));
+        String subPropertyPath = itemPropertyPath.substring(itemPropertyPath.indexOf(".") + 1);
+
+        Method m = this.getClass().getMethod("get" + StringUtils.capitalize(fieldName));
+
+        // In the case of relationRec == null NullPointerException occurs 
+        // when getValue method is called, so return null before it happens in that case.
+        EclibRecord relationRec = (EclibRecord) m.invoke(this);
+        if (relationRec == null) {
+          return null;
+        }
+
+        rtn = (relationRec).getValue(subPropertyPath);
+
+      } else {
+        // The case that the value which is wanted to obtain is hold in this record.
+        Method m = this.getClass().getMethod("get" + StringUtils.capitalize(itemPropertyPath));
+        rtn = m.invoke(this);
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    return rtn;
   }
 }
