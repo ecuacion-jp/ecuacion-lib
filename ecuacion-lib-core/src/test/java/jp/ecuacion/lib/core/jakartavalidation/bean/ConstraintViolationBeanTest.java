@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
+import jp.ecuacion.lib.core.item.EclibItem;
+import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.ConditionalNotEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
-import jp.ecuacion.lib.core.record.EclibRecord;
-import jp.ecuacion.lib.core.record.item.EclibItem;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -135,7 +135,7 @@ public class ConstraintViolationBeanTest {
         public Root root = new Root();
       }
 
-      public static class Root implements EclibRecord {
+      public static class Root implements EclibItemContainer {
         @Override
         public EclibItem[] getItems() {
           return new EclibItem[] {};
@@ -161,7 +161,7 @@ public class ConstraintViolationBeanTest {
     }
 
     public static class No2 {
-      public static class Root implements EclibRecord {
+      public static class Root implements EclibItemContainer {
         @Override
         public EclibItem[] getItems() {
           return new EclibItem[] {};
@@ -287,7 +287,7 @@ public class ConstraintViolationBeanTest {
       RootRecord root = new RootRecord();
     }
 
-    public static class RootRecord implements EclibRecord {
+    public static class RootRecord implements EclibItemContainer {
 
       @Override
       public EclibItem[] getItems() {
@@ -654,7 +654,7 @@ public class ConstraintViolationBeanTest {
     }
 
     @ItemNameKeyClass("ItemNameKeyClass_Root")
-    public static class RootRecord implements EclibRecord {
+    public static class RootRecord implements EclibItemContainer {
 
       @Override
       public EclibItem[] getItems() {

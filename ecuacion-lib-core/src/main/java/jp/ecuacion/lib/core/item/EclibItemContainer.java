@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.record;
+package jp.ecuacion.lib.core.item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.record.item.EclibItem;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -38,7 +37,7 @@ import jp.ecuacion.lib.core.record.item.EclibItem;
  *     It's used especially for error message to users.</li>
  * </ul>
  */
-public interface EclibRecord {
+public interface EclibItemContainer {
 
   /**
    * Returns an array of items.
