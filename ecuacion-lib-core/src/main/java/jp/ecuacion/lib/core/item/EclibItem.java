@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.record.item;
+package jp.ecuacion.lib.core.item;
 
 import jakarta.annotation.Nonnull;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;

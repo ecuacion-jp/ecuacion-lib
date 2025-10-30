@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.record.item;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import jp.ecuacion.lib.core.item.EclibItem;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
