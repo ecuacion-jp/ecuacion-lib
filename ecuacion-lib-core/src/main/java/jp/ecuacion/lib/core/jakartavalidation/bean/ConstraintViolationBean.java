@@ -26,12 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import jp.ecuacion.lib.core.item.EclibItem;
+import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
-import jp.ecuacion.lib.core.record.EclibRecord;
-import jp.ecuacion.lib.core.record.item.EclibItem;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -285,15 +285,15 @@ public class ConstraintViolationBean extends ReflectionUtil {
     boolean setsItemNameKeyClassExplicitly = false;
 
     // Obtain itemNameKey from rootBean (which does not consider @ItemNameKeyClass)
-    if (rootBean instanceof EclibRecord) {
+    if (rootBean instanceof EclibItemContainer) {
       // the case that rootBean is an EclibRecord
-      EclibItem item = ((EclibRecord) rootBean).getItem(fullPropertyPath);
+      EclibItem item = ((EclibItemContainer) rootBean).getItem(fullPropertyPath);
       itemNameKey = item.getItemNameKey(rootRecordNameForForm);
       setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
 
-    } else if (firstChild != null && firstChild instanceof EclibRecord) {
+    } else if (firstChild != null && firstChild instanceof EclibItemContainer) {
       // the case that EclibRecord is stored in form or something
-      EclibItem item = ((EclibRecord) firstChild)
+      EclibItem item = ((EclibItemContainer) firstChild)
           .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
       itemNameKey = item.getItemNameKey(fullPropertyPath1stPart);
       setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
