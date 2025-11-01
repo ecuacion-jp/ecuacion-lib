@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.item;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +90,7 @@ public class EclibItem {
   public String getItemPropertyPath() {
     return itemPropertyPath;
   }
-  
+
   /**
    * Returns whether the itemNameKeyClass is set explicitly.
    * 
@@ -103,14 +104,11 @@ public class EclibItem {
    * Returns {@code itemNameKey} value.
    * 
    * <p>There can be 3 candidates for itemNameKeyClass,<br>
-   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
-   *     2: part of itemPropertyPath<br>
-   *     3: rootRecordName set to getItemNameKey(rootRecordName)<br><br>
-   *     
-   *     When 1 exists, 1 is always used. <br>
-   *     When 1 does not exist, if 2. contains "." the second last part of it<br>
-   *     (if the string is 1.2.3.4, second last part is "3").<br>
-   *     When 1 does not exist and 2. does not contain ".", 3. is used.<br>
+   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey) if it exists.<br>
+   *     2: part of itemPropertyPath if it has ".".<br>
+   *     3: defaultItemNameKeyClass set to getItemNameKey(defaultItemNameKeyClass) 
+   *     if it is not empty.<br>
+   *     4: uncapitalized className
    * </p>
    * 
    * <p>Notice that the return value of this method does not consider 
@@ -121,7 +119,8 @@ public class EclibItem {
    * 
    * @return itemNameKeyFieldForName
    */
-  public String getItemNameKey(String defaultItemNameKeyClass) {
+  @Nonnull
+  public String getItemNameKey(@Nullable String defaultItemNameKeyClass) {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
@@ -139,8 +138,11 @@ public class EclibItem {
           ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
           : itemPropertyPathClass);
 
-    } else {
+    } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
       tmpItemNameKeyClass = defaultItemNameKeyClass;
+
+    } else {
+      tmpItemNameKeyClass = StringUtils.uncapitalize(this.getClass().getSimpleName());
     }
 
     // tmpItemNameKeyField
@@ -154,5 +156,16 @@ public class EclibItem {
     }
 
     return tmpItemNameKeyClass + "." + tmpItemNameKeyField;
+  }
+
+  /**
+   * Returns {@code itemNameKey} value.
+   * 
+   * <p>See {@code getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
+   *     with {@code defaultItemNameKeyClass = null}.</p>
+   */
+  @Nonnull
+  public String getItemNameKey() {
+    return getItemNameKey(null);
   }
 }
