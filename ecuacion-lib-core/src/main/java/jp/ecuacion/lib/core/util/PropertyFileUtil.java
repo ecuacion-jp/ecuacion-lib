@@ -38,6 +38,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -623,13 +624,16 @@ public class PropertyFileUtil {
 
       // displayStringOfConditionValue
       String keyOrVal = (String) argMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE);
-      if (PropertyFileUtil.hasMessage(keyOrVal)) {
-        keyOrVal = PropertyFileUtil.getMessage(locale, keyOrVal);
-      } else if (PropertyFileUtil.hasItemName(keyOrVal)) {
-        keyOrVal = PropertyFileUtil.getItemName(locale, keyOrVal);
-      } else if (PropertyFileUtil.hasEnumName(keyOrVal)) {
-        keyOrVal = PropertyFileUtil.getEnumName(locale, keyOrVal);
+      if (StringUtils.isNotEmpty(keyOrVal)) {
+        if (PropertyFileUtil.hasMessage(keyOrVal)) {
+          keyOrVal = PropertyFileUtil.getMessage(locale, keyOrVal);
+        } else if (PropertyFileUtil.hasItemName(keyOrVal)) {
+          keyOrVal = PropertyFileUtil.getItemName(locale, keyOrVal);
+        } else if (PropertyFileUtil.hasEnumName(keyOrVal)) {
+          keyOrVal = PropertyFileUtil.getEnumName(locale, keyOrVal);
+        }
       }
+
       newValue = PropertyFileUtil.getMessage(locale,
           annotationPrefix + ".messagePart." + argMap.get(ConditionalValidator.CONDITION_PATTERN)
               + "." + argMap.get(ConditionalValidator.CONDITION_OPERATOR),
