@@ -15,11 +15,15 @@
  */
 package jp.ecuacion.lib.core.item;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import jp.ecuacion.lib.core.annotation.RequireNonempty;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -42,13 +46,15 @@ public interface EclibItemContainer {
   /**
    * Returns an array of items.
    */
+  @Nullable
   public abstract EclibItem[] getItems();
 
   /**
    * Returns a new instance.
    */
-  public default EclibItem getNewItem(String itemPropertyPath) {
-    return new EclibItem(itemPropertyPath);
+  @Nonnull
+  public default EclibItem getNewItem(@RequireNonempty String itemPropertyPath) {
+    return new EclibItem(ObjectsUtil.requireNonEmpty(itemPropertyPath));
   }
 
   /**
@@ -57,14 +63,15 @@ public interface EclibItemContainer {
    * @param itemPropertyPath itemPropertyPath
    * @return HtmlItem
    */
-  default EclibItem getItem(String itemPropertyPath) {
+  @Nonnull
+  default EclibItem getItem(@RequireNonempty String itemPropertyPath) {
 
     Map<String, EclibItem> map = Arrays.asList(getItems()).stream()
         .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
-    EclibItem field = map.get(itemPropertyPath);
+    EclibItem item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
-    return field == null ? getNewItem(itemPropertyPath) : field;
+    return item == null ? getNewItem(itemPropertyPath) : item;
   }
 
   /**
@@ -74,7 +81,12 @@ public interface EclibItemContainer {
    *     but it's frequently used in record instance and not used outside 
    *     so let it be defined here.</p>
    */
-  default EclibItem[] mergeItems(EclibItem[] items1, EclibItem[] items2) {
+  @Nonnull
+  default EclibItem[] mergeItems(@Nullable EclibItem[] items1, @Nullable EclibItem[] items2) {
+    // Replace null to empty arrays.
+    items1 = items1 == null ? new EclibItem[] {} : items1;
+    items2 = items2 == null ? new EclibItem[] {} : items2;
+
     List<EclibItem> list = new ArrayList<>(Arrays.asList(items1));
 
     // Throw an exception if item is duplicated.
@@ -85,8 +97,7 @@ public interface EclibItemContainer {
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
-            "'itemPropertyPath' of EclibItem[] duplicated in Items. key: "
-                + propertyPath2);
+            "'itemPropertyPath' of EclibItem[] duplicated in Items. key: " + propertyPath2);
       }
     }
 
