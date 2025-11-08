@@ -80,7 +80,7 @@ public class EnumUtil {
       }
     }
 
-    // ここまで来てしまうということは、存在しないコードを設定してしまったということ。
+    // Coming here means that non existent code set to the argument.
     throw new EclibRuntimeException(
         "Enum: " + enumClass.getSimpleName() + " doesn't have the code. (code : " + code + ")");
   }
@@ -97,8 +97,8 @@ public class EnumUtil {
       @RequireNonnull String code) {
 
     try {
-      T anEnum = getEnumFromCode(ObjectsUtil.requireNonNull(enumClass),
-          ObjectsUtil.requireNonNull(code));
+      T anEnum =
+          getEnumFromCode(ObjectsUtil.requireNonNull(enumClass), ObjectsUtil.requireNonNull(code));
       return anEnum != null;
 
     } catch (RuntimeException ex) {
@@ -143,13 +143,13 @@ public class EnumUtil {
     String[] options = optionsString.split(",");
     EnumClassInfo<T> enumInfo = getEnumInfo(enumClass);
 
-    // optionKey, optionValueを格納したmapを作成
+    // Create the map which stores optionKey, optionValue
     Map<String, String> optionMap = new HashMap<>();
     for (String option : options) {
       String optionKey = option.split("=")[0];
       String optionValue = option.split("=").length == 1 ? null : option.split("=")[1];
 
-      // ListForHtmlSelectOptionEnumに存在するkeyのみを対象とし、それをMapに格納
+      // Store the only keys contained in ListForHtmlSelectOptionEnum to the Map
       if (ListForHtmlSelectOptionEnum.getNameSet().contains(optionKey)) {
         optionMap.put(optionKey, optionValue);
       }
@@ -158,19 +158,19 @@ public class EnumUtil {
     List<String[]> rtnList = new ArrayList<>();
 
     if (optionMap.keySet().size() > 1) {
-      // 複数のoptionを設定した場合はエラー
+      // An error occurs when multiple options set.
       throw new RuntimeException(
           "Multiple options cannot be set. (" + optionMap.keySet().toString() + ")");
     }
 
     if (optionMap.keySet().size() == 0) {
-      // optionがないので全てを追加して終了
+      // Add all and end since no options exist.
       enumInfo.getValueList().stream()
           .forEach(value -> rtnList.add(new String[] {value.getCode(), value.getLabel()}));
       return rtnList;
     }
 
-    // 以下、optionMap.keySet().size() == 1の場合。
+    // The following is the case that optionMap.keySet().size() == 1
     String optionKey = optionMap.keySet().stream().toList().get(0);
     String optionValue = optionMap.get(optionKey);
 
@@ -251,10 +251,10 @@ public class EnumUtil {
   }
 
   private static enum ListForHtmlSelectOptionEnum {
-    // eclipse auto-formatがこれを1行にし100文字超え警告が出るのであえて一行話しておく
-    including, excluding, firstCharOfCodeEqualTo,
-
-    firstCharOfCodeLessThanOrEqualTo, firstCharOfCodeGreaterThanOrEqualTo;
+    //@formatter:off
+    including, excluding, firstCharOfCodeEqualTo, firstCharOfCodeLessThanOrEqualTo, 
+    firstCharOfCodeGreaterThanOrEqualTo;
+    //@formatter:on
 
     public static Set<String> getNameSet() {
       Set<String> rtnSet = new HashSet<>();
