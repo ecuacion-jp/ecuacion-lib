@@ -82,7 +82,7 @@ public class EnumUtil {
 
     // ここまで来てしまうということは、存在しないコードを設定してしまったということ。
     throw new EclibRuntimeException(
-        "Enum: " + enumClass.getSimpleName() + "doesn't have the code. (code : " + code + ")");
+        "Enum: " + enumClass.getSimpleName() + " doesn't have the code. (code : " + code + ")");
   }
 
   /**
