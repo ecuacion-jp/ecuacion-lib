@@ -56,20 +56,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   // values needed for all the patterns
 
-  /**
-   * Is a propertyPath which designate from rootBean to the violation-occurring field.
-   */
-  private String[] fullPropertyPaths;
-  private String[] itemNameKeys;
+  private List<ItemAttributesBean> beanList;
 
   // values needed for validations for form
 
-  /** 
-   * When a validator added to a class detects a violation, 
-   * it can be a combination of values between multiple items. 
-   * In that case you want to set error multiple itemPropertyPaths for those items.
-   */
-  private String[] itemPropertyPathsForForm;
   private String rootRecordNameForForm;
 
   @Nonnull
@@ -79,18 +69,17 @@ public class ConstraintViolationBean extends ReflectionUtil {
       "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
 
   private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
-      String originalMessage, String messageTemplate, String[] fullPropertyPaths,
-      String[] itemPropertyPathsForForm, String rootRecordNameForForm) {
+      String originalMessage, String messageTemplate, String rootRecordNameForForm,
+      List<ItemAttributesBean> beanList) {
     this.rootBean = rootBean;
     this.validatorClass = validatorClass;
     this.rootRecordNameForForm = rootRecordNameForForm;
     this.originalMessage = originalMessage;
     this.messageTemplate = messageTemplate;
-    this.fullPropertyPaths = fullPropertyPaths;
-    this.itemPropertyPathsForForm = itemPropertyPathsForForm;
     this.leafBean = leafBean;
+    this.beanList = beanList;
 
-    this.itemNameKeys = createItemNameKeys();
+    getItemDependentValues(beanList);
   }
 
   private void putArgsToParamMap(Object invalidValue) {
@@ -98,7 +87,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     // Put field in this instance to paramMap
     paramMap.put("annotation", validatorClass);
-    paramMap.put("itemNameKeys", itemNameKeys);
+    paramMap.put("itemNameKeys", getItemNameKeys());
   }
 
   /**
@@ -109,11 +98,13 @@ public class ConstraintViolationBean extends ReflectionUtil {
   public ConstraintViolationBean(Object rootBean, String message, String validatorClass,
       String rootRecordNameForForm, String itemPropertyPath) {
 
+    List<ItemAttributesBean> beanList = new ArrayList<>();
+    beanList.add(new ItemAttributesBean(rootRecordNameForForm + "." + itemPropertyPath));
+    beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
+
     putArgsToFields(rootBean,
         getLeafBeanFromPropertyPath(rootRecordNameForForm + "." + itemPropertyPath, rootBean),
-        validatorClass, message, validatorClass + ".message",
-        new String[] {rootRecordNameForForm + "." + itemPropertyPath},
-        new String[] {itemPropertyPath}, rootRecordNameForForm);
+        validatorClass, message, validatorClass + ".message", rootRecordNameForForm, beanList);
 
     putArgsToParamMap("(empty)");
 
@@ -156,7 +147,13 @@ public class ConstraintViolationBean extends ReflectionUtil {
       fullPpList.add(cvPp);
     }
 
-    String[] fullPropertyPaths = fullPpList.toArray(new String[fullPpList.size()]);
+    List<ItemAttributesBean> beanList = new ArrayList<>();
+    fullPpList.stream().forEach(pp -> beanList.add(new ItemAttributesBean(pp)));
+    beanList.stream()
+        .peek(bean -> bean.itemPropertyPathForForm = bean.fullPropertyPath.contains(".")
+            ? bean.fullPropertyPath.substring(bean.fullPropertyPath.indexOf(".") + 1)
+            : bean.fullPropertyPath)
+        .toList();
     String fullPp0 = fullPpList.get(0);
     String rootClassName = StringUtils.uncapitalize(cv.getRootBean().getClass().getSimpleName());
     // remove "aClass$" from "aClass$bCLass" when the class is internal.
@@ -164,17 +161,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     String rootRecordNameForForm =
         fullPp0.contains(".") ? fullPp0.substring(0, fullPp0.indexOf(".")) : rootClassName;
 
-    List<String> itemPpList = fullPpList.stream()
-        .map(str -> str.contains(".") ? str.substring(str.indexOf(".") + 1) : str).toList();
-    String[] itemPropertyPaths = itemPpList.toArray(new String[itemPpList.size()]);
-
     // Substitute to common fields.
     putArgsToFields(cv.getRootBean(), cv.getLeafBean(),
         cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getMessage(),
         // Remove {} since the value is usually enclosed with {} like
         // {jakarta.validation.constraints.Pattern.message}.
-        cv.getMessageTemplate().replace("{", "").replace("}", ""), fullPropertyPaths,
-        itemPropertyPaths, rootRecordNameForForm);
+        cv.getMessageTemplate().replace("{", "").replace("}", ""), rootRecordNameForForm, beanList);
 
     // Put params to paramMap.
     // When localized messages are created, parameters are refered from the map.
@@ -187,9 +179,9 @@ public class ConstraintViolationBean extends ReflectionUtil {
       String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
           : cv.getPropertyPath().toString() + ".")
           + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
-      String value = getItemNameKey(conditionPropertyPath,
+      ItemAttributesBean bean = getItemDependentValues(conditionPropertyPath,
           getLeafBeanFromPropertyPath(conditionPropertyPath, rootBean).getClass());
-      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, value);
+      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, bean.itemNameKey);
 
       // displayStringOfConditionValue
       ConditionValuePattern conditionPtn =
@@ -248,21 +240,19 @@ public class ConstraintViolationBean extends ReflectionUtil {
   }
 
   /**
-   * Creates itemNameKeys.
+   * Gets item dependent values.
    */
-  private String[] createItemNameKeys() {
+  private void getItemDependentValues(List<ItemAttributesBean> beanList) {
 
-    List<String> itemNameKeyList = new ArrayList<>();
-
-    for (String fullPropertyPath : fullPropertyPaths) {
-      itemNameKeyList.add(getItemNameKey(fullPropertyPath, leafBean.getClass()));
+    for (ItemAttributesBean bean : beanList) {
+      ItemAttributesBean newBean =
+          getItemDependentValues(bean.fullPropertyPath, leafBean.getClass());
+      bean.itemNameKey = newBean.itemNameKey;
     }
-
-    return itemNameKeyList.toArray(new String[itemNameKeyList.size()]);
   }
 
   /**
-   * Returns itemNameKey.
+   * Sets {@code itemNameKey} and {@code showsValue}.
    * 
    * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
    *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
@@ -272,7 +262,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * @param defaultItemNameKeyClass defaultItemNameKeyClass
    * @return itemNameKey
    */
-  private String getItemNameKey(String fullPropertyPath, Class<?> leafBeanClass) {
+  private ItemAttributesBean getItemDependentValues(String fullPropertyPath,
+      Class<?> leafBeanClass) {
 
     String fullPropertyPath1stPart = fullPropertyPath.contains(".")
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
@@ -280,7 +271,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
     Object firstChild = fullPropertyPath1stPart == null ? null
         : ReflectionUtil.getFieldValue(fullPropertyPath1stPart, rootBean);
 
-    String itemNameKey;
+    ItemAttributesBean bean = new ItemAttributesBean();
 
     boolean setsItemNameKeyClassExplicitly = false;
 
@@ -288,14 +279,14 @@ public class ConstraintViolationBean extends ReflectionUtil {
     if (rootBean instanceof EclibItemContainer) {
       // the case that rootBean is an EclibRecord
       EclibItem item = ((EclibItemContainer) rootBean).getItem(fullPropertyPath);
-      itemNameKey = item.getItemNameKey(rootRecordNameForForm);
+      bean.itemNameKey = item.getItemNameKey(rootRecordNameForForm);
       setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
 
     } else if (firstChild != null && firstChild instanceof EclibItemContainer) {
       // the case that EclibRecord is stored in form or something
       EclibItem item = ((EclibItemContainer) firstChild)
           .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
-      itemNameKey = item.getItemNameKey(fullPropertyPath1stPart);
+      bean.itemNameKey = item.getItemNameKey(fullPropertyPath1stPart);
       setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
 
     } else {
@@ -313,7 +304,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
                   fullPropertyPathWithoutInkf.lastIndexOf(".") + 1)
               : fullPropertyPathWithoutInkf);
 
-      itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
+      bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
     }
 
     // Check existence of itemNameKeyClass to determine rootRecordName.
@@ -322,10 +313,11 @@ public class ConstraintViolationBean extends ReflectionUtil {
     String itemNameKeyClass =
         opItemNameKeyClassAn.isPresent() ? opItemNameKeyClassAn.get().value() : null;
     if (itemNameKeyClass != null && !setsItemNameKeyClassExplicitly) {
-      itemNameKey = itemNameKeyClass + itemNameKey.substring(itemNameKey.indexOf("."));
+      bean.itemNameKey =
+          itemNameKeyClass + bean.itemNameKey.substring(bean.itemNameKey.indexOf("."));
     }
 
-    return itemNameKey;
+    return bean;
   }
 
   public Object getRootBean() {
@@ -355,8 +347,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return messageTemplate;
   }
 
+  /**
+   * Returns fullPropertyPaths.
+   */
   public String[] getFullPropertyPaths() {
-    return fullPropertyPaths;
+    List<String> list = beanList.stream().map(b -> b.fullPropertyPath).toList();
+    return list.toArray(new String[list.size()]);
   }
 
   public String getInvalidValue() {
@@ -371,16 +367,48 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return rootRecordNameForForm;
   }
 
+  /**
+   * Returns itemPropertyPathsForForm.
+   */
   public String[] getItemPropertyPathsForForm() {
-    return itemPropertyPathsForForm;
+    List<String> list = beanList.stream().map(b -> b.itemPropertyPathForForm).toList();
+    return list.toArray(new String[list.size()]);
   }
 
+  /**
+   * Returns itemNameKeys.
+   */
   public String[] getItemNameKeys() {
-    return itemNameKeys;
+    List<String> list = beanList.stream().map(b -> b.itemNameKey).toList();
+    return list.toArray(new String[list.size()]);
   }
 
   @Nonnull
   public Map<String, Object> getParamMap() {
     return paramMap;
+  }
+
+  private static class ItemAttributesBean {
+
+    /** 
+     * The key of the bean.
+     * It's a propertyPath which designate from rootBean to the violation-occurring field.
+     */
+    public String fullPropertyPath;
+
+    /** 
+     * When a validator added to a class detects a violation, 
+     * it can be a combination of values between multiple items. 
+     * In that case you want to set error multiple itemPropertyPaths for those items.
+     */
+    public String itemPropertyPathForForm;
+
+    public String itemNameKey;
+
+    public ItemAttributesBean() {}
+
+    public ItemAttributesBean(String fullPropertyPath) {
+      this.fullPropertyPath = fullPropertyPath;
+    }
   }
 }
