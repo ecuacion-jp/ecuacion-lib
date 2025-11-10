@@ -71,18 +71,19 @@ public class BeanValidationAppExceptionTest {
 
   @Test
   public void test02_obtaining_values() {
-    final String className = "jp.ecuacion.lib.core.exception.checked."
-        + "BeanValidationAppExceptionTest$SampleObj";
+    final String className =
+        "jp.ecuacion.lib.core.exception.checked." + "BeanValidationAppExceptionTest$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean bean = ex.getConstraintViolationBean();
-    Assertions.assertThat(bean.getValidatorClass()).isEqualTo("jakarta.validation.constraints.NotNull");
+    Assertions.assertThat(bean.getValidatorClass())
+        .isEqualTo("jakarta.validation.constraints.NotNull");
     Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
     Assertions.assertThat(bean.getMessageTemplate())
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
     Assertions.assertThat(bean.getRootBean().getClass().getName()).isEqualTo(className);
     Assertions.assertThat(bean.getLeafBean().getClass().getName()).isEqualTo(className);
-    Assertions.assertThat(bean.getItemPropertyPathsForForm()[0]).isEqualTo("str1");
+    Assertions.assertThat(bean.getFieldInfoBeans()[0].itemPropertyPathForForm).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
   }
 
@@ -99,8 +100,7 @@ public class BeanValidationAppExceptionTest {
         + "rootClassName:jp.ecuacion.lib.core.exception.checked."
         + "BeanValidationAppExceptionTest$SampleObj\n"
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
-        + "BeanValidationAppExceptionTest$SampleObj\n"
-        + "propertyPath:str1\ninvalidValue:null";
+        + "BeanValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
     Assertions.assertThat(ex.toString()).isEqualTo(str);
   }
