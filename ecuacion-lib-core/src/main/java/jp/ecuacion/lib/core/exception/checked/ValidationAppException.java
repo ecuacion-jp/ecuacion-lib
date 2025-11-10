@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.util.List;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
@@ -79,8 +80,9 @@ public class ValidationAppException extends SingleAppException {
     return "message:" + bean.getOriginalMessage() + "\n" + "annotation:" + bean.getValidatorClass()
         + "\n" + "rootClassName:" + bean.getRootBean().getClass().getName() + "\n"
         + "leafClassName:" + bean.getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(bean.getItemPropertyPathsForForm()) + "\n" + "invalidValue:"
-        + bean.getInvalidValue();
+        + StringUtil.getCsv(
+            bean.getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
+        + "\n" + "invalidValue:" + bean.getInvalidValue();
   }
 
   /**
@@ -132,6 +134,8 @@ public class ValidationAppException extends SingleAppException {
 
   @Override
   public String[] getItemPropertyPaths() {
-    return bean.getItemPropertyPathsForForm();
+    List<String> list =
+        bean.getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList();
+    return list.toArray(new String[list.size()]);
   }
 }

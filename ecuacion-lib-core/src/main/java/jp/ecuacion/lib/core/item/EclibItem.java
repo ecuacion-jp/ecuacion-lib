@@ -50,6 +50,13 @@ public class EclibItem {
   protected String itemNameKeyField;
 
   /**
+   * Is false when the value should not be open to public (like password).
+   * 
+   * <p>Default value is {@code true}.</p>
+   */
+  protected boolean showsValue = true;
+
+  /**
    * Constructs a new instance with {@code itemPropertyPath}.
    * 
    * <p>You cannot set recordPropertyPath here.
@@ -167,5 +174,18 @@ public class EclibItem {
   @Nonnull
   public String getItemNameKey() {
     return getItemNameKey(null);
+  }
+
+  /**
+   * Hides value from error messages and so on.
+   */
+  public EclibItem hideValue() {
+    showsValue = false;
+
+    return this;
+  }
+
+  public boolean getShowsValue() {
+    return showsValue;
   }
 }
