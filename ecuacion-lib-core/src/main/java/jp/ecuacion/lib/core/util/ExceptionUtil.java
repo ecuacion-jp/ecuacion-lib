@@ -169,7 +169,10 @@ public class ExceptionUtil {
           // messages.
           // Replace {0} in messages to itemName.
           if (message.contains("{0}")) {
-            message = MessageFormat.format(message, getItemNames(locale, bean.getItemNameKeys()));
+            List<String> ink =
+                bean.getFieldInfoBeanList().stream().map(b -> b.itemNameKey).toList();
+            message = MessageFormat.format(message,
+                getItemNames(locale, ink.toArray(new String[ink.size()])));
           }
 
           // add prefix and postfix messages.
@@ -200,15 +203,13 @@ public class ExceptionUtil {
         "jp.ecuacion.lib.core.common.itemName.prependParenthesis");
     final String appendParenthesis = PropertyFileUtil.getMessage(locale,
         "jp.ecuacion.lib.core.common.itemName.appendParenthesis");
-    final String separator = PropertyFileUtil.getMessage(locale,
-        "jp.ecuacion.lib.core.common.itemName.separator");
+    final String separator =
+        PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.separator");
 
     List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(itemNameKeys)).stream()
-        .map(key -> PropertyFileUtil.hasItemName(key)
-            ? PropertyFileUtil.getItemName(locale, key)
+        .map(key -> PropertyFileUtil.hasItemName(key) ? PropertyFileUtil.getItemName(locale, key)
             : key)
-        .map(name -> prependParenthesis + name + appendParenthesis)
-        .toList();
+        .map(name -> prependParenthesis + name + appendParenthesis).toList();
 
     return StringUtil.getSeparatedValuesString(itemNameList, separator);
   }

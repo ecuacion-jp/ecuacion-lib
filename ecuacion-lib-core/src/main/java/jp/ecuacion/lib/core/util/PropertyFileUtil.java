@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
@@ -592,12 +593,20 @@ public class PropertyFileUtil {
 
     argMap = argMap == null ? new HashMap<>() : argMap;
 
+    final String argAnnotationValue = (String) argMap.get("annotation");
+    final FieldInfoBean[] fieldInfoBean = (FieldInfoBean[]) argMap.get("itemAttributes");
+
     String annotation;
     String key;
     String newKey;
     String newValue;
 
-    String argAnnotationValue = (String) argMap.get("annotation");
+    // common for invalidValue
+    if (!fieldInfoBean[0].showsValue) {
+      key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
+      argMap.put("invalidValue", PropertyFileUtil.getMessage(locale, key));
+    }
+
     // get patternDescription from descriptionId (for @PatternWithDescription)
     annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription";
     if (argAnnotationValue != null && argAnnotationValue.equals(annotation)) {
@@ -611,10 +620,10 @@ public class PropertyFileUtil {
     // for @ConditionalXxx
     String annotationPrefix = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
+
       // itemName
-      String[] itemNameKeys = (String[]) argMap.get("itemNameKeys");
-      List<String> itemNameList = Arrays.asList(itemNameKeys).stream()
-          .map(ink -> PropertyFileUtil.getItemName(locale, ink)).toList();
+      List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
+          .map(bean -> PropertyFileUtil.getItemName(locale, bean.itemNameKey)).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
 
       // conditionItemName
