@@ -56,7 +56,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   // values needed for all the patterns
 
-  private List<ItemAttributesBean> beanList;
+  private List<FieldInfoBean> fieldInfoBeanList;
 
   // values needed for validations for form
 
@@ -70,14 +70,14 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
       String originalMessage, String messageTemplate, String rootRecordNameForForm,
-      List<ItemAttributesBean> beanList) {
+      List<FieldInfoBean> beanList) {
     this.rootBean = rootBean;
     this.validatorClass = validatorClass;
     this.rootRecordNameForForm = rootRecordNameForForm;
     this.originalMessage = originalMessage;
     this.messageTemplate = messageTemplate;
     this.leafBean = leafBean;
-    this.beanList = beanList;
+    this.fieldInfoBeanList = beanList;
 
     getItemDependentValues(beanList);
   }
@@ -87,7 +87,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     // Put field in this instance to paramMap
     paramMap.put("annotation", validatorClass);
-    paramMap.put("itemNameKeys", getItemNameKeys());
+    paramMap.put("itemAttributes",
+        fieldInfoBeanList.toArray(new FieldInfoBean[fieldInfoBeanList.size()]));
   }
 
   /**
@@ -98,8 +99,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
   public ConstraintViolationBean(Object rootBean, String message, String validatorClass,
       String rootRecordNameForForm, String itemPropertyPath) {
 
-    List<ItemAttributesBean> beanList = new ArrayList<>();
-    beanList.add(new ItemAttributesBean(rootRecordNameForForm + "." + itemPropertyPath));
+    List<FieldInfoBean> beanList = new ArrayList<>();
+    beanList.add(new FieldInfoBean(rootRecordNameForForm + "." + itemPropertyPath));
     beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
 
     putArgsToFields(rootBean,
@@ -147,8 +148,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
       fullPpList.add(cvPp);
     }
 
-    List<ItemAttributesBean> beanList = new ArrayList<>();
-    fullPpList.stream().forEach(pp -> beanList.add(new ItemAttributesBean(pp)));
+    List<FieldInfoBean> beanList = new ArrayList<>();
+    fullPpList.stream().forEach(pp -> beanList.add(new FieldInfoBean(pp)));
     beanList.stream()
         .peek(bean -> bean.itemPropertyPathForForm = bean.fullPropertyPath.contains(".")
             ? bean.fullPropertyPath.substring(bean.fullPropertyPath.indexOf(".") + 1)
@@ -179,7 +180,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
       String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
           : cv.getPropertyPath().toString() + ".")
           + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
-      ItemAttributesBean bean = getItemDependentValues(conditionPropertyPath,
+      FieldInfoBean bean = getItemDependentValues(conditionPropertyPath,
           getLeafBeanFromPropertyPath(conditionPropertyPath, rootBean).getClass());
       paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, bean.itemNameKey);
 
@@ -242,12 +243,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
   /**
    * Gets item dependent values.
    */
-  private void getItemDependentValues(List<ItemAttributesBean> beanList) {
+  private void getItemDependentValues(List<FieldInfoBean> beanList) {
 
-    for (ItemAttributesBean bean : beanList) {
-      ItemAttributesBean newBean =
-          getItemDependentValues(bean.fullPropertyPath, leafBean.getClass());
+    for (FieldInfoBean bean : beanList) {
+      FieldInfoBean newBean = getItemDependentValues(bean.fullPropertyPath, leafBean.getClass());
       bean.itemNameKey = newBean.itemNameKey;
+      bean.showsValue = newBean.showsValue;
     }
   }
 
@@ -262,8 +263,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * @param defaultItemNameKeyClass defaultItemNameKeyClass
    * @return itemNameKey
    */
-  private ItemAttributesBean getItemDependentValues(String fullPropertyPath,
-      Class<?> leafBeanClass) {
+  private FieldInfoBean getItemDependentValues(String fullPropertyPath, Class<?> leafBeanClass) {
 
     String fullPropertyPath1stPart = fullPropertyPath.contains(".")
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
@@ -271,25 +271,22 @@ public class ConstraintViolationBean extends ReflectionUtil {
     Object firstChild = fullPropertyPath1stPart == null ? null
         : ReflectionUtil.getFieldValue(fullPropertyPath1stPart, rootBean);
 
-    ItemAttributesBean bean = new ItemAttributesBean();
-
+    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
+    EclibItem item = null;
     boolean setsItemNameKeyClassExplicitly = false;
 
-    // Obtain itemNameKey from rootBean (which does not consider @ItemNameKeyClass)
+    // Get item if exists.
     if (rootBean instanceof EclibItemContainer) {
       // the case that rootBean is an EclibRecord
-      EclibItem item = ((EclibItemContainer) rootBean).getItem(fullPropertyPath);
-      bean.itemNameKey = item.getItemNameKey(rootRecordNameForForm);
-      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+      item = ((EclibItemContainer) rootBean).getItem(fullPropertyPath);
 
     } else if (firstChild != null && firstChild instanceof EclibItemContainer) {
       // the case that EclibRecord is stored in form or something
-      EclibItem item = ((EclibItemContainer) firstChild)
+      item = ((EclibItemContainer) firstChild)
           .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
-      bean.itemNameKey = item.getItemNameKey(fullPropertyPath1stPart);
-      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+    }
 
-    } else {
+    if (item == null) {
       String itemNameKeyField = fullPropertyPath.contains(".")
           ? fullPropertyPath.substring(fullPropertyPath.lastIndexOf(".") + 1)
           : fullPropertyPath;
@@ -305,6 +302,11 @@ public class ConstraintViolationBean extends ReflectionUtil {
               : fullPropertyPathWithoutInkf);
 
       bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
+
+    } else {
+      bean.itemNameKey = item.getItemNameKey(rootRecordNameForForm);
+      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+      bean.showsValue = item.getShowsValue();
     }
 
     // Check existence of itemNameKeyClass to determine rootRecordName.
@@ -347,14 +349,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return messageTemplate;
   }
 
-  /**
-   * Returns fullPropertyPaths.
-   */
-  public String[] getFullPropertyPaths() {
-    List<String> list = beanList.stream().map(b -> b.fullPropertyPath).toList();
-    return list.toArray(new String[list.size()]);
-  }
-
   public String getInvalidValue() {
     return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
   }
@@ -367,20 +361,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return rootRecordNameForForm;
   }
 
-  /**
-   * Returns itemPropertyPathsForForm.
-   */
-  public String[] getItemPropertyPathsForForm() {
-    List<String> list = beanList.stream().map(b -> b.itemPropertyPathForForm).toList();
-    return list.toArray(new String[list.size()]);
+  public List<FieldInfoBean> getFieldInfoBeanList() {
+    return fieldInfoBeanList;
   }
 
-  /**
-   * Returns itemNameKeys.
-   */
-  public String[] getItemNameKeys() {
-    List<String> list = beanList.stream().map(b -> b.itemNameKey).toList();
-    return list.toArray(new String[list.size()]);
+  public FieldInfoBean[] getFieldInfoBeans() {
+    return fieldInfoBeanList.toArray(new FieldInfoBean[fieldInfoBeanList.size()]);
   }
 
   @Nonnull
@@ -388,7 +374,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return paramMap;
   }
 
-  private static class ItemAttributesBean {
+  /**
+   * Stores field-unit parameters.
+   */
+  public static class FieldInfoBean {
 
     /** 
      * The key of the bean.
@@ -405,9 +394,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     public String itemNameKey;
 
-    public ItemAttributesBean() {}
+    public boolean showsValue = true;
 
-    public ItemAttributesBean(String fullPropertyPath) {
+    /**
+     * Constructs a new instance.
+     */
+    public FieldInfoBean(String fullPropertyPath) {
       this.fullPropertyPath = fullPropertyPath;
     }
   }
