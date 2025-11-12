@@ -64,7 +64,7 @@ public enum PropertyFileUtilFileKindEnum {
 
   /** ValidationMessagsWithField. */
   VALIDATION_MESSAGES_WITH_ITEM_NAMES(new String[][] {
-      new String[] {"ValidationMessagesWithItemNames"}, new String[] {"ValidationMessages"}},
+      new String[] {"ValidationMessagesWithItemNames"}},
       false),
 
   VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
