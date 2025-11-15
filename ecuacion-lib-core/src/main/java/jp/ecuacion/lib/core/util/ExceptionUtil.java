@@ -150,7 +150,11 @@ public class ExceptionUtil {
 
       } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
-        rtnList.add(PropertyFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs()));
+        String message = needsItemName
+            ? PropertyFileUtil.getMessageWithItemName(locale, ex.getMessageId(),
+                ex.getMessageArgs())
+            : PropertyFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs());
+        rtnList.add(message);
 
       } else if (th instanceof ValidationAppException) {
         ValidationAppException ex = (ValidationAppException) th;

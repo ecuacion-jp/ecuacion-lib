@@ -48,11 +48,25 @@ public enum PropertyFileUtilFileKindEnum {
    */
   MESSAGES(new String[][] {new String[] {"messages"}}, false),
 
+  /** 
+   * messagesWithItemNames.properties. 
+   * 
+   * <p>Generally, messages.properties is supposed to be used for messages, 
+   *     and messagesWithItemNames is not very understandable for users.
+   *     Besides that, since the case that both messages.properties and 
+   *     messagesWithItemNames.properties 
+   *     are used is very rare, it's better for messages.properties to be used even when
+   *     you treat "messages with item names" without that rare case.
+   *     That's why messages.properties is also contained with this value.
+   */
+  MESSAGES_WITH_ITEM_NAMES(
+      new String[][] {new String[] {"messages_with_item_names"}, new String[] {"messages"}}, false),
+
   /**
    * strings.properties.
    */
   STRINGS(new String[][] {new String[] {"strings"}}, false),
-  
+
   /** itemの名称を記述. */
   ITEM_NAMES(new String[][] {new String[] {"item_names"}}, false),
 
@@ -63,9 +77,8 @@ public enum PropertyFileUtilFileKindEnum {
   VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}}, false),
 
   /** ValidationMessagsWithField. */
-  VALIDATION_MESSAGES_WITH_ITEM_NAMES(new String[][] {
-      new String[] {"ValidationMessagesWithItemNames"}},
-      false),
+  VALIDATION_MESSAGES_WITH_ITEM_NAMES(
+      new String[][] {new String[] {"ValidationMessagesWithItemNames"}}, false),
 
   VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
       new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}}, false);
