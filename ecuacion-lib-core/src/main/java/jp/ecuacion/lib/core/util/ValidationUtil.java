@@ -102,6 +102,14 @@ public class ValidationUtil {
   /**
    * Validates and returns {@code MultipleAppException} if validation errors exist.
    * 
+   * <p>3 parameters are added to arguments in addition to object, which are meant to show
+   *     understandable error messages for non-display-value-validations 
+   *     (like validations to uploaded excel files) 
+   *     when the message displaying setting designates messages are to be shown 
+   *     at the bottom of each item.<br>
+   *     Prefix and postfix are used to additional explanation for error messages, 
+   *     like "About the uploaded excel file, ".</p>
+   * 
    * @param <T> any class
    * @param object object to validate
    * @param addsItemNameToMessage you'll get message with itemName when {@code true} is specified.

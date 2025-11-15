@@ -19,6 +19,7 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.AP
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ENUM_NAMES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.ITEM_NAMES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.MESSAGES_WITH_ITEM_NAMES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.STRINGS;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
 import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
@@ -392,6 +393,86 @@ public class PropertyFileUtil {
    */
   public static boolean hasMessage(@RequireNonnull String key) {
     return getterMap.get(MESSAGES).hasProp(key);
+  }
+
+  /**
+   * Returns the value of default locale in messagesWithItemNames_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @param args message arguments
+   * @return the value (message) of the property key (message ID)
+   */
+  @Nonnull
+  public static String getMessageWithItemName(@RequireNonnull String key,
+      @RequireNonnull String... args) {
+    return getMessageWithItemName(null, key, args);
+  }
+
+  /**
+   * Returns the localized value in messagesWithItemNames_xxx.properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param args message arguments
+   * @return the value (message) of the property key (message ID)
+   */
+  @Nonnull
+  public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
+      @RequireNonnull String... args) {
+
+    String msgStr = getterMap.get(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, null);
+
+    // データパターンにより処理を分岐
+    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+  }
+
+  /**
+   * Returns the value of default locale in messagesWithItemNames_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @param args message arguments, which can be message ID.
+   *     The data type is {@code Arg[]}, not {@code Arg...} 
+   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
+   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
+   * @return the value (message) of the property key (message ID)
+   */
+  @Nonnull
+  public static String getMessageWithItemName(@RequireNonnull String key,
+      @RequireNonnull Arg[] args) {
+    return getMessageWithItemName(null, key, args);
+  }
+
+  /**
+   * Returns the localized value in messagesWithItemNames_xxx.properties.
+   * 
+   * @param locale locale, may be {@code null} 
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param args message arguments, which can be message ID.
+   *     The data type is {@code Arg[]}, not {@code Arg...} 
+   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
+   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
+   * @return the message corresponding to the message ID
+   */
+  @Nonnull
+  public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
+      @RequireNonnull Arg[] args) {
+
+    final List<String> list = new ArrayList<>();
+    Arrays.asList(args).stream().forEach(arg -> list.add(getStringFromArg(locale, arg)));
+
+    return getMessageWithItemName(locale, key, list.toArray(new String[list.size()]));
+  }
+
+  /**
+   * Returns the existence of the key in messagesWithItemNames_xxx.properties.
+   * 
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key (message ID)
+   */
+  public static boolean hasMessageWithItemName(@RequireNonnull String key) {
+    return getterMap.get(MESSAGES_WITH_ITEM_NAMES).hasProp(key);
   }
 
   // ■□■ strings ■□■
