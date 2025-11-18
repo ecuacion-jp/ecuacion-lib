@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -73,8 +74,10 @@ public class ValidationAppException extends SingleAppException {
 
   @Override
   public String getMessage() {
-    return PropertyFileUtil.getValidationMessageWithItemName(bean.getMessageId(),
-        bean.getParamMap());
+    List<String> list =
+        Arrays.asList(bean.getFieldInfoBeans()).stream().map(b -> b.fullPropertyPath).toList();
+    return PropertyFileUtil.getValidationMessage(bean.getMessageId(), bean.getParamMap())
+        + " (propertyPath: " + StringUtil.getCsvWithSpace(list) + ")";
   }
 
   /** 
