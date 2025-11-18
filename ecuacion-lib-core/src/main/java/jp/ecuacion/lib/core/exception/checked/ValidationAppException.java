@@ -21,6 +21,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.StringUtil;
 
@@ -68,6 +69,12 @@ public class ValidationAppException extends SingleAppException {
   */
   public ConstraintViolationBean getConstraintViolationBean() {
     return bean;
+  }
+
+  @Override
+  public String getMessage() {
+    return PropertyFileUtil.getValidationMessageWithItemName(bean.getMessageId(),
+        bean.getParamMap());
   }
 
   /** 
