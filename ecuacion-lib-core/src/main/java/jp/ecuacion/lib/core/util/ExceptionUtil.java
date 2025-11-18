@@ -165,9 +165,9 @@ public class ExceptionUtil {
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           message = needsItemName || ex.isMessageWithItemName()
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(),
                   map)
-              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
+              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
           // Additional procedure which is like spring like itemName method to add itemName to
           // messages.
