@@ -345,16 +345,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return validatorClass;
   }
 
-  public String getMessageTemplate() {
-    return messageTemplate;
-  }
-
   public String getInvalidValue() {
     return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
   }
 
   public @Nonnull String getMessageId() {
-    return getValidatorClass();
+    return messageTemplate;
   }
 
   public String getRootRecordNameForForm() {
