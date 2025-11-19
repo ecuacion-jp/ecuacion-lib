@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util.internal;
 import jakarta.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 
@@ -71,24 +72,53 @@ public class ReflectionUtil {
    * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
    * </code>
    */
-  protected static Object getFieldValue(String itemPropertyPath, Object instance) {
+  protected static Object getFieldValue(String propertyPath, Object instance) {
     try {
-      String chileItemPropertyPath = itemPropertyPath.substring(itemPropertyPath.indexOf(".") + 1);
+      String chileItemPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
 
       while (true) {
-        if (itemPropertyPath.contains(".")) {
-          String rootFieldName = itemPropertyPath.substring(0, itemPropertyPath.indexOf("."));
+        if (propertyPath.contains(".")) {
+          String rootFieldName = propertyPath.substring(0, propertyPath.indexOf("."));
           return getFieldValue(chileItemPropertyPath, getFieldValue(rootFieldName, instance));
 
         } else {
-          Field rootField = getField(itemPropertyPath, instance.getClass());
-          rootField.setAccessible(true);
-          return rootField.get(instance);
+          if (propertyPath.contains("[")) {
+            String propertyPathWithoutIndex = propertyPath.substring(0, propertyPath.indexOf("["));
+            String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
+            // It's string because it can be non-number value when the validated object is Map.
+            String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
+            Field rootField = getField(propertyPathWithoutIndex, instance.getClass());
+            rootField.setAccessible(true);
+            Object objs = rootField.get(instance);
+
+            // Resolve the field for array or List.
+            // Occur an exception for any other collections
+            // because it's impossible to speciry the element in Set
+            // (since the propertyPath is like "childSet[]")
+            // and Map (since the propertyPath is like "childMap[test]"
+            // where test is the key of them map entry. Any type can be key and
+            // it's impossible to resolve it).
+            if (objs instanceof Object[]) {
+              return ((Object[]) objs)[Integer.parseInt(index)];
+
+            } else if (objs instanceof List<?>) {
+              return ((List<?>) objs).get(Integer.parseInt(index));
+
+            } else {
+              throw new EclibRuntimeException("Multiple value types other than array and List "
+                  + "are not supported. The type of value: " + objs.getClass().getCanonicalName());
+            }
+
+          } else {
+            Field rootField = getField(propertyPath, instance.getClass());
+            rootField.setAccessible(true);
+            return rootField.get(instance);
+          }
         }
       }
 
     } catch (IllegalArgumentException | IllegalAccessException ex) {
-      throwRuntimeException(ex, itemPropertyPath, "Field value");
+      throwRuntimeException(ex, propertyPath, "Field value");
     }
 
     // throwRuntimeException always throws Exception so this will never executed.
@@ -96,20 +126,7 @@ public class ReflectionUtil {
   }
 
   /**
-   * Obtains a field with any scopes and searches fields in super classes.
-   * 
-   * <p>Since Class#getDeclaredField is used in the method, 
-   *     making its scope public causes a spotbugs error.<br>
-   *     That's why its scope is protected
-   *     and when you use it you need to extend this class.</p>
-   *     
-   * <code>
-   * Public method 
-   * jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
-   * uses reflection to modify a field it gets in its parameter 
-   * which could increase the accessibility of any class. 
-   * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
-   * </code>
+   * Obtains a field with any scopes and also searches fields in super classes.
    * 
    * @param fieldName fieldName
    * @param classOfTargetInstance classOfTargetInstance
@@ -118,18 +135,31 @@ public class ReflectionUtil {
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  public static Field getField(String fieldName, Class<?> classOfTargetInstance) {
+  static Field getField(String fieldName, Class<?> classOfTargetInstance) {
     Field validationTargetField;
 
     // store first exception
     Exception ex = null;
 
     if (fieldName.contains(".")) {
-      // Object chileIns = getFieldValue(fieldName.substring(0, fieldName.indexOf(".")), instance);
+      throw new EclibRuntimeException("fieldName cannot contain '.'.");
+    }
+
+    // fieldName with arrays or Collections not acceptable.
+    if (fieldName.contains("[")) {
+      throw new EclibRuntimeException(
+          "fieldName with index (like value[0]) not acceptable. fieldName: " + fieldName);
+    }
+
+    // loop for finding fields in parent's class.
+    while (true) {
+      if (classOfTargetInstance.equals(Object.class)) {
+        break;
+      }
+
       try {
-        Field childField =
-            classOfTargetInstance.getDeclaredField(fieldName.substring(0, fieldName.indexOf(".")));
-        return getField(fieldName.substring(fieldName.indexOf(".") + 1), childField.getType());
+        validationTargetField = classOfTargetInstance.getDeclaredField(fieldName);
+        return validationTargetField;
 
       } catch (Exception exception) {
         if (ex == null) {
@@ -137,25 +167,7 @@ public class ReflectionUtil {
         }
       }
 
-    } else {
-      // loop for finding fields in parent's class.
-      while (true) {
-        if (classOfTargetInstance.equals(Object.class)) {
-          break;
-        }
-
-        try {
-          validationTargetField = classOfTargetInstance.getDeclaredField(fieldName);
-          return validationTargetField;
-
-        } catch (Exception exception) {
-          if (ex == null) {
-            ex = exception;
-          }
-        }
-
-        classOfTargetInstance = classOfTargetInstance.getSuperclass();
-      }
+      classOfTargetInstance = classOfTargetInstance.getSuperclass();
     }
 
     throwRuntimeException(ex, fieldName, "Field");
