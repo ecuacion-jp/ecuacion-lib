@@ -165,8 +165,7 @@ public class ExceptionUtil {
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           message = needsItemName || ex.isMessageWithItemName()
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(),
-                  map)
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
           // Additional procedure which is like spring like itemName method to add itemName to
@@ -375,14 +374,12 @@ public class ExceptionUtil {
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
-   * @param packagesShown packages shown in the stack traces.
-   *     This is used when the log displaying area is small.
    * @return error log string
    */
   @Nonnull
-  public static String getErrLogShortString(@RequireNonnull Throwable throwable,
-      @Nullable String additionalMessage, @Nullable Locale locale, int packagesShown) {
-    return getErrLogString(throwable, additionalMessage, locale, packagesShown);
+  public static String getErrLogString(@RequireNonnull Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale) {
+    return getErrLogString(throwable, additionalMessage, locale, null);
   }
 
   /**
@@ -394,20 +391,16 @@ public class ExceptionUtil {
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
+   * @param packagesShown packages shown in the stack traces.
+   *     This is used when the log displaying area is small.
    * @return error log string
    */
   @Nonnull
   public static String getErrLogString(@RequireNonnull Throwable throwable,
-      @Nullable String additionalMessage, @Nullable Locale locale) {
-    return getErrLogString(throwable, additionalMessage, locale, null);
-  }
-
-  @Nonnull
-  private static String getErrLogString(@RequireNonnull Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
     ObjectsUtil.requireNonNull(throwable);
-    locale = (locale == null) ? Locale.getDefault() : locale;
+    locale = (locale == null) ? Locale.ENGLISH : locale;
 
     StringBuilder sb = new StringBuilder();
 
@@ -460,7 +453,10 @@ public class ExceptionUtil {
       Integer packagesShown) {
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
-    String errMsg = getExceptionMessage(th, locale, true).toString();
+    // Call MultipleAppException#getMessage() explicitly
+    // since getExceptionMessage skips the exception.
+    String errMsg = (th instanceof MultipleAppException) ? ((MultipleAppException) th).getMessage()
+        : getExceptionMessage(th, locale, true).toString();
     sb.append(th.getClass().getCanonicalName() + " " + errMsg + RT);
 
     // Output stackTrace string
