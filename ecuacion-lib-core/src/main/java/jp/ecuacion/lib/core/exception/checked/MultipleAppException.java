@@ -74,7 +74,8 @@ public class MultipleAppException extends AppException {
     sb.append("\n");
     exceptionList.stream().forEach(ex -> sb.append("- " + ex.getMessage() + "\n"));
 
-    return sb.toString();
+    // remove last "\n"
+    return sb.toString().substring(0, sb.toString().length() - 1);
   }
 
   /** 
