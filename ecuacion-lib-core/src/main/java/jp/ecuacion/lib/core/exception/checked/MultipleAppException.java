@@ -65,12 +65,17 @@ public class MultipleAppException extends AppException {
     this.exceptionList = internalList;
   }
 
+  /**
+   * Returns list of messages holding exceptions have with default locale.
+   */
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();
-    exceptionList.stream().forEach(ex -> sb.append(ex.getMessage()));
+    sb.append("\n");
+    exceptionList.stream().forEach(ex -> sb.append("- " + ex.getMessage() + "\n"));
 
-    return sb.toString();
+    // remove last "\n"
+    return sb.toString().substring(0, sb.toString().length() - 1);
   }
 
   /** 
