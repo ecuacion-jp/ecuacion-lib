@@ -93,7 +93,7 @@ public class MailUtil {
     // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
     // なので、もし上がったらRuntimeExceptionとしている。
     try {
-      sendMailCommon(errorMailAddressList, (List<String>) null, mailTitle,
+      sendMailCommon(errorMailAddressList, (List<String>) null, false, mailTitle,
           getErrorMailContent(throwable, additionalMessage), false);
 
     } catch (Exception ex) {
@@ -126,14 +126,15 @@ public class MailUtil {
     String envSpecStr = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix");
 
     try {
-      sendMailCommon(mailToList, (List<String>) null, envSpecStr + "Warn Message", content, true);
+      sendMailCommon(mailToList, (List<String>) null, false, envSpecStr + "Warn Message", content,
+          true);
     } catch (Exception ex) {
       // 何もしない
     }
   }
 
   /**
-   * Provides the mail-sending function.
+   * Provides sending text-format mail function.
    * 
    * <p>The following settings ars needed to application.properties 
    *     to send mails with this object.</p>
@@ -159,15 +160,28 @@ public class MailUtil {
    * @param content content, may be {@code null} if no content needed.
    * @throws Exception Exception
    */
-  public static void sendMail(@Nullable List<String> mailToList, @Nullable List<String> mailCcList,
-      @RequireNonnull String title, @Nullable String content) throws Exception {
+  public static void sendTextMail(@Nullable List<String> mailToList,
+      @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content)
+      throws Exception {
 
-    sendMailCommon(mailToList, mailCcList, title, content, true);
+    sendMailCommon(mailToList, mailCcList, false, title, content, true);
+  }
+
+  /**
+   * Provides sending html-format mail function.
+   * 
+   * @see sendTextMail
+   */
+  public static void sendHtmlMail(@Nullable List<String> mailToList,
+      @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content)
+      throws Exception {
+
+    sendMailCommon(mailToList, mailCcList, true, title, content, true);
   }
 
   private static void sendMailCommon(@Nullable List<String> mailToList,
-      @Nullable List<String> mailCcList, @RequireNonnull String title, @Nullable String content,
-      boolean throwsException) throws Exception {
+      @Nullable List<String> mailCcList, boolean isHtmlFormat, @RequireNonnull String title,
+      @Nullable String content, boolean throwsException) throws Exception {
     ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
@@ -199,7 +213,7 @@ public class MailUtil {
         ? Boolean.valueOf(PropertyFileUtil.getApplication(APP_PREFIX + "debug"))
         : false;
 
-    sendMailInternal(mailFrom, pass, mailToList, mailCcList, title, content,
+    sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
         new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
             new MailUtilEmailSettings(debug)),
         throwsException);
@@ -211,8 +225,8 @@ public class MailUtil {
    * trueの場合は、
    */
   private static void sendMailInternal(String mailFrom, String pass,
-      @Nonnull List<String> mailToList, List<String> mailCcList, String title, String content,
-      MailUtilEmail emailInfo, boolean throwsException) throws Exception {
+      @Nonnull List<String> mailToList, List<String> mailCcList, boolean isHtmlFormat, String title,
+      String content, MailUtilEmail emailInfo, boolean throwsException) throws Exception {
     try {
       // 送信先が一人もいなければ終了
       if ((mailToList == null || mailToList.size() == 0)
@@ -250,7 +264,11 @@ public class MailUtil {
       msg.setSentDate(new Date());
       msg.setRecipients(Message.RecipientType.TO, addressTo);
       ((MimeMessage) msg).setSubject(title, "UTF-8");
-      ((MimeMessage) msg).setText(content, "UTF-8");
+      if (isHtmlFormat) {
+        ((MimeMessage) msg).setContent(content, "text/html; charset=\"UTF-8\"");
+      } else {
+        ((MimeMessage) msg).setText(content, "UTF-8");
+      }
 
       // エラーが発生した場合はリトライ処理を行う
       for (int i = 0; i < 3; i++) {
