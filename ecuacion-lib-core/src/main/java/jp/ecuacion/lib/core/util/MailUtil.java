@@ -90,8 +90,6 @@ public class MailUtil {
     String mailTitle = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix")
         + "A system error has occurred.";
 
-    // 形式上Exceptionをcatchしているが、throwsException = falseで渡しているのでメール送信エラーによる例外は上がらない。
-    // なので、もし上がったらRuntimeExceptionとしている。
     try {
       sendMailCommon(errorMailAddressList, (List<String>) null, false, mailTitle,
           getErrorMailContent(throwable, additionalMessage), false);
@@ -129,7 +127,7 @@ public class MailUtil {
       sendMailCommon(mailToList, (List<String>) null, false, envSpecStr + "Warn Message", content,
           true);
     } catch (Exception ex) {
-      // 何もしない
+      // do nothing.
     }
   }
 
@@ -194,7 +192,7 @@ public class MailUtil {
     String mailFrom = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.sender");
     String pass = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.password");
 
-    // サーバ接続設定
+    // Server connection settings
     MailUtilEmailServer serverInfo = new MailUtilEmailServer(
         PropertyFileUtil.getApplication(APP_PREFIX + "smtp.server"),
         PropertyFileUtil.getApplication(APP_PREFIX + "smtp.port"),
@@ -208,7 +206,7 @@ public class MailUtil {
             ? PropertyFileUtil.getApplication(APP_PREFIX + "smtp.bounce-address")
             : null);
 
-    // javaMail設定
+    // javaMail settings
     boolean debug = (PropertyFileUtil.hasApplication(APP_PREFIX + "debug"))
         ? Boolean.valueOf(PropertyFileUtil.getApplication(APP_PREFIX + "debug"))
         : false;
@@ -219,16 +217,19 @@ public class MailUtil {
         throwsException);
   }
 
-  /*
-   * メール送信処理。 メールは業務的に付帯的な処理であることが多く、メール処理に失敗したために全体処理が落ちるようなことがないよう、 全ての例外をcatchする
-   * また、エラー発生時のログ出力もこの中で行う。 多分これを呼び出す必要はないと思うのでprivateにしてある。必要があればpublicに変更してもよい。 throwsException =
-   * trueの場合は、
+  /**
+   * Mail sending internal rocedure.
+   * 
+   * <p>Since mail sending procedure is an additinal function 
+   *     when sending system-error mails for administrators, 
+   *     it has the option that all the execptions can be catched 
+   *     not to get in the way of business logic</p>
    */
   private static void sendMailInternal(String mailFrom, String pass,
       @Nonnull List<String> mailToList, List<String> mailCcList, boolean isHtmlFormat, String title,
       String content, MailUtilEmail emailInfo, boolean throwsException) throws Exception {
     try {
-      // 送信先が一人もいなければ終了
+      // Finish when the number of senders is zero.
       if ((mailToList == null || mailToList.size() == 0)
           && (mailCcList == null || mailCcList.size() == 0)) {
         System.out.println("mail:no TO or CC specified.");
@@ -237,10 +238,8 @@ public class MailUtil {
 
       Objects.requireNonNull(mailToList);
 
-      // 各種設定値を取得。SystemPropertyでoverride可能とする
-
       Session session = null;
-      // 認証のあるなしで処理を変更
+      // Change procedure whether an authentication is needed or not.
       if (emailInfo.getServerInfo().isNeedsAuthentication()) {
         session = Session.getInstance(emailInfo.getProperties(), new MyAuth(mailFrom, pass));
       } else {
@@ -248,16 +247,15 @@ public class MailUtil {
       }
 
       session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());
-      // ログ出力結果をDetailLogに流す
+      // Pass log output to DetailLogger.
       session.setDebugOut(new PrintStream(new MailUtilLogOutputStream(), true, "UTF-8"));
 
-      // mailToArrからInternetAddressインスタンスの配列を作成、格納
       InternetAddress[] addressTo = new InternetAddress[mailToList.size()];
       for (int i = 0; i < mailToList.size(); i++) {
         addressTo[i] = new InternetAddress(mailToList.get(i));
       }
 
-      // messageの作成
+      // Create message
       Message msg = null;
       msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(mailFrom));
@@ -270,31 +268,32 @@ public class MailUtil {
         ((MimeMessage) msg).setText(content, "UTF-8");
       }
 
-      // エラーが発生した場合はリトライ処理を行う
+      // Retry when an exception occurs.
       for (int i = 0; i < 3; i++) {
         try {
-          // smtpサーバへ接続・送信
+          // Connect and send to smtp server.
           sendMailToSmtp(emailInfo.getServerInfo().isNeedsAuthentication(), msg,
               emailInfo.getServerInfo().getSmtpServer(), mailFrom, pass, session, addressTo);
           break;
         } catch (Exception e) {
           if (i < 2) {
-            dtlLog.info("メール送信に失敗しました。リトライします。");
+            dtlLog.info("Mail sending failed. Retry in 1 second.");
+            Thread.sleep(1000);
 
           } else {
-            dtlLog.info("メール送信に失敗しました。リトライしてもエラー発生継続のため終了します。");
+            dtlLog.info(
+                "Mail sending failed. Procedure finished since retry did not improve anything.");
             throw e;
           }
         }
       }
 
-      // 正常終了をログに残すためにログ出力
       dtlLog.trace("Mail successfully sent" + emailInfo.getDebugLogMessage());
 
     } catch (Throwable th1) {
 
       if (throwsException) {
-        // エラーログ出力
+        // Output error log
         LogUtil.logSystemError(dtlLog, th1);
         throw th1;
 
@@ -303,12 +302,14 @@ public class MailUtil {
           LogUtil.logSystemError(dtlLog, th1);
 
         } catch (Throwable th2) {
-          // ここまでくるとどうにもならないので標準出力に出力。それもダメなら何もしない
+          // When even loogging causes a system error, ignore the error and just log to standard
+          // output.
+          // If that also causes an exception, Do nothing.
           try {
             th2.printStackTrace();
 
           } catch (Throwable th3) {
-            // 何もしない
+            // do nothing.
           }
         }
       }
@@ -318,7 +319,7 @@ public class MailUtil {
   private static void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
       String mailFrom, String pass, Session session, InternetAddress[] addressTo)
       throws NoSuchProviderException, MessagingException {
-    // smtpサーバへ接続・送信
+    // Connect and send to smtp server.
     if (doesNeedAuthentication) {
       Transport tp = session.getTransport("smtp");
       tp.connect(smtpSrv, mailFrom, pass);
