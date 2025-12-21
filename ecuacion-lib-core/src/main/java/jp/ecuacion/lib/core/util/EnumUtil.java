@@ -141,7 +141,7 @@ public class EnumUtil {
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
     String[] options = optionsString.split(",");
-    EnumClassInfo<T> enumInfo = getEnumInfo(enumClass);
+    EnumClassInfo<T> enumInfo = getEnumInfo(enumClass, locale);
 
     // Create the map which stores optionKey, optionValue
     Map<String, String> optionMap = new HashMap<>();
