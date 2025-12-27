@@ -199,7 +199,7 @@ public class PropertyFileUtilValueGetter {
           sb.append(tuple.getRight());
 
         } else {
-          sb.append(PropertyFileUtil.get(tuple.getLeft(), tuple.getRight()));
+          sb.append(PropertyFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
         }
       }
     }
