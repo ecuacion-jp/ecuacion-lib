@@ -70,7 +70,7 @@ public class PropertyFileUtilValueGetter {
   private String[][] filePrefixes;
 
   private static final String[] LIB_MODULES = new String[] {"core", "jpa"};
-  private static final String[] SPLIB_MODULES = new String[] {"web"};
+  private static final String[] SPLIB_MODULES = new String[] {"web", "web_jpa"};
   private static final String[] UTIL_MODULES = new String[] {"jpa", "poi"};
 
   private static final String[] APP_MODULES =
