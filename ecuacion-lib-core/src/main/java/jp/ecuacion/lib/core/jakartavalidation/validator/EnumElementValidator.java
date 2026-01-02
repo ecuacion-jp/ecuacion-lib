@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.jakartavalidation.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
@@ -46,8 +47,9 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
    */
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    // true if value == null (which consists with the specification of jakarta validation)
-    if (value == null) {
+    
+    // true if value is null or blank
+    if (StringUtils.isEmpty(value)) {
       return true;
     }
 

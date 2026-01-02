@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Checks if a string matches specified regular expression.
@@ -51,8 +52,8 @@ public class PatternWithDescriptionValidator
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
 
-    // true if value == null (which consists with the specification of jakarta validation)
-    if (value == null) {
+    // true if value is null or blank
+    if (StringUtils.isEmpty(value)) {
       return true;
     }
 
