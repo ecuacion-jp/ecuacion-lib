@@ -19,12 +19,17 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.enums;
  * Enumerates how to determine condition is valid.
  */
 public enum ConditionValuePattern {
+
+  // null (for any data type) or String blank.
+  // no additional value selection is needed.
+  empty,
+
+  // boolean.
+  // no additional value selection is needed.
+  booleanTrue, booleanFalse,
   
   // Setting value of conditionValueString is needed.
-  string,  
-
-  // no additional value selection is needed.
-  empty,  
+  string,
 
   // Setting value of conditionValuePropertyPath is needed.
   valueOfPropertyPath;

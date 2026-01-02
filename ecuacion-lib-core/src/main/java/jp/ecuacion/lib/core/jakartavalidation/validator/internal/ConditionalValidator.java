@@ -17,6 +17,8 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.equalTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.booleanFalse;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.booleanTrue;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
@@ -50,8 +52,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   public static final String DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH =
       "displayStringPropertyPathOfConditionValuePropertyPath";
 
-  public static final String DISPLAY_STRING_OF_CONDITION_VALUE =
-      "displayStringOfConditionValue";
+  public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
@@ -121,6 +122,24 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       if (isEmpty && conditionOperator == equalTo || !isEmpty && conditionOperator == notEqualTo) {
         return true;
       }
+
+    } else if (conditionPattern == booleanTrue || conditionPattern == booleanFalse) {
+
+      conditionValueStringMustNotSet();
+      conditionValueFieldMustNotSet();
+
+      if (valueOfConditionField != null && !(valueOfConditionField instanceof Boolean)) {
+        throw new EclibRuntimeException("The data type of conditionPropertyPath must be boolean");
+      }
+
+      Boolean bl = (Boolean) valueOfConditionField;
+
+      boolean validWhenBooleanTrue = (conditionOperator == equalTo && bl != null && bl)
+          || (conditionOperator == notEqualTo && (bl == null || !bl));
+      boolean validWhenBooleanFalse = (conditionOperator == equalTo && bl != null && !bl)
+          || (conditionOperator == notEqualTo && (bl == null || bl));
+
+      return conditionPattern == booleanTrue ? validWhenBooleanTrue : validWhenBooleanFalse;
 
     } else if (conditionPattern == valueOfPropertyPath) {
 
