@@ -133,6 +133,19 @@ public class ConditinalValidatorTestBean {
     }
   }
 
+  public static class ConditionValueBoolean {
+
+    public static class Boolean {
+
+      private java.lang.String field = "X";
+      private java.lang.Boolean condField;
+
+      public Boolean(java.lang.Boolean condFieldValue) {
+        condField = condFieldValue;
+      }
+    }
+  }
+
   public static class ConditionValueField {
 
     public static class NotExist {

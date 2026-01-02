@@ -18,6 +18,8 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.internal;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.equalTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator.notEqualTo;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.booleanFalse;
+import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.booleanTrue;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
@@ -329,6 +331,78 @@ public class ConditionalValidatorTest {
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
         new ConditinalValidatorTestBean.ConditionValueIsNotEmpty.TestEnum(TestEnum.value1)));
+  }
+
+  @Test
+  public void getSatisfiesConditionConditionValueIsBooleanTrueTest() {
+
+    // dataType of conditionField = Boolean
+    obj.initialize(new String[] {"field"}, "condField", booleanTrue, equalTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(null)));
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(true)));
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(false)));
+  }
+
+  @Test
+  public void getSatisfiesConditionConditionValueIsNotBooleanTrueTest() {
+
+    // dataType of conditionField = Boolean
+    obj.initialize(new String[] {"field"}, "condField", booleanTrue, notEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(null)));
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(true)));
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(false)));
+  }
+
+  @Test
+  public void getSatisfiesConditionConditionValueIsBooleanFalseTest() {
+
+    // dataType of conditionField = Boolean
+    obj.initialize(new String[] {"field"}, "condField", booleanFalse, equalTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(null)));
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(true)));
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(false)));
+  }
+
+  @Test
+  public void getSatisfiesConditionConditionValueIsNotBooleanFalseTest() {
+
+    // dataType of conditionField = Boolean
+    obj.initialize(new String[] {"field"}, "condField", booleanFalse, notEqualTo,
+        new String[] {EclibCoreConstants.VALIDATOR_PARAMETER_NULL},
+        EclibCoreConstants.VALIDATOR_PARAMETER_NULL, false);
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(null)));
+
+    Assertions.assertEquals(true, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(true)));
+
+    Assertions.assertEquals(false, obj
+        .getSatisfiesCondition(new ConditinalValidatorTestBean.ConditionValueBoolean.Boolean(false)));
   }
 
   @Test
