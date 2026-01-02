@@ -20,17 +20,16 @@ package jp.ecuacion.lib.core.jakartavalidation.validator.enums;
  */
 public enum ConditionValuePattern {
 
-  // Setting value of conditionValueString is needed.
-  string,
-
+  // null (for any data type) or String blank.
   // no additional value selection is needed.
   empty,
 
   // boolean.
-  // By using variation of ConditionOperator (equalTo, notEqualTo),
-  // one of booleanTrue or booleanFalse covers all the pattern.
-  // But both of them are prepared for understandability.
+  // no additional value selection is needed.
   booleanTrue, booleanFalse,
+  
+  // Setting value of conditionValueString is needed.
+  string,
 
   // Setting value of conditionValuePropertyPath is needed.
   valueOfPropertyPath;
