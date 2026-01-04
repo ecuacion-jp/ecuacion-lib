@@ -27,6 +27,7 @@ import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum.VA
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.el.ELProcessor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,11 +37,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.checked.AppException;
+import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
+import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -856,9 +863,115 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
-    return arg.isMessageId()
-        ? PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs)
-        : arg.getArgString();
+    String str = null;
+    switch (arg.argKind) {
+      case MESSAGE_ID -> str =
+          PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs);
+      case FORMATTED_STRING -> str =
+          PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
+      case STRING -> str = arg.getArgString();
+      default -> throw new EclibRuntimeException("Unexpected.");
+    }
+
+    return str;
+  }
+
+  /**
+   * Returns analyzed string.
+   */
+  public static String analyzedValueString(@Nullable Locale locale, String rawString,
+      Map<String, Object> elParameterMap) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(rawString);
+    List<Pair<String, String>> list = null;
+    elParameterMap = elParameterMap == null ? new HashMap<>() : elParameterMap;
+    locale = locale == null ? Locale.ENGLISH : locale;
+
+    // conditional branch if el expression exists for processing speed.
+    if (sb.toString().contains("${+")) {
+      // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
+      list = analyze(sb.toString());
+      sb = new StringBuilder();
+
+      for (Pair<String, String> tuple : list) {
+        if (tuple.getLeft() == null) {
+          sb.append(tuple.getRight());
+
+        } else {
+          sb.append(PropertyFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
+        }
+      }
+    }
+
+    // conditional branch if el expression exists for processing speed.
+    if (sb.toString().contains("${")) {
+      // Analyze messageString for ${xxx} (EL expression) format parameters.
+      try {
+        list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
+            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+
+      } catch (StringFormatIncorrectException | MultipleAppException ex) {
+        throw new EclibRuntimeException(ex);
+      }
+
+      sb = new StringBuilder();
+      ELProcessor elProcessor = new ELProcessor();
+      elParameterMap.forEach(elProcessor::setValue);
+
+      for (Pair<String, String> tuple : list) {
+        if (tuple.getLeft() == null) {
+          sb.append(tuple.getRight());
+
+        } else {
+          sb.append(elProcessor.eval(tuple.getRight()).toString());
+        }
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Analyzes messages with the constructure of {@code message ID in message}.
+   * 
+   * <p>When there's no message ID in a message, return will be {(null, {@code <message>})}.<br>
+   *     left hand side of a pair is {@code null} meeans 
+   *     that the message doesn't have a message ID in it.</p>
+   * 
+   * <p>.When one message ID is included in a message return will be 
+   *     {(null, {@code prefixOfMessage}),  ({@code PropertyFileUtilFileKindEnum.MSG, message ID}), 
+   *     (null, {@code postfixOfMessage})}.<br>
+   *     3 parts of a message will be concatenated into a single string, 
+   *     and the middle part wlll be translated into a message.<br><br>
+   *     For example, when the message is {@code Hello, {messages:human}!}, 
+   *     the analyzed result is: <br>
+   *     ({@code (null, "Hello, "), (PropertyFileUtilFileKindEnum.MSG, "human"), (null, "!")}}.</p>
+   * 
+   * @param string string
+   * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
+   */
+  private static List<Pair<String, String>> analyze(String string) {
+    String prefix = "${+";
+    List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
+        .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
+
+    // properties files are not managed by users
+    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
+    try {
+      List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
+          startSymbols.toArray(new String[startSymbols.size()]), "}",
+          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+
+      // left of the pair starts with "{+" and ends with ":" but they're not needed
+      return list.stream()
+          .map(pair -> pair.getLeft() == null ? pair
+              : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
+                  pair.getRight()))
+          .toList();
+
+    } catch (AppException ex) {
+      throw new EclibRuntimeException(ex);
+    }
   }
 
   /**
@@ -880,9 +993,20 @@ public class PropertyFileUtil {
    *     the latter {@code messageArgMap}.
    */
   public static class Arg {
-    private boolean isMessageId;
+    private ArgKind argKind;
     private String argString;
     private Arg[] messageArgs;
+
+    /**
+     * Constructs a new instance considered as a normal string.
+     * 
+     * @param argString argument
+     */
+    private Arg(ArgKind argKind, String argString, Arg... messageArgs) {
+      this.argKind = argKind;
+      this.argString = argString;
+      this.messageArgs = messageArgs;
+    }
 
     /**
      * Constructs a new instance of normal string.
@@ -891,7 +1015,7 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg string(String argString) {
-      return new Arg(false, argString);
+      return new Arg(ArgKind.STRING, argString);
     }
 
     /**
@@ -906,13 +1030,23 @@ public class PropertyFileUtil {
     }
 
     /**
+     * Constructs a new instance of normal string.
+     * 
+     * @param formattedString formattedString
+     * @return Arg
+     */
+    public static Arg formattedString(String formattedString) {
+      return new Arg(ArgKind.FORMATTED_STRING, formattedString);
+    }
+
+    /**
      * Constructs a new instance of messageId and messageArgs.
      * 
      * @param messageId messageId
      * @return Arg
      */
     public static Arg message(String messageId) {
-      return new Arg(true, messageId, new Arg[] {});
+      return new Arg(ArgKind.MESSAGE_ID, messageId, new Arg[] {});
     }
 
     /**
@@ -926,7 +1060,7 @@ public class PropertyFileUtil {
       List<String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
-      return new Arg(true, messageId, args);
+      return new Arg(ArgKind.MESSAGE_ID, messageId, args);
     }
 
     /**
@@ -937,30 +1071,26 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId, Arg... messageArgs) {
-      return new Arg(true, messageId, messageArgs);
-    }
-
-    /**
-     * Constructs a new instance considered as a normal string.
-     * 
-     * @param argString argument
-     */
-    private Arg(boolean isMessageId, String argString, Arg... messageArgs) {
-      this.isMessageId = isMessageId;
-      this.argString = argString;
-      this.messageArgs = messageArgs;
+      return new Arg(ArgKind.MESSAGE_ID, messageId, messageArgs);
     }
 
     public String getArgString() {
       return argString;
     }
 
-    public boolean isMessageId() {
-      return isMessageId;
+    public ArgKind getArgKind() {
+      return argKind;
     }
 
     public Arg[] getMessageArgs() {
       return messageArgs;
     }
+  }
+
+  /**
+   * FORMATTED_STRING is like "item name is: ${+item_names:xxx}".
+   */
+  public static enum ArgKind {
+    STRING, FORMATTED_STRING, MESSAGE_ID
   }
 }
