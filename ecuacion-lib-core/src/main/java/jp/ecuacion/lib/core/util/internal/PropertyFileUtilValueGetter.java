@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util.internal;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import jakarta.el.ELProcessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,17 +30,11 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.util.EmbeddedParameterUtil;
-import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
-import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * ファイルから抽出したプロパティを保持するクラス。
@@ -184,60 +177,17 @@ public class PropertyFileUtilValueGetter {
       Map<String, Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
-    List<Pair<String, String>> list = null;
-    StringBuilder sb = new StringBuilder();
-    sb.append(getRawValue(locale, key));
+    String str = getRawValue(locale, key);
 
-    // conditional branch if el expression exists for processing speed.
-    if (sb.toString().contains("${+")) {
-      // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
-      list = analyze(sb.toString());
-      sb = new StringBuilder();
-
-      for (Pair<String, String> tuple : list) {
-        if (tuple.getLeft() == null) {
-          sb.append(tuple.getRight());
-
-        } else {
-          sb.append(PropertyFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
-        }
-      }
-    }
-
-    // conditional branch if el expression exists for processing speed.
-    if (sb.toString().contains("${")) {
-      // Analyze messageString for ${xxx} (EL expression) format parameters.
-      try {
-        list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
-            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
-
-      } catch (StringFormatIncorrectException | MultipleAppException ex) {
-        throw new EclibRuntimeException(ex);
-      }
-
-      sb = new StringBuilder();
-      ELProcessor elProcessor = new ELProcessor();
-      elParameterMap.forEach(elProcessor::setValue);
-
-      for (Pair<String, String> tuple : list) {
-        if (tuple.getLeft() == null) {
-          sb.append(tuple.getRight());
-
-        } else {
-          sb.append(elProcessor.eval(tuple.getRight()).toString());
-        }
-      }
-    }
-
-    return sb.toString();
+    return PropertyFileUtil.analyzedValueString(locale, str, elParameterMap);
   }
 
   /**
    * Obtains data from properties file or environment variable if exists.
    * 
-   * <p>Raw means return data is not processed after obtainedd from properties file.</p>
+   * <p>Raw means return data is not processed after obtained from properties file.</p>
    * 
-   * <p>This is also used to find out whether the key exists.
+   * <p>This is also used to find out whether the key exists.</p>
    * 
    * @param locale locale
    * @param key key
@@ -252,6 +202,7 @@ public class PropertyFileUtilValueGetter {
     } else {
       value = getValueFromPropertiesFiles(locale, key);
     }
+
     return value;
   }
 
@@ -361,49 +312,6 @@ public class PropertyFileUtilValueGetter {
     }
 
     return messageString;
-  }
-
-  /**
-   * Analyzes messages with the constructure of {@code message ID in message}.
-   * 
-   * <p>When there's no message ID in a message, return will be {(null, {@code <message>})}.<br>
-   *     left hand side of a pair is {@code null} meeans 
-   *     that the message doesn't have a message ID in it.</p>
-   * 
-   * <p>.When one message ID is included in a message return will be 
-   *     {(null, {@code prefixOfMessage}),  ({@code PropertyFileUtilFileKindEnum.MSG, message ID}), 
-   *     (null, {@code postfixOfMessage})}.<br>
-   *     3 parts of a message will be concatenated into a single string, 
-   *     and the middle part wlll be translated into a message.<br><br>
-   *     For example, when the message is {@code Hello, {messages:human}!}, 
-   *     the analyzed result is: <br>
-   *     ({@code (null, "Hello, "), (PropertyFileUtilFileKindEnum.MSG, "human"), (null, "!")}}.</p>
-   * 
-   * @param string string
-   * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
-   */
-  private List<Pair<String, String>> analyze(String string) {
-    String prefix = "${+";
-    List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
-        .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
-
-    // properties files are not managed by users
-    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
-    try {
-      List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
-          startSymbols.toArray(new String[startSymbols.size()]), "}",
-          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
-
-      // left of the pair starts with "{+" and ends with ":" but they're not needed
-      return list.stream()
-          .map(pair -> pair.getLeft() == null ? pair
-              : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
-                  pair.getRight()))
-          .toList();
-
-    } catch (AppException ex) {
-      throw new EclibRuntimeException(ex);
-    }
   }
 
   /*
