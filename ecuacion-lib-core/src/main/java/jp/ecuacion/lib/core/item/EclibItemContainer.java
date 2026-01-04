@@ -66,8 +66,8 @@ public interface EclibItemContainer {
   @Nonnull
   default EclibItem getItem(@RequireNonempty String itemPropertyPath) {
 
-    Map<String, EclibItem> map = Arrays.asList(getItems()).stream()
-        .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
+    Map<String, EclibItem> map = Arrays.asList(getItems() == null ? new EclibItem[] {} : getItems())
+        .stream().collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
     EclibItem item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
