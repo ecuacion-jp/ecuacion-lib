@@ -49,7 +49,7 @@ public class StringUtil {
   public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
     ObjectsUtil.requireNonNull(snakeCaseString);
 
-    // "_" が開始または終了文字の場合はsnakeCaseStringとして機能していないのでエラーとする
+    // Throw an exception if "_" exsits at the start or end because it means it's not a snake case.
     if (snakeCaseString.startsWith("_")) {
       throw new EclibRuntimeException(
           "snake-case string cannot start with '_'. (argment string: '" + snakeCaseString + "')");
@@ -60,7 +60,7 @@ public class StringUtil {
           "snake-case string cannot end with '_'. (argment string: '" + snakeCaseString + "')");
     }
 
-    // '_'が連続で入っている場合もエラー
+    // Throw an exception if continuous '_' exists.
     if (snakeCaseString.contains("__")) {
       throw new EclibRuntimeException("snake-case strings are not supposed to have '__' "
           + "(double underscores). (argument string: '" + snakeCaseString + "')");
@@ -85,6 +85,7 @@ public class StringUtil {
           + lowStr.substring(firstUsPos + 1, firstUsPos + 2).toUpperCase()
           + lowStr.substring(firstUsPos + 2);
     }
+
     return lowStr;
   }
 
@@ -109,7 +110,7 @@ public class StringUtil {
   public static String getLowerSnakeFromCamel(@RequireNonnull String camelCaseString) {
     ObjectsUtil.requireNonNull(camelCaseString);
 
-    // 一文字目は小文字にしておく
+    // uncapitalized
     camelCaseString = StringUtils.uncapitalize(camelCaseString);
 
     char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
@@ -121,7 +122,7 @@ public class StringUtil {
     return camelCaseString;
   }
 
-  /* ■□■□ number関連 ■□■□ */
+  /* ■□■□ number ■□■□ */
 
   /**
    * Returns comma-separated number from number.
@@ -138,7 +139,105 @@ public class StringUtil {
     return formatter.format(Integer.valueOf(number));
   }
 
-  /* ■□■□ csv関連 ■□■□ */
+  /* ■□■□ separated values ■□■□ */
+
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param array string array
+   * @param separator separator string
+   * @return String
+   */
+  @Nonnull
+  public static String getSeparatedValuesString(@RequireNonnull String[] array,
+      @RequireNonnull String separator, String leftHandSideEnclosedBy,
+      String rightHandSideEnclosedBy, boolean firstElemnetUncapitalized) {
+    ObjectsUtil.requireNonNull(array, separator, leftHandSideEnclosedBy, rightHandSideEnclosedBy);
+
+    boolean is1stTime = true;
+    StringBuilder sb = new StringBuilder();
+    for (String value : array) {
+      if (is1stTime) {
+        is1stTime = false;
+
+      } else {
+        sb.append(separator);
+      }
+
+      sb.append(leftHandSideEnclosedBy + (is1stTime ? StringUtils.uncapitalize(value) : value)
+          + rightHandSideEnclosedBy);
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param collection string collection
+   * @param separator separator string
+   * @return String
+   */
+  @Nonnull
+  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
+      @RequireNonnull String separator, String leftHandSideEnclosedBy,
+      String rightHandSideEnclosedBy, boolean firstElemnetUncapitalized) {
+    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+        leftHandSideEnclosedBy, rightHandSideEnclosedBy, firstElemnetUncapitalized);
+  }
+
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param array string array
+   * @param separator separator string
+   * @return String
+   */
+  @Nonnull
+  public static String getSeparatedValuesString(@RequireNonnull String[] array,
+      @RequireNonnull String separator, String elementEnclosedBy,
+      boolean firstElemnetUncapitalized) {
+    ObjectsUtil.requireNonNull(array, separator);
+
+    boolean is1stTime = true;
+    StringBuilder sb = new StringBuilder();
+    for (String value : array) {
+      if (is1stTime) {
+        is1stTime = false;
+
+      } else {
+        sb.append(separator);
+      }
+
+      String enclosedBy = elementEnclosedBy == null ? "" : elementEnclosedBy;
+      sb.append(enclosedBy + (is1stTime ? StringUtils.uncapitalize(value) : value) + enclosedBy);
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Returns String with values separated by {@code separator}.
+   * 
+   * <p>If you set "," as {@code separator}, you'll get csv String.</p>
+   * 
+   * @param collection string collection
+   * @param separator separator string
+   * @return String
+   */
+  @Nonnull
+  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
+      @RequireNonnull String separator, String elementEnclosedBy,
+      boolean firstElemnetUncapitalized) {
+    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+        elementEnclosedBy, firstElemnetUncapitalized);
+  }
 
   /**
    * Returns String with values separated by {@code separator}.
@@ -152,23 +251,9 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator) {
-    ObjectsUtil.requireNonNull(array, separator);
-
-    boolean isFirstTime = true;
-    StringBuilder sb = new StringBuilder();
-    for (String value : array) {
-      if (isFirstTime) {
-        isFirstTime = false;
-
-      } else {
-        sb.append(separator);
-      }
-
-      sb.append(value);
-    }
-
-    return sb.toString();
+    return getSeparatedValuesString(array, separator, null, false);
   }
+
 
   /**
    * Returns String with values separated by {@code separator}.
@@ -232,7 +317,7 @@ public class StringUtil {
     return getCsvWithSpace(collection.toArray(new String[collection.size()]));
   }
 
-  /* ■□■□ htmlエスケープ関連 ■□■□ */
+  /* ■□■□ html escape ■□■□ */
 
   /**
    * Returns html-escaped strings.
@@ -245,27 +330,13 @@ public class StringUtil {
     StringBuffer result = new StringBuffer();
     for (char c : str.toCharArray()) {
       switch (c) {
-        case '&':
-          result.append("&amp;");
-          break;
-        case '<':
-          result.append("&lt;");
-          break;
-        case '>':
-          result.append("&gt;");
-          break;
-        case '"':
-          result.append("&quot;");
-          break;
-        case '\'':
-          result.append("&#39;");
-          break;
-        case ' ':
-          result.append("&nbsp;");
-          break;
-        default:
-          result.append(c);
-          break;
+        case '&' -> result.append("&amp;");
+        case '<' -> result.append("&lt;");
+        case '>' -> result.append("&gt;");
+        case '"' -> result.append("&quot;");
+        case '\'' -> result.append("&#39;");
+        case ' ' -> result.append("&nbsp;");
+        default -> result.append(c);
       }
     }
 
