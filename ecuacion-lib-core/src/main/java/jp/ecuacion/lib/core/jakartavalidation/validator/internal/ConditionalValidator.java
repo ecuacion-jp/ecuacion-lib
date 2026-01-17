@@ -30,7 +30,7 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 
 public abstract class ConditionalValidator extends ReflectionUtil {
   private String[] propertyPath;
@@ -79,7 +79,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
     boolean satisfiesCondition = getSatisfiesCondition(instance);
 
     List<Object> valueOfFieldList =
-        Arrays.asList(propertyPath).stream().map(f -> getFieldValue(f, instance)).toList();
+        Arrays.asList(propertyPath).stream().map(f -> getValue(instance, f)).toList();
 
     for (Object valueOfField : valueOfFieldList) {
       boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
@@ -109,7 +109,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
   boolean getSatisfiesCondition(Object instance) {
 
-    Object valueOfConditionField = getFieldValue(conditionPropertyPath, instance);
+    Object valueOfConditionField = getValue(instance, conditionPropertyPath);
 
     if (conditionPattern == empty) {
 
@@ -145,7 +145,7 @@ public abstract class ConditionalValidator extends ReflectionUtil {
 
       conditionValueStringMustNotSet();
 
-      Object valueOfConditionValueField = getFieldValue(conditionValuePropertyPath, instance);
+      Object valueOfConditionValueField = getValue(instance, conditionValuePropertyPath);
 
       List<Object> valueListOfConditionValueField = new ArrayList<>();
       if (valueOfConditionValueField instanceof Object[]) {
