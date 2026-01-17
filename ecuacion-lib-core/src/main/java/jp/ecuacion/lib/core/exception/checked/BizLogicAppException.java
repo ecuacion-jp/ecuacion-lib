@@ -102,18 +102,6 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   /**
-   * Sets propertyPath and returns self for method chain.
-   * 
-   * @param itemPropertyPaths propertyPaths
-   * @return BizLogicAppException
-   */
-  public BizLogicAppException itemPropertyPaths(String... itemPropertyPaths) {
-    this.itemPropertyPaths = itemPropertyPaths;
-
-    return this;
-  }
-
-  /**
    * Gets messageId. 
    * 
    * @return messageId
