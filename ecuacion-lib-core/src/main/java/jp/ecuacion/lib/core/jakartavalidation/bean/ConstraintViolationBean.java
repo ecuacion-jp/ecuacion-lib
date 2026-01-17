@@ -32,8 +32,8 @@ import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -189,9 +189,8 @@ public class ConstraintViolationBean extends ReflectionUtil {
           (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
       String displayStringOfConditionValue = null;
       if (conditionPtn == valueOfPropertyPath) {
-        Object obj =
-            getFieldValue((String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH),
-                cv.getLeafBean());
+        Object obj = getValue(cv.getLeafBean(),
+            (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
         if (obj instanceof Object[]) {
           List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
           displayStringOfConditionValue =
@@ -214,7 +213,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
           .get(ConditionalValidator.DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH);
       if (!displayStringPropertyPathOfConditionValuePropertyPath.equals("")) {
         Object obj =
-            getFieldValue(displayStringPropertyPathOfConditionValuePropertyPath, cv.getLeafBean());
+            getValue(cv.getLeafBean(), displayStringPropertyPathOfConditionValuePropertyPath);
 
         String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
         displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
@@ -237,7 +236,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
             : null;
 
     return leafBeanItemPropertyPath == null ? rootBean
-        : ReflectionUtil.getFieldValue(leafBeanItemPropertyPath, rootBean);
+        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
   }
 
   /**
@@ -269,7 +268,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
         : null;
     Object firstChild = fullPropertyPath1stPart == null ? null
-        : ReflectionUtil.getFieldValue(fullPropertyPath1stPart, rootBean);
+        : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
 
     FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
     EclibItem item = null;

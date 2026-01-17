@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util.internal;
+package jp.ecuacion.lib.core.util;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtilTest.getFieldTest.SimpleClass;
-import jp.ecuacion.lib.core.util.internal.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
+import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
+import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
+import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
 import org.assertj.core.util.Arrays;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Assertions;
@@ -32,32 +32,32 @@ public class ReflectionUtilTest {
   @Test
   public void getFieldValueTest() {
     // fieldName without dot
-    Object o = ReflectionUtil.getFieldValue("value", new FieldValueRoot());
+    Object o = ReflectionUtil.getValue(new FieldValueRoot(), "value");
     Assertions.assertTrue(o instanceof String);
     Assertions.assertEquals("root", (String) o);
 
     // fieldName with dot
-    o = ReflectionUtil.getFieldValue("child.value", new FieldValueRoot());
+    o = ReflectionUtil.getValue(new FieldValueRoot(), "child.value");
     Assertions.assertTrue(o instanceof String);
     Assertions.assertEquals("child", (String) o);
 
     // fieldName with array
-    o = ReflectionUtil.getFieldValue("childs[0].value", new FieldValueRoot());
+    o = ReflectionUtil.getValue(new FieldValueRoot(), "childs[0].value");
     Assertions.assertTrue(o instanceof String);
     Assertions.assertEquals("child", (String) o);
 
     // fieldName with List
-    o = ReflectionUtil.getFieldValue("childList[0].value", new FieldValueRoot());
+    o = ReflectionUtil.getValue(new FieldValueRoot(), "childList[0].value");
     Assertions.assertTrue(o instanceof String);
     Assertions.assertEquals("child", (String) o);
 
     // fieldName with Set
     try {
-      o = ReflectionUtil.getFieldValue("childSet[0].value", new FieldValueRoot());
+      o = ReflectionUtil.getValue(new FieldValueRoot(), "childSet[0].value");
       Assertions.fail();
 
     } catch (EclibRuntimeException ex) {
-      
+
     }
   }
 
@@ -69,7 +69,7 @@ public class ReflectionUtilTest {
       private FieldValueChild child = new FieldValueChild();
       private FieldValueChild[] childs = new FieldValueChild[] {new FieldValueChild()};
       private List<Object> childList = Arrays.asList(new FieldValueChild[] {new FieldValueChild()});
-      private Set<Object> childSet = Sets.newHashSet(childList) ;
+      private Set<Object> childSet = Sets.newHashSet(childList);
     }
 
     public static class FieldValueChild {
@@ -88,7 +88,7 @@ public class ReflectionUtilTest {
 
     // fieldName with dot
     try {
-      f = ReflectionUtil.getField("a.b", SimpleClass.class);
+      f = ReflectionUtil.getField(SimpleClass.class, "a.b");
       Assertions.fail();
 
     } catch (EclibRuntimeException ex) {
@@ -97,7 +97,7 @@ public class ReflectionUtilTest {
 
     // fieldName with "["
     try {
-      f = ReflectionUtil.getField("values[]", SimpleClass.class);
+      f = ReflectionUtil.getField(SimpleClass.class, "values[]");
       Assertions.fail();
 
     } catch (EclibRuntimeException ex) {
@@ -105,20 +105,20 @@ public class ReflectionUtilTest {
     }
 
     // normal fields
-    f = ReflectionUtil.getField("value", SimpleClass.class);
+    f = ReflectionUtil.getField(SimpleClass.class, "value");
     Assertions.assertEquals("String", f.getType().getSimpleName());
 
-    f = ReflectionUtil.getField("object", SimpleClass.class);
+    f = ReflectionUtil.getField(SimpleClass.class, "object");
     Assertions.assertEquals("ChildClass", f.getType().getSimpleName());
 
-    f = ReflectionUtil.getField("values", SimpleClass.class);
+    f = ReflectionUtil.getField(SimpleClass.class, "values");
     Assertions.assertEquals("String[]", f.getType().getSimpleName());
 
-    f = ReflectionUtil.getField("objectList", SimpleClass.class);
+    f = ReflectionUtil.getField(SimpleClass.class, "objectList");
     Assertions.assertEquals("List", f.getType().getSimpleName());
 
     // fieldName in superClass
-    f = ReflectionUtil.getField("value", SecondExtendedClass.class);
+    f = ReflectionUtil.getField(SecondExtendedClass.class, "value");
     Assertions.assertEquals("String", f.getType().getSimpleName());
   }
 

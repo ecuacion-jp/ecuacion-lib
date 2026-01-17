@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util.internal;
+package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
 import java.lang.annotation.Annotation;
@@ -72,14 +72,14 @@ public class ReflectionUtil {
    * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
    * </code>
    */
-  protected static Object getFieldValue(String propertyPath, Object instance) {
+  protected static Object getValue(Object object, String propertyPath) {
     try {
       String chileItemPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
 
       while (true) {
         if (propertyPath.contains(".")) {
           String rootFieldName = propertyPath.substring(0, propertyPath.indexOf("."));
-          return getFieldValue(chileItemPropertyPath, getFieldValue(rootFieldName, instance));
+          return getValue(getValue(object, rootFieldName), chileItemPropertyPath);
 
         } else {
           if (propertyPath.contains("[")) {
@@ -87,9 +87,9 @@ public class ReflectionUtil {
             String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
             // It's string because it can be non-number value when the validated object is Map.
             String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
-            Field rootField = getField(propertyPathWithoutIndex, instance.getClass());
+            Field rootField = getField(object.getClass(), propertyPathWithoutIndex);
             rootField.setAccessible(true);
-            Object objs = rootField.get(instance);
+            Object objs = rootField.get(object);
 
             // Resolve the field for array or List.
             // Occur an exception for any other collections
@@ -110,9 +110,9 @@ public class ReflectionUtil {
             }
 
           } else {
-            Field rootField = getField(propertyPath, instance.getClass());
+            Field rootField = getField(object.getClass(), propertyPath);
             rootField.setAccessible(true);
-            return rootField.get(instance);
+            return rootField.get(object);
           }
         }
       }
@@ -129,13 +129,13 @@ public class ReflectionUtil {
    * Obtains a field with any scopes and also searches fields in super classes.
    * 
    * @param fieldName fieldName
-   * @param classOfTargetInstance classOfTargetInstance
+   * @param object classOfTargetInstance
    * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
    *     right-hand side is its instance.
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  static Field getField(String fieldName, Class<?> classOfTargetInstance) {
+  static Field getField(Class<?> object, String fieldName) {
     Field validationTargetField;
 
     // store first exception
@@ -153,12 +153,12 @@ public class ReflectionUtil {
 
     // loop for finding fields in parent's class.
     while (true) {
-      if (classOfTargetInstance.equals(Object.class)) {
+      if (object.equals(Object.class)) {
         break;
       }
 
       try {
-        validationTargetField = classOfTargetInstance.getDeclaredField(fieldName);
+        validationTargetField = object.getDeclaredField(fieldName);
         return validationTargetField;
 
       } catch (Exception exception) {
@@ -167,7 +167,7 @@ public class ReflectionUtil {
         }
       }
 
-      classOfTargetInstance = classOfTargetInstance.getSuperclass();
+      object = object.getSuperclass();
     }
 
     throwRuntimeException(ex, fieldName, "Field");
