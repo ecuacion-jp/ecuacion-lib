@@ -21,7 +21,7 @@ import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalVali
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Provides the validation logic for {@code EnumElement}.
+ * Provides the validation logic for {@code ConditionalNotEmpty}.
  */
 public class ConditionalNotEmptyValidator extends ConditionalValidator
     implements ConstraintValidator<ConditionalNotEmpty, Object> {
