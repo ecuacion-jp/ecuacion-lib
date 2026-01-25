@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.Comparison.ComparisonList;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.TypeConversionFromString;
 
 /**
  * Checks if 2 specified {@code itemPropertyPaths} have assumed numrical comparison relation.
@@ -51,6 +52,13 @@ public @interface Comparison {
 
   /** Is true when you want to make valid in the case two values are the same. */
   boolean allowsEqual() default true;
+
+  /** 
+   * Offers conversion to designated type from string value before comparing values.
+   * 
+   * <p>Default value is {@code NONE}, which means no conversions executed.</p>
+   */
+  TypeConversionFromString typeConversionFromString() default TypeConversionFromString.NONE;
 
   /** 
    * Returns message ID.

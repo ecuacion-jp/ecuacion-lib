@@ -27,6 +27,7 @@ public class GreaterThanOrEqualToValidator extends ComparisonValidator
   /** Initializes an instance. */
   @Override
   public void initialize(GreaterThanOrEqualTo annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), false, true);
+    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), false, true,
+        annotation.typeConversionFromString());
   }
 }

@@ -28,6 +28,7 @@ public class ConcreteComparisonValidator extends ComparisonValidator
   @Override
   public void initialize(Comparison annotation) {
     super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(),
-        annotation.isValidWhenLessThanBasis(), annotation.allowsEqual());
+        annotation.isValidWhenLessThanBasis(), annotation.allowsEqual(),
+        annotation.typeConversionFromString());
   }
 }

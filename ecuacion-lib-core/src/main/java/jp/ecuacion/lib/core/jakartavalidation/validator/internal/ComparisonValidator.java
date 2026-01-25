@@ -23,7 +23,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.TypeConversionFromString;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 
 /**
@@ -34,18 +36,21 @@ public abstract class ComparisonValidator extends ClassValidator {
   private String basisPropertyPath;
   private boolean isValidWhenLessThanBasis;
   private boolean allowsEqual;
+  private TypeConversionFromString typeConversionFromString;
 
   private Field fieldOfBasisPropertyPath;
   private Object valueOfBasisPropertyPath;
 
   /** Initializes an instance. */
   public void initialize(String[] propertyPath, String basisPropertyPath,
-      boolean isValidWhenLessThanBasis, boolean allowsEqual) {
+      boolean isValidWhenLessThanBasis, boolean allowsEqual,
+      TypeConversionFromString typeConversionFromString) {
     super.initialize(propertyPath);
 
     this.basisPropertyPath = basisPropertyPath;
     this.isValidWhenLessThanBasis = isValidWhenLessThanBasis;
     this.allowsEqual = allowsEqual;
+    this.typeConversionFromString = typeConversionFromString;
   }
 
   @Override
@@ -78,6 +83,28 @@ public abstract class ComparisonValidator extends ClassValidator {
     // same values treatment
     if (valueOfPropertyPath.equals(valueOfBasisPropertyPath)) {
       return allowsEqual;
+    }
+
+    // type conversion for record classes
+    if (typeConversionFromString != TypeConversionFromString.NONE) {
+      // Throw an exception when the type of valueOfPropertyPath is not string.
+      if (!(valueOfPropertyPath instanceof String)) {
+        String msg = "The type of propertyPath "
+            + "needs to be String when typeConversionFromString is not 'NONE'.";
+        throw new EclibRuntimeException(msg);
+      }
+
+      String valOfPp = (String) valueOfPropertyPath;
+      String valOfBpp = (String) valueOfBasisPropertyPath;
+      if (typeConversionFromString == TypeConversionFromString.NUMBER) {
+        valueOfPropertyPath = Double.valueOf(valOfPp.replaceAll(",", ""));
+        valueOfBasisPropertyPath = Double.valueOf(valOfBpp.replaceAll(",", ""));
+
+      } else if (typeConversionFromString == TypeConversionFromString.DATE) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        valueOfPropertyPath = LocalDate.parse(valOfPp, fmt);
+        valueOfBasisPropertyPath = LocalDate.parse(valOfBpp, fmt);
+      }
     }
 
     // comparison of 2 values

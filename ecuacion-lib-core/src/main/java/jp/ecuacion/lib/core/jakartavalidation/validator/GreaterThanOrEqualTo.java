@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.GreaterThanOrEqualTo.GreaterThanOrEqualToList;
+import jp.ecuacion.lib.core.jakartavalidation.validator.enums.TypeConversionFromString;
 
 /**
  * Is valid when the value of {@code propertyPaths} is 
@@ -46,6 +47,13 @@ public @interface GreaterThanOrEqualTo {
 
   /** Is the propertyPath of the basis for comparison. */
   String basisPropertyPath();
+
+  /** 
+   * Offers conversion to designated type from string value before comparing values.
+   * 
+   * <p>Default value is {@code NONE}, which means no conversions executed.</p>
+   */
+  TypeConversionFromString typeConversionFromString() default TypeConversionFromString.NONE;
 
   /** 
    * Returns message ID.

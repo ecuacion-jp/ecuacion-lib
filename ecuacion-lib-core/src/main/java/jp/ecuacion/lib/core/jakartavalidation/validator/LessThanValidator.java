@@ -27,6 +27,7 @@ public class LessThanValidator extends ComparisonValidator
   /** Initializes an instance. */
   @Override
   public void initialize(LessThan annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), true, false);
+    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), true, false,
+        annotation.typeConversionFromString());
   }
 }
