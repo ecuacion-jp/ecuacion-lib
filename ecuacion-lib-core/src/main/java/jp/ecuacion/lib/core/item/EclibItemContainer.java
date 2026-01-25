@@ -21,9 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
+import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Accepts and store data from user input, external system, and so on.
@@ -71,7 +75,16 @@ public interface EclibItemContainer {
 
     EclibItem item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
-    return item == null ? getNewItem(itemPropertyPath) : item;
+    item = item == null ? getNewItem(itemPropertyPath) : item;
+
+    // Set finalDefaultItemNameKeyClass.
+    Optional<ItemNameKeyClass> optAn =
+        ReflectionUtil.searchAnnotationPlacedAtClass(this.getClass(), ItemNameKeyClass.class);
+    String itemNameKeyClass =
+        optAn.isPresent() ? optAn.get().value() : this.getClass().getSimpleName();
+    item.setFinalDefaultItemNameKeyClass(StringUtils.uncapitalize(itemNameKeyClass));
+
+    return item;
   }
 
   /**

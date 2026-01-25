@@ -36,6 +36,8 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
@@ -163,6 +165,16 @@ public class ExceptionUtil {
         try {
           ConstraintViolationBean bean = ex.getConstraintViolationBean();
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
+
+          // Add parameters from messageParameterSet.
+          for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
+            for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
+              if (PropertyFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
+                map.put(paramBean.parameterKey(), PropertyFileUtil.get(fileKind.toString(), locale,
+                    paramBean.propertyFileKey(), paramBean.args()));
+              }
+            }
+          }
 
           message = needsItemName || ex.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)

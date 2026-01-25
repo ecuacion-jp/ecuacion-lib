@@ -23,17 +23,21 @@ import jakarta.validation.ConstraintViolation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import jp.ecuacion.lib.core.item.EclibItem;
 import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -64,6 +68,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   @Nonnull
   private Map<String, Object> paramMap = new HashMap<>();
+  private Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
 
   private static final String CONDITIONAL_VALIDATOR_PREFIX =
       "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
@@ -174,15 +179,45 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     putArgsToParamMap(getInvalidValue());
 
+    // invalidValue
+    if (!beanList.get(0).showsValue) {
+      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
+      messageParameterSet.add(new LocalizedMessageParameter("invalidValue",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
+      // argMap.put(, PropertyFileUtil.getMessage(locale, key));
+    }
+
+    // PatternWithDescription: descriptionId
+    if (paramMap.containsKey("descriptionId")) {
+      messageParameterSet.add(new LocalizedMessageParameter("patternDescription",
+          new PropertyFileUtilFileKindEnum[] {
+              PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
+          (String) paramMap.get("descriptionId"), new Arg[] {}));
+    }
+
+    // Comparison validators
+    if (paramMap.containsKey("basisPropertyPath")) {
+      messageParameterSet.add(new LocalizedMessageParameter("basisPropertyPathItemName",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+          ((EclibItemContainer) leafBean).getItem((String) paramMap.get("basisPropertyPath"))
+              .getItemNameKey()));
+    }
+
     // In the case of ConditionalXxx validator
     if (getValidatorClass().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
+      final String annotationPrefix =
+          "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
+
       // conditionFieldItemNameKey
       String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
           : cv.getPropertyPath().toString() + ".")
           + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
       FieldInfoBean bean = getItemDependentValues(conditionPropertyPath,
           getLeafBeanFromPropertyPath(conditionPropertyPath, rootBean).getClass());
-      paramMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY, bean.itemNameKey);
+      messageParameterSet
+          .add(new LocalizedMessageParameter(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
+              new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+              bean.itemNameKey));
 
       // displayStringOfConditionValue
       ConditionValuePattern conditionPtn =
@@ -218,17 +253,39 @@ public class ConstraintViolationBean extends ReflectionUtil {
         String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
         displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
       }
-      paramMap.put(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
-          displayStringOfConditionValue);
+
+      String propKey =
+          annotationPrefix + ".messagePart." + paramMap.get(ConditionalValidator.CONDITION_PATTERN)
+              + "." + paramMap.get(ConditionalValidator.CONDITION_OPERATOR);
+      String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
+          PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
+          PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
+      messageParameterSet
+          .add(new LocalizedMessageParameter(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
+              new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
+              StringUtils.isEmpty(displayStringOfConditionValue)
+                  ? Arg.string(displayStringOfConditionValue)
+                  : Arg.get(fileKinds, displayStringOfConditionValue)));
+
 
       // validatesWhenConditionNotSatisfied
       boolean bl = getValidatorClass().endsWith("ConditionalEmpty")
           && (Boolean) paramMap.get("notEmptyWhenConditionNotSatisfied")
           || getValidatorClass().endsWith("ConditionalNotEmpty")
               && (Boolean) paramMap.get("emptyWhenConditionNotSatisfied");
-      paramMap.put(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED, bl);
+      String paramKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
+      if (bl) {
+        messageParameterSet.add(new LocalizedMessageParameter(paramKey,
+            new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES},
+            paramMap.get("annotation") + ".messagePart."
+                + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
+
+      } else {
+        paramMap.put(paramKey, "");
+      }
     }
   }
+
 
   private Object getLeafBeanFromPropertyPath(String propertyPath, Object rootBean) {
     String leafBeanItemPropertyPath =
@@ -369,6 +426,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
     return paramMap;
   }
 
+  public Set<LocalizedMessageParameter> getMessageParameterSet() {
+    return messageParameterSet;
+  }
+
   /**
    * Stores field-unit parameters.
    */
@@ -397,5 +458,17 @@ public class ConstraintViolationBean extends ReflectionUtil {
     public FieldInfoBean(String fullPropertyPath) {
       this.fullPropertyPath = fullPropertyPath;
     }
+  }
+
+  /**
+   * Stores message parameters for ValidationAppException.
+   *     Parameters in it is resolved the value from the key with {@code PropertyFileUtil},
+   *     and put into paramMap to be used as parameters for Validation messages.
+   * 
+   * <p>It is used to resolve display name at ExceptionHandler
+   *     Because there is a locale there.</p>
+   */
+  public static record LocalizedMessageParameter(String parameterKey,
+      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
   }
 }

@@ -22,7 +22,6 @@ import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionVa
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
 
-import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,16 +29,16 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionOperator;
 import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
 
-public abstract class ConditionalValidator extends ReflectionUtil {
-  private String[] propertyPath;
+public abstract class ConditionalValidator extends ClassValidator {
   private String conditionPropertyPath;
   private ConditionValuePattern conditionPattern;
   private ConditionOperator conditionOperator;
   private String[] conditionValueString;
   private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
+  
+  private boolean satisfiesCondition = false;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
@@ -60,7 +59,8 @@ public abstract class ConditionalValidator extends ReflectionUtil {
       ConditionValuePattern conditionPattern, ConditionOperator conditionOperator,
       String[] conditionValueString, String conditionValuePropertyPath,
       boolean validatesWhenConditionNotSatisfied) {
-    this.propertyPath = propertyPath;
+    super.initialize(propertyPath);
+
     this.conditionPropertyPath = conditionPropertyPath;
     this.conditionPattern = conditionPattern;
     this.conditionOperator = conditionOperator;
@@ -70,29 +70,14 @@ public abstract class ConditionalValidator extends ReflectionUtil {
   }
 
   protected abstract boolean isValid(Object valueOfField);
-
-  /**
-   * Executes validation check.
-   */
-  public boolean isValid(Object instance, ConstraintValidatorContext context) {
-
-    boolean satisfiesCondition = getSatisfiesCondition(instance);
-
-    List<Object> valueOfFieldList =
-        Arrays.asList(propertyPath).stream().map(f -> getValue(instance, f)).toList();
-
-    for (Object valueOfField : valueOfFieldList) {
-      boolean result = isValidForSingleValueOfField(valueOfField, satisfiesCondition);
-
-      if (!result) {
-        return false;
-      }
-    }
-
-    return true;
+  
+  @Override
+  public void procedureBeforeLoopForEachPropertyPath() {
+    satisfiesCondition = getSatisfiesCondition(instance);
   }
 
-  private boolean isValidForSingleValueOfField(Object valueOfField, boolean satisfiesCondition) {
+  @Override
+  protected boolean isValidForSinglePropertyPath(String itemPropertyPath, Object valueOfField) {
     if (satisfiesCondition) {
       return isValid(valueOfField);
 
