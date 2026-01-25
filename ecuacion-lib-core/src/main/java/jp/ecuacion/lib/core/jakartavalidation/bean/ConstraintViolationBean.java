@@ -197,10 +197,14 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     // Comparison validators
     if (paramMap.containsKey("basisPropertyPath")) {
+      String itemNameKey =
+          leafBean instanceof EclibItemContainer
+              ? ((EclibItemContainer) leafBean).getItem((String) paramMap.get("basisPropertyPath"))
+                  .getItemNameKey()
+              : StringUtils.uncapitalize(leafBean.getClass().getSimpleName());
       messageParameterSet.add(new LocalizedMessageParameter("basisPropertyPathItemName",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
-          ((EclibItemContainer) leafBean).getItem((String) paramMap.get("basisPropertyPath"))
-              .getItemNameKey()));
+          itemNameKey));
     }
 
     // In the case of ConditionalXxx validator
