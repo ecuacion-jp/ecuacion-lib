@@ -135,7 +135,7 @@ public class ReflectionUtil {
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  static Field getField(Class<?> object, String fieldName) {
+  public static Field getField(Class<?> object, String fieldName) {
     Field validationTargetField;
 
     // store first exception

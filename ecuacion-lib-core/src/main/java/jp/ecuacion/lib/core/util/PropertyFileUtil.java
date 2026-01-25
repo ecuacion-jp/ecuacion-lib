@@ -41,12 +41,10 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
-import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
 import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -93,35 +91,35 @@ import org.apache.commons.lang3.tuple.Pair;
  *   <tr>
  *     <td>messages[_xxx].properties</td>
  *     <td>getMessage(...)<br>
- *     <td style="text-align: center">☑️</td>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">x</td>
+ *     <td style="text-align: center">x️</td>
  *     <td>Treats localized messages</td>
  *   </tr>
  *   <tr>
  *     <td>strings[_xxx].properties</td>
  *     <td>getString(...)<br>
  *     <td style="text-align: center"></td>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">x️</td>
  *     <td>Treats non-localized messages</td>
  *   </tr>
  *   <tr>
  *     <td>item_names[_xxx].properties</td>
  *     <td>getItemName(...)<br>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑x</td>
  *     <td style="text-align: center"></td>
  *     <td>Treats enum item names</td>
  *   </tr>
  *   <tr>
  *     <td>enum_names[_xxx].properties</td>
  *     <td>getEnumName(...)<br>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑x</td>
  *     <td style="text-align: center"></td>
  *     <td>Treats enum value names</td>
  *   </tr>
  *   <tr>
  *     <td>ValidationMessages[_xxx].properties</td>
  *     <td>getValidationMessage(...)<br>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑x</td>
  *     <td style="text-align: center"></td>
  *     <td>Treats jakarta validation messages, 
  *         but it's never called from apps. It's used only from ecuacion-modules. 
@@ -130,7 +128,7 @@ import org.apache.commons.lang3.tuple.Pair;
  *   <tr>
  *     <td>ValidationMessagesWithItemNames[_xxx].properties</td>
  *     <td>getValidationMessageWithItemName(...)<br>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑x</td>
  *     <td style="text-align: center"></td>
  *     <td>Treats jakarta validation messages, 
  *         but it's never called from apps. It's used only from ecuacion-modules. 
@@ -139,7 +137,7 @@ import org.apache.commons.lang3.tuple.Pair;
  *   <tr>
  *     <td>ValidationMessagesPatternDescriptions[_xxx].properties</td>
  *     <td>getValidationMessagePatternDescription(...)<br>
- *     <td style="text-align: center">☑️</td>
+ *     <td style="text-align: center">☑x</td>
  *     <td style="text-align: center"></td>
  *     <td>Treats pattern expressing localized strings used for jakarta validation messages, 
  *         but it's never called from apps. It's used only from ecuacion-modules. </td>
@@ -324,6 +322,8 @@ public class PropertyFileUtil {
     }
   }
 
+  // ■□■ message ■□■
+
   /**
    * Returns the value of default locale in messages_xxx.properties.
    * 
@@ -348,11 +348,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
-
-    String msgStr = getterMap.get(MESSAGES).getProp(locale, key, null);
-
-    // データパターンにより処理を分岐
-    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+    return formatMessage(getterMap.get(MESSAGES).getProp(locale, key, null), args);
   }
 
   /**
@@ -385,11 +381,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull Arg[] args) {
-
-    final List<String> list = new ArrayList<>();
-    Arrays.asList(args).stream().forEach(arg -> list.add(getStringFromArg(locale, arg)));
-
-    return getMessage(locale, key, list.toArray(new String[list.size()]));
+    return getMessage(locale, key, getStringsFromArgs(locale, args));
   }
 
   /**
@@ -401,6 +393,8 @@ public class PropertyFileUtil {
   public static boolean hasMessage(@RequireNonnull String key) {
     return getterMap.get(MESSAGES).hasProp(key);
   }
+
+  // ■□■ messageWithItemName ■□■
 
   /**
    * Returns the value of default locale in messagesWithItemNames_xxx.properties.
@@ -427,11 +421,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
-
-    String msgStr = getterMap.get(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, null);
-
-    // データパターンにより処理を分岐
-    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+    return formatMessage(getterMap.get(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, null), args);
   }
 
   /**
@@ -465,11 +455,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull Arg[] args) {
-
-    final List<String> list = new ArrayList<>();
-    Arrays.asList(args).stream().forEach(arg -> list.add(getStringFromArg(locale, arg)));
-
-    return getMessageWithItemName(locale, key, list.toArray(new String[list.size()]));
+    return getMessageWithItemName(locale, key, getStringsFromArgs(locale, args));
   }
 
   /**
@@ -493,8 +479,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getString(@RequireNonnull String key, @RequireNonnull String... args) {
-    List<Arg> list = Arrays.asList(args).stream().map(str -> Arg.string(str)).toList();
-    return getString(key, list.toArray(new Arg[list.size()]));
+    return formatMessage(getterMap.get(STRINGS).getProp(key, null), args);
   }
 
   /**
@@ -509,10 +494,7 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getString(@RequireNonnull String key, @RequireNonnull Arg[] args) {
-    String msgStr = getterMap.get(STRINGS).getProp(key, null);
-
-    // データパターンにより処理を分岐
-    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+    return getString(key, getStringsFromArgs(null, args));
   }
 
   /**
@@ -684,27 +666,6 @@ public class PropertyFileUtil {
     final String argAnnotationValue = (String) argMap.get("annotation");
     final FieldInfoBean[] fieldInfoBean = (FieldInfoBean[]) argMap.get("itemAttributes");
 
-    String annotation;
-    String key;
-    String newKey;
-    String newValue;
-
-    // common for invalidValue
-    if (!fieldInfoBean[0].showsValue) {
-      key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
-      argMap.put("invalidValue", PropertyFileUtil.getMessage(locale, key));
-    }
-
-    // get patternDescription from descriptionId (for @PatternWithDescription)
-    annotation = "jp.ecuacion.lib.core.jakartavalidation.validator.PatternWithDescription";
-    if (argAnnotationValue != null && argAnnotationValue.equals(annotation)) {
-      key = "descriptionId";
-      newKey = "patternDescription";
-      newValue =
-          PropertyFileUtil.getValidationMessagePatternDescription(locale, (String) argMap.get(key));
-      argMap.put(newKey, newValue);
-    }
-
     // for @ConditionalXxx
     String annotationPrefix = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
@@ -713,44 +674,12 @@ public class PropertyFileUtil {
       List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
           .map(bean -> PropertyFileUtil.getItemName(locale, bean.itemNameKey)).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
-
-      // conditionItemName
-      String val = (String) argMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME_KEY);
-      argMap.put(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-          val == null ? null : PropertyFileUtil.getItemName(locale, val));
-
-      // displayStringOfConditionValue
-      String keyOrVal = (String) argMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE);
-      if (StringUtils.isNotEmpty(keyOrVal)) {
-        if (PropertyFileUtil.hasMessage(keyOrVal)) {
-          keyOrVal = PropertyFileUtil.getMessage(locale, keyOrVal);
-        } else if (PropertyFileUtil.hasItemName(keyOrVal)) {
-          keyOrVal = PropertyFileUtil.getItemName(locale, keyOrVal);
-        } else if (PropertyFileUtil.hasEnumName(keyOrVal)) {
-          keyOrVal = PropertyFileUtil.getEnumName(locale, keyOrVal);
-        }
-      }
-
-      newValue = PropertyFileUtil.getMessage(locale,
-          annotationPrefix + ".messagePart." + argMap.get(ConditionalValidator.CONDITION_PATTERN)
-              + "." + argMap.get(ConditionalValidator.CONDITION_OPERATOR),
-          keyOrVal);
-      argMap.put(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE, newValue);
-
-      // validatesWhenConditionNotSatisfiedDescription
-      newKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
-      newValue = ((Boolean) argMap.get(ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED))
-          ? PropertyFileUtil.getMessage(locale,
-              argMap.get("annotation") + ".messagePart."
-                  + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED)
-          : "";
-      argMap.put(newKey, newValue);
     }
 
     String rtnMessage = message;
 
     for (Entry<String, Object> entry : argMap.entrySet()) {
-      // 設定する値は、MessageFormatでエラーにならないよう、中括弧をescape
+      // Escape "{" and "}" to prevent errors at MessageFormat.
       rtnMessage = rtnMessage.replace("{" + entry.getKey() + "}", entry.getValue() == null ? "''"
           : entry.getValue().toString().replace("{", "'{'").replace("}", "'}'"));
     }
@@ -824,6 +753,38 @@ public class PropertyFileUtil {
   }
 
   /**
+   * Returns the localized property value.
+   * 
+   * @param propertyUtilFileKind String value of 
+   *     {@code PropertyUtilFileKind} (application, messages, ...)
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
+      @RequireNonnull String key, String... args) {
+    return formatMessage(get(propertyUtilFileKind, locale, key), args);
+  }
+
+  /**
+   * Returns the localized property value.
+   * 
+   * @param propertyUtilFileKind String value of 
+   *     {@code PropertyUtilFileKind} (application, messages, ...)
+   * @param locale locale, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @param key the key of the property
+   * @return the value of the property
+   */
+  @Nonnull
+  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
+      @RequireNonnull String key, Arg... args) {
+    return get(propertyUtilFileKind, locale, key, getStringsFromArgs(locale, args));
+  }
+
+  /**
    * Returns the existence of the key.
    * 
    * @param propertyUtilFileKind String value of 
@@ -853,6 +814,10 @@ public class PropertyFileUtil {
     PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
   }
 
+  private static String formatMessage(String msgStr, String... args) {
+    return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+  }
+
   /**
    * Obtains string from {@code Arg}.
    * 
@@ -864,9 +829,18 @@ public class PropertyFileUtil {
   @Nonnull
   public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
     String str = null;
+
+    String msgIdStr = "";
+    if (arg.argKind == ArgKind.MESSAGE_ID) {
+      for (String fileKind : arg.getFileKinds()) {
+        if (PropertyFileUtil.has(fileKind, arg.getArgString())) {
+          msgIdStr = PropertyFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
+        }
+      }
+    }
+
     switch (arg.argKind) {
-      case MESSAGE_ID -> str =
-          PropertyFileUtil.getMessage(locale, arg.getArgString(), arg.messageArgs);
+      case MESSAGE_ID -> str = msgIdStr;
       case FORMATTED_STRING -> str =
           PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
       case STRING -> str = arg.getArgString();
@@ -874,6 +848,13 @@ public class PropertyFileUtil {
     }
 
     return str;
+  }
+
+  private static String[] getStringsFromArgs(Locale locale, @RequireNonnull Arg[] args) {
+    final List<String> list = new ArrayList<>();
+    Arrays.asList(ObjectsUtil.requireNonNull(args)).stream()
+        .forEach(arg -> list.add(getStringFromArg(locale, arg)));
+    return list.toArray(new String[list.size()]);
   }
 
   /**
@@ -994,6 +975,7 @@ public class PropertyFileUtil {
    */
   public static class Arg {
     private ArgKind argKind;
+    private String[] fileKinds;
     private String argString;
     private Arg[] messageArgs;
 
@@ -1004,6 +986,19 @@ public class PropertyFileUtil {
      */
     private Arg(ArgKind argKind, String argString, Arg... messageArgs) {
       this.argKind = argKind;
+      this.fileKinds = new String[] {};
+      this.argString = argString;
+      this.messageArgs = messageArgs;
+    }
+
+    /**
+     * Constructs a new instance considered as a normal string.
+     * 
+     * @param argString argument
+     */
+    private Arg(String[] fileKinds, String argString, Arg... messageArgs) {
+      this.argKind = ArgKind.MESSAGE_ID;
+      this.fileKinds = fileKinds;
       this.argString = argString;
       this.messageArgs = messageArgs;
     }
@@ -1046,7 +1041,8 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId) {
-      return new Arg(ArgKind.MESSAGE_ID, messageId, new Arg[] {});
+      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+          new Arg[] {});
     }
 
     /**
@@ -1060,7 +1056,8 @@ public class PropertyFileUtil {
       List<String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
-      return new Arg(ArgKind.MESSAGE_ID, messageId, args);
+      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+          args);
     }
 
     /**
@@ -1071,15 +1068,55 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId, Arg... messageArgs) {
-      return new Arg(ArgKind.MESSAGE_ID, messageId, messageArgs);
+      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+          messageArgs);
     }
 
-    public String getArgString() {
-      return argString;
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
+     * @return Arg
+     */
+    public static Arg get(String[] fileKinds, String messageId) {
+      return new Arg(fileKinds, messageId, new Arg[] {});
+    }
+
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
+     * @param stringArgs stringArgs
+     * @return Arg
+     */
+    public static Arg get(String[] fileKinds, String messageId, String... stringArgs) {
+      List<String> stringArgList = Arrays.asList(stringArgs);
+      Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
+          .toArray(new Arg[stringArgList.size()]);
+      return new Arg(fileKinds, messageId, args);
+    }
+
+    /**
+     * Constructs a new instance of messageId and messageArgs.
+     * 
+     * @param messageId messageId
+     * @param messageArgs messageArgs
+     * @return Arg
+     */
+    public static Arg get(String[] fileKinds, String messageId, Arg... messageArgs) {
+      return new Arg(fileKinds, messageId, messageArgs);
     }
 
     public ArgKind getArgKind() {
       return argKind;
+    }
+
+    public String[] getFileKinds() {
+      return fileKinds;
+    }
+
+    public String getArgString() {
+      return argString;
     }
 
     public Arg[] getMessageArgs() {

@@ -56,6 +56,8 @@ public class EclibItem {
    */
   protected boolean showsValue = true;
 
+  private String finalDefaultItemNameKeyClass;
+
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
    * 
@@ -149,7 +151,7 @@ public class EclibItem {
       tmpItemNameKeyClass = defaultItemNameKeyClass;
 
     } else {
-      tmpItemNameKeyClass = StringUtils.uncapitalize(this.getClass().getSimpleName());
+      tmpItemNameKeyClass = finalDefaultItemNameKeyClass;
     }
 
     // tmpItemNameKeyField
@@ -187,5 +189,9 @@ public class EclibItem {
 
   public boolean getShowsValue() {
     return showsValue;
+  }
+
+  public void setFinalDefaultItemNameKeyClass(String itemNameKeyClas) {
+    this.finalDefaultItemNameKeyClass = itemNameKeyClas;
   }
 }

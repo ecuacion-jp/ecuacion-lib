@@ -20,7 +20,7 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 
 /**
- * Provides the validation logic for {@code EnumElement}.
+ * Provides the validation logic for {@code ConditionalEmpty}.
  */
 public class ConditionalEmptyValidator extends ConditionalValidator
     implements ConstraintValidator<ConditionalEmpty, Object> {
