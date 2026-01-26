@@ -52,10 +52,26 @@ public class ValidationUtil {
   @Nonnull
   public static <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object) {
     ObjectsUtil.requireNonNull(object);
+    return validate(object, (Class<?>[]) null);
+  }
+
+  /**
+  * Validates and returns {@code ConstraintViolation} if validation errors exist.
+  *
+  * @param <T> any class
+  * @param object object to validate
+  * @return a Set of ConstraintViolation, may be null when no validation errors exist.
+  *
+  * @see jakarta.validation.Validator
+  */
+  @Nonnull
+  public static <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object,
+      Class<?>... groups) {
+    ObjectsUtil.requireNonNull(object);
     Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     // validator never returns null
-    return validator.validate(object);
+    return validator.validate(object, groups);
   }
 
   /**
@@ -65,8 +81,21 @@ public class ValidationUtil {
    * @param object object to validate
    * @throws MultipleAppException MultipleAppException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
-    validateThenThrow(object, null, null, null);
+  public static <T> void validateThenThrow(@RequireNonnull T object)
+      throws MultipleAppException {
+    validateThenThrow(object, (Class<?>[]) null);
+  }
+
+  /**
+   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @throws MultipleAppException MultipleAppException
+   */
+  public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
+      throws MultipleAppException {
+    validateThenThrow(object, null, null, null, groups);
   }
 
   /**
@@ -78,9 +107,9 @@ public class ValidationUtil {
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix) throws MultipleAppException {
+      @Nullable Arg messagePostfix, Class<?>... groups) throws MultipleAppException {
     Optional<MultipleAppException> exOpt =
-        validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix);
+        validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix, groups);
     if (exOpt.isPresent()) {
       throw exOpt.get();
     }
@@ -93,10 +122,22 @@ public class ValidationUtil {
    * @param object object to validate
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-
   @Nonnull
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object) {
-    return validateThenReturn(object, null, null, null);
+    return validateThenReturn(object, null, null, null, (Class<?>[]) null);
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
+      Class<?>... groups) {
+    return validateThenReturn(object, null, null, null, groups);
   }
 
   /**
@@ -123,8 +164,8 @@ public class ValidationUtil {
   @Nonnull
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix) {
-    Set<ConstraintViolation<T>> set = ValidationUtil.validate(object);
+      @Nullable Arg messagePostfix, Class<?>... groups) {
+    Set<ConstraintViolation<T>> set = ValidationUtil.validate(object, groups);
 
     MultipleAppException exList = null;
     if (set != null && set.size() > 0) {
