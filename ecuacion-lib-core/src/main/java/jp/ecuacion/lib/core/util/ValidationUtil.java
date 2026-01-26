@@ -71,7 +71,12 @@ public class ValidationUtil {
     Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     // validator never returns null
-    return validator.validate(object, groups);
+    if (groups == null) {
+      return validator.validate(object);
+
+    } else {
+      return validator.validate(object, groups);
+    }
   }
 
   /**
