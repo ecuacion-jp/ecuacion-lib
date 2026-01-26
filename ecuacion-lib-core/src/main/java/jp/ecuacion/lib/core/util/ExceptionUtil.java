@@ -169,10 +169,8 @@ public class ExceptionUtil {
           // Add parameters from messageParameterSet.
           for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
             for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
-              if (PropertyFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
-                map.put(paramBean.parameterKey(), PropertyFileUtil.get(fileKind.toString(), locale,
-                    paramBean.propertyFileKey(), paramBean.args()));
-              }
+              map.put(paramBean.parameterKey(), PropertyFileUtil.get(fileKind.toString(), locale,
+                  paramBean.propertyFileKey(), paramBean.args()));
             }
           }
 
@@ -210,6 +208,7 @@ public class ExceptionUtil {
     }
 
     return rtnList;
+
   }
 
   @Nonnull
@@ -222,8 +221,7 @@ public class ExceptionUtil {
         PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.separator");
 
     List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(itemNameKeys)).stream()
-        .map(key -> PropertyFileUtil.hasItemName(key) ? PropertyFileUtil.getItemName(locale, key)
-            : key)
+        .map(key -> PropertyFileUtil.getItemName(locale, key))
         .map(name -> prependParenthesis + name + appendParenthesis).toList();
 
     return StringUtil.getSeparatedValuesString(itemNameList, separator);
