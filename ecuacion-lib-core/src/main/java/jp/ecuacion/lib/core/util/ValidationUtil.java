@@ -86,8 +86,7 @@ public class ValidationUtil {
    * @param object object to validate
    * @throws MultipleAppException MultipleAppException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object)
-      throws MultipleAppException {
+  public static <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
     validateThenThrow(object, (Class<?>[]) null);
   }
 
@@ -101,6 +100,20 @@ public class ValidationUtil {
   public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
       throws MultipleAppException {
     validateThenThrow(object, null, null, null, groups);
+  }
+
+  /**
+   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @throws MultipleAppException MultipleAppException
+   */
+  public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
+      @Nullable Arg messagePostfix) throws MultipleAppException {
+    validateThenThrow(object, addsItemNameToMessage, messagePrefix, messagePostfix,
+        (Class<?>[]) null);
   }
 
   /**
@@ -143,6 +156,35 @@ public class ValidationUtil {
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       Class<?>... groups) {
     return validateThenReturn(object, null, null, null, groups);
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * <p>3 parameters are added to arguments in addition to object, which are meant to show
+   *     understandable error messages for non-display-value-validations 
+   *     (like validations to uploaded excel files) 
+   *     when the message displaying setting designates messages are to be shown 
+   *     at the bottom of each item.<br>
+   *     Prefix and postfix are used to additional explanation for error messages, 
+   *     like "About the uploaded excel file, ".</p>
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @param addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
+   *        It may be {@code null}, which is equal to {@code false}. 
+   * @param messagePrefix Used when you want to put an additional message 
+   *     before the original message. It may be {@code null}, which means no messages added.
+   * @param messagePostfix Used when you want to put an additional message 
+   *     after the original message. It may be {@code null}, which means no messages added.
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
+      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
+      @Nullable Arg messagePostfix) {
+    return validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix,
+        (Class<?>[]) null);
   }
 
   /**
