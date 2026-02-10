@@ -41,6 +41,12 @@ public class EclibItem {
 
   /**
    * Is a class part (= left part) of itemNameKey. (like "acc" from itemNameKey: "acc.name")
+   * 
+   * <p>It is set by itemNameKey(String) and only when its argument contains ".".</p>
+   * 
+   * <p>The itemNameKeyClass obtained from {@code @ItemNameKeyClass} is not stored in it
+   *     because the value from {@code @ItemNameKeyClass} is a default value 
+   *     when this field is null.</p>
    */
   protected String itemNameKeyClass;
 
@@ -56,7 +62,9 @@ public class EclibItem {
    */
   protected boolean showsValue = true;
 
-  private String finalDefaultItemNameKeyClass;
+  private String itemNameKeyClassFromAnnotation;
+
+  private String itemNameKeyClassFromClassName;
 
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
@@ -109,24 +117,18 @@ public class EclibItem {
     return itemNameKeyClass != null;
   }
 
+
   /**
    * Returns {@code itemNameKey} value.
    * 
-   * <p>There can be 3 candidates for itemNameKeyClass,<br>
-   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey) if it exists.<br>
-   *     2: part of itemPropertyPath if it has ".".<br>
-   *     3: defaultItemNameKeyClass set to getItemNameKey(defaultItemNameKeyClass) 
-   *     if it is not empty.<br>
-   *     4: uncapitalized className
+   * <p>There can be 5 candidates for itemNameKeyClass. Candidates are ordered by their priority.
+   *     They are adopted only when they are not empty. The last one is never null.<br>
+   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
+   *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
+   *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
+   *     4: defaultItemNameKeyClass, the argument of this method<br>
+   *     5: uncapitalized className (always set by EclibItemContainer#getItem(String))
    * </p>
-   * 
-   * <p>Notice that the return value of this method does not consider 
-   *     {@code @ItemNameKeyClass} annotations, 
-   *     which means the return value should not be used 
-   *     for resolution of itemName directly. 
-   *     Use {@code EclibRecord#getItemNameKey()} for it.</p>
-   * 
-   * @return itemNameKeyFieldForName
    */
   @Nonnull
   public String getItemNameKey(@Nullable String defaultItemNameKeyClass) {
@@ -134,7 +136,7 @@ public class EclibItem {
     String tmpItemNameKeyField;
 
     // tmpItemNameKeyClass
-    if (!StringUtils.isEmpty(itemNameKeyClass)) {
+    if (StringUtils.isNotEmpty(itemNameKeyClass)) {
       tmpItemNameKeyClass = itemNameKeyClass;
 
     } else if (itemPropertyPath.contains(".")) {
@@ -147,11 +149,14 @@ public class EclibItem {
           ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
           : itemPropertyPathClass);
 
+    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
+      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
+
     } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
       tmpItemNameKeyClass = defaultItemNameKeyClass;
-
+      
     } else {
-      tmpItemNameKeyClass = finalDefaultItemNameKeyClass;
+      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
     }
 
     // tmpItemNameKeyField
@@ -191,7 +196,11 @@ public class EclibItem {
     return showsValue;
   }
 
-  public void setFinalDefaultItemNameKeyClass(String itemNameKeyClas) {
-    this.finalDefaultItemNameKeyClass = itemNameKeyClas;
+  public void setItemNameKeyClassFromAnnotation(String itemNameKeyClas) {
+    this.itemNameKeyClassFromAnnotation = itemNameKeyClas;
+  }
+
+  public void setItemNameKeyClassFromClassName(String itemNameKeyClassFromClassName) {
+    this.itemNameKeyClassFromClassName = itemNameKeyClassFromClassName;
   }
 }

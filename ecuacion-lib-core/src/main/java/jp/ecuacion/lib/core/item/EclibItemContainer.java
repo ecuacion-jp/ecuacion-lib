@@ -80,9 +80,13 @@ public interface EclibItemContainer {
     // Set finalDefaultItemNameKeyClass.
     Optional<ItemNameKeyClass> optAn =
         ReflectionUtil.searchAnnotationPlacedAtClass(this.getClass(), ItemNameKeyClass.class);
-    String itemNameKeyClass =
-        optAn.isPresent() ? optAn.get().value() : this.getClass().getSimpleName();
-    item.setFinalDefaultItemNameKeyClass(StringUtils.uncapitalize(itemNameKeyClass));
+
+    if (optAn.isPresent()) {
+      item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
+    }
+
+    item.setItemNameKeyClassFromClassName(
+        StringUtils.uncapitalize(this.getClass().getSimpleName()));
 
     return item;
   }
