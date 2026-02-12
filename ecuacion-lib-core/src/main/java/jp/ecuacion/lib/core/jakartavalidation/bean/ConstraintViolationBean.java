@@ -223,10 +223,16 @@ public class ConstraintViolationBean extends ReflectionUtil {
       // displayStringOfConditionValue
       ConditionValuePattern conditionPtn =
           (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
-      String displayStringOfConditionValue = null;
+      String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
+          PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
+          PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
+      Arg displayStringOfConditionValueArg = Arg.string("");
+
       if (conditionPtn == valueOfPropertyPath) {
         Object obj = getValue(cv.getLeafBean(),
             (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
+        String displayStringOfConditionValue = null;
+
         if (obj instanceof Object[]) {
           List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
           displayStringOfConditionValue =
@@ -237,10 +243,15 @@ public class ConstraintViolationBean extends ReflectionUtil {
           displayStringOfConditionValue = String.valueOf(obj);
         }
 
+        displayStringOfConditionValueArg = Arg.get(fileKinds, displayStringOfConditionValue);
+
       } else if (conditionPtn == string) {
         // conditionValue is used
         String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
-        displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
+        Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strs));
+        displayStringOfConditionValueArg = strs.length > 1
+            ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
+            : valueArg;
       }
 
       // when fieldHoldingConditionValueDisplayName is not blank,
@@ -252,22 +263,16 @@ public class ConstraintViolationBean extends ReflectionUtil {
             getValue(cv.getLeafBean(), displayStringPropertyPathOfConditionValuePropertyPath);
 
         String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
-        displayStringOfConditionValue = StringUtil.getCsvWithSpace(strs);
+        displayStringOfConditionValueArg = Arg.get(fileKinds, StringUtil.getCsvWithSpace(strs));
       }
 
       String propKey =
           annotationPrefix + ".messagePart." + paramMap.get(ConditionalValidator.CONDITION_PATTERN)
               + "." + paramMap.get(ConditionalValidator.CONDITION_OPERATOR);
-      String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
-          PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
-          PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
       messageParameterSet
           .add(new LocalizedMessageParameter(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
               new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
-              StringUtils.isEmpty(displayStringOfConditionValue)
-                  ? Arg.string(displayStringOfConditionValue)
-                  : Arg.get(fileKinds, displayStringOfConditionValue)));
-
+              displayStringOfConditionValueArg));
 
       // validatesWhenConditionNotSatisfied
       boolean bl = getValidatorClass().endsWith("ConditionalEmpty")
@@ -286,7 +291,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
       }
     }
   }
-
 
   private Object getLeafBeanFromPropertyPath(String propertyPath, Object rootBean) {
     String leafBeanItemPropertyPath =
