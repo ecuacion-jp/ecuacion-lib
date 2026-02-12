@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.logging;
 import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
@@ -98,8 +99,14 @@ public class ErrorLogger extends EclibLogger {
     ObjectsUtil.requireNonNull(throwable);
 
     String msg = (throwable.getMessage() == null) ? ""
-        : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH, true).toString()
+        : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH).toString()
             .replace("\n", " ");
+
+    // additional info output when the exception is ValidationAppException
+    if (throwable instanceof ValidationAppException) {
+      msg = msg + "\n" + ((ValidationAppException) throwable).toString();
+    }
+
     internalLogger.error("A system error has occurred: " + throwable.getClass().getName() + msg
         + " (" + additionalMessage + ")");
   }

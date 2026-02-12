@@ -65,15 +65,11 @@ public class ExceptionUtil {
    * so the return type is not a {@code String}, but a {@code List<String>}.
    *
    * @param throwable throwable
-   * @param needsDetails Sets if detail message is needed. 
-   *     This is true with log output or batch processing. 
-   *     False when you show the message on screen.
    * @return a list of messages
    */
   @Nonnull
-  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
-      boolean needsDetails) {
-    return getExceptionMessage(throwable, Locale.getDefault(), needsDetails);
+  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable) {
+    return getExceptionMessage(throwable, Locale.getDefault());
   }
 
   /**
@@ -90,15 +86,12 @@ public class ExceptionUtil {
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
-   * @param needsDetails Sets if detail message is needed. 
-   *     This is true with log output or batch processing. 
-   *     False when you show the message on screen.
    * @return a list of messages
    */
   @Nonnull
   public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale, boolean needsDetails) {
-    return getExceptionMessage(throwable, locale, needsDetails, true);
+      @Nullable Locale locale) {
+    return getExceptionMessage(throwable, locale, true);
   }
 
   /**
@@ -115,19 +108,15 @@ public class ExceptionUtil {
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
-   * @param needsDetails Sets if detail message is needed. 
-   *     This is true with log output or batch processing. 
-   *     False when you show the message on screen.
    * @param needsItemName true when itemName needed for ValidationAppException messages.
    *     
    * @return a list of messages
    */
   @Nonnull
   public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale, boolean needsDetails, boolean needsItemName) {
+      @Nullable Locale locale, boolean needsItemName) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
-    ObjectsUtil.requireNonNull(needsDetails);
 
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
@@ -200,7 +189,6 @@ public class ExceptionUtil {
         } catch (MissingResourceException mre) {
           message = ex.getMessage();
         }
-        rtnList.add((needsDetails) ? message + "\n" + ex.toString() : message);
 
       } else {
         rtnList.add(th.getMessage());
@@ -370,7 +358,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean needsItemName) {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
-        .map(ex -> getExceptionMessage(ex, locale, false, needsItemName))
+        .map(ex -> getExceptionMessage(ex, locale, needsItemName))
         .forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
