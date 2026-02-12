@@ -99,7 +99,7 @@ public class ErrorLogger extends EclibLogger {
     ObjectsUtil.requireNonNull(throwable);
 
     String msg = (throwable.getMessage() == null) ? ""
-        : " - " + ExceptionUtil.getExceptionMessage(throwable, Locale.ENGLISH).toString()
+        : " - " + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString()
             .replace("\n", " ");
 
     // additional info output when the exception is ValidationAppException
