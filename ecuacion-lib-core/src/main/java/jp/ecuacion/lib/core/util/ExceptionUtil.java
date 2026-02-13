@@ -68,8 +68,8 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable) {
-    return getExceptionMessage(throwable, Locale.getDefault());
+  public static List<String> getMessageList(@RequireNonnull Throwable throwable) {
+    return getMessageList(throwable, Locale.getDefault());
   }
 
   /**
@@ -89,9 +89,9 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
       @Nullable Locale locale) {
-    return getExceptionMessage(throwable, locale, true);
+    return getMessageList(throwable, locale, true);
   }
 
   /**
@@ -113,7 +113,7 @@ public class ExceptionUtil {
    * @return a list of messages
    */
   @Nonnull
-  public static List<String> getExceptionMessage(@RequireNonnull Throwable throwable,
+  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
       @Nullable Locale locale, boolean needsItemName) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
@@ -334,7 +334,7 @@ public class ExceptionUtil {
       @Nullable Locale locale) {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
-        .map(ex -> getExceptionMessage(ex, locale, false)).forEach(list -> rtnList.addAll(list));
+        .map(ex -> getMessageList(ex, locale, false)).forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
 
@@ -358,7 +358,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean needsItemName) {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
-        .map(ex -> getExceptionMessage(ex, locale, needsItemName))
+        .map(ex -> getMessageList(ex, locale, needsItemName))
         .forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
@@ -454,7 +454,7 @@ public class ExceptionUtil {
     // Call MultipleAppException#getMessage() explicitly
     // since getExceptionMessage skips the exception.
     String errMsg = (th instanceof MultipleAppException) ? ((MultipleAppException) th).getMessage()
-        : getExceptionMessage(th, locale, true).toString();
+        : getMessageList(th, locale, true).toString();
     sb.append(th.getClass().getCanonicalName() + " " + errMsg + RT);
 
     // Output stackTrace string
