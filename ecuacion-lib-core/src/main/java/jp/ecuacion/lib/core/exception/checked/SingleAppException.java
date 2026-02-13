@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 
 /** 
- * Is an abstract class describing an occurence of a single validation error.
+ * Is an abstract class describing an occurrence of a single validation error.
  */
 public abstract class SingleAppException extends AppException {
   
@@ -41,9 +41,14 @@ public abstract class SingleAppException extends AppException {
   }
   
   /**
-   * Provides the location of an item at which this error occured.
+   * Provides the location of an item at which this error occurred.
    * 
-   * @return an array of fpropertyPath
+   * <p>Its data-type is an array 
+   *     because although standard jakarta validation (like {@code @NotEmpty} has only one property path,
+   *     but BizLogicAppException which describes an error of some relation between multiple items
+   *     may have multiple property paths.</p>
+   * 
+   * @return an array of propertyPath
    */
   @Nonnull
   public abstract String[] getItemPropertyPaths();

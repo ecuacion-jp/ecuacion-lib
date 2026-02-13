@@ -21,8 +21,8 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 
 /** 
- * Is thorwn just like {@code RuntimeException} whose message contains "ecuacion" 
- * so that you can see the Ezxception is thrown from the library.
+ * Is thrown just like {@code RuntimeException} whose message contains "ecuacion" 
+ * so that you can see the Exception is thrown from the library.
  */
 public class EclibRuntimeException extends RuntimeException {
 
@@ -31,7 +31,7 @@ public class EclibRuntimeException extends RuntimeException {
   /**
    * Constructs a new instance with {@code massage}.
    * 
-   * @param message message. May be null, which meaans it has no messages.
+   * @param message message. May be null, which means it has no messages.
    */
   public EclibRuntimeException(@RequireNonnull String message) {
     super(message);

@@ -70,7 +70,7 @@ public class EclibItem {
    * Constructs a new instance with {@code itemPropertyPath}.
    * 
    * <p>You cannot set recordPropertyPath here.
-   *     Setting it caauses a duplication of rootRecordName and it cannot be found.</p>
+   *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
    * 
    * @param itemPropertyPath itemPropertyPath
    */
