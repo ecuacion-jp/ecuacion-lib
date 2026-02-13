@@ -158,7 +158,7 @@ public class DateTimeApiUtil {
   public static OffsetDateTime getOffsetDateTime(@RequireNonnull String dateTimeString) {
     FormatHolder obj = getLocalDateTimePartFormat(dateTimeString);
 
-    // 後ろの時差表現を判別
+    // Determine the offset expression at the latter part of the format.
     if (dateTimeString.matches("^" + obj.regStr + REG_OF_DIFF + ".*")) {
       obj.appendStrings(REG_OF_DIFF, FM_OF_DIFF);
 
@@ -196,7 +196,7 @@ public class DateTimeApiUtil {
 
     FormatHolder obj = new FormatHolder();
 
-    // 日付部分を判別
+    // Determine the date part.
     if (dateTimeString.matches("^" + REG_OF_DATE_DASHES + ".*")) {
       obj.appendStrings(REG_OF_DATE_DASHES, FM_OF_DATE_DASHES);
 
@@ -208,7 +208,7 @@ public class DateTimeApiUtil {
           "Date format incorrect. (date time string: " + dateTimeString + ")");
     }
 
-    // 日付と時刻の間の文字列を判別
+    // Determine the string between the date paret and the time part.
     if (dateTimeString.matches("^" + obj.regStr + REG_OF_SEP1_T + ".*")) {
       obj.appendStrings(REG_OF_SEP1_T, FM_OF_SEP1_T);
 
@@ -220,7 +220,7 @@ public class DateTimeApiUtil {
           "Date format incorrect. (date time string: " + dateTimeString + ")");
     }
 
-    // 時刻を判別
+    // Determine the time part.
     if (dateTimeString.matches("^" + obj.regStr + REG_OF_TIME + ".*")) {
       obj.appendStrings(REG_OF_TIME, FM_OF_TIME);
 
@@ -233,9 +233,10 @@ public class DateTimeApiUtil {
   }
 
   static class FormatHolder {
-    /* timestamp文字列に一致する正規表現。チェックしながら文字列連結していく。 */
+    /* Is a regular expression of timestamp string. */
     public String regStr = "";
-    /* timestamp文字列に一致するDateTimeFortmatterの書式。チェックしながら文字列連結していく。 */
+    
+    /* Is a DateTimeFortmatter format of timestamp string. */
     public String fmStr = "";
 
     public void appendStrings(String regStrAppender, String fmStrAppender) {

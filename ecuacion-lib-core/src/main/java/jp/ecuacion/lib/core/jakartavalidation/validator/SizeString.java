@@ -29,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Checks if the size of a string is within designated min and maxx..
+ * Checks if the size of a string is within designated min and max.
  * 
  * @see LongStringValidator
  */

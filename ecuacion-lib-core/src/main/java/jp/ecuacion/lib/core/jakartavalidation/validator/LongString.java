@@ -29,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Checks if a string is convertable to {@code Long}.
+ * Checks if a string is convertible to {@code Long}.
  * 
  * @see LongStringValidator
  */

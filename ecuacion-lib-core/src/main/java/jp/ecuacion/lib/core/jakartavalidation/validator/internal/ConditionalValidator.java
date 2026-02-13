@@ -198,7 +198,7 @@ public abstract class ConditionalValidator extends ClassValidator {
   /**
    * Is called when {@code validatesWhenConditionNotSatisfied} is {@code true}.
    * 
-   * <p>It's supposed to overrided by child classes.
+   * <p>It's supposed to be overridden by child classes.
    *     This method is default method, that's why it always returns {@code true}.</p>
    * 
    * @param valueOfField valueOfField

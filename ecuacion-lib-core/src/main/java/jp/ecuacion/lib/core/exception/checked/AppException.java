@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 /** 
- * Is an abstact exception class describing an occurence of a validation error in ecuacion apps.
+ * Is an abstract exception class describing an occurrence of a validation error in ecuacion apps.
  * 
  * <p>Let us call a validation of data executed by an app an "app-validation". 
  *     {@code AppException} is created and thrown 
@@ -28,10 +28,11 @@ package jp.ecuacion.lib.core.exception.checked;
  * <li>input validation: the validation for each single input data, 
  *     like "not empty", "minimum value", ... </li>
  * <li>business logic validation: the validation from business requirements, 
- *     like "selective not empty", "the input value must be one of values in db", ...</li>
+ *     like "selective not empty", "the input value must be one of values 
+ *     in some column of some table in the database ", ...</li>
  * </ol>
  * 
- * <p>{@code BeanValidationAppException} covers the former, 
+ * <p>{@code ValidationAppException} covers the former, 
  *     and {@code BizLogicAppException} the latter. <br>
  *     Both of them are the child of {@code SingleAppException}.</p>
  */

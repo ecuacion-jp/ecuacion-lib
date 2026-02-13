@@ -23,7 +23,7 @@ public final class MailUtilEmailServer {
   private boolean needsAuthentication;
   private boolean checksCertificate;
 
-  /** 必須項目のみのコンストラクタ。 */
+  /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
       boolean needsAuthentication, boolean checksCertificate) {
     this.smtpServer = smtpServer;
@@ -33,7 +33,7 @@ public final class MailUtilEmailServer {
     this.checksCertificate = checksCertificate;
   }
 
-  /** 全項目のコンストラクタ。 */
+  /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
       boolean needsAuthentication, boolean checksCertificate, String bounceMailAddress) {
     this.smtpServer = smtpServer;

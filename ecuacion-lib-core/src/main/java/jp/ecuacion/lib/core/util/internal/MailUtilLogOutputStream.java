@@ -59,7 +59,7 @@ public class MailUtilLogOutputStream extends FilterOutputStream {
   }
   
   private void write(String string) {
-    // log出力時、改行が2行入り一行空行ができてしまうので改行を1つ除く
+    // Remove one newline because one empty line created by two newlines on log output.
     if (string.endsWith("\n")) {
       string = string.substring(0, string.length() - 1);
     }

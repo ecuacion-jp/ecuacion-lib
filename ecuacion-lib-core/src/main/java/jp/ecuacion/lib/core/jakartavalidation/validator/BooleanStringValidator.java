@@ -37,11 +37,11 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
   public void initialize(BooleanString constraintAnnotation) {}
 
   /**
-   * Checks if a string is convertable to {@code Boolean}.
+   * Checks if a string is convertible to {@code Boolean}.
    * 
    * <p>Valid strings are as follows. <br>
    * (case-insensitive, the specification follows to 
-   * "apache-commons-lang:BooleanUtils.toBoolean(String str)", but "○" and "×" are added.))</p>
+   * "apache-commons-lang:BooleanUtils.toBoolean(String)", but "○" and "×" are added.))</p>
    * 
    * <ul>
    * <li>treated as {@code true} : 
