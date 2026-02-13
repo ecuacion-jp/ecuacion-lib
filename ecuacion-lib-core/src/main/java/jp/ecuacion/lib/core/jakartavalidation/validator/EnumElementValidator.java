@@ -54,13 +54,13 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
     }
 
     try {
-      // 取得したクラスがenumかを確認
+      // Check if designated class is an enum class.
       if (!enumClass.isEnum()) {
         throw new RuntimeException(
             "A class is found. An enum is supposed to be found: " + enumClass.getCanonicalName());
       }
 
-      // 取得したenumがhasEnumFromNameメソッドを持つか確認
+      // Check if designated enum class has hasEnumFromName method.
       Object[] objs = enumClass.getEnumConstants();
       for (Object obj : objs) {
         if (obj.toString().equals(value)) {

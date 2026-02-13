@@ -143,7 +143,9 @@ public class FileUtil {
   }
 
   /*
-   * パス文字列のうち、パスの一番左側の区切り位置を返す。スラッシュ(/)にもバックスラッシュ(\)にも対応.<br> 区切り位置が存在しない場合は-1を返す
+   * Returns the leftmost separator position of the path in the path string. 
+   * Supports both slash (/) and backslash (\).<br>
+   * Returns -1 if there is no separator position.
    */
   private static int getFirstPathSeparatorIndex(@RequireNonnull String path) {
     ObjectsUtil.requireNonNull(path);
@@ -152,19 +154,19 @@ public class FileUtil {
     int firstBackSlashIndex = path.indexOf("\\");
 
     if (firstSlashIndex == -1 && firstBackSlashIndex == -1) {
-      // 区切り位置が存在しない場合は-1を返す
+      // Return -1 when separator stirng not found.
       return -1;
 
     } else if (firstSlashIndex == -1) {
-      // firstSlashIndexのみが-1の場合
+      // the case that only firstSlashIndex is -1
       return firstBackSlashIndex;
 
     } else if (firstBackSlashIndex == -1) {
-      // firstBackSlashIndexのみが-1の場合
+      // the case that only firstBackSlashIndex is -1
       return firstSlashIndex;
 
     } else {
-      // 上記以外のパターンは、「/」も「\」も存在する状態。この場合は、値が小さい方を返す
+      // Reaching here means both "/" and "\" exists. Return smaller value in this case.
       return (firstSlashIndex < firstBackSlashIndex) ? firstSlashIndex : firstBackSlashIndex;
     }
   }
@@ -183,12 +185,16 @@ public class FileUtil {
     ObjectsUtil.requireNonNull(path);
 
     String rtnStr = null;
-    // 併せて、区切り文字を「/」に統一する
+    // At the same time, unify the delimiter to "/".
     rtnStr = path.replaceAll("\\\\", "/");
-    // パスを文字列接続していく中で、パスの区切り文字（/、\）が連続してしまうことがあるのでそれをきれいにする。
+    // When connecting paths into strings, 
+    // there may be consecutive path separators (/, \), so we need to clean them up.
     rtnStr = rtnStr.replaceAll("//", "/");
 
-    // ftp系の処理で、パスが「/path/to/dir/.」のように、ドットで表現されることがある。「/./」がある場合か、文字列の最後が「/.」の場合は「/.」を取り除く処理を追加
+    // In ftp-related processing, paths are sometimes expressed with dots, 
+    // such as "/path/to/dir/.". 
+    // If "/./" is present or if the string ends with "/.", 
+    // a process has been added to remove the "/.".
     if (rtnStr.endsWith("/.")) {
       rtnStr = rtnStr.substring(0, rtnStr.length() - 2);
     }
@@ -198,7 +204,7 @@ public class FileUtil {
           rtnStr.substring(0, rtnStr.indexOf("/./")) + rtnStr.substring(rtnStr.indexOf("/./") + 2);
     }
 
-    // 最後に"/"がつく場合は取り除く
+    // If there is a trailing "/", remove it
     if (rtnStr.endsWith("/")) {
       rtnStr = rtnStr.substring(0, rtnStr.length() - 1);
     }
@@ -225,21 +231,22 @@ public class FileUtil {
       throws BizLogicAppException {
 
     final List<String> fullPathList = new ArrayList<>();
-    // パス文字列をきれいにしておく
+    // Clean the path string.
     path = cleanPathStrWithSlash(path);
-    // pathの最後がパス区切り文字だとこの後の処理で煩雑になるので、先に取り除いておく
+    // If the path ends with a path separator, 
+    // it will make the subsequent processing complicated, so remove it first.
     if (path.endsWith("/") || path.endsWith("\\")) {
       path = path.substring(0, path.length() - 1);
     }
 
-    // 相対パスで渡された場合に絶対パスに変更
+    // Change relative paths to absolute paths
     if (isRelativePath(path)) {
       path = changeRelPathToFullPath(path);
     }
 
-    // パスをきれいにしておく
+    // Clean the path string.
     path = cleanPathStrWithSlash(path);
-    // ワイルドカードを展開
+    // Expand the wildcard.
     getPathListFromPathWithWildcardRecursively(path, "", fullPathList);
 
     return fullPathList;
@@ -254,19 +261,20 @@ public class FileUtil {
    */
   @Nonnull
   public static boolean isRelativePath(@RequireNonnull String path) throws BizLogicAppException {
-    // pathに値が設定されていない場合はエラー
+    // If no value is set for path, an error occurs.
     if (path == null || path.equals("")) {
       throw new BizLogicAppException("MSG_ERR_PATH_IS_NULL");
     }
 
     if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")) {
-      // windowsの場合は、「c:\...」のように、2文字目に「:」が来る場合はフルパス
+      // In Windows, if the second character is ":", such as "c:\...", it is a full path.
       if (path.length() >= 2 && path.substring(1, 2).equals(":")) {
         return false;
       }
 
     } else {
-      // とりあえずlinux系を想定するしかないのだが、一文字目が「/」であればフルパス
+      // For the time being, we have no choice but to assume that it is a Linux system, 
+      // but if the first character is "/", then the full path
       if (path.length() >= 1 && path.substring(0, 1).equals("/")) {
         return false;
       }
@@ -279,7 +287,7 @@ public class FileUtil {
   private static String changeRelPathToFullPath(@RequireNonnull String path) {
     String curPath = new File(".").getAbsolutePath();
     String fullPath = concatFilePaths(curPath, path);
-    // 変に「./」、「.\」が残らないように置き換えしておく
+    // Replace them so that no strange "./" or ".\" remains.
     fullPath = fullPath.replaceAll("\\.\\\\", "").replaceAll("\\./", "");
     return fullPath;
   }
@@ -294,7 +302,8 @@ public class FileUtil {
 
     if (parentPath.equals("")) {
       String myPathWithWildcard = fullPath.substring(0, getFirstPathSeparatorIndex(fullPath) + 1);
-      // 最初のパス（「C:\」ないし「/」）に限っては、myPathWithWildcardの中にワイルドカードが含まれていることはありえないのでもしあればエラーとする
+      // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard 
+      // to contain a wildcard, so if it does, an error will occur.
       if (myPathWithWildcard.contains("*") || myPathWithWildcard.contains("?")) {
         throw new BizLogicAppException("MSG_ERR_1ST_LEVEL_CANNOT_HAVE_WILDCARD", fullPath);
       }
@@ -302,40 +311,51 @@ public class FileUtil {
       getPathListFromPathWithWildcardRecursively(fullPath, myPathWithWildcard, rtnFullPathList);
 
     } else {
-      // ### parentPathの一つ下のパスを取得し、それとparentPath配下のファイル・フォルダ一覧を取得したものとmatchをかけて、
-      // ### 対象のリストがあれば、一段ディレクトリが下がった状態で本メソッドを再帰呼び出し、というのがここでやりたい全体感。
-
-      // まず、fullPathからparentPathの文字列を取り除いたもの（A)を取得
-      // 厳密には、途中にワイルドカードが含まれるので、同じ文字数分を除去しても合わなくなってしまう。区切り文字の数を数えて合わせる必要あり
+      // ### Below is what I want as a whole.
+      // ### Get the path one level below parentPath, match it with the list of files 
+      // ### and folders under parentPath, and if the target list is found, 
+      // ### recursively call this method with the directory one level lower.
+      
+      // First, get the fullPath (A) by removing the parentPath string.
+      // Strictly speaking, because there is a wildcard in the middle, 
+      // even if you remove the same number of characters, 
+      // it will not match. You need to count the number of delimiters to match.
       int numOfSeparatorOfParentPath = StringUtils.countMatches(parentPath, "/");
       String fullPathMinusParentPath = fullPath
           .substring(StringUtils.ordinalIndexOf(fullPath, "/", numOfSeparatorOfParentPath) + 1);
-      // Aにパス区切り文字が入っているかをチェック
+      // Check if A contains a path separator
       int ind = getFirstPathSeparatorIndex(fullPathMinusParentPath);
-      // 区切り文字があるかないかで、myFileOrDirnameWithWildcardに入れる文字列を場合分け。
+      // Depending on whether there is a delimiter or not, 
+      // the string to put in myFileOrDirnameWithWildcard is classified into cases.
       if (ind >= 0) {
-        // 区切り文字があれば、myFileOrDirnameに区切り文字までの文字列を入れる
+        // If there is a delimiter, put the string up to the delimiter into myFileOrDirname
         myFileOrDirnameWithWildcard = fullPathMinusParentPath.substring(0, ind + 1);
       } else {
-        // 区切り文字がない場合は最後の文字までを設定
+        // If there is no delimiter, it will be set to the last character.
         myFileOrDirnameWithWildcard = fullPathMinusParentPath;
-        // ディレクトリ指定の場合で、区切り文字が最後の文字に来るパターンもありうるが、それはgetPathListFromPathWithWildcardメソッドの中で
-        // 取り除いているのでありえない。
-        // よって、このelse側に来たということは、fullPath分のディレクトリ階層の深さまで下がってきたことになるため、
-        // hasReachedFullPathDirDepthをtrueにする
+        
+        // In the case of directory specification, there may be a pattern 
+        // where the delimiter character is the last character, 
+        // but this is not possible because it is removed 
+        // in the getPathListFromPathWithWildcard method.
+        // Therefore, if we reach this else side, 
+        // it means that we have descended to the fullPath directory depth, 
+        // so we set hasReachedFullPathDirDepth to true.
         hasReachedFullPathDirDepth = true;
       }
 
-      // myFileOrDirnameにワイルドカードを含んでいる場合は、parentPath配下のファイル・ディレクトリの一覧と比較をする必要あり
+      // If myFileOrDirname contains a wildcard, 
+      // it must be compared with the list of files and directories under parentPath.
       if (myFileOrDirnameWithWildcard.contains("?") || myFileOrDirnameWithWildcard.contains("*")) {
-        // ファイル名に含まれる「.」が正規表現のものと勘違いされてしまうので、先に「\\.」に変更しておく
+        // The "." in the file name will be mistaken for a regular expression, 
+        // so change it to "\\." first.
         String myFileOrDirnameWithRegEx = myFileOrDirnameWithWildcard.replaceAll("\\.", "\\\\.");
-        // ワイルドカードから正規表現に置き換え
+        // Replace wildcards with regular expressions
         myFileOrDirnameWithRegEx =
             myFileOrDirnameWithRegEx.replaceAll("\\?", ".").replaceAll("\\*", ".*");
         Pattern pattern1 = Pattern.compile(parentPath + myFileOrDirnameWithRegEx);
 
-        // parentPath配下のディレクトリ、ファイルでループ
+        // Loop through directories and files under parentPath
         String[] arr = new File(parentPath).list();
         if (arr == null) {
           throw new RuntimeException("arr cannot be null.");
@@ -344,10 +364,11 @@ public class FileUtil {
         for (String path : arr) {
           String myFullPath = parentPath + path;
 
-          // 比較元がcleanPathStringをしてあるので、比較できるようにこっちもしておく
+          // Since the source of comparison is adopted cleanPathString, 
+          // so we will also do this so that we can compare it.
           myFullPath = cleanPathStrWithSlash(myFullPath);
 
-          // 一致する場合は再帰呼び出し
+          // If it matches, recursively call
           Matcher matcher = pattern1.matcher(myFullPath);
           if (matcher.matches()) {
             if (hasReachedFullPathDirDepth) {
@@ -381,7 +402,7 @@ public class FileUtil {
   public static String getParentDirPath(@RequireNonnull String origPath) {
     ObjectsUtil.requireNonNull(origPath);
 
-    // 使用されている区切りを"/"に統一
+    // The separator used is now unified to "/".
     String path = cleanPathStrWithSlash(origPath);
     return path.substring(0, path.lastIndexOf("/"));
   }
@@ -398,7 +419,8 @@ public class FileUtil {
   public static String getFileNameFromFilePath(@RequireNonnull String path) {
     ObjectsUtil.requireNonNull(path);
 
-    // getParentDirPathの最後にパス区切り文字（"/"または"\"）があってもなくても影響が出ないように、頭のパス区切り文字を消しておく
+    // To avoid any impact whether or not there is a path separator ("/" or "\") 
+    // at the end of getParentDirPath, remove the leading path separator.
     return path.substring(getParentDirPath(path).length()).replace("\\", "").replace("/", "");
   }
 
@@ -413,7 +435,8 @@ public class FileUtil {
     ObjectsUtil.requireNonNull(fileSize);
 
     double d = Double.valueOf(fileSize);
-    // 小数第二位で四捨五入したいので、一旦一桁少ない桁で割り算し、四捨五入後10で割る
+    // Since we want to round to the second decimal place, 
+    // we first divide by the digit that is one place less, then round it up and divide by 10.
     System.out.println(Math.round(d / 100000.0));
     return Double.valueOf(Math.round(d / 100000.0) / 10.0).toString();
   }
@@ -457,13 +480,14 @@ public class FileUtil {
     FileChannel channel =
         FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
-    // ファイルロックを試行。例外発生ではなくlockedObjectがnullの場合は、ロック取得に失敗したことになる場合もあるらしい
+    // Attempts to lock a file. If lockedObject is null instead of throwing an exception, 
+    // it may mean that the lock acquisition failed.
     lockedObject = channel.tryLock();
     if (lockedObject == null) {
       throw new OverlappingFileLockException();
     }
 
-    // 画面表示時のtimestampとの差異比較
+    // Comparison of timestamps displayed on the screen
     if (version != null) {
       String fileTimestamp = getLockFileVersion(lockFile);
       if (!version.equals(fileTimestamp)) {
@@ -486,21 +510,24 @@ public class FileUtil {
     ObjectsUtil.requireNonNull(path);
 
     File file = new File(path);
-    // FileLockによる実装がうまくいかない。ロックがかかっている状態でFileOutputStreamを取得しようとすると、
-    // その時点でIOExceptionが発生してしまう。（なんでだろう・・）
-    // それも考慮して実装。ファイルが存在する・かつ読み取り専用ファイルでないのにfosを取得できない場合はロックエラーとみなす
+    // The implementation using FileLock doesn't work well.
+    // If you try to get a FileOutputStream while it's locked, an IOException occurs.
+    // (I wonder why...)
+    // This has been taken into consideration when implementing the system.
+    // If the file exists and is not read-only, but fos cannot be obtained,
+    // it is considered a lock error.
 
-    // ファイルが存在しない場合はエラー
+    // Error if file does not exist
     if (!file.exists()) {
-      throw new FileNotFoundException("ファイルが存在しません。");
+      throw new FileNotFoundException("File not found.");
     }
 
-    // ファイルが読み取り専用の場合はロックがかけられないので常にfalseを返す
+    // If the file is read-only, it cannot be locked and will always return false.
     if (!file.canWrite()) {
       return false;
     }
 
-    // ファイルでなくフォルダの場合はfalseを返す（それでいいのかどうかよくわからないが・・・）
+    // If it is a folder and not a file, it returns false (I'm not sure if that's okay...)
     if (file.isDirectory()) {
       return false;
     }
@@ -509,17 +536,17 @@ public class FileUtil {
     try {
       fos = new FileOutputStream(file, true);
     } catch (Exception e) {
-      // この場合はロックが取得されているとみなす
+      // In this case, the lock is considered to be acquired.
       return true;
     }
 
-    // 以下、教科書的なロック状態チェックロジック
+    // Below is the textbook lock status check logic.
     FileChannel fc = null;
     FileLock lock = null;
     try {
       fc = fos.getChannel();
       lock = fc.tryLock();
-      // lock == nullの場合は、既にロックがかかっている状態
+      // If lock == null, the lock is already activated.
       if (lock == null) {
         return true;
 
@@ -561,7 +588,7 @@ public class FileUtil {
     FileLock lockedObject = channelAndLock.getRight();
 
     try {
-      // 特に使用はしないのだが、lockFileを更新する目的でtimestampの文字列を書き込んでおく。
+      // Write timestamp string to update lockFile (which string is not used though).
       byte[] bytes = LocalDateTime.now().toString().getBytes();
 
       ByteBuffer src = ByteBuffer.allocate(bytes.length);
@@ -589,10 +616,10 @@ public class FileUtil {
    */
   @Nonnull
   public static String getLockFileVersion(@RequireNonnull File lockFile) throws IOException {
-    // ディレクトリが存在しなければ作成
+    // Create a directory if not exists.
     lockFile.getParentFile().mkdirs();
 
-    // ファイルが存在しなければ作成
+    // Create a file if not exists.
     if (!lockFile.exists()) {
       lockFile.createNewFile();
     }

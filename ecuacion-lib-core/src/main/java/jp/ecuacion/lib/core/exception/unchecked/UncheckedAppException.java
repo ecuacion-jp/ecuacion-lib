@@ -21,10 +21,10 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 
 /**
  * Wraps {@code AppException} and enables to throw AppException
- *  in overrided and no "throws AppException" signature method.
+ *  in overridden and no "throws AppException" signature method.
  *  
- *  <p>After throwed, 
- *  catched and procesed in library is exactly the same as {@code SingleAppException}.</p>
+ *  <p>After thrown, 
+ *  caught and processed in library is exactly the same as {@code SingleAppException}.</p>
  */
 public class UncheckedAppException extends RuntimeException {
   private static final long serialVersionUID = 1L;

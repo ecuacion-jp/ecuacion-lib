@@ -67,10 +67,10 @@ public enum PropertyFileUtilFileKindEnum {
    */
   STRINGS(new String[][] {new String[] {"strings"}}, false),
 
-  /** itemの名称を記述. */
+  /** item_names. */
   ITEM_NAMES(new String[][] {new String[] {"item_names"}}, false),
 
-  /** enumの名称を記述. */
+  /** enum_names. */
   ENUM_NAMES(new String[][] {new String[] {"enum_names"}}, false),
 
   /** ValidationMessags. */

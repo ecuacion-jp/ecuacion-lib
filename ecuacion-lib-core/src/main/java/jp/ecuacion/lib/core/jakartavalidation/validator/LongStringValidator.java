@@ -65,7 +65,7 @@ public class LongStringValidator implements ConstraintValidator<LongString, Stri
 
     Objects.requireNonNull(value);
 
-    // カンマが入っている場合は除去。カンマの位置の正当性までは見ない。
+    // Remove commas. Don't have to check whether the position of commas is right.
     value = value.replaceAll(",", "");
 
     try {

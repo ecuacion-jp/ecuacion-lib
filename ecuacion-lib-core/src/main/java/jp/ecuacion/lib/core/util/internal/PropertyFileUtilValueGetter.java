@@ -37,28 +37,19 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * ファイルから抽出したプロパティを保持するクラス。
+ * Stores properties extracted from .properties files.
  * 
  * <ul>
- * <li>ひとつのMultiLangPropStoreインスタンスで、PropFileKindEnumのひとつの項目（例えばmessages）に対する複数locale分のデータを保持する<br>
- * （複数モジュールのファイルの情報かつそれらに対するlocale別の情報まで保持）</li>
- * <li>内部に持つMap（propMap）は、以下の型（Map&lt;Locale, Map&lt;String, String&gt;&gt;）でできており、
- * localeをkeyとして指定すると、その言語に対応したMap&lt;String, String&gt;が取得される。<br>
- * そのMap&lt;String, String&gt;には、個別メッセージのkeyとvalueのペアが格納される。</li>
- * <li>既に同一のキーが設定されている場合はエラーとする。<br>
- * これはつまり、例えばapplication_fw_cmnとapplicationで同じキーを書いたらエラーとする仕様。<br>
- * エラーではなく既存値をoverrideする仕様にするか迷ったが、overrideするくらいならそもそも定義すべきでないと思われるし、
- * 想定しないキーの重複が発生したことにより不正な挙動になるのも避けたいためエラーを選択。もし必要なら変更する。<br>
- * </li>
+ * <li>One instance stores one kind (like "messages") with multiple locales.<br>
+ *     It also stores messages files in multiple modules.</li>
  * </ul>
  */
 public class PropertyFileUtilValueGetter {
 
   private boolean throwsExceptionWhenKeyDoesNotExist;
-  /*
-   * kindの中にfilePrefixを持っているので冗長な持ち方なのだが、
-   * テストでPropertyFileUtilPropFileKindEnumにないfilePrefixを使用したい場合があるため別で持つ。
-   * constructor以降ではkind.getPrefix()は使用しない。（使用したらテストでエラーになるのでまぁ検知可能）
+
+  /**
+   * Is used for test to use filePrefix which is not included in PropertyFileUtilPropFileKindEnum.
    */
   private String[][] filePrefixes;
 
@@ -125,10 +116,9 @@ public class PropertyFileUtilValueGetter {
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
 
-  /*
-   * テスト用。同じpackageからのみアクセス可。<br>
-   * PropertyFileUtilとしては、PropFileKindEnumの値に対応するprefixにしか対応しないのだが、MultiLangPropStoreとしては
-   * 特に制限なく受け入れられる仕様とする。でないとテストがやりにくい・・・
+  /**
+   * Is used for test. It can be accessed from the same package.
+   * It is used to accept non-PropFileKindEnum file prefix.
    */
   PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
     this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
@@ -136,9 +126,7 @@ public class PropertyFileUtilValueGetter {
   }
 
   /**
-   * postfix（messages_ などファイル種別を示す文字列の後ろにつける、プロジェクトごとのIDを示す文字列）の一覧を取得。
-   * 
-   * <p>テストを考慮し同一パッケージからのアクセスは可とする。</p>
+   * Obtains a list of postfixes.
    * 
    * @return postfix list
    */
@@ -164,9 +152,7 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
-   * 指定のlocaleに対し、postfix 分のbundleを取得しそこから値を取得。
-   * 
-   * <p>キーの重複定義チェックもここで行う。</p>
+   * Obtains value from key.
    * 
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
@@ -217,8 +203,6 @@ public class PropertyFileUtilValueGetter {
     }
 
     // The program reaches here means key not exist in properties files.
-    // メッセージが取得できないときにまたメッセージ取得を必要とする処理（＝AppCheckRuntimeExceptionの生成）をすると無限ループになる場合があるので、
-    // 失敗したときはRuntimeExceptionとしておく
     throw new NoKeyInPropertiesFileException(key);
   }
 
@@ -226,7 +210,7 @@ public class PropertyFileUtilValueGetter {
    * Obtains value from key and locale by reading multiple properties files 
    *     with prefixes and postfixes of the filename.
    * 
-   * <p>キーの重複定義チェックもここで行う。</p>
+   * <p>The duplicate check of the key is also executed here.</p>
    * 
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
@@ -315,8 +299,8 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
-  * プロパティファイルのシリーズごとに、キーが存在するかどうかを確認する。
-  */
+   * Checks if the properties file has the key.
+   */
   public boolean hasProp(String key) {
     Objects.requireNonNull(key);
 
@@ -330,14 +314,14 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
-   * プロパティファイルのシリーズごとに、キーに対する値を取得する。 application.propertiesなどlocale別ファイルが存在しないものはこちらを使用。
+   * Obtains value from a key. 
    */
   public String getProp(String key, Map<String, Object> elParameterMap) {
     return getProp(null, key, elParameterMap);
   }
 
   /*
-   * プロパティファイルのシリーズごとに、キーに対する値を取得する。
+   * Obtains value from a key. 
    * 
    * @param locale locale, may be {@code null} 
    *     which means no {@code Locale} specified.
@@ -348,7 +332,7 @@ public class PropertyFileUtilValueGetter {
       Map<String, Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
-    // msgIdが空だったらエラー
+    // Throw an exception when msgId is empty.
     if (StringUtils.isEmpty(key)) {
       throw new EclibRuntimeException("Message ID is blank.");
     }

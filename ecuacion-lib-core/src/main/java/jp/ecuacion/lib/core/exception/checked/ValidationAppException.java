@@ -54,7 +54,7 @@ public class ValidationAppException extends SingleAppException {
    * Constructs a new instance with {@code BeanValidationErrorInfoBean}.
    * 
    * <p>This makes possible to treat exceptions
-   *     wchich are not created from {@code ConstraintViolation}
+   *     which are not created from {@code ConstraintViolation}
    *     as {@code BeanValidationAppException}.</p>
    * 
    * @param bean BeanValidationErrorInfoBean

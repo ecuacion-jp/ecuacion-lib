@@ -57,7 +57,7 @@ public class MailUtilEmail {
 
     props.setProperty("mail.debug", Boolean.valueOf(settingInfo.getOutputsDebugLog()).toString());
 
-    // タイムアウト設定
+    // Set timeout.
     props.setProperty("mail.smtp.connectiontimeout", "5000");
     props.setProperty("mail.smtp.timeout", "5000");
 
@@ -69,7 +69,7 @@ public class MailUtilEmail {
       if (serverInfo.isChecksCertificate()) {
         props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
       } else {
-        // 証明書のチェックをしないSSLSocketFactoryを設定
+        // Set SSLSocketFactory with no certificate checks.
         props.setProperty("mail.smtp.socketFactory.class",
             "jp.ecuacion.framework.common.common.util.AuthUtilDummySSLSocketFactory");
       }
@@ -79,7 +79,7 @@ public class MailUtilEmail {
   }
 
   public String getDebugLogMessage() {
-    // detailLogMapに値がない場合は終了
+    // Finish when detailLogMap has no values.
     if (detailLogMap == null || detailLogMap.size() == 0) {
       return ". (parameter none)";
     }
