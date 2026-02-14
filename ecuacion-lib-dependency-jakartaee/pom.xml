@@ -36,7 +36,7 @@
 		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
 		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
 		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
-		<com.fasterxml.jackson.core.jackson-databind.version>2.21.0</com.fasterxml.jackson.core.jackson-databind.version>
+		<com.fasterxml.jackson.core.jackson-databind.version>2.20.2</com.fasterxml.jackson.core.jackson-databind.version>
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
 	</properties>
