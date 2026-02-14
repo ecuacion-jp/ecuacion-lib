@@ -15,9 +15,6 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.string;
-import static jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern.valueOfPropertyPath;
-
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import java.util.ArrayList;
@@ -32,12 +29,9 @@ import jp.ecuacion.lib.core.item.EclibItem;
 import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
-import jp.ecuacion.lib.core.jakartavalidation.validator.enums.ConditionValuePattern;
-import jp.ecuacion.lib.core.jakartavalidation.validator.internal.ConditionalValidator;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
-import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -70,21 +64,18 @@ public class ConstraintViolationBean extends ReflectionUtil {
   private Map<String, Object> paramMap = new HashMap<>();
   private Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
 
-  private static final String CONDITIONAL_VALIDATOR_PREFIX =
-      "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
-
   private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
       String originalMessage, String messageTemplate, String rootRecordNameForForm,
       List<FieldInfoBean> beanList) {
     this.rootBean = rootBean;
+    this.leafBean = leafBean;
     this.validatorClass = validatorClass;
-    this.rootRecordNameForForm = rootRecordNameForForm;
     this.originalMessage = originalMessage;
     this.messageTemplate = messageTemplate;
-    this.leafBean = leafBean;
+    this.rootRecordNameForForm = rootRecordNameForForm;
     this.fieldInfoBeanList = beanList;
 
-    getItemDependentValues(beanList);
+    getItemDependentValues(beanList, rootBean, leafBean, rootRecordNameForForm);
   }
 
   private void putArgsToParamMap(Object invalidValue) {
@@ -109,7 +100,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
     beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
 
     putArgsToFields(rootBean,
-        getLeafBeanFromPropertyPath(rootRecordNameForForm + "." + itemPropertyPath, rootBean),
+        getDestinationBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
         validatorClass, message, validatorClass + ".message", rootRecordNameForForm, beanList);
 
     putArgsToParamMap("(empty)");
@@ -181,7 +172,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
     // invalidValue
     if (!beanList.get(0).showsValue) {
-      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
+      String key = "jp.ecuacion.lib.validation.constraints.displayStringForHiddenValue";
       messageParameterSet.add(new LocalizedMessageParameter("invalidValue",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
       // argMap.put(, PropertyFileUtil.getMessage(locale, key));
@@ -198,101 +189,25 @@ public class ConstraintViolationBean extends ReflectionUtil {
     // Comparison validators
     if (paramMap.containsKey("basisPropertyPath")) {
       String bpp = (String) paramMap.get("basisPropertyPath");
-      String itemNameKey = getItemDependentValues(bpp, leafBean.getClass()).itemNameKey;
+      String itemNameKey = getItemDependentValues(bpp, leafBean.getClass(), rootBean,
+          rootRecordNameForForm).itemNameKey;
       messageParameterSet.add(new LocalizedMessageParameter("basisPropertyPathItemName",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
           itemNameKey));
     }
 
-    // In the case of ConditionalXxx validator
-    if (getValidatorClass().startsWith(CONDITIONAL_VALIDATOR_PREFIX)) {
-      final String annotationPrefix =
-          "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
-
-      // conditionFieldItemNameKey
-      String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
-          : cv.getPropertyPath().toString() + ".")
-          + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
-      FieldInfoBean bean = getItemDependentValues(conditionPropertyPath,
-          getLeafBeanFromPropertyPath(conditionPropertyPath, rootBean).getClass());
-      messageParameterSet
-          .add(new LocalizedMessageParameter(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-              new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
-              bean.itemNameKey));
-
-      // displayStringOfConditionValue
-      ConditionValuePattern conditionPtn =
-          (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
-      String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
-          PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
-          PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
-      Arg displayStringOfConditionValueArg = Arg.string("");
-
-      if (conditionPtn == valueOfPropertyPath) {
-        Object obj = getValue(cv.getLeafBean(),
-            (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
-        String displayStringOfConditionValue = null;
-
-        if (obj instanceof Object[]) {
-          List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
-          displayStringOfConditionValue =
-              StringUtil.getCsvWithSpace((String[]) strList.toArray(new String[strList.size()]));
-
-        } else {
-          // String
-          displayStringOfConditionValue = String.valueOf(obj);
-        }
-
-        displayStringOfConditionValueArg = Arg.get(fileKinds, displayStringOfConditionValue);
-
-      } else if (conditionPtn == string) {
-        // conditionValue is used
-        String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
-        Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strs));
-        displayStringOfConditionValueArg = strs.length > 1
-            ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
-            : valueArg;
-      }
-
-      // when fieldHoldingConditionValueDisplayName is not blank,
-      // valuesOfConditionFieldToValidate is overrided by its value.
-      String displayStringPropertyPathOfConditionValuePropertyPath = (String) paramMap
-          .get(ConditionalValidator.DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH);
-      if (!displayStringPropertyPathOfConditionValuePropertyPath.equals("")) {
-        Object obj =
-            getValue(cv.getLeafBean(), displayStringPropertyPathOfConditionValuePropertyPath);
-
-        String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
-        displayStringOfConditionValueArg = Arg.get(fileKinds, StringUtil.getCsvWithSpace(strs));
-      }
-
-      String propKey =
-          annotationPrefix + ".messagePart." + paramMap.get(ConditionalValidator.CONDITION_PATTERN)
-              + "." + paramMap.get(ConditionalValidator.CONDITION_OPERATOR);
-      messageParameterSet
-          .add(new LocalizedMessageParameter(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
-              new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
-              displayStringOfConditionValueArg));
-
-      // validatesWhenConditionNotSatisfied
-      boolean bl = getValidatorClass().endsWith("ConditionalEmpty")
-          && (Boolean) paramMap.get("notEmptyWhenConditionNotSatisfied")
-          || getValidatorClass().endsWith("ConditionalNotEmpty")
-              && (Boolean) paramMap.get("emptyWhenConditionNotSatisfied");
-      String paramKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
-      if (bl) {
-        messageParameterSet.add(new LocalizedMessageParameter(paramKey,
-            new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES},
-            paramMap.get("annotation") + ".messagePart."
-                + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
-
-      } else {
-        paramMap.put(paramKey, "");
-      }
+    // Obtain and put additional parameters for its violation message to messageParameterSet.
+    String className = getValidatorClass() + "MessageParameterCreator";
+    if (classExists(className)) {
+      messageParameterSet.addAll(((ValidatorMessageParameterCreator) newInstance(className))
+          .create(cv, paramMap, rootRecordNameForForm));
     }
   }
 
-  private Object getLeafBeanFromPropertyPath(String propertyPath, Object rootBean) {
+  /**
+   * Returns leafBean from rootBean and propertyPath from rootBean.
+   */
+  public static Object getDestinationBean(Object rootBean, String propertyPath) {
     String leafBeanItemPropertyPath =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
             : null;
@@ -304,10 +219,12 @@ public class ConstraintViolationBean extends ReflectionUtil {
   /**
    * Gets item dependent values.
    */
-  private void getItemDependentValues(List<FieldInfoBean> beanList) {
+  public static void getItemDependentValues(List<FieldInfoBean> beanList, Object rootBean,
+      Object leafBean, String rootRecordNameForForm) {
 
     for (FieldInfoBean bean : beanList) {
-      FieldInfoBean newBean = getItemDependentValues(bean.fullPropertyPath, leafBean.getClass());
+      FieldInfoBean newBean = getItemDependentValues(bean.fullPropertyPath, leafBean.getClass(),
+          rootBean, rootRecordNameForForm);
       bean.itemNameKey = newBean.itemNameKey;
       bean.showsValue = newBean.showsValue;
     }
@@ -321,10 +238,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
    *     needs to be used together.</p>
    * 
    * @param fullPropertyPath itemPropertyPath
-   * @param defaultItemNameKeyClass defaultItemNameKeyClass
    * @return itemNameKey
    */
-  private FieldInfoBean getItemDependentValues(String fullPropertyPath, Class<?> leafBeanClass) {
+  public static FieldInfoBean getItemDependentValues(String fullPropertyPath,
+      Class<?> leafBeanClass, Object rootBean, String rootRecordNameForForm) {
 
     String fullPropertyPath1stPart = fullPropertyPath.contains(".")
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))

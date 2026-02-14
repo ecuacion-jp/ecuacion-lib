@@ -37,7 +37,7 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
@@ -157,10 +157,20 @@ public class ExceptionUtil {
 
           // Add parameters from messageParameterSet.
           for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
+
+            // Put blank when paramBean.fileKinds().length == 0. 
+            String value = "";
             for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
-              map.put(paramBean.parameterKey(), PropertyFileUtil.get(fileKind.toString(), locale,
-                  paramBean.propertyFileKey(), paramBean.args()));
+              // Put return value of PropertyFileUtil.get() even when key does not exist.
+              value = PropertyFileUtil.get(fileKind.toString(), locale, paramBean.propertyFileKey(),
+                  paramBean.args());
+
+              if (PropertyFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
+                break;
+              }
             }
+
+            map.put(paramBean.parameterKey(), value);
           }
 
           message = needsItemName || ex.isMessageWithItemName()
@@ -189,6 +199,8 @@ public class ExceptionUtil {
         } catch (MissingResourceException mre) {
           message = ex.getMessage();
         }
+
+        rtnList.add(message);
 
       } else {
         rtnList.add(th.getMessage());
@@ -358,8 +370,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean needsItemName) {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
-        .map(ex -> getMessageList(ex, locale, needsItemName))
-        .forEach(list -> rtnList.addAll(list));
+        .map(ex -> getMessageList(ex, locale, needsItemName)).forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
 
