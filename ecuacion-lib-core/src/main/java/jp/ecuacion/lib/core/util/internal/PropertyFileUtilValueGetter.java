@@ -33,6 +33,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -53,7 +54,7 @@ public class PropertyFileUtilValueGetter {
    */
   private String[][] filePrefixes;
 
-  private static final String[] LIB_MODULES = new String[] {"core", "jpa"};
+  private static final String[] LIB_MODULES = new String[] {"core", "jpa", "validation"};
   private static final String[] SPLIB_MODULES = new String[] {"core", "web", "web_jpa"};
   private static final String[] UTIL_MODULES = new String[] {"jpa", "poi"};
 

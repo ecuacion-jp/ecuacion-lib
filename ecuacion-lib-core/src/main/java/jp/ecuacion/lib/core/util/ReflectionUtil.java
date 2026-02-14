@@ -26,6 +26,38 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
  * Provides utility methods for {@code java.lang.reflect} and other checks.
  */
 public class ReflectionUtil {
+  
+  /**
+   * Returns true when designated class exists.
+   * 
+   * @param className className with package (like "java.lang.Object")
+   * @return boolean
+   */
+  public static boolean classExists(String className) {
+    try {
+      Class.forName(className);
+      return true;
+      
+    } catch (ClassNotFoundException ex) {
+      return false;
+    }
+  }
+
+  /**
+   * Returns new instance constructed with an constructor with no arguments.
+   * 
+   * @param className className with package (like "java.lang.Object")
+   * @return new instance
+   */
+  public static Object newInstance(String className) {
+    try {
+      Class<?> cls = Class.forName(className);
+      return cls.getConstructor().newInstance();
+      
+    } catch (Exception ex) {
+      throw new EclibRuntimeException(ex);
+    }
+  }
 
   /**
    * Searches for a class annotation in the argument class and its superClasses.

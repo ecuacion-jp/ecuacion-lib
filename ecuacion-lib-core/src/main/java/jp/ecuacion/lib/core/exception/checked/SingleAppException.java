@@ -21,14 +21,14 @@ import jakarta.annotation.Nonnull;
  * Is an abstract class describing an occurrence of a single validation error.
  */
 public abstract class SingleAppException extends AppException {
-  
+
   private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new instance.
    */
   public SingleAppException() {
-    
+
   }
 
   /**
@@ -39,12 +39,13 @@ public abstract class SingleAppException extends AppException {
   public SingleAppException(String message) {
     super(message);
   }
-  
+
   /**
    * Provides the location of an item at which this error occurred.
    * 
    * <p>Its data-type is an array 
-   *     because although standard jakarta validation (like {@code @NotEmpty} has only one property path,
+   *     because although standard jakarta validation (like {@code @NotEmpty} 
+   *     has only one property path,
    *     but BizLogicAppException which describes an error of some relation between multiple items
    *     may have multiple property paths.</p>
    * 
