@@ -26,4 +26,8 @@ module jp.ecuacion.lib.validation {
   requires transitive jp.ecuacion.lib.core;
 
   requires org.apache.commons.lang3;
+
+  // for test
+  opens jp.ecuacion.lib.validation.constraints to jp.ecuacion.lib.core;
+  opens jp.ecuacion.lib.validation.constraints.internal to jp.ecuacion.lib.core;
 }
