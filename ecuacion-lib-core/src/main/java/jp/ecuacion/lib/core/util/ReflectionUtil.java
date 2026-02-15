@@ -26,7 +26,7 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
  * Provides utility methods for {@code java.lang.reflect} and other checks.
  */
 public class ReflectionUtil {
-  
+
   /**
    * Returns true when designated class exists.
    * 
@@ -37,7 +37,7 @@ public class ReflectionUtil {
     try {
       Class.forName(className);
       return true;
-      
+
     } catch (ClassNotFoundException ex) {
       return false;
     }
@@ -53,7 +53,7 @@ public class ReflectionUtil {
     try {
       Class<?> cls = Class.forName(className);
       return cls.getConstructor().newInstance();
-      
+
     } catch (Exception ex) {
       throw new EclibRuntimeException(ex);
     }
@@ -106,12 +106,13 @@ public class ReflectionUtil {
    */
   protected static Object getValue(Object object, String propertyPath) {
     try {
-      String chileItemPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
 
       while (true) {
         if (propertyPath.contains(".")) {
-          String rootFieldName = propertyPath.substring(0, propertyPath.indexOf("."));
-          return getValue(getValue(object, rootFieldName), chileItemPropertyPath);
+          String leftMostOfPropertyPath = propertyPath.substring(0, propertyPath.indexOf("."));
+          String theRestOfPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
+
+          return getValue(getValue(object, leftMostOfPropertyPath), theRestOfPropertyPath);
 
         } else {
           if (propertyPath.contains("[")) {
@@ -158,39 +159,54 @@ public class ReflectionUtil {
   }
 
   /**
+   * Returns leafBean from rootBean and propertyPath from rootBean.
+   */
+  public static Object getLeafBean(Object rootBean, String propertyPath) {
+    String leafBeanItemPropertyPath =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
+            : null;
+
+    return leafBeanItemPropertyPath == null ? rootBean
+        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
+  }
+
+  /**
    * Obtains a field with any scopes and also searches fields in super classes.
    * 
-   * @param fieldName fieldName
-   * @param object classOfTargetInstance
+   * @param propertyPath fieldName
+   * @param cls classOfTargetInstance
    * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
    *     right-hand side is its instance.
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
   @Nonnull
-  public static Field getField(Class<?> object, String fieldName) {
+  public static Field getField(Class<?> cls, String propertyPath) {
     Field validationTargetField;
 
     // store first exception
     Exception ex = null;
 
-    if (fieldName.contains(".")) {
-      throw new EclibRuntimeException("fieldName cannot contain '.'.");
+    if (propertyPath.contains(".")) {
+      String leftMost = propertyPath.substring(0, propertyPath.indexOf("."));
+      String theLeft = propertyPath.substring(leftMost.length() + 1);
+
+      return getField(getField(cls, leftMost).getType(), theLeft);
     }
 
     // fieldName with arrays or Collections not acceptable.
-    if (fieldName.contains("[")) {
+    if (propertyPath.contains("[")) {
       throw new EclibRuntimeException(
-          "fieldName with index (like value[0]) not acceptable. fieldName: " + fieldName);
+          "fieldName with index (like value[0]) not acceptable. fieldName: " + propertyPath);
     }
 
     // loop for finding fields in parent's class.
     while (true) {
-      if (object.equals(Object.class)) {
+      if (cls.equals(Object.class)) {
         break;
       }
 
       try {
-        validationTargetField = object.getDeclaredField(fieldName);
+        validationTargetField = cls.getDeclaredField(propertyPath);
         return validationTargetField;
 
       } catch (Exception exception) {
@@ -199,10 +215,10 @@ public class ReflectionUtil {
         }
       }
 
-      object = object.getSuperclass();
+      cls = cls.getSuperclass();
     }
 
-    throwRuntimeException(ex, fieldName, "Field");
+    throwRuntimeException(ex, propertyPath, "Field");
 
     // throwRuntimeException always throws Exception so this will never executed.
     return null;
