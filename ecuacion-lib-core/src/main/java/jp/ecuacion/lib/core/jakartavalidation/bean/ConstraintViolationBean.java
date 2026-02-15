@@ -100,7 +100,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
     beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
 
     putArgsToFields(rootBean,
-        getDestinationBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
+        getLeafBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
         validatorClass, message, validatorClass + ".message", rootRecordNameForForm, beanList);
 
     putArgsToParamMap("(empty)");
@@ -202,18 +202,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
       messageParameterSet.addAll(((ValidatorMessageParameterCreator) newInstance(className))
           .create(cv, paramMap, rootRecordNameForForm));
     }
-  }
-
-  /**
-   * Returns leafBean from rootBean and propertyPath from rootBean.
-   */
-  public static Object getDestinationBean(Object rootBean, String propertyPath) {
-    String leafBeanItemPropertyPath =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
-            : null;
-
-    return leafBeanItemPropertyPath == null ? rootBean
-        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
   }
 
   /**

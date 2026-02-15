@@ -52,7 +52,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
         + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
     FieldInfoBean bean = ConstraintViolationBean.getItemDependentValues(
         conditionPropertyPath, ConstraintViolationBean
-            .getDestinationBean(cv.getRootBean(), conditionPropertyPath).getClass(),
+            .getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
         cv.getRootBean(), rootRecordNameForForm);
     messageParameterSet
         .add(new LocalizedMessageParameter(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
