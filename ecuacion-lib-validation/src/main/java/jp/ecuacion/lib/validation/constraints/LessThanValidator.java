@@ -28,6 +28,6 @@ public class LessThanValidator extends ComparisonValidator
   @Override
   public void initialize(LessThan annotation) {
     super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), true, false,
-        annotation.typeConversionFromString());
+        annotation.typeConversionFromString(), annotation.typeConversionDateTimeFormat());
   }
 }

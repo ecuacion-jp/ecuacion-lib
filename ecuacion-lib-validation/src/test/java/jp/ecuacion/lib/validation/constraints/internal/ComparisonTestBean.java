@@ -167,4 +167,20 @@ public class ComparisonTestBean {
       
     }
   }
+  
+  public static class DotContainingPropertyPaths {
+    @LessThan(propertyPath = "number1.number", basisPropertyPath = "number2.number")
+    public static class Bean {
+      private NumberBean number1 = new NumberBean(3);
+      private NumberBean number2 = new NumberBean(2);
+      
+      private static class NumberBean {
+        private int number;
+        
+        public NumberBean(int number) {
+          this.number = number;
+        }
+      }
+    }
+  }
 }

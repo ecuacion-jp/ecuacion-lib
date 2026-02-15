@@ -29,6 +29,6 @@ public class ConcreteComparisonValidator extends ComparisonValidator
   public void initialize(Comparison annotation) {
     super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(),
         annotation.isValidWhenLessThanBasis(), annotation.allowsEqual(),
-        annotation.typeConversionFromString());
+        annotation.typeConversionFromString(), "yyyy-MM-dd");
   }
 }

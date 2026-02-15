@@ -120,10 +120,18 @@ public class ComparisonTest {
     // valid
     opt = ValidationUtil.validateThenReturn(new ComparisonTestBean.EachAnnotation.Valid());
     Assertions.assertEquals(true, opt.isEmpty());
-    
-    //invalid
+
+    // invalid
     opt = ValidationUtil.validateThenReturn(new ComparisonTestBean.EachAnnotation.Invalid());
     Assertions.assertEquals(false, opt.isEmpty());
     Assertions.assertEquals(6, opt.get().getList().size());
+  }
+
+  @Test
+  public void dotContainingPropertyPaths() {
+    opt =
+        ValidationUtil.validateThenReturn(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
+    Assertions.assertEquals(false, opt.isEmpty());
+    Assertions.assertEquals(1, opt.get().getList().size());
   }
 }
