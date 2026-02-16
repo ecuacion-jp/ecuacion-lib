@@ -121,7 +121,7 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable,
       @Nullable Locale locale) {
-    return getMessageList(throwable, locale, true);
+    return getMessageList(throwable, locale, false);
   }
 
   /**
