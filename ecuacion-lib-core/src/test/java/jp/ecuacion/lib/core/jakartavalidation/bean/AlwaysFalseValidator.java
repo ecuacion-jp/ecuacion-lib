@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.constraints;
+package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.validation.ConstraintValidator;
-import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 
 /**
- * Provides the validation logic for {@code EnumElement}.
+ * Provides the validation logic for {@code AlwaysFalse}.
  */
-public class ConcreteComparisonValidator extends ComparisonValidator
-    implements ConstraintValidator<Comparison, Object> {
+public class AlwaysFalseValidator extends ClassValidator
+    implements ConstraintValidator<AlwaysFalse, Object> {
 
-  /** Initializes an instance. */
   @Override
-  public void initialize(Comparison annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(),
-        annotation.isValidWhenLessThanBasis(), annotation.allowsEqual(),
-        annotation.typeConversionFromString(), "yyyy-MM-dd");
+  public void initialize(AlwaysFalse annotation) {
+    super.initialize(annotation.propertyPath());
+  }
+
+  @Override
+  protected void procedureBeforeLoopForEachPropertyPath() {
+
+  }
+
+  @Override
+  protected boolean isValidForSinglePropertyPath(String propertyPath, Object valueOfPropertyPath) {
+    return false;
   }
 }

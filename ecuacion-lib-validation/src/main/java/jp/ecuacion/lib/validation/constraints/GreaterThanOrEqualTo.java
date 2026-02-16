@@ -55,6 +55,14 @@ public @interface GreaterThanOrEqualTo {
    */
   TypeConversionFromString typeConversionFromString() default TypeConversionFromString.NONE;
 
+  /**
+   * Stores LocalDate format for type conversion from string to LocalDate.
+   * It's used only when typeConversionFromString == LOCAL_DATE.
+   * 
+   * <p>Default value is "yyyy-MM-dd".</p>
+   */
+  String typeConversionDateTimeFormat() default "yyyy-MM-dd";
+
   /** 
    * Returns message ID.
    */

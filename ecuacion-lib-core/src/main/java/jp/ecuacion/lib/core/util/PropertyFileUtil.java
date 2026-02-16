@@ -1184,7 +1184,7 @@ public class PropertyFileUtil {
     STRINGS(new String[][] {new String[] {"strings"}}, false),
 
     /** item_names. */
-    ITEM_NAMES(new String[][] {new String[] {"item_names"}}, false),
+    ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}}, false),
 
     /** enum_names. */
     ENUM_NAMES(new String[][] {new String[] {"enum_names"}}, false),

@@ -92,6 +92,11 @@
 			<artifactId>jakarta.annotation-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- This is a jakarta module but spring framework does not provide it -->
 		<dependency>
 			<groupId>jakarta.el</groupId>

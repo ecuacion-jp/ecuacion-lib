@@ -28,6 +28,6 @@ public class GreaterThanValidator extends ComparisonValidator
   @Override
   public void initialize(GreaterThan annotation) {
     super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), false, false,
-        annotation.typeConversionFromString());
+        annotation.typeConversionFromString(), annotation.typeConversionDateTimeFormat());
   }
 }

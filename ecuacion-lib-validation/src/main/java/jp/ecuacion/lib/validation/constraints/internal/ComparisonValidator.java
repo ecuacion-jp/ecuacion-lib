@@ -25,6 +25,7 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 
@@ -37,6 +38,7 @@ public abstract class ComparisonValidator extends ClassValidator {
   private boolean isValidWhenLessThanBasis;
   private boolean allowsEqual;
   private TypeConversionFromString typeConversionFromString;
+  private String typeConversionDateTimeFormat;
 
   private Field fieldOfBasisPropertyPath;
   private Object valueOfBasisPropertyPath;
@@ -44,13 +46,14 @@ public abstract class ComparisonValidator extends ClassValidator {
   /** Initializes an instance. */
   public void initialize(String[] propertyPath, String basisPropertyPath,
       boolean isValidWhenLessThanBasis, boolean allowsEqual,
-      TypeConversionFromString typeConversionFromString) {
+      TypeConversionFromString typeConversionFromString, String typeConversionDateTimeFormat) {
     super.initialize(propertyPath);
 
     this.basisPropertyPath = basisPropertyPath;
     this.isValidWhenLessThanBasis = isValidWhenLessThanBasis;
     this.allowsEqual = allowsEqual;
     this.typeConversionFromString = typeConversionFromString;
+    this.typeConversionDateTimeFormat = typeConversionDateTimeFormat;
   }
 
   @Override
@@ -97,11 +100,11 @@ public abstract class ComparisonValidator extends ClassValidator {
       String valOfPp = (String) valueOfPropertyPath;
       String valOfBpp = (String) valueOfBasisPropertyPath;
       if (typeConversionFromString == TypeConversionFromString.NUMBER) {
-        valueOfPropertyPath = Double.valueOf(valOfPp.replaceAll(",", ""));
-        valueOfBasisPropertyPath = Double.valueOf(valOfBpp.replaceAll(",", ""));
+        valueOfPropertyPath = new BigDecimal(valOfPp.replaceAll(",", ""));
+        valueOfBasisPropertyPath = new BigDecimal(valOfBpp.replaceAll(",", ""));
 
-      } else if (typeConversionFromString == TypeConversionFromString.DATE) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+      } else if (typeConversionFromString == TypeConversionFromString.LOCAL_DATE) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(typeConversionDateTimeFormat);
         valueOfPropertyPath = LocalDate.parse(valOfPp, fmt);
         valueOfBasisPropertyPath = LocalDate.parse(valOfBpp, fmt);
       }

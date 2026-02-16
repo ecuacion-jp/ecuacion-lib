@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 
@@ -86,7 +87,6 @@ public abstract class ConditionalValidator extends ClassValidator {
         return isValidWhenConditionNotSatisfied(valueOfField);
 
       } else {
-        // Reaching here means valueOfConditionField is not equal to conditionValue. skipped.
         return true;
       }
     }

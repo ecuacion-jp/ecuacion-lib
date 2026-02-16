@@ -19,5 +19,5 @@ package jp.ecuacion.lib.validation.constraints.enums;
  * Describes the type conversion from String.
  */
 public enum TypeConversionFromString {
-  NONE, NUMBER, DATE;
+  NONE, NUMBER, LOCAL_DATE;
 }

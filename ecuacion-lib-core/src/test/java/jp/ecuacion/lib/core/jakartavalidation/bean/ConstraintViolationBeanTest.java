@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -25,10 +25,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.item.EclibItem;
 import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ValidationUtil;
-import jp.ecuacion.lib.validation.constraints.ConditionalNotEmpty;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +40,7 @@ public class ConstraintViolationBeanTest {
   ///
   /// 1. container structure pattern: `record` / `record stored in form` / `other` 
   /// 1. validator pattern: `no validator(not empty)` (*1) / `field validator` / `class validator`
-  /// 1. violation occuring path: `root` / `child` / `grandChild`
+  /// 1. violation occurring path: `root` / `child` / `grandChild`
   ///
   /// (*1) Constructing ConstraintViolationBean without ContraintViolation.
   ///
@@ -120,8 +117,7 @@ public class ConstraintViolationBeanTest {
 
   private void checkForForm(ConstraintViolationBean bean, String itemPropertyPath,
       String itemNameKey) {
-    Assertions.assertEquals(itemPropertyPath,
-        bean.getFieldInfoBeans()[0].itemPropertyPathForForm);
+    Assertions.assertEquals(itemPropertyPath, bean.getFieldInfoBeans()[0].itemPropertyPathForForm);
     check(bean, itemNameKey);
   }
 
@@ -177,8 +173,7 @@ public class ConstraintViolationBeanTest {
 
       }
 
-      @ConditionalNotEmpty(propertyPath = "field", conditionPropertyPath = "conditionField",
-          conditionPattern = ConditionValuePattern.empty)
+      @AlwaysFalse(propertyPath = "field")
       public static class Child {
         public String field;
         public String conditionField;
@@ -194,8 +189,8 @@ public class ConstraintViolationBeanTest {
     }
 
     public static class No3 {
-      @ConditionalNotEmpty(propertyPath = "field", conditionPropertyPath = "conditionField",
-          conditionPattern = ConditionValuePattern.empty)
+
+      @AlwaysFalse(propertyPath = "field")
       public static class Root {
 
         public String field;
@@ -214,9 +209,7 @@ public class ConstraintViolationBeanTest {
         public GrandChild grandChild = new GrandChild();
       }
 
-
-      @ConditionalNotEmpty(propertyPath = "field", conditionPropertyPath = "conditionField",
-          conditionPattern = ConditionValuePattern.empty)
+      @AlwaysFalse(propertyPath = "field")
       public static class GrandChild {
         public String field;
         public String conditionField;
@@ -358,8 +351,8 @@ public class ConstraintViolationBeanTest {
     ConstraintViolationBean cvBean;
     List<ConstraintViolationBean> list;
 
-    // 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass existence:
-    /// `self` (*1)
+    // 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
+    // existence: `self` (*1)
     mae = ValidationUtil.validateThenReturn(new itemNameKeyClassAnnotationReadTest.No1.Root());
     Assertions.assertTrue(mae.isPresent());
     list = mae.get().getList().stream()
@@ -429,6 +422,7 @@ public class ConstraintViolationBeanTest {
         @Min(3)
         public Integer field = 2;
 
+        @SuppressWarnings("exports")
         @Valid
         public Child child = new Child();
       }
@@ -437,13 +431,13 @@ public class ConstraintViolationBeanTest {
       public static class RootParent {
       }
 
-      @ConditionalNotEmpty(propertyPath = "field", conditionPropertyPath = "conditionField",
-          conditionPattern = ConditionValuePattern.empty)
+      @AlwaysFalse(propertyPath = "field")
       @ItemNameKeyClass("ItemNameKeyClass_Child")
       public static class Child extends ChildParent {
         public Integer field = null;
         public String conditionField = null;
 
+        @SuppressWarnings("exports")
         @Valid
         public GrandChild grandChild = new GrandChild();
       }
@@ -468,6 +462,7 @@ public class ConstraintViolationBeanTest {
         @Min(3)
         public Integer field = 2;
 
+        @SuppressWarnings("exports")
         @Valid
         public Child child = new Child();
       }
@@ -476,12 +471,12 @@ public class ConstraintViolationBeanTest {
       public static class RootParent {
       }
 
-      @ConditionalNotEmpty(propertyPath = "field", conditionPropertyPath = "conditionField",
-          conditionPattern = ConditionValuePattern.empty)
+      @AlwaysFalse(propertyPath = "field")
       public static class Child extends ChildParent {
         public Integer field = null;
         public String conditionField = null;
 
+        @SuppressWarnings("exports")
         @Valid
         public GrandChild grandChild = new GrandChild();
       }
@@ -500,82 +495,89 @@ public class ConstraintViolationBeanTest {
       }
     }
 
-    public static class No3 {
-      public static class Form {
-        @Valid
-        public Root root = new Root();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root")
-      public static class Root {
-        public String field;
-
-        @Valid
-        public Child child = new Child();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child")
-      public static class Child {
-        public String field;
-
-        @Valid
-        public GrandChild grandChild = new GrandChild();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild")
-      public static class GrandChild {
-        public String field;
-      }
+  public static class No3 {
+    public static class Form {
+      @SuppressWarnings("exports")
+      @Valid
+      public Root root = new Root();
     }
 
-    public static class No4 {
-      public static class Form {
-        @Valid
-        public Root root = new Root();
-      }
+    @ItemNameKeyClass("ItemNameKeyClass_Root")
+    public static class Root {
+      public String field;
 
-      public static class Root extends RootParent {
-        public String field;
-
-        @Valid
-        public Child child = new Child();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root_Parent")
-      public static class RootParent extends RootGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root_GrandParent")
-      public static class RootGrandParent {
-      }
-
-      public static class Child extends ChildParent {
-        public String field;
-
-        @Valid
-        public GrandChild grandChild = new GrandChild();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child_Parent")
-      public static class ChildParent extends ChildGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child_GrandParent")
-      public static class ChildGrandParent {
-      }
-
-      public static class GrandChild extends GrandChildParent {
-        public String field;
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent")
-      public static class GrandChildParent extends GrandChildGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild_GrandParent")
-      public static class GrandChildGrandParent {
-      }
+      @SuppressWarnings("exports")
+      @Valid
+      public Child child = new Child();
     }
+
+    @ItemNameKeyClass("ItemNameKeyClass_Child")
+    public static class Child {
+      public String field;
+
+      @SuppressWarnings("exports")
+      @Valid
+      public GrandChild grandChild = new GrandChild();
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_GrandChild")
+    public static class GrandChild {
+      public String field;
+    }
+  }
+
+  public static class No4 {
+    public static class Form {
+      @SuppressWarnings("exports")
+      @Valid
+      public Root root = new Root();
+    }
+
+    public static class Root extends RootParent {
+      public String field;
+
+      @SuppressWarnings("exports")
+      @Valid
+      public Child child = new Child();
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_Root_Parent")
+    public static class RootParent extends RootGrandParent {
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_Root_GrandParent")
+    public static class RootGrandParent {
+    }
+
+    public static class Child extends ChildParent {
+      public String field;
+
+      @SuppressWarnings("exports")
+      @Valid
+      public GrandChild grandChild = new GrandChild();
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_Child_Parent")
+    public static class ChildParent extends ChildGrandParent {
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_Child_GrandParent")
+    public static class ChildGrandParent {
+    }
+
+    public static class GrandChild extends GrandChildParent {
+      public String field;
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent")
+    public static class GrandChildParent extends GrandChildGrandParent {
+    }
+
+    @ItemNameKeyClass("ItemNameKeyClass_GrandChild_GrandParent")
+    public static class GrandChildGrandParent {
+    }
+  }
+
   }
 
   //@formatter:off

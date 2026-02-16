@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.constraints.internal;
+package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -21,18 +21,33 @@ import java.util.List;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
+/**
+ * Is a ConstraintValidator implemented class for class-level validator.
+ * This is accepted by ConstraintViolationBean.
+ * 
+ * <p>The field "propertyPath" is always needed as the field for validation.</p>
+ */
 public abstract class ClassValidator extends ReflectionUtil {
 
   protected String[] propertyPaths;
   protected Object instance;
   protected ConstraintValidatorContext context;
 
+  /**
+   * Constructs a new instance.
+   */
   public void initialize(String[] propertyPath) {
     this.propertyPaths = propertyPath;
   }
 
+  /**
+   * Is a procedure executed before the loop for each propertyPath.
+   */
   protected abstract void procedureBeforeLoopForEachPropertyPath();
 
+  /**
+   * Validates for single propertyPath.
+   */
   protected abstract boolean isValidForSinglePropertyPath(String propertyPath,
       Object valueOfPropertyPath);
 
