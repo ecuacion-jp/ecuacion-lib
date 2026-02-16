@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
@@ -52,6 +53,35 @@ public class ExceptionUtil {
    * Prevents other classes from instantiating it.
    */
   private ExceptionUtil() {}
+
+  /**
+   * Returns Exception message list.
+   */
+  @Nonnull
+  public static List<String> getMessageList(
+      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation) {
+    return getMessageList(new ConstraintViolationException(constraintViolation));
+  }
+
+  /**
+   * Returns Exception message list.
+   */
+  @Nonnull
+  public static List<String> getMessageList(
+      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation, Locale locale) {
+    return getMessageList(new ConstraintViolationException(constraintViolation), locale);
+  }
+
+  /**
+   * Returns Exception message list.
+   */
+  @Nonnull
+  public static List<String> getMessageList(
+      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation, Locale locale,
+      boolean needsItemName) {
+    return getMessageList(new ConstraintViolationException(constraintViolation), locale,
+        needsItemName);
+  }
 
   /**
    * Returns exception message for 1 exception.
@@ -158,7 +188,7 @@ public class ExceptionUtil {
           // Add parameters from messageParameterSet.
           for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
 
-            // Put blank when paramBean.fileKinds().length == 0. 
+            // Put blank when paramBean.fileKinds().length == 0.
             String value = "";
             for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
               // Put return value of PropertyFileUtil.get() even when key does not exist.
