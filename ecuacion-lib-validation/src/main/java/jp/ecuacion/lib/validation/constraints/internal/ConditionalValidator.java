@@ -22,6 +22,7 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.empty;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.valueOfPropertyPath;
 
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +31,7 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class ConditionalValidator extends ClassValidator {
   private String conditionPropertyPath;
@@ -71,13 +73,32 @@ public abstract class ConditionalValidator extends ClassValidator {
   }
 
   protected abstract boolean isValid(Object valueOfField);
+
+  /**
+   * Executes validation check.
+   */
+  public boolean isValid(Object instance, ConstraintValidatorContext context) {
+
+    procedureBeforeLoopForEachPropertyPath(instance);
+
+    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
+        .map(path -> Pair.of(path, getValue(instance, path))).toList();
+
+    for (Pair<String, Object> pair : valueOfFieldList) {
+      boolean result = isValidForSinglePropertyPath(pair.getLeft(), pair.getRight());
+
+      if (!result) {
+        return false;
+      }
+    }
+
+    return true;
+  }
   
-  @Override
-  public void procedureBeforeLoopForEachPropertyPath() {
+  public void procedureBeforeLoopForEachPropertyPath(Object instance) {
     satisfiesCondition = getSatisfiesCondition(instance);
   }
 
-  @Override
   protected boolean isValidForSinglePropertyPath(String itemPropertyPath, Object valueOfField) {
     if (satisfiesCondition) {
       return isValid(valueOfField);

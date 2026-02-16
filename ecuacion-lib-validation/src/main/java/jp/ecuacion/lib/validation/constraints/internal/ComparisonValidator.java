@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
+import jakarta.validation.ConstraintValidatorContext;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -24,10 +25,13 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
@@ -56,14 +60,34 @@ public abstract class ComparisonValidator extends ClassValidator {
     this.typeConversionDateTimeFormat = typeConversionDateTimeFormat;
   }
 
-  @Override
-  protected void procedureBeforeLoopForEachPropertyPath() {
+  /**
+   * Executes validation check.
+   */
+  public boolean isValid(Object instance, ConstraintValidatorContext context) {
+
+    procedureBeforeLoopForEachPropertyPath(instance);
+
+    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
+        .map(path -> Pair.of(path, getValue(instance, path))).toList();
+
+    for (Pair<String, Object> pair : valueOfFieldList) {
+      boolean result = isValidForSinglePropertyPath(instance, pair.getLeft(), pair.getRight());
+
+      if (!result) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  protected void procedureBeforeLoopForEachPropertyPath(Object instance) {
     fieldOfBasisPropertyPath = ReflectionUtil.getField(instance.getClass(), basisPropertyPath);
     valueOfBasisPropertyPath = getValue(instance, basisPropertyPath);
   }
 
-  @Override
-  protected boolean isValidForSinglePropertyPath(String propertyPath, Object valueOfPropertyPath) {
+  protected boolean isValidForSinglePropertyPath(
+      Object instance, String propertyPath, Object valueOfPropertyPath) {
     Field fieldOfPropertyPath = ReflectionUtil.getField(instance.getClass(), propertyPath);
 
     // Throws an exception when the types of two PropertyPaths differ.

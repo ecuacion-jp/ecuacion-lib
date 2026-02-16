@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 
 /**
@@ -30,12 +31,7 @@ public class AlwaysFalseValidator extends ClassValidator
   }
 
   @Override
-  protected void procedureBeforeLoopForEachPropertyPath() {
-
-  }
-
-  @Override
-  protected boolean isValidForSinglePropertyPath(String propertyPath, Object valueOfPropertyPath) {
+  public boolean isValid(Object value, ConstraintValidatorContext context) {
     return false;
   }
 }
