@@ -22,12 +22,12 @@ import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidator;
 /**
  * Provides the validation logic for {@code ConditionalEmpty}.
  */
-public class ConditionalEmptyValidator extends ConditionalValidator
-    implements ConstraintValidator<ConditionalEmpty, Object> {
+public class EmptyWhenValidator extends ConditionalValidator
+    implements ConstraintValidator<EmptyWhen, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(ConditionalEmpty annotation) {
+  public void initialize(EmptyWhen annotation) {
     super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
         annotation.conditionPattern(), annotation.conditionOperator(),
         annotation.conditionValueString(), annotation.conditionValuePropertyPath(),

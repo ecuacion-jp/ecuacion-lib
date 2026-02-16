@@ -23,12 +23,12 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Provides the validation logic for {@code ConditionalNotEmpty}.
  */
-public class ConditionalNotEmptyValidator extends ConditionalValidator
-    implements ConstraintValidator<ConditionalNotEmpty, Object> {
+public class NotEmptyWhenValidator extends ConditionalValidator
+    implements ConstraintValidator<NotEmptyWhen, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(ConditionalNotEmpty annotation) {
+  public void initialize(NotEmptyWhen annotation) {
     super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
         annotation.conditionPattern(), annotation.conditionOperator(),
         annotation.conditionValueString(),
