@@ -128,7 +128,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     } else {
       // Add blank ("") value by designating empty PropertyFileUtilFileKindEnum array.
       messageParameterSet.add(
-          new LocalizedMessageParameter(paramKey, new PropertyFileUtilFileKindEnum[] {}, null));
+          new LocalizedMessageParameter(paramKey, new PropertyFileUtilFileKindEnum[] {}, ""));
     }
 
     return messageParameterSet;

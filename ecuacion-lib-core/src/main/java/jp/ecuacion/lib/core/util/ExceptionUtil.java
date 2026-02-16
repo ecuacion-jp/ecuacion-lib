@@ -188,7 +188,12 @@ public class ExceptionUtil {
           // Add parameters from messageParameterSet.
           for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
 
-            // Put blank when paramBean.fileKinds().length == 0.
+            // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
+            if (paramBean.fileKinds() == null || paramBean.fileKinds().length == 0) {
+              map.put(paramBean.parameterKey(), paramBean.propertyFileKey());
+              continue;
+            }
+
             String value = "";
             for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
               // Put return value of PropertyFileUtil.get() even when key does not exist.
