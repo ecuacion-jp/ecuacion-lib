@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
-import jp.ecuacion.lib.validation.constraints.ConditionalNotEmpty.ConditionalNotEmptyList;
+import jp.ecuacion.lib.validation.constraints.EmptyWhen.ConditionalEmptyList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 
@@ -35,10 +35,10 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 @PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ConditionalNotEmptyList.class)
+@Repeatable(ConditionalEmptyList.class)
 @Documented
-@Constraint(validatedBy = {ConditionalNotEmptyValidator.class})
-public @interface ConditionalNotEmpty {
+@Constraint(validatedBy = {EmptyWhenValidator.class})
+public @interface EmptyWhen {
 
   /** 
    * Validated field.
@@ -123,7 +123,7 @@ public @interface ConditionalNotEmpty {
    *     a condition is considered to be satisfied 
    *     if all of the values of the field {@code conditionValueField} specifies 
    *     is NOT equal to the value of conditionField.<br>
-   * 
+   *     
    * @return an array of string values
    */
   String conditionValuePropertyPath() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
@@ -133,7 +133,7 @@ public @interface ConditionalNotEmpty {
    * 
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
-   *     as a part of an error message.</p>
+   *     as a part of an error message.</p> 
    * 
    * @return String
    */
@@ -145,14 +145,14 @@ public @interface ConditionalNotEmpty {
    * 
    * @return boolean
    */
-  boolean emptyWhenConditionNotSatisfied() default false;
+  boolean notEmptyWhenConditionNotSatisfied() default false;
 
   /** 
    * Returns message ID.
    * 
    * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.ConditionalNotEmpty.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.ConditionalEmpty.message}";
 
   /** 
    * Returns groups.
@@ -169,18 +169,18 @@ public @interface ConditionalNotEmpty {
   Class<? extends Payload>[] payload() default {};
 
   /**
-   * Defines several {@link ConditionalNotEmpty} annotations on the same element.
+   * Defines several {@link EmptyWhen} annotations on the same element.
    */
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface ConditionalNotEmptyList {
+  public @interface ConditionalEmptyList {
 
     /**
-     * Returns an array of ConditionalNotEmpty.
+     * Returns an array of ConditionalEmpty.
      * 
-     * @return an array of ConditionalNotEmpty
+     * @return an array of ConditionalEmpty
      */
-    ConditionalNotEmpty[] value();
+    EmptyWhen[] value();
   }
 }

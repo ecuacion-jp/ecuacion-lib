@@ -28,6 +28,6 @@ public class LessThanOrEqualToValidator extends ComparisonValidator
   @Override
   public void initialize(LessThanOrEqualTo annotation) {
     super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), true, true,
-        annotation.typeConversionFromString(), annotation.typeConversionDateTimeFormat());
+        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
   }
 }

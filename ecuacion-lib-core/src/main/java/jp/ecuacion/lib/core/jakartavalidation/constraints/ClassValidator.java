@@ -15,11 +15,7 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
-import jakarta.validation.ConstraintValidatorContext;
-import java.util.Arrays;
-import java.util.List;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -30,47 +26,11 @@ import org.apache.commons.lang3.tuple.Pair;
 public abstract class ClassValidator extends ReflectionUtil {
 
   protected String[] propertyPaths;
-  protected Object instance;
-  protected ConstraintValidatorContext context;
 
   /**
    * Constructs a new instance.
    */
   public void initialize(String[] propertyPath) {
     this.propertyPaths = propertyPath;
-  }
-
-  /**
-   * Is a procedure executed before the loop for each propertyPath.
-   */
-  protected abstract void procedureBeforeLoopForEachPropertyPath();
-
-  /**
-   * Validates for single propertyPath.
-   */
-  protected abstract boolean isValidForSinglePropertyPath(String propertyPath,
-      Object valueOfPropertyPath);
-
-  /**
-   * Executes validation check.
-   */
-  public boolean isValid(Object instance, ConstraintValidatorContext context) {
-    this.instance = instance;
-    this.context = context;
-
-    procedureBeforeLoopForEachPropertyPath();
-
-    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
-        .map(path -> Pair.of(path, getValue(instance, path))).toList();
-
-    for (Pair<String, Object> pair : valueOfFieldList) {
-      boolean result = isValidForSinglePropertyPath(pair.getLeft(), pair.getRight());
-
-      if (!result) {
-        return false;
-      }
-    }
-
-    return true;
   }
 }
