@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.validation.util;
 
-import jp.ecuacion.lib.validation.constraints.ConditionalNotEmpty;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 
-@ConditionalNotEmpty(propertyPath = "value", conditionPropertyPath = "conditionValue",
+@NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "conditionValue",
     conditionPattern = ConditionValuePattern.string,
     conditionValueString = "abc")
 public class ValidationUtilTest_ObjWithClassValidator {

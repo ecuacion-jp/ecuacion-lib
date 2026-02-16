@@ -20,6 +20,6 @@ import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidatorMessa
 /**
  * Is a kind of ValidatorMessageParameterCreator.
  */
-public class ConditionalNotEmptyMessageParameterCreator
+public class EmptyWhenMessageParameterCreator
     extends ConditionalValidatorMessageParameterCreator {
 }

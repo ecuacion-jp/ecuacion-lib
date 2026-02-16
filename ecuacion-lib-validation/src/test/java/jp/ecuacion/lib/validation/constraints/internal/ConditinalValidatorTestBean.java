@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.validation.constraints.internal;
 
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.validation.constraints.ConditionalEmpty;
+import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 
 @SuppressWarnings("unused")
 public class ConditinalValidatorTestBean {
