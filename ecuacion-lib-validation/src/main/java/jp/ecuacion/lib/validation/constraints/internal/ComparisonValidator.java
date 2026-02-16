@@ -103,7 +103,7 @@ public abstract class ComparisonValidator extends ClassValidator {
         valueOfPropertyPath = new BigDecimal(valOfPp.replaceAll(",", ""));
         valueOfBasisPropertyPath = new BigDecimal(valOfBpp.replaceAll(",", ""));
 
-      } else if (typeConversionFromString == TypeConversionFromString.LOCAL_DATE) {
+      } else if (typeConversionFromString == TypeConversionFromString.DATE) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(typeConversionDateTimeFormat);
         valueOfPropertyPath = LocalDate.parse(valOfPp, fmt);
         valueOfBasisPropertyPath = LocalDate.parse(valOfBpp, fmt);
