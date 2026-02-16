@@ -178,14 +178,6 @@ public class ConstraintViolationBean extends ReflectionUtil {
       // argMap.put(, PropertyFileUtil.getMessage(locale, key));
     }
 
-    // PatternWithDescription: descriptionId
-    if (paramMap.containsKey("descriptionId")) {
-      messageParameterSet.add(new LocalizedMessageParameter("patternDescription",
-          new PropertyFileUtilFileKindEnum[] {
-              PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-          (String) paramMap.get("descriptionId"), new Arg[] {}));
-    }
-
     // Comparison validators
     if (paramMap.containsKey("basisPropertyPath")) {
       String bpp = (String) paramMap.get("basisPropertyPath");
@@ -371,12 +363,13 @@ public class ConstraintViolationBean extends ReflectionUtil {
   }
 
   /**
-   * Stores message parameters for ValidationAppException.
-   *     Parameters in it is resolved the value from the key with {@code PropertyFileUtil},
-   *     and put into paramMap to be used as parameters for Validation messages.
+   * Stores parameters of information on a message for ValidationAppException.
    * 
-   * <p>It is used to resolve display name at ExceptionHandler
+   * <p>It is resolved to message value at ExceptionHandler
    *     Because there is a locale there.</p>
+   *     
+   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
+   *     propertyPathKey is set as the value.</p>
    */
   public static record LocalizedMessageParameter(String parameterKey,
       PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {

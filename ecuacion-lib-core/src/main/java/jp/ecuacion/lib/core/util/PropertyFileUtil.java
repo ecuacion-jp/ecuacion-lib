@@ -1197,7 +1197,9 @@ public class PropertyFileUtil {
         new String[][] {new String[] {"ValidationMessagesWithItemNames"}}, false),
 
     VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
-        new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}}, false);
+        new String[][] {new String[] {"ValidationMessagesPatternDescriptions"},
+            new String[] {"ValidationMessages"}},
+        false);
 
     private String[][] actualFilePrefixes;
     private boolean throwsExceptionWhenKeyDoesNotExist;
