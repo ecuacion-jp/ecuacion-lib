@@ -66,7 +66,7 @@ public @interface GreaterThanOrEqualTo {
   /** 
    * Returns message ID.
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.GreaterThan.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.GreaterThanOrEqualTo.message}";
 
   /** 
    * Returns groups.
