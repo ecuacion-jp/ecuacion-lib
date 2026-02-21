@@ -20,14 +20,14 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
@@ -41,42 +41,82 @@ public class ValidationUtil {
   private ValidationUtil() {}
 
   /**
-  * Validates and returns {@code ConstraintViolation} if validation errors exist.
-  *
-  * @param <T> any class
-  * @param object object to validate
-  * @return a Set of ConstraintViolation, may be null when no validation errors exist.
-  *
-  * @see jakarta.validation.Validator
-  */
+   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
+   * 
+   * <p>It returns an empty set when no errors occur 
+   *     according to the specification of jakarta validation.</p>
+   * 
+   * @param <T> ConstraintViolation 
+   * @param object object to validate
+   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
+   */
   @Nonnull
-  public static <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object) {
-    ObjectsUtil.requireNonNull(object);
-    return validate(object, (Class<?>[]) null);
+  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object) {
+    return validate(object, new Class<?>[] {});
   }
 
   /**
-  * Validates and returns {@code ConstraintViolation} if validation errors exist.
-  *
-  * @param <T> any class
-  * @param object object to validate
-  * @return a Set of ConstraintViolation, may be null when no validation errors exist.
-  *
-  * @see jakarta.validation.Validator
-  */
+   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
+   * 
+   * <p>It returns an empty set when no errors occur 
+   *     according to the specification of jakarta validation.</p>
+   * 
+   * @param <T> ConstraintViolation 
+   * @param object object to validate
+   * @param groups validation groups
+   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
+   */
   @Nonnull
-  public static <T> Set<ConstraintViolation<T>> validate(@RequireNonnull T object,
+  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
       Class<?>... groups) {
-    ObjectsUtil.requireNonNull(object);
-    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    return validate(object, null, groups);
+  }
 
-    // validator never returns null
-    if (groups == null) {
-      return validator.validate(object);
+  /**
+   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
+   * 
+   * <p>It returns an empty set when no errors occur 
+   *     according to the specification of jakarta validation.</p>
+   * 
+   * @param <T> ConstraintViolation 
+   * @param object object to validate
+   * @param parameterBean See {@link ParameterBean}.
+   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
+      @Nullable ParameterBean parameterBean) {
+    return validate(object, parameterBean, new Class<?>[] {});
+  }
 
-    } else {
-      return validator.validate(object, groups);
-    }
+  /**
+   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
+   * 
+   * <p>It returns an empty set when no errors occur 
+   *     according to the specification of jakarta validation.</p>
+   * 
+   * @param <T> ConstraintViolation 
+   * @param object object to validate
+   * @param parameterBean See {@link ParameterBean}.
+   * @param groups validation groups
+   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
+      @Nullable ParameterBean parameterBean, Class<?>... groups) {
+    Validator v = Validation.buildDefaultValidatorFactory().getValidator();
+    Set<ConstraintViolation<T>> set =
+        (groups == null || groups.length == 0) ? v.validate(object) : v.validate(object, groups);
+
+    ParameterBean param = parameterBean == null ? new ParameterBean() : parameterBean;
+
+    List<ConstraintViolationBean<T>> list =
+        set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
+            .peek(cv -> cv.setMessageWithItemName(param.addsItemNameToMessage))
+            .peek(cv -> cv.setMessagePrefix(param.getMessagePrefix()))
+            .peek(cv -> cv.setMessagePostfix(param.getMessagePostfix())).toList();
+
+    return new HashSet<>(list);
   }
 
   /**
@@ -142,7 +182,7 @@ public class ValidationUtil {
    */
   @Nonnull
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object) {
-    return validateThenReturn(object, null, null, null, (Class<?>[]) null);
+    return validateThenReturn(object, false, null, null, (Class<?>[]) null);
   }
 
   /**
@@ -155,7 +195,7 @@ public class ValidationUtil {
   @Nonnull
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       Class<?>... groups) {
-    return validateThenReturn(object, null, null, null, groups);
+    return validateThenReturn(object, false, null, null, groups);
   }
 
   /**
@@ -210,34 +250,112 @@ public class ValidationUtil {
    */
   @Nonnull
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
-      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix, Class<?>... groups) {
-    Set<ConstraintViolation<T>> set = ValidationUtil.validate(object, groups);
+      boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
+      Class<?>... groups) {
+    Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
+        new ParameterBean().addsItemNameToMessage(addsItemNameToMessage)
+            .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
+        groups);
 
-    MultipleAppException exList = null;
-    if (set != null && set.size() > 0) {
-      List<SingleAppException> list = new ArrayList<>();
-      for (ConstraintViolation<T> v : set) {
-        ValidationAppException bvex = new ValidationAppException(v)
-            .setMessageWithItemName(addsItemNameToMessage == null ? false : addsItemNameToMessage);
+    MultipleAppException listEx = new MultipleAppException(
+        set.stream().map(bean -> new ValidationAppException(bean)).toList());
 
-        if (messagePrefix != null) {
-          bvex.setMessagePrefix(messagePrefix);
-        }
+    return Optional.ofNullable(listEx);
+  }
 
-        if (messagePostfix != null) {
-          bvex.setMessagePostfix(messagePostfix);
-        }
+  /**
+   * Constructs and returns ParameterBean.
+   */
+  public static ParameterBean parameters() {
+    return new ParameterBean();
+  }
 
-        list.add(bvex);
-      }
+  /**
+   * Stores validation parameters.
+   * 
+   * <p>3 parameters are stored, which are meant to show
+   *     understandable error messages for non-display-value-validations 
+   *     (like validations to uploaded excel files) 
+   *     when the message displaying setting designates messages are to be shown 
+   *     at the bottom of each item.<br>
+   *     Prefix and postfix are used to additional explanation for error messages, 
+   *     like "About the uploaded excel file, ".</p>
+   * 
+   * <p>addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
+   *        It may be {@code null}, which is equal to {@code false}.</p>
+   * 
+   * <p>messagePrefix Used when you want to put an additional message 
+   *     before the original message. It may be {@code null}, which means no messages added.</p>
+   * 
+   * <p>messagePostfix Used when you want to put an additional message 
+   *     after the original message. It may be {@code null}, which means no messages added.</p>
+   */
+  public static class ParameterBean {
 
-      exList = new MultipleAppException(list);
+    private boolean addsItemNameToMessage = false;
+    private Arg messagePrefix;
+    private Arg messagePostfix;
 
-    } else {
-      exList = null;
+    /**
+     * Construct a new instance. Construction from outside not allowed.
+     */
+    ParameterBean() {
+
     }
 
-    return Optional.ofNullable(exList);
+    /**
+     * Returns addsItemNameToMessage.
+     */
+    public boolean addsItemNameToMessage() {
+      return addsItemNameToMessage;
+    }
+
+    /**
+     * Sets messagePrefix and returns this.
+     */
+    public ParameterBean addsItemNameToMessage(boolean addsItemNameToMessage) {
+      this.addsItemNameToMessage = addsItemNameToMessage;
+      return this;
+    }
+
+    public Arg getMessagePrefix() {
+      return messagePrefix;
+    }
+
+    /**
+     * Sets messagePrefix and returns this.
+     */
+    public ParameterBean messagePrefix(Arg messagePrefix) {
+      this.messagePrefix = messagePrefix;
+      return this;
+    }
+
+    /**
+     * Sets messagePrefix and returns this.
+     */
+    public ParameterBean messagePrefix(String messagePrefix) {
+      this.messagePrefix = Arg.string(messagePrefix);
+      return this;
+    }
+
+    public Arg getMessagePostfix() {
+      return messagePostfix;
+    }
+
+    /**
+     * Sets messagePostfix and returns this.
+     */
+    public ParameterBean messagePostfix(String messagePostfix) {
+      this.messagePostfix = Arg.string(messagePostfix);
+      return this;
+    }
+
+    /**
+     * Sets messagePostfix and returns this.
+     */
+    public ParameterBean messagePostfix(Arg messagePostfix) {
+      this.messagePostfix = messagePostfix;
+      return this;
+    }
   }
 }
