@@ -25,52 +25,56 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
-import jp.ecuacion.lib.validation.constraints.NotEmptyWhen.ConditionalNotEmptyList;
+import jp.ecuacion.lib.validation.constraints.NotEmptyWhen.NotEmptyWhenList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 /**
- * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
+ * Checks if specified {@code propertyPath} is not empty only when condition is satisfied.
  */
 @PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ConditionalNotEmptyList.class)
+@Repeatable(NotEmptyWhenList.class)
 @Documented
 @Constraint(validatedBy = {NotEmptyWhenValidator.class})
 public @interface NotEmptyWhen {
 
   /** 
-   * Validated field.
+   * Is a validated field.
    * 
    * <p>Its name is {@code propertyPath}, not {@code field} 
    *     because basically you set field names (like 'name'), 
    *     but you can also set a field in a bean (like 'dept.name').</p>
+   * 
+   * <p>The datatype is an array in order to validate multiple values at once.</p>
    * 
    * @return propertyPath
    */
   String[] propertyPath();
 
   /**
-   * Conditional field. Validation check is executed 
-   * only when the value of this field is equal to the value 
-   * which {@code fieldWhichHoldsConditionalValue} holds.
+   * Is a field, whose value determines whether the validation is executed or not.
    * 
    * <p>Its name is {@code conditionPropertyPath}, not {@code conditionField} 
    *     because basically you set field names (like 'name'), 
    *     but you can also set a field in a bean (like 'dept.name').</p>
    *     
-   * @return condition field name
+   * @return conditionPropertyPath
    */
   String conditionPropertyPath();
 
   /**
-   * Specifies how to determine condition is valid.
+   * Specifies a value used for determination whether validation is executed or not.
    * 
-   * <p>For example, we can say condition is satisfied 
-   *     when the value of conditionField is not empty, 
-   *     or the value of conditionField is equal to "a".<br>
-   *     This field specifies how to determine that the condition is satisfied.</p>
+   * <p>ConditionValue has several types of values.<br><br>
+   *     Values which designate fixed values (such as EMPTY, TRUE, FALSE) means 
+   *     the same as empty (null for all datatypes and "" for String)
+   *     and boolean true / false.<br>
+   *     Values such as STRING, PATTERN and VALUE_OF_PROPERTY_PATH does not 
+   *     directly express fixed values. So they need additional parameters to specify
+   *     a variety of values.
+   *     </p>
    * 
    * @return ConditionPattern
    */
@@ -87,29 +91,32 @@ public @interface NotEmptyWhen {
   /**
    * Specifies condition value string.
    * 
-   * <p>This is used when {@code HowToDetermineConditionIsValid} is either 
-   *     {@code stringValueOfConditionFieldIsEqualTo} 
-   *     or {@code stringValueOfConditionFieldIsNotEqualTo}.
-   *     Otherwise it must be unset.</p>
+   * <p>This is used when {@code ConditionValue} is {@code STRING}. Otherwise it must be unset.</p>
    * 
-   * <p>When {@code stringValueOfConditionFieldIsEqualTo} is selected,
-   *     a condition is considered to be satisfied 
-   *     if one of the values of this field is equal to the value of conditionField.<br>
-   *     When {@code stringValueOfConditionFieldIsNotEqualTo} is selected,
-   *     a condition is considered to be satisfied 
-   *     if all of the values of this field is NOT equal to the value of conditionField.<br>
+   * <p>The condition is satisfied when {@code ConditionOperator} is {@code EQUAL_TO} and
+   *     one of the values of this field is equal to the value of conditionPropertyPath.<br>
+   *     Otherwise when {@code ConditionOperator} is {@code NOT_EQUAL_TO}.</p>
    * 
-   * <p>You can use {@code stringValueOfConditionFieldIsEqualTo}
-   *     and {@code stringValueOfConditionFieldIsNotEqualTo} 
+   * <p>You can use {@code ConditionValue == STRING} 
    *     only when the datatype of conditionField is string. 
    *     Otherwise you need to choose other choice.</p>
    * 
    * @return an array of string values
    */
   String[] conditionValueString() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
-  
+
   /**
    * Specifies condition regular expression.
+   * 
+   * <p>This is used when {@code ConditionValue} is {@code PATTERN}. Otherwise it must be unset.</p>
+   * 
+   * <p>The condition is satisfied when {@code ConditionOperator} is {@code EQUAL_TO} and
+   *     the value of conditionPropertyPath satisfies the regular expression.<br>
+   *     Otherwise when {@code ConditionOperator} is {@code NOT_EQUAL_TO}.</p>
+   *     
+   * <p>You can use {@code ConditionValue == Pattern} 
+   *     only when the datatype of conditionField is string. 
+   *     Otherwise you need to choose other choice.</p>
    * 
    * @return regular expression
    */
@@ -118,25 +125,24 @@ public @interface NotEmptyWhen {
   /**
    * Specifies condition value field.
    * 
-   * <p>This is used when {@code valueOfPropertyPath} is  {@code valueOfPropertyPath}.
+   * <p>This is used when {@code ConditionValue} is {@code VALUE_OF_PROPERTY_PATH}.
    *     Otherwise it must be unset.</p>
    * 
-   * <p>The datatype of the field specifies {@code conditionValueField} can be an array.<br><br>
-   *     When {@code ConditionOperator.equalTo} is selected,
-   *     a condition is considered to be satisfied 
-   *     if one of the values of the field {@code conditionValueField} specifies 
-   *     is equal to the value of conditionField.<br>
-   *     When {@code ConditionOperator.notEqualTo} is selected,
-   *     a condition is considered to be satisfied 
-   *     if all of the values of the field {@code conditionValueField} specifies 
-   *     is NOT equal to the value of conditionField.<br>
+   * <p>The datatype of {@code conditionValuePropertyPath} can be the same as 
+   *     that of {@code conditionPropertyPath}, or its array. 
+   *     ({@code Collection} not supported)</p>
+   * 
+   * <p>The condition is satisfied when {@code ConditionOperator} is {@code EQUAL_TO} and
+   *     the value of {@code conditionPropertyPath} is equal to the value [one of values] of 
+   *     {@code conditionValuePropertyPath}.<br>
+   *     Otherwise when {@code ConditionOperator} is {@code NOT_EQUAL_TO}.</p>
    * 
    * @return an array of string values
    */
   String conditionValuePropertyPath() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
-   * Specifies a field which holds the display name of condition value.
+   * Specifies the the display string of condition value.
    * 
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
@@ -144,11 +150,10 @@ public @interface NotEmptyWhen {
    * 
    * @return String
    */
-  String displayStringPropertyPathOfConditionValuePropertyPath() default "";
+  String displayStringOfConditionValue() default "";
 
   /**
-   * Decides whether validation check is executed 
-   *     when the value of {@code conditionField} is not equal to the specified value.
+   * Decides whether validation check is executed when the condition is not satisfied.
    * 
    * @return boolean
    */
@@ -159,7 +164,7 @@ public @interface NotEmptyWhen {
    * 
    * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.ConditionalNotEmpty.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.NotEmptyWhen.message}";
 
   /** 
    * Returns groups.
@@ -181,12 +186,12 @@ public @interface NotEmptyWhen {
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface ConditionalNotEmptyList {
+  public @interface NotEmptyWhenList {
 
     /**
-     * Returns an array of ConditionalNotEmpty.
+     * Returns an array of NotEmptyWhen.
      * 
-     * @return an array of ConditionalNotEmpty
+     * @return an array of NotEmptyWhen
      */
     NotEmptyWhen[] value();
   }
