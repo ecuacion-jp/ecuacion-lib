@@ -74,7 +74,7 @@ public @interface EmptyWhen {
    * 
    * @return ConditionPattern
    */
-  ConditionValue conditionPattern();
+  ConditionValue conditionValue();
 
   /**
    * Specifies the operator applied between the value of a condition field and the condition value
