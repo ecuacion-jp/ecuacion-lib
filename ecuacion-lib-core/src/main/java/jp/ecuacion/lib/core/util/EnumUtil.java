@@ -252,14 +252,17 @@ public class EnumUtil {
 
   private static enum ListForHtmlSelectOptionEnum {
     //@formatter:off
-    including, excluding, firstCharOfCodeEqualTo, firstCharOfCodeLessThanOrEqualTo, 
-    firstCharOfCodeGreaterThanOrEqualTo;
+    INCLUDING, EXCLUDING, FIRST_CHAR_OF_CODE_EQUAL_TO, FIRST_CHAR_OF_CODE_LESS_THAN_OR_EQUAL_TO, 
+    FIRST_CHAR_OF_CODE_GREATER_THAN_OR_EQUAL_TO;
     //@formatter:on
 
     public static Set<String> getNameSet() {
       Set<String> rtnSet = new HashSet<>();
       for (ListForHtmlSelectOptionEnum anEnum : ListForHtmlSelectOptionEnum.values()) {
         rtnSet.add(anEnum.name());
+        
+        // Add camelcase string too.
+        rtnSet.add(StringUtil.getLowerCamelFromSnake(anEnum.name()));
       }
 
       return rtnSet;
