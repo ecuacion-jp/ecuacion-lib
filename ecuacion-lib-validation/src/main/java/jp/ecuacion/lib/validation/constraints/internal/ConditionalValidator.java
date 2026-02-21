@@ -57,8 +57,6 @@ public abstract class ConditionalValidator extends ClassValidator {
   public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
-  public static final String DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH =
-      "displayStringPropertyPathOfConditionValuePropertyPath";
 
   public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
