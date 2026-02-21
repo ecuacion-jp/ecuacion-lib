@@ -23,7 +23,6 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.StringUtil;
 
 /**
@@ -32,22 +31,16 @@ import jp.ecuacion.lib.core.util.StringUtil;
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  private ConstraintViolationBean bean;
-
-  private boolean isMessageWithItemName;
-
-  private Arg messagePrefix;
-
-  private Arg messagePostfix;
+  private ConstraintViolationBean<?> bean;
 
   /**
    * Constructs a new instance with Jakarta Validation violation.
    *
    * @param violation violation result
    */
-  public ValidationAppException(@RequireNonnull ConstraintViolation<?> violation) {
+  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation) {
     super(violation.getMessage());
-    this.bean = new ConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
+    this.bean = new ConstraintViolationBean<T>(ObjectsUtil.requireNonNull(violation));
   }
 
   /**
@@ -59,7 +52,7 @@ public class ValidationAppException extends SingleAppException {
    * 
    * @param bean BeanValidationErrorInfoBean
    */
-  public ValidationAppException(@RequireNonnull ConstraintViolationBean bean) {
+  public <T> ValidationAppException(@RequireNonnull ConstraintViolationBean<T> bean) {
     this.bean = ObjectsUtil.requireNonNull(bean);
   }
 
@@ -68,7 +61,7 @@ public class ValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
-  public ConstraintViolationBean getConstraintViolationBean() {
+  public ConstraintViolationBean<?> getConstraintViolationBean() {
     return bean;
   }
 
@@ -93,53 +86,6 @@ public class ValidationAppException extends SingleAppException {
         + StringUtil.getCsv(
             bean.getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
         + "\n" + "invalidValue:" + bean.getInvalidValue();
-  }
-
-  /**
-   * Obtains {@code isMessageWithItemName}.
-   * 
-   * @return boolean
-   */
-  public boolean isMessageWithItemName() {
-    return isMessageWithItemName;
-  }
-
-  /**
-   * Sets {@code isMessageWithItemName} and returns this for method chain.
-   * 
-   * @return BeanValidationErrorInfoBean;
-   */
-  public ValidationAppException setMessageWithItemName(boolean isMessageWithItemName) {
-    this.isMessageWithItemName = isMessageWithItemName;
-    return this;
-  }
-
-  public Arg getMessagePrefix() {
-    return messagePrefix;
-  }
-
-  /**
-   * Sets {@code messagePrefix} and returns this for method chain.
-   * 
-   * @return BeanValidationErrorInfoBean;
-   */
-  public ValidationAppException setMessagePrefix(Arg messagePrefix) {
-    this.messagePrefix = messagePrefix;
-    return this;
-  }
-
-  /**
-   * Sets {@code messagePostfix} and returns this for method chain.
-   * 
-   * @return BeanValidationErrorInfoBean;
-   */
-
-  public Arg getMessagePostfix() {
-    return messagePostfix;
-  }
-
-  public void setMessagePostfix(Arg messagePostfix) {
-    this.messagePostfix = messagePostfix;
   }
 
   @Override

@@ -41,8 +41,8 @@ import org.apache.commons.lang3.StringUtils;
  *     which are not created by {@code Jakarata Validation} can also be treated 
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean extends ReflectionUtil {
-  private ConstraintViolation<?> cv;
+public class ConstraintViolationBean<T> extends ReflectionUtil {
+  private ConstraintViolation<T> cv;
 
   // properties in ConstraintViolation
 
@@ -55,6 +55,10 @@ public class ConstraintViolationBean extends ReflectionUtil {
   // values needed for all the patterns
 
   private List<FieldInfoBean> fieldInfoBeanList;
+
+  private boolean isMessageWithItemName;
+  private Arg messagePrefix;
+  private Arg messagePostfix;
 
   // values needed for validations for form
 
@@ -92,15 +96,14 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * 
    * <p>This is used for {@code NotEmpty} validation logic.</p>
    */
-  public ConstraintViolationBean(Object rootBean, String message, String validatorClass,
+  public ConstraintViolationBean(T rootBean, String message, String validatorClass,
       String rootRecordNameForForm, String itemPropertyPath) {
 
     List<FieldInfoBean> beanList = new ArrayList<>();
     beanList.add(new FieldInfoBean(rootRecordNameForForm + "." + itemPropertyPath));
     beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
 
-    putArgsToFields(rootBean,
-        getLeafBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
+    putArgsToFields(rootBean, getLeafBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
         validatorClass, message, validatorClass + ".message", rootRecordNameForForm, beanList);
 
     putArgsToParamMap("(empty)");
@@ -116,7 +119,7 @@ public class ConstraintViolationBean extends ReflectionUtil {
    * 
    * @param cv ConstraintViolation
    */
-  public ConstraintViolationBean(ConstraintViolation<?> cv) {
+  public ConstraintViolationBean(ConstraintViolation<T> cv) {
     this.cv = cv;
 
     // Initialize paramMap.
@@ -309,6 +312,30 @@ public class ConstraintViolationBean extends ReflectionUtil {
 
   public @Nonnull String getMessageId() {
     return messageTemplate;
+  }
+
+  public boolean isMessageWithItemName() {
+    return isMessageWithItemName;
+  }
+
+  public void setMessageWithItemName(boolean isMessageWithItemName) {
+    this.isMessageWithItemName = isMessageWithItemName;
+  }
+
+  public Arg getMessagePrefix() {
+    return messagePrefix;
+  }
+  
+  public void setMessagePrefix(Arg messagePrefix) {
+    this.messagePrefix = messagePrefix;
+  }
+
+  public Arg getMessagePostfix() {
+    return messagePostfix;
+  }
+
+  public void setMessagePostfix(Arg messagePostfix) {
+    this.messagePostfix = messagePostfix;
   }
 
   public String getRootRecordNameForForm() {
