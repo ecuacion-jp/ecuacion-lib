@@ -33,39 +33,6 @@ public class ConditinalValidatorTestBean {
     public ConditionValueString(String condFieldValue) {
       condField = condFieldValue;
     }
-
-    // public static class Null {
-    //
-    // private String field;
-    // private String condField;
-    //
-    // public Null(String fieldValue, String condFieldValue) {
-    // field = fieldValue;
-    // condField = condFieldValue;
-    // }
-    // }
-    //
-    // public static class Blank {
-    //
-    // private String field;
-    // private String condField;
-    //
-    // public Blank(String fieldValue, String condFieldValue) {
-    // field = fieldValue;
-    // condField = condFieldValue;
-    // }
-    // }
-    //
-    // public static class StrA {
-    //
-    // private String field;
-    // private String condField;
-    //
-    // public StrA(String fieldValue, String condFieldValue) {
-    // field = fieldValue;
-    // condField = condFieldValue;
-    // }
-    // }
   }
 
   public static class ConditionValueIsEmpty {

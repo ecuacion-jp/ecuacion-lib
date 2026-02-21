@@ -30,8 +30,8 @@ public class EmptyWhenValidator extends ConditionalValidator
   public void initialize(EmptyWhen annotation) {
     super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
         annotation.conditionValue(), annotation.conditionOperator(),
-        annotation.conditionValueString(), annotation.conditionValuePropertyPath(),
-        annotation.notEmptyWhenConditionNotSatisfied());
+        annotation.conditionValueString(), annotation.conditionValueRegexp(),
+        annotation.conditionValuePropertyPath(), annotation.notEmptyWhenConditionNotSatisfied());
   }
 
   @Override

@@ -19,6 +19,8 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQU
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
@@ -26,11 +28,14 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class ConditionalValidator extends ClassValidator {
@@ -38,6 +43,7 @@ public abstract class ConditionalValidator extends ClassValidator {
   private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;
   private String[] conditionValueString;
+  private String conditionValueRegexp;
   private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
 
@@ -60,14 +66,15 @@ public abstract class ConditionalValidator extends ClassValidator {
 
   public void initialize(String[] propertyPath, String conditionPropertyPath,
       ConditionValue conditionPattern, ConditionOperator conditionOperator,
-      String[] conditionValueString, String conditionValuePropertyPath,
-      boolean validatesWhenConditionNotSatisfied) {
+      String[] conditionValueString, String conditionValuePattern,
+      String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
     super.initialize(propertyPath);
 
     this.conditionPropertyPath = conditionPropertyPath;
     this.conditionPattern = conditionPattern;
     this.conditionOperator = conditionOperator;
     this.conditionValueString = conditionValueString;
+    this.conditionValueRegexp = conditionValuePattern;
     this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
@@ -115,15 +122,17 @@ public abstract class ConditionalValidator extends ClassValidator {
 
   boolean getSatisfiesCondition(Object instance) {
 
-    Object valueOfConditionField = getValue(instance, conditionPropertyPath);
+    Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
     if (conditionPattern == EMPTY) {
 
       conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
       conditionValueFieldMustNotSet();
 
-      boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
-          && ((String) valueOfConditionField).equals(""));
+      boolean isEmpty =
+          valueOfConditionPropertyPath == null || (valueOfConditionPropertyPath instanceof String
+              && ((String) valueOfConditionPropertyPath).equals(""));
 
       if (isEmpty && conditionOperator == EQUAL_TO
           || !isEmpty && conditionOperator == NOT_EQUAL_TO) {
@@ -133,13 +142,15 @@ public abstract class ConditionalValidator extends ClassValidator {
     } else if (conditionPattern == TRUE || conditionPattern == FALSE) {
 
       conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
       conditionValueFieldMustNotSet();
 
-      if (valueOfConditionField != null && !(valueOfConditionField instanceof Boolean)) {
+      if (valueOfConditionPropertyPath != null
+          && !(valueOfConditionPropertyPath instanceof Boolean)) {
         throw new EclibRuntimeException("The data type of conditionPropertyPath must be boolean");
       }
 
-      Boolean bl = (Boolean) valueOfConditionField;
+      Boolean bl = (Boolean) valueOfConditionPropertyPath;
 
       boolean validWhenBooleanTrue = (conditionOperator == EQUAL_TO && bl != null && bl)
           || (conditionOperator == NOT_EQUAL_TO && (bl == null || !bl));
@@ -148,9 +159,63 @@ public abstract class ConditionalValidator extends ClassValidator {
 
       return conditionPattern == TRUE ? validWhenBooleanTrue : validWhenBooleanFalse;
 
+    } else if (conditionPattern == STRING) {
+
+      conditionValueRegexpMustNotSet();
+      conditionValueFieldMustNotSet();
+
+      if (valueOfConditionPropertyPath == null) {
+        valueOfConditionPropertyPath = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+      }
+
+      // datatype of valueOfConditionField must be String.
+      if (!(valueOfConditionPropertyPath instanceof String)) {
+        throw new EclibRuntimeException("'valueOfConditionPropertyPath' must be String.");
+      }
+
+      boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionPropertyPath);
+      if (contains && conditionOperator == EQUAL_TO
+          || !contains && conditionOperator == NOT_EQUAL_TO) {
+        return true;
+      }
+
+    } else if (conditionPattern == PATTERN) {
+
+      conditionValueStringMustNotSet();
+      conditionValueFieldMustNotSet();
+
+      // Condition is considered not to be satisfied when valueOfConditionPropertyPath is null or
+      // blank.
+      // If you want the condition to be satisfied, add one more validator with conditionValue ==
+      // EMPTY.
+      if (valueOfConditionPropertyPath == null || (valueOfConditionPropertyPath instanceof String
+          && StringUtils.isEmpty((String) valueOfConditionPropertyPath))) {
+        return false;
+      }
+
+      // datatype of valueOfConditionField must be String.
+      if (!(valueOfConditionPropertyPath instanceof String)) {
+        throw new EclibRuntimeException("'valueOfConditionPropertyPath' must be String.");
+      }
+
+      // Pattern must be set.
+      if (conditionValueRegexp.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+        throw new EclibRuntimeException("'conditionValuePattern' must be set.");
+      }
+
+      Pattern p = Pattern.compile(conditionValueRegexp);
+      Matcher m = p.matcher((String) valueOfConditionPropertyPath);
+
+      boolean satisfies = m.find();
+      if (satisfies && conditionOperator == EQUAL_TO
+          || !satisfies && conditionOperator == NOT_EQUAL_TO) {
+        return true;
+      }
+
     } else if (conditionPattern == VALUE_OF_PROPERTY_PATH) {
 
       conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
 
       Object valueOfConditionValueField = getValue(instance, conditionValuePropertyPath);
 
@@ -169,12 +234,12 @@ public abstract class ConditionalValidator extends ClassValidator {
           valueListOfConditionValueField.stream().filter(v -> v != null).toList();
       Object firstValueOfConditionValueField = nonnullList.size() == 0 ? null : nonnullList.get(0);
       // if either of 2 values is null you cant check difference of datatype. So both is not null.
-      if (valueOfConditionField != null && firstValueOfConditionValueField != null) {
-        Class<?> valueOfCf = valueOfConditionField.getClass();
+      if (valueOfConditionPropertyPath != null && firstValueOfConditionValueField != null) {
+        Class<?> valueOfCf = valueOfConditionPropertyPath.getClass();
         Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
         if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
           throw new EclibRuntimeException(
-              "Datatype not match. valueOfConditionField: " + valueOfConditionField
+              "Datatype not match. valueOfConditionField: " + valueOfConditionPropertyPath
                   + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
         }
       }
@@ -183,10 +248,10 @@ public abstract class ConditionalValidator extends ClassValidator {
       valueListOfConditionValueField
           .replaceAll(x -> x == null ? EclibCoreConstants.VALIDATOR_PARAMETER_NULL : x);
 
-      boolean contains = (valueOfConditionField == null
+      boolean contains = (valueOfConditionPropertyPath == null
           && valueListOfConditionValueField.contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL))
-          || (valueOfConditionField != null
-              && valueListOfConditionValueField.contains(valueOfConditionField));
+          || (valueOfConditionPropertyPath != null
+              && valueListOfConditionValueField.contains(valueOfConditionPropertyPath));
 
       if (contains && conditionOperator == EQUAL_TO
           || !contains && conditionOperator == NOT_EQUAL_TO) {
@@ -194,24 +259,7 @@ public abstract class ConditionalValidator extends ClassValidator {
       }
 
     } else {
-
-      conditionValueFieldMustNotSet();
-
-      if (valueOfConditionField == null) {
-        valueOfConditionField = EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
-      }
-
-      // When you use 'conditionValue', datatype of valueOfConditionField must be String.
-      if (!(valueOfConditionField instanceof String)) {
-        throw new EclibRuntimeException(
-            "When 'conditionValue' is not null, 'validationConditionField' must be String.");
-      }
-
-      boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
-      if (contains && conditionOperator == EQUAL_TO
-          || !contains && conditionOperator == NOT_EQUAL_TO) {
-        return true;
-      }
+      throw new EclibRuntimeException("Unexpected.");
     }
 
     return false;
@@ -232,11 +280,9 @@ public abstract class ConditionalValidator extends ClassValidator {
 
   private void conditionValueFieldMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!Arrays.asList(conditionValuePropertyPath)
-        .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException("You cannot set 'conditionValueField' when "
-          + "howToDetermineConditionIsValid is not either 'valueOfConditionFieldIsEqualToValueOf' "
-          + "or 'valueOfConditionFieldIsNotEqualToValueOf'.");
+    if (!conditionValuePropertyPath.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException("You cannot set 'conditionValuePropertyPath' when "
+          + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
     }
   }
 
@@ -244,9 +290,15 @@ public abstract class ConditionalValidator extends ClassValidator {
     // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
     if (!Arrays.asList(conditionValueString)
         .contains(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException("You cannot set 'conditionValueString' when "
-          + "howToDetermineConditionIsValid is not either "
-          + "'stringValueOfConditionFieldIsEqualTo' or 'stringValueOfConditionFieldIsNotEqualTo'.");
+      throw new EclibRuntimeException(
+          "You cannot set 'conditionValueString' when conditionValue is not 'STRING'.");
+    }
+  }
+
+  private void conditionValueRegexpMustNotSet() {
+    if (!conditionValueRegexp.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+      throw new EclibRuntimeException(
+          "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
     }
   }
 }

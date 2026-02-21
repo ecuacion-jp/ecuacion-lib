@@ -29,8 +29,10 @@ public enum ConditionValue {
   TRUE, FALSE,
 
   // Setting value of conditionValueString is needed.
-  // stringPattern,
   STRING,
+
+  // Setting value of conditionValuePattern is needed.
+  PATTERN,
 
   // Setting value of conditionValuePropertyPath is needed.
   VALUE_OF_PROPERTY_PATH;

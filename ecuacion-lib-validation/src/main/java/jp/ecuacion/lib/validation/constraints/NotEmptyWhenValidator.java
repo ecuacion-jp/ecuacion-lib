@@ -31,7 +31,7 @@ public class NotEmptyWhenValidator extends ConditionalValidator
   public void initialize(NotEmptyWhen annotation) {
     super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
         annotation.conditionValue(), annotation.conditionOperator(),
-        annotation.conditionValueString(),
+        annotation.conditionValueString(), annotation.conditionValueRegexp(),
         annotation.conditionValuePropertyPath(), annotation.emptyWhenConditionNotSatisfied());
   }
 

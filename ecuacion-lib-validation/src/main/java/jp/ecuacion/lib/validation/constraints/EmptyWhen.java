@@ -107,6 +107,13 @@ public @interface EmptyWhen {
    * @return an array of string values
    */
   String[] conditionValueString() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  
+  /**
+   * Specifies condition regular expression.
+   * 
+   * @return regular expression
+   */
+  String conditionValueRegexp() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies condition value field.
