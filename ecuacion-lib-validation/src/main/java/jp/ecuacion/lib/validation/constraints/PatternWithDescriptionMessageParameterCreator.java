@@ -40,27 +40,16 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
 
     final String key = "description";
-    String description = (String) paramMap.get("description");
-    String descriptionId = (String) paramMap.get("descriptionId");
+    String description = (String) paramMap.get(key);
 
-    boolean isDescriptionNotEmpty = StringUtils.isNotEmpty(description);
-    boolean isDescriptionIdNotEmpty = StringUtils.isNotEmpty(descriptionId);
-
-    if (isDescriptionNotEmpty == isDescriptionIdNotEmpty) {
-      throw new EclibRuntimeException(
-          "@PatternWithDescription needs only one of description or descriptoinId value.");
+    if (StringUtils.isEmpty(description)) {
+      throw new EclibRuntimeException("@PatternWithDescription needs " + key + " value.");
     }
 
-    if (isDescriptionNotEmpty) {
-      messageParameterSet.add(new LocalizedMessageParameter(key,
-          new PropertyFileUtilFileKindEnum[] {}, description, new Arg[] {}));
-
-    } else {
-      messageParameterSet.add(new LocalizedMessageParameter("description",
-          new PropertyFileUtilFileKindEnum[] {
-              PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-          (String) paramMap.get("descriptionId"), new Arg[] {}));
-    }
+    messageParameterSet.add(new LocalizedMessageParameter("description",
+        new PropertyFileUtilFileKindEnum[] {
+            PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
+        (String) paramMap.get("description"), new Arg[] {}));
 
     return messageParameterSet;
   }
