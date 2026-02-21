@@ -19,5 +19,5 @@ package jp.ecuacion.lib.validation.constraints.enums;
  * Specifies operator applied between the value of a condition field and the condition value.
  */
 public enum ConditionOperator {
-  equalTo, notEqualTo;
+  EQUAL_TO, NOT_EQUAL_TO;
 }

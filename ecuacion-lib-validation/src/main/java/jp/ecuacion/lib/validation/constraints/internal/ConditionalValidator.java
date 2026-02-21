@@ -15,12 +15,12 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.equalTo;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.booleanFalse;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.booleanTrue;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.empty;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.valueOfPropertyPath;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.TRUE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public abstract class ConditionalValidator extends ClassValidator {
   private String[] conditionValueString;
   private String conditionValuePropertyPath;
   private boolean validatesWhenConditionNotSatisfied;
-  
+
   private boolean satisfiesCondition = false;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
@@ -94,7 +94,7 @@ public abstract class ConditionalValidator extends ClassValidator {
 
     return true;
   }
-  
+
   public void procedureBeforeLoopForEachPropertyPath(Object instance) {
     satisfiesCondition = getSatisfiesCondition(instance);
   }
@@ -117,7 +117,7 @@ public abstract class ConditionalValidator extends ClassValidator {
 
     Object valueOfConditionField = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == empty) {
+    if (conditionPattern == EMPTY) {
 
       conditionValueStringMustNotSet();
       conditionValueFieldMustNotSet();
@@ -125,11 +125,12 @@ public abstract class ConditionalValidator extends ClassValidator {
       boolean isEmpty = valueOfConditionField == null || (valueOfConditionField instanceof String
           && ((String) valueOfConditionField).equals(""));
 
-      if (isEmpty && conditionOperator == equalTo || !isEmpty && conditionOperator == notEqualTo) {
+      if (isEmpty && conditionOperator == EQUAL_TO
+          || !isEmpty && conditionOperator == NOT_EQUAL_TO) {
         return true;
       }
 
-    } else if (conditionPattern == booleanTrue || conditionPattern == booleanFalse) {
+    } else if (conditionPattern == TRUE || conditionPattern == FALSE) {
 
       conditionValueStringMustNotSet();
       conditionValueFieldMustNotSet();
@@ -140,14 +141,14 @@ public abstract class ConditionalValidator extends ClassValidator {
 
       Boolean bl = (Boolean) valueOfConditionField;
 
-      boolean validWhenBooleanTrue = (conditionOperator == equalTo && bl != null && bl)
-          || (conditionOperator == notEqualTo && (bl == null || !bl));
-      boolean validWhenBooleanFalse = (conditionOperator == equalTo && bl != null && !bl)
-          || (conditionOperator == notEqualTo && (bl == null || bl));
+      boolean validWhenBooleanTrue = (conditionOperator == EQUAL_TO && bl != null && bl)
+          || (conditionOperator == NOT_EQUAL_TO && (bl == null || !bl));
+      boolean validWhenBooleanFalse = (conditionOperator == EQUAL_TO && bl != null && !bl)
+          || (conditionOperator == NOT_EQUAL_TO && (bl == null || bl));
 
-      return conditionPattern == booleanTrue ? validWhenBooleanTrue : validWhenBooleanFalse;
+      return conditionPattern == TRUE ? validWhenBooleanTrue : validWhenBooleanFalse;
 
-    } else if (conditionPattern == valueOfPropertyPath) {
+    } else if (conditionPattern == VALUE_OF_PROPERTY_PATH) {
 
       conditionValueStringMustNotSet();
 
@@ -187,8 +188,8 @@ public abstract class ConditionalValidator extends ClassValidator {
           || (valueOfConditionField != null
               && valueListOfConditionValueField.contains(valueOfConditionField));
 
-      if (contains && conditionOperator == equalTo
-          || !contains && conditionOperator == notEqualTo) {
+      if (contains && conditionOperator == EQUAL_TO
+          || !contains && conditionOperator == NOT_EQUAL_TO) {
         return true;
       }
 
@@ -207,8 +208,8 @@ public abstract class ConditionalValidator extends ClassValidator {
       }
 
       boolean contains = Arrays.asList(conditionValueString).contains(valueOfConditionField);
-      if (contains && conditionOperator == equalTo
-          || !contains && conditionOperator == notEqualTo) {
+      if (contains && conditionOperator == EQUAL_TO
+          || !contains && conditionOperator == NOT_EQUAL_TO) {
         return true;
       }
     }

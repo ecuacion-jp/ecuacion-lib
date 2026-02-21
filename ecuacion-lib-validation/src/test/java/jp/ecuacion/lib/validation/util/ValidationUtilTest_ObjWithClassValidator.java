@@ -19,7 +19,7 @@ import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
 
 @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "conditionValue",
-    conditionPattern = ConditionValuePattern.string,
+    conditionPattern = ConditionValuePattern.STRING,
     conditionValueString = "abc")
 public class ValidationUtilTest_ObjWithClassValidator {
   public String conditionValue = "abc";

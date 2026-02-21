@@ -82,7 +82,7 @@ public @interface EmptyWhen {
    * 
    * @return ConditionOperator
    */
-  ConditionOperator conditionOperator() default ConditionOperator.equalTo;
+  ConditionOperator conditionOperator() default ConditionOperator.EQUAL_TO;
 
   /**
    * Specifies condition value string.

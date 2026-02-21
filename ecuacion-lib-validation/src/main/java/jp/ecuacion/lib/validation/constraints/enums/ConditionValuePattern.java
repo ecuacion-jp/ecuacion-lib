@@ -22,15 +22,16 @@ public enum ConditionValuePattern {
 
   // null (for any data type) or String blank.
   // no additional value selection is needed.
-  empty,
+  EMPTY,
 
   // boolean.
   // no additional value selection is needed.
-  booleanTrue, booleanFalse,
-  
+  TRUE, FALSE,
+
   // Setting value of conditionValueString is needed.
-  string,
+  // stringPattern,
+  STRING,
 
   // Setting value of conditionValuePropertyPath is needed.
-  valueOfPropertyPath;
+  VALUE_OF_PROPERTY_PATH;
 }
