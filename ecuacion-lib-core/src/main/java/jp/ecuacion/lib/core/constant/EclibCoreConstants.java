@@ -34,12 +34,6 @@ public final class EclibCoreConstants {
 
   /** The message contained in {@code RuntimeSystemException}. */
   public static final String MSG_RUNTIME_EXCEPTION_PREFIX = ECLIB_PREFIX + "[RuntimeException] ";
-
-  /**
-   * Constants used when annotation parameter value is null 
-   * because parameter cannot be null value.
-   */
-  public static final String VALIDATOR_PARAMETER_NULL = "[null]";
   
   /**
    * is a large partition or separator which separates lines for log, mail or others.

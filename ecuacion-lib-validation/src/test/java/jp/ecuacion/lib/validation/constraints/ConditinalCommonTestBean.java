@@ -17,7 +17,7 @@ package jp.ecuacion.lib.validation.constraints;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
@@ -25,7 +25,7 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 public class ConditinalCommonTestBean {
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionValue = STRING, conditionValueString = EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
+      conditionValue = STRING, conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoField {
 
     private String afield;
@@ -38,7 +38,7 @@ public class ConditinalCommonTestBean {
   }
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionValue = STRING, conditionValueString = EclibCoreConstants.VALIDATOR_PARAMETER_NULL)
+      conditionValue = STRING, conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoConditionField {
 
     private String field;
