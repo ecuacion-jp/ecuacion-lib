@@ -15,8 +15,8 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
 public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
@@ -60,8 +60,8 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
             bean.itemNameKey));
 
     // displayStringOfConditionValue
-    ConditionValuePattern conditionPtn =
-        (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
+    ConditionValue conditionPtn =
+        (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
     String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
         PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
         PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};

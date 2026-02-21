@@ -17,11 +17,11 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.FALSE;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.TRUE;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.EMPTY;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;

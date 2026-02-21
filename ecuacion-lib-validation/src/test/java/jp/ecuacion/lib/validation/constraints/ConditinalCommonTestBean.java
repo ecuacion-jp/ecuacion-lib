@@ -15,13 +15,11 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.validation.constraints.EmptyWhen;
-import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 @SuppressWarnings("unused")
 public class ConditinalCommonTestBean {
@@ -143,7 +141,7 @@ public class ConditinalCommonTestBean {
   public static class ItemNameKey {
     @NotEmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
         conditionOperator = ConditionOperator.EQUAL_TO,
-        conditionPattern = ConditionValuePattern.EMPTY)
+        conditionPattern = ConditionValue.EMPTY)
     public static class Obj {
       private String field = null;
       private String condField = null;
