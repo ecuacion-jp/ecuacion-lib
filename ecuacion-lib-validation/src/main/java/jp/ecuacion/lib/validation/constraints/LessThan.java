@@ -28,10 +28,10 @@ import jp.ecuacion.lib.validation.constraints.LessThan.LessThanList;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 
 /**
- * Is valid when the value of {@code propertyPaths} is 
+ * Is valid when the value of {@code propertyPath} is 
  * less than the value of {@code basisPropertyPath}.
  * 
- * <p>It returns valid when the value of {@code propertyPaths} 
+ * <p>It returns valid when the value of {@code propertyPath} 
  *     or {@code basisPropertyPath} is {@code null} or blank string.</p>
  */
 @PlacedAtClass
@@ -56,7 +56,7 @@ public @interface LessThan {
   TypeConversionFromString typeConversionFromString() default TypeConversionFromString.NONE;
 
   /**
-   * Stores DateTimeFormatter format for type conversion from string to LocalDate.
+   * Stores DateTimeFormatter format for type conversion from string to Date.
    * It's referred only when typeConversionFromString == DATE.
    * 
    * <p>Default value is "yyyy-MM-dd".</p>
