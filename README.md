@@ -24,7 +24,7 @@ It also provides some utilities used by other ecuacion modules and apps.
         <repository>
             <id>ecuacion-repo-http</id>
             <name>ecuacion-repo-http</name>
-            <url>http://maven-repo.ecuacion.jp/public</url>
+            <url>https://maven-repo.ecuacion.jp/public</url>
         </repository>
     </repositories>
     ```
