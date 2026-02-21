@@ -24,8 +24,8 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 import java.util.regex.PatternSyntaxException;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.internal.ConditinalValidatorTestBean.TestEnum;
 import org.junit.jupiter.api.Assertions;
