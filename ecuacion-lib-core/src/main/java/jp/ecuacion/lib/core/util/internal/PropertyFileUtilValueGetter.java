@@ -346,7 +346,7 @@ public class PropertyFileUtilValueGetter {
         throw ex;
 
       } else {
-        return "[ " + key + " ]";
+        return key;
       }
     }
   }
