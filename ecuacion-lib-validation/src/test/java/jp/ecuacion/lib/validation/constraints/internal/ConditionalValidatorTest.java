@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
+<<<<<<< HEAD
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.FALSE;
@@ -22,6 +23,15 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
+=======
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.equalTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.booleanFalse;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.booleanTrue;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.empty;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.string;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.valueOfPropertyPath;
+>>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
 
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;

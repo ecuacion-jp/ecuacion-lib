@@ -27,7 +27,7 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen.ConditionalNotEmptyList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 /**
  * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
@@ -74,7 +74,7 @@ public @interface NotEmptyWhen {
    * 
    * @return ConditionPattern
    */
-  ConditionValuePattern conditionPattern();
+  ConditionValue conditionPattern();
 
   /**
    * Specifies the operator applied between the value of a condition field and the condition value

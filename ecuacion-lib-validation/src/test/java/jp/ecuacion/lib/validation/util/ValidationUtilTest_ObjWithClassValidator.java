@@ -16,10 +16,14 @@
 package jp.ecuacion.lib.validation.util;
 
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "conditionValue",
+<<<<<<< HEAD
     conditionPattern = ConditionValuePattern.STRING,
+=======
+    conditionPattern = ConditionValue.string,
+>>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
     conditionValueString = "abc")
 public class ValidationUtilTest_ObjWithClassValidator {
   public String conditionValue = "abc";

@@ -15,12 +15,21 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
+<<<<<<< HEAD
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.FALSE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
+=======
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.equalTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.notEqualTo;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.booleanFalse;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.booleanTrue;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.empty;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.valueOfPropertyPath;
+>>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
@@ -30,12 +39,12 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class ConditionalValidator extends ClassValidator {
   private String conditionPropertyPath;
-  private ConditionValuePattern conditionPattern;
+  private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;
   private String[] conditionValueString;
   private String conditionValuePropertyPath;
@@ -59,7 +68,7 @@ public abstract class ConditionalValidator extends ClassValidator {
       "validatesWhenConditionNotSatisfied";
 
   public void initialize(String[] propertyPath, String conditionPropertyPath,
-      ConditionValuePattern conditionPattern, ConditionOperator conditionOperator,
+      ConditionValue conditionPattern, ConditionOperator conditionOperator,
       String[] conditionValueString, String conditionValuePropertyPath,
       boolean validatesWhenConditionNotSatisfied) {
     super.initialize(propertyPath);

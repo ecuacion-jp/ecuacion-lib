@@ -18,7 +18,7 @@ package jp.ecuacion.lib.validation.constraints.enums;
 /**
  * Enumerates how to determine condition is valid.
  */
-public enum ConditionValuePattern {
+public enum ConditionValue {
 
   // null (for any data type) or String blank.
   // no additional value selection is needed.
