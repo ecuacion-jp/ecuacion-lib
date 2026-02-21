@@ -38,21 +38,21 @@ import org.apache.commons.lang3.StringUtils;
 public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
 
-
   @Override
   public Set<LocalizedMessageParameter> create(ConstraintViolation<?> cv,
       Map<String, Object> paramMap, String rootRecordNameForForm) {
     final String annotationPrefix = "jp.ecuacion.lib.validation.constraints.Conditional";
     Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
-    final String validatorClass = (String) paramMap.get("annotation");
-
+    final String validatorClassWithPackage = (String) paramMap.get("annotation");
+    final String validatorClass =
+        validatorClassWithPackage.substring(validatorClassWithPackage.lastIndexOf(".") + 1);
+    
     // conditionFieldItemNameKey
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
-    FieldInfoBean bean = ConstraintViolationBean.getItemDependentValues(
-        conditionPropertyPath, ConstraintViolationBean
-            .getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
+    FieldInfoBean bean = ConstraintViolationBean.getItemDependentValues(conditionPropertyPath,
+        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
         cv.getRootBean(), rootRecordNameForForm);
     messageParameterSet
         .add(new LocalizedMessageParameter(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
@@ -95,8 +95,8 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
     // when fieldHoldingConditionValueDisplayName is not blank,
     // valuesOfConditionFieldToValidate is overrided by its value.
-    String displayStringPropertyPathOfConditionValuePropertyPath = (String) paramMap
-        .get(ConditionalValidator.DISPLAY_STRING_PROPERTY_PATH_OF_CONDITION_VALUE_PROPERTY_PATH);
+    String displayStringPropertyPathOfConditionValuePropertyPath =
+        (String) paramMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE);
     if (!displayStringPropertyPathOfConditionValuePropertyPath.equals("")) {
       Object obj =
           getValue(cv.getLeafBean(), displayStringPropertyPathOfConditionValuePropertyPath);
@@ -114,10 +114,12 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
             displayStringOfConditionValueArg));
 
     // validatesWhenConditionNotSatisfied
-    boolean bl = validatorClass.endsWith("ConditionalEmpty")
-        && (Boolean) paramMap.get("notEmptyWhenConditionNotSatisfied")
-        || validatorClass.endsWith("ConditionalNotEmpty")
-            && (Boolean) paramMap.get("emptyWhenConditionNotSatisfied");
+    boolean bl = switch (validatorClass) {
+      case "EmptyWhen" -> (boolean) paramMap.get("notEmptyWhenConditionNotSatisfied");
+      case "NotEmptyWhen" -> (boolean) paramMap.get("emptyWhenConditionNotSatisfied");
+      default -> false;
+    };
+
     String paramKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
       messageParameterSet.add(new LocalizedMessageParameter(paramKey,
@@ -127,8 +129,8 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
     } else {
       // Add blank ("") value by designating empty PropertyFileUtilFileKindEnum array.
-      messageParameterSet.add(
-          new LocalizedMessageParameter(paramKey, new PropertyFileUtilFileKindEnum[] {}, ""));
+      messageParameterSet
+          .add(new LocalizedMessageParameter(paramKey, new PropertyFileUtilFileKindEnum[] {}, ""));
     }
 
     return messageParameterSet;

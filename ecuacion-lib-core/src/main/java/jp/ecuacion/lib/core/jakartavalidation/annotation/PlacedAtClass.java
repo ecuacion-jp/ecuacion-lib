@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * THIS IS NOT A VALIDTOR. 
- *     It specifies that the validator is placed on class, like {@code ConditionalEmpty}.
+ *     It specifies that the validator is placed on class, like {@code EmptyWhen}.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
