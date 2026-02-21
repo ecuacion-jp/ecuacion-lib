@@ -15,16 +15,9 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-<<<<<<< HEAD
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
-=======
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.string;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.valueOfPropertyPath;
->>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.validation.constraints.EmptyWhen;
-import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
@@ -147,13 +140,8 @@ public class ConditinalCommonTestBean {
 
   public static class ItemNameKey {
     @NotEmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
-<<<<<<< HEAD
         conditionOperator = ConditionOperator.EQUAL_TO,
-        conditionPattern = ConditionValuePattern.EMPTY)
-=======
-        conditionOperator = ConditionOperator.equalTo,
-        conditionPattern = ConditionValue.empty)
->>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
+        conditionPattern = ConditionValue.EMPTY)
     public static class Obj {
       private String field = null;
       private String condField = null;

@@ -15,13 +15,8 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-<<<<<<< HEAD
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.STRING;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.VALUE_OF_PROPERTY_PATH;
-=======
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.string;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.valueOfPropertyPath;
->>>>>>> e3db84f (ConditionValuePattern class renamed to ConditionValue in order to have)
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
