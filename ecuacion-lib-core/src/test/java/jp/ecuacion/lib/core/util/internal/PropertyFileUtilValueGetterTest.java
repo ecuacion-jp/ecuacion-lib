@@ -253,7 +253,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     Assertions.assertEquals(false, OBJ_MSG.hasProp("non-exist-key"));
 
     // getProp : No exception occurs and return key plus alpha string
-    Assertions.assertEquals("[ non-exist-key ]", OBJ_MSG.getProp("non-exist-key", null));
+    Assertions.assertEquals("non-exist-key", OBJ_MSG.getProp("non-exist-key", null));
   }
 
   // To use "default" message by putting the postfix of the message ID ".default"
