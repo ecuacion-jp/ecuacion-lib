@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidator;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidator;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,14 +30,15 @@ public class NotEmptyWhenValidator extends ConditionalValidator
   @Override
   public void initialize(NotEmptyWhen annotation) {
     super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
-        annotation.conditionPattern(), annotation.conditionOperator(),
-        annotation.conditionValueString(),
+        annotation.conditionValue(), annotation.conditionOperator(),
+        annotation.conditionValueString(), annotation.conditionValueRegexp(),
         annotation.conditionValuePropertyPath(), annotation.emptyWhenConditionNotSatisfied());
   }
 
   @Override
   protected boolean isValid(Object valueOfField) {
-    if (valueOfField != null && valueOfField.equals(EclibCoreConstants.VALIDATOR_PARAMETER_NULL)) {
+    if (valueOfField != null
+        && valueOfField.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
       valueOfField = null;
     }
 

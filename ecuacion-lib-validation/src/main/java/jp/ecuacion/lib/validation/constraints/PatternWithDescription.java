@@ -82,13 +82,6 @@ public @interface PatternWithDescription {
   String description() default "";
 
   /**
-   * Stores description ID to add description string to the message to users.
-   * 
-   * @return description ID
-   */
-  String descriptionId() default "";
-
-  /**
    * Defines several {@link Pattern} annotations on the same element.
    *
    * @see Pattern

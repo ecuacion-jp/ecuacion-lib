@@ -23,11 +23,11 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen.ConditionalNotEmptyList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 /**
  * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
@@ -74,7 +74,7 @@ public @interface NotEmptyWhen {
    * 
    * @return ConditionPattern
    */
-  ConditionValuePattern conditionPattern();
+  ConditionValue conditionValue();
 
   /**
    * Specifies the operator applied between the value of a condition field and the condition value
@@ -82,7 +82,7 @@ public @interface NotEmptyWhen {
    * 
    * @return ConditionOperator
    */
-  ConditionOperator conditionOperator() default ConditionOperator.equalTo;
+  ConditionOperator conditionOperator() default ConditionOperator.EQUAL_TO;
 
   /**
    * Specifies condition value string.
@@ -106,7 +106,14 @@ public @interface NotEmptyWhen {
    * 
    * @return an array of string values
    */
-  String[] conditionValueString() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String[] conditionValueString() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  
+  /**
+   * Specifies condition regular expression.
+   * 
+   * @return regular expression
+   */
+  String conditionValueRegexp() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies condition value field.
@@ -126,7 +133,7 @@ public @interface NotEmptyWhen {
    * 
    * @return an array of string values
    */
-  String conditionValuePropertyPath() default EclibCoreConstants.VALIDATOR_PARAMETER_NULL;
+  String conditionValuePropertyPath() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies a field which holds the display name of condition value.

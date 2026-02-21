@@ -15,8 +15,8 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.string;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern.valueOfPropertyPath;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.validation.constraints.enums.ConditionValuePattern;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
 public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
@@ -60,14 +60,14 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
             bean.itemNameKey));
 
     // displayStringOfConditionValue
-    ConditionValuePattern conditionPtn =
-        (ConditionValuePattern) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
+    ConditionValue conditionPtn =
+        (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
     String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
         PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
         PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
     Arg displayStringOfConditionValueArg = Arg.string("");
 
-    if (conditionPtn == valueOfPropertyPath) {
+    if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
       Object obj = getValue(cv.getLeafBean(),
           (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
       String displayStringOfConditionValue = null;
@@ -84,7 +84,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
       displayStringOfConditionValueArg = Arg.get(fileKinds, displayStringOfConditionValue);
 
-    } else if (conditionPtn == string) {
+    } else if (conditionPtn == STRING) {
       // conditionValue is used
       String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
       Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strs));
