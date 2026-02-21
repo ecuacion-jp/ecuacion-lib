@@ -27,7 +27,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BeanValidationAppExceptionTest {
+public class ValidationAppExceptionTest {
 
   private ConstraintViolation<SampleObj> violation;
 
@@ -75,7 +75,7 @@ public class BeanValidationAppExceptionTest {
         "jp.ecuacion.lib.core.exception.checked." + "BeanValidationAppExceptionTest$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getValidatorClass())
         .isEqualTo("jakarta.validation.constraints.NotNull");
     Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
@@ -90,7 +90,7 @@ public class BeanValidationAppExceptionTest {
   @Test
   public void test11_obtaining_messageId() {
     ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getValidatorClass()).isEqualTo("jakarta.validation.constraints.NotNull");
   }
 
