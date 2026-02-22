@@ -24,77 +24,51 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
-import jp.ecuacion.lib.validation.constraints.LessThan.LessThanList;
-import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
+import jp.ecuacion.lib.validation.constraints.AnyEmpty.AnyEmptyList;
 
 /**
- * Is valid when the value of {@code propertyPath} is 
- * less than the value of {@code basisPropertyPath}.
- * 
- * <p>It returns valid when the value of {@code propertyPath} 
- *     or {@code basisPropertyPath} is {@code null} or blank string.</p>
+ * Is valid when at least one of the values of {@code propertyPath} is empty.
  */
 @PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(LessThanList.class)
+@Repeatable(AnyEmptyList.class)
 @Documented
-@Constraint(validatedBy = {LessThanValidator.class})
-public @interface LessThan {
+@Constraint(validatedBy = {AnyEmptyValidator.class})
+public @interface AnyEmpty {
 
-  /** Is the propertyPath being compared. */
+  /** 
+   * Is the array of propertyPath. 
+   * The validation result is true when one of the values is empty.
+   */
   String[] propertyPath();
 
-  /** Is the propertyPath of the basis for comparison. */
-  String basisPropertyPath();
-
-  /** 
-   * Offers conversion to designated type from string value before comparing values.
-   * 
-   * <p>Default value is {@code NONE}, which means no conversions executed.</p>
-   */
-  TypeConversionFromString typeConversionFromString() default TypeConversionFromString.NONE;
-
-  /**
-   * Stores DateTimeFormatter format for type conversion from string to Date.
-   * It's referred only when typeConversionFromString == DATE.
-   * 
-   * <p>Default value is "yyyy-MM-dd".</p>
-   */
-  String typeConversionDateFormat() default "yyyy-MM-dd";
-  
   /** 
    * Returns message ID.
-   * 
-   * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.LessThan.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.AnyEmpty.message}";
 
   /** 
    * Returns groups.
-   * 
-   * @return groups
    */
   Class<?>[] groups() default {};
 
   /** 
    * Returns payload.
-   * 
-   * @return payload
    */
   Class<? extends Payload>[] payload() default {};
 
   /**
-   * Defines several {@link LessThan} annotations on the same element.
+   * Defines several {@link AnyEmpty} annotations on the same element.
    */
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface LessThanList {
+  public @interface AnyEmptyList {
 
     /**
      * Returns an array of Comparison.
      */
-    LessThan[] value();
+    AnyEmpty[] value();
   }
 }

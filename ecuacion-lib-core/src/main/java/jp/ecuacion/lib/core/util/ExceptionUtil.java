@@ -31,6 +31,7 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
@@ -58,29 +59,27 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   @Nonnull
-  public static List<String> getMessageList(
-      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation) {
-    return getMessageList(new ConstraintViolationException(constraintViolation));
+  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolation) {
+    return getMessageList(constraintViolation, Locale.getDefault());
   }
 
   /**
    * Returns Exception message list.
    */
   @Nonnull
-  public static List<String> getMessageList(
-      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation, Locale locale) {
-    return getMessageList(new ConstraintViolationException(constraintViolation), locale);
+  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
+      Locale locale) {
+    return getMessageList(constraintViolationSet, locale, false);
   }
 
   /**
    * Returns Exception message list.
    */
   @Nonnull
-  public static List<String> getMessageList(
-      @RequireNonnull Set<? extends ConstraintViolation<?>> constraintViolation, Locale locale,
-      boolean needsItemName) {
-    return getMessageList(new ConstraintViolationException(constraintViolation), locale,
-        needsItemName);
+  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
+      Locale locale, boolean needsItemName) {
+
+    return getMessageList(new ConstraintViolationBeanException(constraintViolationSet));
   }
 
   /**
@@ -160,6 +159,12 @@ public class ExceptionUtil {
         exList.add(new ValidationAppException(cv));
       }
 
+    } else if (throwable instanceof ConstraintViolationBeanException) {
+      ConstraintViolationBeanException cve = (ConstraintViolationBeanException) throwable;
+      for (ConstraintViolationBean<?> cv : cve.getConstraintViolationBeans()) {
+        exList.add(new ValidationAppException(cv));
+      }
+
     } else {
       exList.add(throwable);
     }
@@ -182,7 +187,7 @@ public class ExceptionUtil {
 
         String message = null;
         try {
-          ConstraintViolationBean bean = ex.getConstraintViolationBean();
+          ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           // Add parameters from messageParameterSet.
@@ -208,7 +213,7 @@ public class ExceptionUtil {
             map.put(paramBean.parameterKey(), value);
           }
 
-          message = needsItemName || ex.isMessageWithItemName()
+          message = needsItemName || bean.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
@@ -223,12 +228,12 @@ public class ExceptionUtil {
           }
 
           // add prefix and postfix messages.
-          if (ex.getMessagePrefix() != null) {
-            message = PropertyFileUtil.getStringFromArg(locale, ex.getMessagePrefix()) + message;
+          if (bean.getMessagePrefix() != null) {
+            message = PropertyFileUtil.getStringFromArg(locale, bean.getMessagePrefix()) + message;
           }
 
-          if (ex.getMessagePostfix() != null) {
-            message = message + PropertyFileUtil.getStringFromArg(locale, ex.getMessagePostfix());
+          if (bean.getMessagePostfix() != null) {
+            message = message + PropertyFileUtil.getStringFromArg(locale, bean.getMessagePostfix());
           }
 
         } catch (MissingResourceException mre) {

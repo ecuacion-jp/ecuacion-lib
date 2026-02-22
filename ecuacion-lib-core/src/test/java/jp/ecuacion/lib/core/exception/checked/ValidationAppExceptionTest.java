@@ -27,7 +27,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BeanValidationAppExceptionTest {
+public class ValidationAppExceptionTest {
 
   private ConstraintViolation<SampleObj> violation;
 
@@ -72,10 +72,10 @@ public class BeanValidationAppExceptionTest {
   @Test
   public void test02_obtaining_values() {
     final String className =
-        "jp.ecuacion.lib.core.exception.checked." + "BeanValidationAppExceptionTest$SampleObj";
+        "jp.ecuacion.lib.core.exception.checked." + "ValidationAppExceptionTest$SampleObj";
 
     ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getValidatorClass())
         .isEqualTo("jakarta.validation.constraints.NotNull");
     Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
@@ -90,7 +90,7 @@ public class BeanValidationAppExceptionTest {
   @Test
   public void test11_obtaining_messageId() {
     ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getValidatorClass()).isEqualTo("jakarta.validation.constraints.NotNull");
   }
 
@@ -98,36 +98,12 @@ public class BeanValidationAppExceptionTest {
   public void test12_toStringの取得() {
     String str = "message:null は許可されていません\n" + "annotation:jakarta.validation.constraints.NotNull\n"
         + "rootClassName:jp.ecuacion.lib.core.exception.checked."
-        + "BeanValidationAppExceptionTest$SampleObj\n"
+        + "ValidationAppExceptionTest$SampleObj\n"
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
-        + "BeanValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
+        + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
     Assertions.assertThat(ex.toString()).isEqualTo(str);
   }
-
-  // @Test
-  // public void test13_getMessageArgMapの取得_01_パラメータなし() {
-  // BeanValidationAppException ex = new BeanValidationAppException(violation);
-  // Map<String, String> map = ex.getMessageArgMap();
-  //
-  // assertThat(map).isNotEqualTo(null);
-  // assertThat(map.size()).isEqualTo(0)));
-  // }
-
-  // @Test
-  // public void test13_getMessageArgMapの取得_02_パラメータあり() {
-  // SampleWithParamObj obj = new SampleWithParamObj();
-  // Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-  // Set<ConstraintViolation<SampleWithParamObj>> violationSet = validator.validate(obj);
-  // ConstraintViolation<SampleWithParamObj> violation = violationSet.iterator().next();
-  //
-  // BeanValidationAppException ex = new BeanValidationAppException(violation);
-  // Map<String, String> map = ex.getMessageArgMap();
-  //
-  // assertThat(map.size()).isEqualTo(1)));
-  // assertThat(map.keySet().iterator().next()).isEqualTo("value")));
-  // assertThat(map.get(map.keySet().iterator().next())).isEqualTo("3")));
-  // }
 
   public static class SampleObj {
     @NotNull
