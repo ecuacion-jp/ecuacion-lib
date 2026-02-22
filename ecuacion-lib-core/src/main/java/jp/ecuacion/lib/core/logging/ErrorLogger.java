@@ -99,12 +99,13 @@ public class ErrorLogger extends EclibLogger {
     ObjectsUtil.requireNonNull(throwable);
 
     String msg = (throwable.getMessage() == null) ? ""
-        : " - " + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString()
-            .replace("\n", " ");
+        : " - "
+            + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
 
     // additional info output when the exception is ValidationAppException
     if (throwable instanceof ValidationAppException) {
-      msg = msg + "\n" + ((ValidationAppException) throwable).toString();
+      msg =
+          msg + "\n" + ((ValidationAppException) throwable).getConstraintViolationBean().toString();
     }
 
     internalLogger.error("A system error has occurred: " + throwable.getClass().getName() + msg

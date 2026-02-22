@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -46,7 +47,7 @@ public class ValidationUtil {
    * <p>It returns an empty set when no errors occur 
    *     according to the specification of jakarta validation.</p>
    * 
-   * @param <T> ConstraintViolation 
+   * @param <T> Any class 
    * @param object object to validate
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
@@ -61,7 +62,7 @@ public class ValidationUtil {
    * <p>It returns an empty set when no errors occur 
    *     according to the specification of jakarta validation.</p>
    * 
-   * @param <T> ConstraintViolation 
+   * @param <T> Any class 
    * @param object object to validate
    * @param groups validation groups
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
@@ -78,7 +79,7 @@ public class ValidationUtil {
    * <p>It returns an empty set when no errors occur 
    *     according to the specification of jakarta validation.</p>
    * 
-   * @param <T> ConstraintViolation 
+   * @param <T> Any class 
    * @param object object to validate
    * @param parameterBean See {@link ParameterBean}.
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
@@ -95,7 +96,7 @@ public class ValidationUtil {
    * <p>It returns an empty set when no errors occur 
    *     according to the specification of jakarta validation.</p>
    * 
-   * @param <T> ConstraintViolation 
+   * @param <T> Any class 
    * @param object object to validate
    * @param parameterBean See {@link ParameterBean}.
    * @param groups validation groups
@@ -120,56 +121,94 @@ public class ValidationUtil {
   }
 
   /**
-   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws MultipleAppException MultipleAppException
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object) throws MultipleAppException {
+  public static <T> void validateThenThrow(@RequireNonnull T object)
+      throws ConstraintViolationBeanException {
     validateThenThrow(object, (Class<?>[]) null);
   }
 
   /**
-   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws MultipleAppException MultipleAppException
+   * @param groups validation groups
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
-      throws MultipleAppException {
+      throws ConstraintViolationBeanException {
     validateThenThrow(object, null, null, null, groups);
   }
 
   /**
-   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
    * @throws MultipleAppException MultipleAppException
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
+  @Deprecated(since = "14.26.0")
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix) throws MultipleAppException {
+      @Nullable Arg messagePostfix) throws ConstraintViolationBeanException {
     validateThenThrow(object, addsItemNameToMessage, messagePrefix, messagePostfix,
         (Class<?>[]) null);
   }
 
   /**
-   * Validates and throws {@code MultipleAppException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws MultipleAppException MultipleAppException
+   * @param parameterBean See {@link ParameterBean}.
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable ParameterBean parameterBean) throws ConstraintViolationBeanException {
+    validateThenThrow(object, parameterBean, (Class<?>[]) null);
+  }
+
+  /**
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   */
+  @Deprecated(since = "14.26.0")
+  public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix, Class<?>... groups) throws MultipleAppException {
-    Optional<MultipleAppException> exOpt =
-        validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix, groups);
-    if (exOpt.isPresent()) {
-      throw exOpt.get();
+      @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationBeanException {
+
+    Set<ConstraintViolationBean<T>> set = validate(object,
+        new ParameterBean(addsItemNameToMessage, messagePrefix, messagePostfix), groups);
+    if (set.size() > 0) {
+      throw new ConstraintViolationBeanException(set);
+    }
+  }
+
+  /**
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @param parameterBean See {@link ParameterBean}.
+   * @param groups validation groups
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   */
+  public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable ParameterBean parameterBean, Class<?>... groups)
+      throws ConstraintViolationBeanException {
+
+    Set<ConstraintViolationBean<T>> set = validate(object, parameterBean, groups);
+    if (set.size() > 0) {
+      throw new ConstraintViolationBeanException(set);
     }
   }
 
@@ -181,6 +220,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
+  @Deprecated(since = "14.26.0")
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object) {
     return validateThenReturn(object, false, null, null, (Class<?>[]) null);
   }
@@ -193,6 +233,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
+  @Deprecated(since = "14.26.0")
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       Class<?>... groups) {
     return validateThenReturn(object, false, null, null, groups);
@@ -220,6 +261,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
+  @Deprecated(since = "14.26.0")
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
       @Nullable Arg messagePostfix) {
@@ -249,6 +291,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
+  @Deprecated(since = "14.26.0")
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
       boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
       Class<?>... groups) {
@@ -257,10 +300,14 @@ public class ValidationUtil {
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
 
+    if (set.size() == 0) {
+      return Optional.empty();
+    }
+    
     MultipleAppException listEx = new MultipleAppException(
         set.stream().map(bean -> new ValidationAppException(bean)).toList());
 
-    return Optional.ofNullable(listEx);
+    return Optional.of(listEx);
   }
 
   /**
@@ -273,19 +320,16 @@ public class ValidationUtil {
   /**
    * Stores validation parameters.
    * 
-   * <p>3 parameters are stored, which are meant to show
-   *     understandable error messages for non-display-value-validations 
-   *     (like validations to uploaded excel files) 
-   *     when the message displaying setting designates messages are to be shown 
-   *     at the bottom of each item.<br>
-   *     Prefix and postfix are used to additional explanation for error messages, 
-   *     like "About the uploaded excel file, ".</p>
+   * <p>Parameters are meant to show
+   *     understandable error messages especially for non-display-value-validations 
+   *     (like validation errors for uploaded excel files).</p>
    * 
    * <p>addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
-   *        It may be {@code null}, which is equal to {@code false}.</p>
+   *        Default value is {@code false}.</p>
    * 
    * <p>messagePrefix Used when you want to put an additional message 
-   *     before the original message. It may be {@code null}, which means no messages added.</p>
+   *     before the original message like "About the uploaded excel file, ". 
+   *     It may be {@code null}, which means no messages added.</p>
    * 
    * <p>messagePostfix Used when you want to put an additional message 
    *     after the original message. It may be {@code null}, which means no messages added.</p>
@@ -301,6 +345,15 @@ public class ValidationUtil {
      */
     ParameterBean() {
 
+    }
+
+    /**
+     * Construct a new instance. Construction from outside not allowed.
+     */
+    ParameterBean(boolean addsItemNameToMessage, Arg messagePrefix, Arg messagePostfix) {
+      this.addsItemNameToMessage = addsItemNameToMessage;
+      this.messagePrefix = messagePrefix;
+      this.messagePostfix = messagePostfix;
     }
 
     /**

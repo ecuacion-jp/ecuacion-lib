@@ -102,7 +102,7 @@ public class ValidationAppExceptionTest {
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
         + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
-    Assertions.assertThat(ex.toString()).isEqualTo(str);
+    Assertions.assertThat(ex.getConstraintViolationBean().toString()).isEqualTo(str);
   }
 
   public static class SampleObj {
