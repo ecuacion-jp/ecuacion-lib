@@ -32,6 +32,7 @@ import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -197,6 +198,21 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
       messageParameterSet.addAll(((ValidatorMessageParameterCreator) newInstance(className))
           .create(cv, paramMap, rootRecordNameForForm));
     }
+  }
+
+  /** 
+   * Outputs a string for logs. 
+   * 
+   * @return String
+   */
+  @Override
+  public @Nonnull String toString() {
+    return "message:" + getOriginalMessage() + "\n" + "annotation:" + getValidatorClass()
+        + "\n" + "rootClassName:" + getRootBean().getClass().getName() + "\n"
+        + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
+        + StringUtil.getCsv(
+            getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
+        + "\n" + "invalidValue:" + getInvalidValue();
   }
 
   /**

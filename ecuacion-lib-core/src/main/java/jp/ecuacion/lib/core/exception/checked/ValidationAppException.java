@@ -15,18 +15,19 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
-import java.util.Arrays;
-import java.util.List;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
-import jp.ecuacion.lib.core.util.StringUtil;
 
 /**
  * Holds a Jakarta Validations violation.
+ * 
+ * <p>Normally {@code ConstraintViolationBeanException} should be used Since it's alike 
+ *     to jakarta validation standard {@code ConstraintViolationException}.<br>
+ *     But sometimes you can use it 
+ *     when you want to treat {@code ConstraintViolationBean} as one exception
+ *     (mainly in libraries or frameworks).</p>
  */
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
@@ -46,11 +47,7 @@ public class ValidationAppException extends SingleAppException {
   /**
    * Constructs a new instance with {@code BeanValidationErrorInfoBean}.
    * 
-   * <p>This makes possible to treat exceptions
-   *     which are not created from {@code ConstraintViolation}
-   *     as {@code BeanValidationAppException}.</p>
-   * 
-   * @param bean BeanValidationErrorInfoBean
+   * @param bean ConstraintViolationBean
    */
   public <T> ValidationAppException(@RequireNonnull ConstraintViolationBean<T> bean) {
     this.bean = ObjectsUtil.requireNonNull(bean);
@@ -66,32 +63,7 @@ public class ValidationAppException extends SingleAppException {
   }
 
   @Override
-  public String getMessage() {
-    List<String> list =
-        Arrays.asList(bean.getFieldInfoBeans()).stream().map(b -> b.fullPropertyPath).toList();
-    return PropertyFileUtil.getValidationMessage(bean.getMessageId(), bean.getParamMap())
-        + " (propertyPath: " + StringUtil.getCsvWithSpace(list) + ")";
-  }
-
-  /** 
-   * Outputs a string for logs. 
-   * 
-  * @return String
-   */
-  @Override
-  public @Nonnull String toString() {
-    return "message:" + bean.getOriginalMessage() + "\n" + "annotation:" + bean.getValidatorClass()
-        + "\n" + "rootClassName:" + bean.getRootBean().getClass().getName() + "\n"
-        + "leafClassName:" + bean.getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(
-            bean.getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
-        + "\n" + "invalidValue:" + bean.getInvalidValue();
-  }
-
-  @Override
   public String[] getItemPropertyPaths() {
-    List<String> list =
-        bean.getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList();
-    return list.toArray(new String[list.size()]);
+    return null;
   }
 }
