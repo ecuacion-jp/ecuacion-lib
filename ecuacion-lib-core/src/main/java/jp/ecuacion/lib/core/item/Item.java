@@ -127,7 +127,7 @@ public class Item {
    *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
    *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
    *     4: defaultItemNameKeyClass, the argument of this method<br>
-   *     5: uncapitalized className (always set by EclibItemContainer#getItem(String))
+   *     5: uncapitalized className (always set by ItemContainer#getItem(String))
    * </p>
    */
   @Nonnull
