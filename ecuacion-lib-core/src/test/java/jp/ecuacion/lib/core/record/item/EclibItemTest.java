@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.record.item;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import jp.ecuacion.lib.core.item.EclibItem;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,14 +28,14 @@ public class EclibItemTest {
 
     // itemPropertyPath is empty
     try {
-      new EclibItem(null);
+      new Item(null);
       assertFalse(true);
     } catch (RequireNonEmptyException ex) {
       // okay
     }
 
     try {
-      new EclibItem("");
+      new Item("");
       assertFalse(true);
     } catch (RequireNonEmptyException ex) {
       // okay
@@ -46,44 +46,44 @@ public class EclibItemTest {
   public void itemNameKeyTest() {
 
     // No itemNameKey settings / itemPropertyPath does not have "."
-    String result = new EclibItem("itemPropertyPath").getItemNameKey("rootRecordName");
+    String result = new Item("itemPropertyPath").getItemNameKey("rootRecordName");
     Assertions.assertEquals("rootRecordName.itemPropertyPath", result);
 
     // No itemNameKey settings / itemPropertyPath have 1 "."
-    result = new EclibItem("itemProperty.Path").getItemNameKey("rootRecordName");
+    result = new Item("itemProperty.Path").getItemNameKey("rootRecordName");
     Assertions.assertEquals("itemProperty.Path", result);
 
     // No itemNameKey settings / itemPropertyPath have 2 "."
-    result = new EclibItem("item.Property.Path").getItemNameKey("rootRecordName");
+    result = new Item("item.Property.Path").getItemNameKey("rootRecordName");
     Assertions.assertEquals("Property.Path", result);
 
     // itemNameKeyField settings / itemPropertyPath does not have "."
-    result = new EclibItem("itemPropertyPath").itemNameKey("itemNameKeyField")
+    result = new Item("itemPropertyPath").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
 
     // itemNameKeyField settings / itemPropertyPath has 1 "."
-    result = new EclibItem("itemProperty.Path").itemNameKey("itemNameKeyField")
+    result = new Item("itemProperty.Path").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("itemProperty.itemNameKeyField", result);
 
     // itemNameKeyField settings / itemPropertyPath has 2 "."
-    result = new EclibItem("item.Property.Path").itemNameKey("itemNameKeyField")
+    result = new Item("item.Property.Path").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("Property.itemNameKeyField", result);
     
     // full itemNameKey settings / itemPropertyPath does not have "."
-    result = new EclibItem("itemPropertyPath").itemNameKey("itemNameKeyClass.itemNameKeyField")
+    result = new Item("itemPropertyPath").itemNameKey("itemNameKeyClass.itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
 
     // full itemNameKey settings / itemPropertyPath has 1 "."
-    result = new EclibItem("itemProperty.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
+    result = new Item("itemProperty.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
 
     // full itemNameKey settings / itemPropertyPath has 2 "."
-    result = new EclibItem("item.Property.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
+    result = new Item("item.Property.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
         .getItemNameKey("rootRecordName");
     Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
   }

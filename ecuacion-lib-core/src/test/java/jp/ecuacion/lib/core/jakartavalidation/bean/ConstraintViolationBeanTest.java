@@ -19,8 +19,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
-import jp.ecuacion.lib.core.item.EclibItem;
-import jp.ecuacion.lib.core.item.EclibItemContainer;
+import jp.ecuacion.lib.core.item.Item;
+import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import org.junit.jupiter.api.Assertions;
@@ -126,10 +126,10 @@ public class ConstraintViolationBeanTest {
         public Root root = new Root();
       }
 
-      public static class Root implements EclibItemContainer {
+      public static class Root implements ItemContainer {
         @Override
-        public EclibItem[] getItems() {
-          return new EclibItem[] {};
+        public Item[] customizedItems() {
+          return new Item[] {};
         }
 
         public String field;
@@ -152,10 +152,10 @@ public class ConstraintViolationBeanTest {
     }
 
     public static class No2 {
-      public static class Root implements EclibItemContainer {
+      public static class Root implements ItemContainer {
         @Override
-        public EclibItem[] getItems() {
-          return new EclibItem[] {};
+        public Item[] customizedItems() {
+          return new Item[] {};
         }
 
         @Min(3)
@@ -270,15 +270,15 @@ public class ConstraintViolationBeanTest {
       RootRecord root = new RootRecord();
     }
 
-    public static class RootRecord implements EclibItemContainer {
+    public static class RootRecord implements ItemContainer {
 
       @Override
-      public EclibItem[] getItems() {
-        return new EclibItem[] {
-            new EclibItem("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
-            new EclibItem("field2").itemNameKey("field"),
-            new EclibItem("child.field1").itemNameKey("ItemNameKeyClass_InItem_Child.field"),
-            new EclibItem("child.field2").itemNameKey("field")};
+      public Item[] customizedItems() {
+        return new Item[] {
+            new Item("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
+            new Item("field2").itemNameKey("field"),
+            new Item("child.field1").itemNameKey("ItemNameKeyClass_InItem_Child.field"),
+            new Item("child.field2").itemNameKey("field")};
       }
 
       @NotEmpty
@@ -629,15 +629,15 @@ public class ConstraintViolationBeanTest {
     }
 
     @ItemNameKeyClass("ItemNameKeyClass_Root")
-    public static class RootRecord implements EclibItemContainer {
+    public static class RootRecord implements ItemContainer {
 
       @Override
-      public EclibItem[] getItems() {
-        return new EclibItem[] {
-            new EclibItem("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
-            new EclibItem("field2").itemNameKey("field"),
-            new EclibItem("child.field1").itemNameKey("ItemNameKeyClass_InItem_Child.field"),
-            new EclibItem("child.field2").itemNameKey("field")};
+      public Item[] customizedItems() {
+        return new Item[] {
+            new Item("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
+            new Item("field2").itemNameKey("field"),
+            new Item("child.field1").itemNameKey("ItemNameKeyClass_InItem_Child.field"),
+            new Item("child.field2").itemNameKey("field")};
       }
 
       @NotEmpty

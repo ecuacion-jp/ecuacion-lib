@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>To understand details on item, 
  *     see <a href="https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md">naming-convention.md</a></p>
  */
-public class EclibItem {
+public class Item {
 
   /**
    * Is the ID string of an item.
@@ -74,7 +74,7 @@ public class EclibItem {
    * 
    * @param itemPropertyPath itemPropertyPath
    */
-  public EclibItem(@RequireNonempty String itemPropertyPath) {
+  public Item(@RequireNonempty String itemPropertyPath) {
 
     this.itemPropertyPath =
         ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(itemPropertyPath));
@@ -92,7 +92,7 @@ public class EclibItem {
    * @param itemNameKey itemNameKey
    * @return Item
    */
-  public EclibItem itemNameKey(@RequireNonempty String itemNameKey) {
+  public Item itemNameKey(@RequireNonempty String itemNameKey) {
     ObjectsUtil.requireNonEmpty(itemNameKey);
 
     this.itemNameKeyClass =
@@ -127,7 +127,7 @@ public class EclibItem {
    *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
    *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
    *     4: defaultItemNameKeyClass, the argument of this method<br>
-   *     5: uncapitalized className (always set by EclibItemContainer#getItem(String))
+   *     5: uncapitalized className (always set by ItemContainer#getItem(String))
    * </p>
    */
   @Nonnull
@@ -186,7 +186,7 @@ public class EclibItem {
   /**
    * Hides value from error messages and so on.
    */
-  public EclibItem hideValue() {
+  public Item hideValue() {
     showsValue = false;
 
     return this;

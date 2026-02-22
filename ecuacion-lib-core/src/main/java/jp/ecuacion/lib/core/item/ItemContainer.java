@@ -45,20 +45,20 @@ import org.apache.commons.lang3.StringUtils;
  *     It's used especially for error message to users.</li>
  * </ul>
  */
-public interface EclibItemContainer {
+public interface ItemContainer {
 
   /**
    * Returns an array of items.
    */
   @Nullable
-  public abstract EclibItem[] getItems();
+  public abstract Item[] customizedItems();
 
   /**
    * Returns a new instance.
    */
   @Nonnull
-  public default EclibItem getNewItem(@RequireNonempty String itemPropertyPath) {
-    return new EclibItem(ObjectsUtil.requireNonEmpty(itemPropertyPath));
+  public default Item getNewItem(@RequireNonempty String itemPropertyPath) {
+    return new Item(ObjectsUtil.requireNonEmpty(itemPropertyPath));
   }
 
   /**
@@ -68,12 +68,13 @@ public interface EclibItemContainer {
    * @return HtmlItem
    */
   @Nonnull
-  default EclibItem getItem(@RequireNonempty String itemPropertyPath) {
+  default Item getItem(@RequireNonempty String itemPropertyPath) {
 
-    Map<String, EclibItem> map = Arrays.asList(getItems() == null ? new EclibItem[] {} : getItems())
-        .stream().collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
+    Map<String, Item> map =
+        Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
+            .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
-    EclibItem item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
+    Item item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
     item = item == null ? getNewItem(itemPropertyPath) : item;
 
@@ -99,12 +100,12 @@ public interface EclibItemContainer {
    *     so let it be defined here.</p>
    */
   @Nonnull
-  default EclibItem[] mergeItems(@Nullable EclibItem[] items1, @Nullable EclibItem[] items2) {
+  default Item[] mergeItems(@Nullable Item[] items1, @Nullable Item[] items2) {
     // Replace null to empty arrays.
-    items1 = items1 == null ? new EclibItem[] {} : items1;
-    items2 = items2 == null ? new EclibItem[] {} : items2;
+    items1 = items1 == null ? new Item[] {} : items1;
+    items2 = items2 == null ? new Item[] {} : items2;
 
-    List<EclibItem> list = new ArrayList<>(Arrays.asList(items1));
+    List<Item> list = new ArrayList<>(Arrays.asList(items1));
 
     // Throw an exception if item is duplicated.
     List<String> propertyPath1List =
@@ -120,6 +121,6 @@ public interface EclibItemContainer {
 
     list.addAll(Arrays.asList(items2));
 
-    return list.toArray(new EclibItem[list.size()]);
+    return list.toArray(new Item[list.size()]);
   }
 }
