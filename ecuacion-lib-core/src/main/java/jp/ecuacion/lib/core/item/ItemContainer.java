@@ -51,7 +51,7 @@ public interface ItemContainer {
    * Returns an array of items.
    */
   @Nullable
-  public abstract Item[] getItems();
+  public abstract Item[] customizedItems();
 
   /**
    * Returns a new instance.
@@ -70,8 +70,9 @@ public interface ItemContainer {
   @Nonnull
   default Item getItem(@RequireNonempty String itemPropertyPath) {
 
-    Map<String, Item> map = Arrays.asList(getItems() == null ? new Item[] {} : getItems())
-        .stream().collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
+    Map<String, Item> map =
+        Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
+            .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
 
     Item item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
