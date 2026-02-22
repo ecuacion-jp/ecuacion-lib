@@ -128,7 +128,7 @@ public class ConstraintViolationBeanTest {
 
       public static class Root implements ItemContainer {
         @Override
-        public Item[] getItems() {
+        public Item[] customizedItems() {
           return new Item[] {};
         }
 
@@ -154,7 +154,7 @@ public class ConstraintViolationBeanTest {
     public static class No2 {
       public static class Root implements ItemContainer {
         @Override
-        public Item[] getItems() {
+        public Item[] customizedItems() {
           return new Item[] {};
         }
 
@@ -273,7 +273,7 @@ public class ConstraintViolationBeanTest {
     public static class RootRecord implements ItemContainer {
 
       @Override
-      public Item[] getItems() {
+      public Item[] customizedItems() {
         return new Item[] {
             new Item("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
             new Item("field2").itemNameKey("field"),
@@ -632,7 +632,7 @@ public class ConstraintViolationBeanTest {
     public static class RootRecord implements ItemContainer {
 
       @Override
-      public Item[] getItems() {
+      public Item[] customizedItems() {
         return new Item[] {
             new Item("field1").itemNameKey("ItemNameKeyClass_InItem_Root.field"),
             new Item("field2").itemNameKey("field"),
