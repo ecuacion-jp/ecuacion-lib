@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import jp.ecuacion.lib.core.item.EclibItem;
-import jp.ecuacion.lib.core.item.EclibItemContainer;
+import jp.ecuacion.lib.core.item.Item;
+import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
@@ -249,17 +249,17 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
         : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
 
     FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
-    EclibItem item = null;
+    Item item = null;
     boolean setsItemNameKeyClassExplicitly = false;
 
     // Get item if exists.
-    if (rootBean instanceof EclibItemContainer) {
+    if (rootBean instanceof ItemContainer) {
       // the case that rootBean is an EclibRecord
-      item = ((EclibItemContainer) rootBean).getItem(fullPropertyPath);
+      item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
 
-    } else if (firstChild != null && firstChild instanceof EclibItemContainer) {
+    } else if (firstChild != null && firstChild instanceof ItemContainer) {
       // the case that EclibRecord is stored in form or something
-      item = ((EclibItemContainer) firstChild)
+      item = ((ItemContainer) firstChild)
           .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
     }
 
