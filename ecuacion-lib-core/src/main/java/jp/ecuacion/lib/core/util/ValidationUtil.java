@@ -113,7 +113,7 @@ public class ValidationUtil {
 
     List<ConstraintViolationBean<T>> list =
         set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
-            .peek(cv -> cv.setMessageWithItemName(param.addsItemNameToMessage))
+            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemNames))
             .peek(cv -> cv.setMessagePrefix(param.getMessagePrefix()))
             .peek(cv -> cv.setMessagePostfix(param.getMessagePostfix())).toList();
 
@@ -298,7 +298,7 @@ public class ValidationUtil {
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
         new ParameterBean()
-            .addsItemNameToMessage(addsItemNameToMessage == null ? false : addsItemNameToMessage)
+            .isMessageWithItemNames(addsItemNameToMessage == null ? false : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
 
@@ -338,7 +338,7 @@ public class ValidationUtil {
    */
   public static class ParameterBean {
 
-    private boolean addsItemNameToMessage = false;
+    private boolean isMessageWithItemNames = false;
     private Arg messagePrefix;
     private Arg messagePostfix;
 
@@ -352,8 +352,8 @@ public class ValidationUtil {
     /**
      * Construct a new instance. Construction from outside not allowed.
      */
-    ParameterBean(boolean addsItemNameToMessage, Arg messagePrefix, Arg messagePostfix) {
-      this.addsItemNameToMessage = addsItemNameToMessage;
+    ParameterBean(boolean isMessageWithItemNames, Arg messagePrefix, Arg messagePostfix) {
+      this.isMessageWithItemNames = isMessageWithItemNames;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
     }
@@ -361,15 +361,15 @@ public class ValidationUtil {
     /**
      * Returns addsItemNameToMessage.
      */
-    public boolean addsItemNameToMessage() {
-      return addsItemNameToMessage;
+    public boolean isMessageWithItemNames() {
+      return isMessageWithItemNames;
     }
 
     /**
      * Sets messagePrefix and returns this.
      */
-    public ParameterBean addsItemNameToMessage(boolean addsItemNameToMessage) {
-      this.addsItemNameToMessage = addsItemNameToMessage;
+    public ParameterBean isMessageWithItemNames(boolean addsItemNameToMessage) {
+      this.isMessageWithItemNames = addsItemNameToMessage;
       return this;
     }
 
