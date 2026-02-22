@@ -18,10 +18,7 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import java.util.List;
-import java.util.Optional;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
+import java.util.Set;
 import jp.ecuacion.lib.core.item.EclibItem;
 import jp.ecuacion.lib.core.item.EclibItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
@@ -62,9 +59,6 @@ public class ConstraintViolationBeanTest {
   //@formatter:on
   @Test
   public void dataPatternTest() {
-    Optional<MultipleAppException> mae;
-    List<? extends ConstraintViolationBean<?>> list;
-
     ConstraintViolationBean<dataPatternTest.No1.Form> cvBean;
 
     // 1. container structure pattern: `record stored in form`
@@ -81,11 +75,10 @@ public class ConstraintViolationBeanTest {
 
     // 2. container structure pattern: `record` / (`root`, `child`, `grandChild`)
     // = (`field validator`, `class validator`, `field validator`)
-    mae = ValidationUtil.validateThenReturn(new dataPatternTest.No2.Root());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<dataPatternTest.No2.Root>> set2 =
+        ValidationUtil.validate(new dataPatternTest.No2.Root());
+    Assertions.assertTrue(set2.size() > 0);
+    for (ConstraintViolationBean<?> bean : set2) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
         check(bean, "root.field");
@@ -99,11 +92,10 @@ public class ConstraintViolationBeanTest {
 
     // 3. container structure pattern: `other` / (`root`, `child`, `grandChild`)
     // = (`class validator`, `field validator`, `class validator`)
-    mae = ValidationUtil.validateThenReturn(new dataPatternTest.No3.Root());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<dataPatternTest.No3.Root>> set3 =
+        ValidationUtil.validate(new dataPatternTest.No3.Root());
+    Assertions.assertTrue(set3.size() > 0);
+    for (ConstraintViolationBean<?> bean : set3) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
         check(bean, "root.field");
@@ -225,15 +217,11 @@ public class ConstraintViolationBeanTest {
   //@formatter:on
   @Test
   public void eclibItem_itemNameKeyTest() {
-    Optional<MultipleAppException> mae;
-    List<? extends ConstraintViolationBean<?>> list;
-
     // Record in Form
-    mae = ValidationUtil.validateThenReturn(new eclibItem_itemNameKeyTest.Form());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<eclibItem_itemNameKeyTest.Form>> setRif =
+        ValidationUtil.validate(new eclibItem_itemNameKeyTest.Form());
+    Assertions.assertTrue(setRif.size() > 0);
+    for (ConstraintViolationBean<?> bean : setRif) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.field1"))
@@ -253,11 +241,10 @@ public class ConstraintViolationBeanTest {
     }
 
     // Record directly
-    mae = ValidationUtil.validateThenReturn(new eclibItem_itemNameKeyTest.RootRecord());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<eclibItem_itemNameKeyTest.RootRecord>> setRd =
+        ValidationUtil.validate(new eclibItem_itemNameKeyTest.RootRecord());
+    Assertions.assertTrue(setRd.size() > 0);
+    for (ConstraintViolationBean<?> bean : setRd) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("field1"))
@@ -348,15 +335,12 @@ public class ConstraintViolationBeanTest {
   @Test
   public void itemNameKeyClassAnnotationReadTest() {
 
-    Optional<MultipleAppException> mae;
-
     // 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
     // existence: `self` (*1)
-    mae = ValidationUtil.validateThenReturn(new itemNameKeyClassAnnotationReadTest.No1.Root());
-    Assertions.assertTrue(mae.isPresent());
-    List<? extends ConstraintViolationBean<?>> list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No1.Root>> set1 =
+        ValidationUtil.validate(new itemNameKeyClassAnnotationReadTest.No1.Root());
+    Assertions.assertTrue(set1.size() > 0);
+    for (ConstraintViolationBean<?> bean : set1) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
         assertEqualsItemNameKeyClass("ItemNameKeyClass_Root", bean);
@@ -370,11 +354,10 @@ public class ConstraintViolationBeanTest {
 
     /// 2. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
     /// existence: `ancestor`
-    mae = ValidationUtil.validateThenReturn(new itemNameKeyClassAnnotationReadTest.No2.Root());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No2.Root>> set2 =
+        ValidationUtil.validate(new itemNameKeyClassAnnotationReadTest.No2.Root());
+    Assertions.assertTrue(set2.size() > 0);
+    for (ConstraintViolationBean<?> bean : set2) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
         assertEqualsItemNameKeyClass("ItemNameKeyClass_Root_Parent", bean);
@@ -591,14 +574,12 @@ public class ConstraintViolationBeanTest {
   //@formatter:on
   @Test
   public void itemNameKeyClassAnnotationOverrideTest() {
-    Optional<MultipleAppException> mae;
 
     // Record in Form
-    mae = ValidationUtil.validateThenReturn(new itemNameKeyClassAnnotationOverrideTest.Form());
-    Assertions.assertTrue(mae.isPresent());
-    List<? extends ConstraintViolationBean<?>>list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<itemNameKeyClassAnnotationOverrideTest.Form>> setRif =
+        ValidationUtil.validate(new itemNameKeyClassAnnotationOverrideTest.Form());
+    Assertions.assertTrue(setRif.size() > 0);
+    for (ConstraintViolationBean<?> bean : setRif) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.field1"))
@@ -618,12 +599,10 @@ public class ConstraintViolationBeanTest {
     }
 
     // Record directly
-    mae =
-        ValidationUtil.validateThenReturn(new itemNameKeyClassAnnotationOverrideTest.RootRecord());
-    Assertions.assertTrue(mae.isPresent());
-    list = mae.get().getList().stream()
-        .map(ex -> ((ValidationAppException) ex).getConstraintViolationBean()).toList();
-    for (ConstraintViolationBean<?> bean : list) {
+    Set<ConstraintViolationBean<itemNameKeyClassAnnotationOverrideTest.RootRecord>> setRd =
+        ValidationUtil.validate(new itemNameKeyClassAnnotationOverrideTest.RootRecord());
+    Assertions.assertTrue(setRd.size() > 0);
+    for (ConstraintViolationBean<?> bean : setRd) {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("field1"))
