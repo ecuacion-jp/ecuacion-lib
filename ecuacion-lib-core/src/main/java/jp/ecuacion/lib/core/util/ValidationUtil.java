@@ -150,7 +150,6 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws MultipleAppException MultipleAppException
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   @Deprecated(since = "14.26.0")
@@ -187,7 +186,9 @@ public class ValidationUtil {
       @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationBeanException {
 
     Set<ConstraintViolationBean<T>> set = validate(object,
-        new ParameterBean(addsItemNameToMessage, messagePrefix, messagePostfix), groups);
+        new ParameterBean(addsItemNameToMessage == null ? false : addsItemNameToMessage,
+            messagePrefix, messagePostfix),
+        groups);
     if (set.size() > 0) {
       throw new ConstraintViolationBeanException(set);
     }
@@ -293,17 +294,18 @@ public class ValidationUtil {
   @Nonnull
   @Deprecated(since = "14.26.0")
   public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
-      boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
+      Boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
-        new ParameterBean().addsItemNameToMessage(addsItemNameToMessage)
+        new ParameterBean()
+            .addsItemNameToMessage(addsItemNameToMessage == null ? false : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
 
     if (set.size() == 0) {
       return Optional.empty();
     }
-    
+
     MultipleAppException listEx = new MultipleAppException(
         set.stream().map(bean -> new ValidationAppException(bean)).toList());
 
