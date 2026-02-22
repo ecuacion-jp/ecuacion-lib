@@ -16,21 +16,20 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ValidationException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ConditinalCommonTest {
-  private MultipleAppException mae;
 
   @Test
   public void fieldNotExistTest() {
 
     // No Field
     try {
-      ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.NoField("X", null));
+      ValidationUtil.validate(new ConditinalCommonTestBean.NoField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
@@ -39,74 +38,63 @@ public class ConditinalCommonTest {
 
     // No Condition Field
     try {
-      ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.NoConditionField("X", null));
+      ValidationUtil.validate(new ConditinalCommonTestBean.NoConditionField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
     }
   }
 
-  @SuppressWarnings("unused")
   @Test
   public void validatesWhenConditionNotSatisfiedTest() {
 
     // true
-    ValidationUtil
-        .validateThenReturn(
-            new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.TrueClass())
-        .ifPresentOrElse(mae -> Assertions.assertEquals(1, mae.getList().size()),
-            () -> Assertions.fail());
+    Set<?> setTrue = ValidationUtil
+        .validate(new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.TrueClass());
+    Assertions.assertEquals(1, setTrue.size());
 
     // false
-    ValidationUtil
-        .validateThenReturn(
-            new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass())
-        .ifPresent(mae -> Assertions.fail());
+    Set<?> setFalse = ValidationUtil
+        .validate(new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass());
+    Assertions.assertEquals(0, setFalse.size());
   }
 
   @Test
   public void multipleFieldsTest() {
 
-    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllTrue())
-        .orElse(null);
-    Assertions.assertEquals(null, mae);
+    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.AllTrue());
+    Assertions.assertEquals(0, set.size());
 
-    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.OneFalse())
-        .get();
-    Assertions.assertEquals(1, mae.getList().size());
+    set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.OneFalse());
+    Assertions.assertEquals(1, set.size());
 
-    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.MultipleFields.AllFalse())
-        .get();
-    Assertions.assertEquals(1, mae.getList().size());
+    set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.AllFalse());
+    Assertions.assertEquals(1, set.size());
 
-    mae = ValidationUtil.validateThenReturn(
-        new ConditinalCommonTestBean.MultipleFields.AllTrueConditionNotSatisfied()).get();
-    Assertions.assertEquals(1, mae.getList().size());
+    set = ValidationUtil
+        .validate(new ConditinalCommonTestBean.MultipleFields.AllTrueConditionNotSatisfied());
+    Assertions.assertEquals(1, set.size());
 
-    mae = ValidationUtil.validateThenReturn(
-        new ConditinalCommonTestBean.MultipleFields.OneFalseConditionNotSatisfied()).get();
-    Assertions.assertEquals(1, mae.getList().size());
+    set = ValidationUtil
+        .validate(new ConditinalCommonTestBean.MultipleFields.OneFalseConditionNotSatisfied());
+    Assertions.assertEquals(1, set.size());
 
-    mae = ValidationUtil
-        .validateThenReturn(
-            new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied())
-        .orElse(null);;
-    Assertions.assertEquals(null, mae);
+    set = ValidationUtil
+        .validate(new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied());
+    Assertions.assertEquals(0, set.size());
   }
 
   @Test
   public void fieldInParentClassTest() {
-    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.FieldInParentClass.Child())
-        .get();
-    Assertions.assertEquals(1, mae.getList().size());
+    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.FieldInParentClass.Child());
+    Assertions.assertEquals(1, set.size());
   }
-  
+
   @Test
   public void itemNameKeyTest() {
     // values are null.
-    mae = ValidationUtil.validateThenReturn(new ConditinalCommonTestBean.ItemNameKey.Obj())
-        .get();
-    Assertions.assertEquals(1, mae.getList().size());
+    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.ItemNameKey.Obj());
+    Assertions.assertEquals(1, set.size());
   }
 
 }

@@ -16,9 +16,9 @@
 package jp.ecuacion.lib.validation.constraints.internal;
 
 import jakarta.validation.ValidationException;
-import java.util.Optional;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import jp.ecuacion.lib.validation.constraints.ConcreteComparisonValidator;
 import org.junit.jupiter.api.Assertions;
@@ -32,13 +32,11 @@ import org.junit.jupiter.api.Test;
  */
 public class ComparisonTest {
 
-  private Optional<MultipleAppException> opt;
-
   @Test
   public void irregulars() {
     // propertyPath not found
     try {
-      ValidationUtil.validateThenReturn(new ComparisonTestBean.Irregular.PropertyPathNotExist());
+      ValidationUtil.validate(new ComparisonTestBean.Irregular.PropertyPathNotExist());
       Assertions.fail();
 
     } catch (ValidationException ex) {
@@ -49,8 +47,7 @@ public class ComparisonTest {
 
     // basisPropertyPath not found
     try {
-      ValidationUtil
-          .validateThenReturn(new ComparisonTestBean.Irregular.BasisPropertyPathNotExist());
+      ValidationUtil.validate(new ComparisonTestBean.Irregular.BasisPropertyPathNotExist());
       Assertions.fail();
 
     } catch (ValidationException ex) {
@@ -61,7 +58,7 @@ public class ComparisonTest {
 
     // types differ between propertyPath and basisPropertyPath
     try {
-      ValidationUtil.validateThenReturn(
+      ValidationUtil.validate(
           new ComparisonTestBean.Irregular.TypesDifferBetweenPropertyPathAndBasisPropertyPath());
       Assertions.fail();
 
@@ -71,7 +68,7 @@ public class ComparisonTest {
 
     // unsupported types
     try {
-      ValidationUtil.validateThenReturn(new ComparisonTestBean.Irregular.UnsupportedType());
+      ValidationUtil.validate(new ComparisonTestBean.Irregular.UnsupportedType());
       Assertions.fail();
 
     } catch (ValidationException ex) {
@@ -82,25 +79,24 @@ public class ComparisonTest {
   @Test
   public void validCheck() {
     // all valid
-    opt = ValidationUtil
-        .validateThenReturn(new ComparisonTestBean.ValidCheck.ValidWhenLessThanBasisBean());
-    Assertions.assertTrue(opt.isEmpty());
+    Set<ConstraintViolationBean<ComparisonTestBean.ValidCheck.ValidWhenLessThanBasisBean>> setValidWhenLessThanBasisBean =
+        ValidationUtil.validate(new ComparisonTestBean.ValidCheck.ValidWhenLessThanBasisBean());
+    Assertions.assertTrue(setValidWhenLessThanBasisBean.isEmpty());
 
     // all invalid
-    opt = ValidationUtil
-        .validateThenReturn(new ComparisonTestBean.ValidCheck.ValidWhenGreaterThanBasisBean());
-    Assertions.assertTrue(opt.isPresent());
-    Assertions.assertEquals(13, opt.get().getList().size());
+    Set<ConstraintViolationBean<ComparisonTestBean.ValidCheck.ValidWhenGreaterThanBasisBean>> setValidWhenGreaterThanBasisBean =
+        ValidationUtil.validate(new ComparisonTestBean.ValidCheck.ValidWhenGreaterThanBasisBean());
+    Assertions.assertEquals(13, setValidWhenGreaterThanBasisBean.size());
 
     // all valid for equal values
-    opt = ValidationUtil.validateThenReturn(new ComparisonTestBean.ValidCheck.EqualAllowedBean());
-    Assertions.assertTrue(opt.isEmpty());
+    Set<ConstraintViolationBean<ComparisonTestBean.ValidCheck.EqualAllowedBean>> setEqualAllowedBean =
+        ValidationUtil.validate(new ComparisonTestBean.ValidCheck.EqualAllowedBean());
+    Assertions.assertTrue(setEqualAllowedBean.isEmpty());
 
     // all invalid for equal values
-    opt =
-        ValidationUtil.validateThenReturn(new ComparisonTestBean.ValidCheck.EqualNotAllowedBean());
-    Assertions.assertTrue(opt.isPresent());
-    Assertions.assertEquals(5, opt.get().getList().size());
+    Set<ConstraintViolationBean<ComparisonTestBean.ValidCheck.EqualNotAllowedBean>> setEqualNotAllowedBean =
+        ValidationUtil.validate(new ComparisonTestBean.ValidCheck.EqualNotAllowedBean());
+    Assertions.assertEquals(5, setEqualNotAllowedBean.size());
   }
 
   @Test
@@ -118,20 +114,20 @@ public class ComparisonTest {
   @Test
   public void eachAnnotationTest() {
     // valid
-    opt = ValidationUtil.validateThenReturn(new ComparisonTestBean.EachAnnotation.Valid());
-    Assertions.assertEquals(true, opt.isEmpty());
+    Set<ConstraintViolationBean<ComparisonTestBean.EachAnnotation.Valid>> setValid =
+        ValidationUtil.validate(new ComparisonTestBean.EachAnnotation.Valid());
+    Assertions.assertEquals(true, setValid.isEmpty());
 
     // invalid
-    opt = ValidationUtil.validateThenReturn(new ComparisonTestBean.EachAnnotation.Invalid());
-    Assertions.assertEquals(false, opt.isEmpty());
-    Assertions.assertEquals(6, opt.get().getList().size());
+    Set<ConstraintViolationBean<ComparisonTestBean.EachAnnotation.Invalid>> setInvalid =
+        ValidationUtil.validate(new ComparisonTestBean.EachAnnotation.Invalid());
+    Assertions.assertEquals(6, setInvalid.size());
   }
 
   @Test
   public void dotContainingPropertyPaths() {
-    opt =
-        ValidationUtil.validateThenReturn(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
-    Assertions.assertEquals(false, opt.isEmpty());
-    Assertions.assertEquals(1, opt.get().getList().size());
+    Set<ConstraintViolationBean<ComparisonTestBean.DotContainingPropertyPaths.Bean>> setBean =
+        ValidationUtil.validate(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
+    Assertions.assertEquals(1, setBean.size());
   }
 }
