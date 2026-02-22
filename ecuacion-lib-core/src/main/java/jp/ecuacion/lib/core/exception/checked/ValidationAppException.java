@@ -27,7 +27,8 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
  *     to jakarta validation standard {@code ConstraintViolationException}.<br>
  *     But sometimes you can use it 
  *     when you want to treat {@code ConstraintViolationBean} as one exception
- *     (mainly in libraries or frameworks).</p>
+ *     (mainly in libraries or frameworks)<br><br>
+ *     It's not recommended to use in apps from the view of understandability.</p>
  */
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;

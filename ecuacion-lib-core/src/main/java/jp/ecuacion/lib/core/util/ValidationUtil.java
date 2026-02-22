@@ -300,10 +300,14 @@ public class ValidationUtil {
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
 
+    if (set.size() == 0) {
+      return Optional.empty();
+    }
+    
     MultipleAppException listEx = new MultipleAppException(
         set.stream().map(bean -> new ValidationAppException(bean)).toList());
 
-    return Optional.ofNullable(listEx);
+    return Optional.of(listEx);
   }
 
   /**
