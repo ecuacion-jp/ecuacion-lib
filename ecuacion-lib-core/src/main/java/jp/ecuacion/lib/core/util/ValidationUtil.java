@@ -81,12 +81,12 @@ public class ValidationUtil {
    * 
    * @param <T> Any class 
    * @param object object to validate
-   * @param parameterBean See {@link ParameterBean}.
+   * @param parameterBean See {@link MessageParameterBean}.
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
-      @Nullable ParameterBean parameterBean) {
+      @Nullable MessageParameterBean parameterBean) {
     return validate(object, parameterBean, new Class<?>[] {});
   }
 
@@ -98,18 +98,18 @@ public class ValidationUtil {
    * 
    * @param <T> Any class 
    * @param object object to validate
-   * @param parameterBean See {@link ParameterBean}.
+   * @param parameterBean See {@link MessageParameterBean}.
    * @param groups validation groups
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
-      @Nullable ParameterBean parameterBean, Class<?>... groups) {
+      @Nullable MessageParameterBean parameterBean, Class<?>... groups) {
     Validator v = Validation.buildDefaultValidatorFactory().getValidator();
     Set<ConstraintViolation<T>> set =
         (groups == null || groups.length == 0) ? v.validate(object) : v.validate(object, groups);
 
-    ParameterBean param = parameterBean == null ? new ParameterBean() : parameterBean;
+    MessageParameterBean param = parameterBean == null ? new MessageParameterBean() : parameterBean;
 
     List<ConstraintViolationBean<T>> list =
         set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
@@ -165,11 +165,11 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @param parameterBean See {@link ParameterBean}.
+   * @param parameterBean See {@link MessageParameterBean}.
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable ParameterBean parameterBean) throws ConstraintViolationBeanException {
+      @Nullable MessageParameterBean parameterBean) throws ConstraintViolationBeanException {
     validateThenThrow(object, parameterBean, (Class<?>[]) null);
   }
 
@@ -186,8 +186,9 @@ public class ValidationUtil {
       @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationBeanException {
 
     Set<ConstraintViolationBean<T>> set = validate(object,
-        new ParameterBean(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
-            messagePrefix, messagePostfix),
+        new MessageParameterBean(
+            addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage, messagePrefix,
+            messagePostfix),
         groups);
     if (set.size() > 0) {
       throw new ConstraintViolationBeanException(set);
@@ -199,12 +200,12 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @param parameterBean See {@link ParameterBean}.
+   * @param parameterBean See {@link MessageParameterBean}.
    * @param groups validation groups
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable ParameterBean parameterBean, Class<?>... groups)
+      @Nullable MessageParameterBean parameterBean, Class<?>... groups)
       throws ConstraintViolationBeanException {
 
     Set<ConstraintViolationBean<T>> set = validate(object, parameterBean, groups);
@@ -297,7 +298,7 @@ public class ValidationUtil {
       Boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
-        new ParameterBean()
+        new MessageParameterBean()
             .isMessageWithItemNames(
                 addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
@@ -316,8 +317,8 @@ public class ValidationUtil {
   /**
    * Constructs and returns ParameterBean.
    */
-  public static ParameterBean parameters() {
-    return new ParameterBean();
+  public static MessageParameterBean messageParameters() {
+    return new MessageParameterBean();
   }
 
   /**
@@ -337,7 +338,7 @@ public class ValidationUtil {
    * <p>messagePostfix Used when you want to put an additional message 
    *     after the original message. It may be {@code null}, which means no messages added.</p>
    */
-  public static class ParameterBean {
+  public static class MessageParameterBean {
 
     private Boolean isMessageWithItemNames;
     private Arg messagePrefix;
@@ -346,14 +347,14 @@ public class ValidationUtil {
     /**
      * Construct a new instance. Construction from outside not allowed.
      */
-    ParameterBean() {
+    MessageParameterBean() {
 
     }
 
     /**
      * Construct a new instance. Construction from outside not allowed.
      */
-    ParameterBean(Boolean isMessageWithItemNames, Arg messagePrefix, Arg messagePostfix) {
+    MessageParameterBean(Boolean isMessageWithItemNames, Arg messagePrefix, Arg messagePostfix) {
       this.isMessageWithItemNames = isMessageWithItemNames;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
@@ -369,7 +370,7 @@ public class ValidationUtil {
     /**
      * Sets messagePrefix and returns this.
      */
-    public ParameterBean isMessageWithItemNames(Boolean isMessageWithItemNames) {
+    public MessageParameterBean isMessageWithItemNames(Boolean isMessageWithItemNames) {
       this.isMessageWithItemNames = isMessageWithItemNames;
       return this;
     }
@@ -381,7 +382,7 @@ public class ValidationUtil {
     /**
      * Sets messagePrefix and returns this.
      */
-    public ParameterBean messagePrefix(Arg messagePrefix) {
+    public MessageParameterBean messagePrefix(Arg messagePrefix) {
       this.messagePrefix = messagePrefix;
       return this;
     }
@@ -389,7 +390,7 @@ public class ValidationUtil {
     /**
      * Sets messagePrefix and returns this.
      */
-    public ParameterBean messagePrefix(String messagePrefix) {
+    public MessageParameterBean messagePrefix(String messagePrefix) {
       this.messagePrefix = Arg.string(messagePrefix);
       return this;
     }
@@ -401,7 +402,7 @@ public class ValidationUtil {
     /**
      * Sets messagePostfix and returns this.
      */
-    public ParameterBean messagePostfix(String messagePostfix) {
+    public MessageParameterBean messagePostfix(String messagePostfix) {
       this.messagePostfix = Arg.string(messagePostfix);
       return this;
     }
@@ -409,7 +410,7 @@ public class ValidationUtil {
     /**
      * Sets messagePostfix and returns this.
      */
-    public ParameterBean messagePostfix(Arg messagePostfix) {
+    public MessageParameterBean messagePostfix(Arg messagePostfix) {
       this.messagePostfix = messagePostfix;
       return this;
     }
