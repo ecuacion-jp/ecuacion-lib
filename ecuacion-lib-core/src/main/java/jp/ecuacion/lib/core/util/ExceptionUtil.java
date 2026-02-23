@@ -137,13 +137,14 @@ public class ExceptionUtil {
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
-   * @param needsItemName true when itemName needed for ValidationAppException messages.
+   * @param isValidationMessagesWithItemNames true 
+   *     when itemName needed for ValidationAppException messages.
    *     
    * @return a list of messages
    */
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale, boolean needsItemName) {
+      @Nullable Locale locale, boolean isValidationMessagesWithItemNames) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
 
@@ -176,7 +177,7 @@ public class ExceptionUtil {
 
       } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
-        String message = needsItemName
+        String message = isValidationMessagesWithItemNames
             ? PropertyFileUtil.getMessageWithItemName(locale, ex.getMessageId(),
                 ex.getMessageArgs())
             : PropertyFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs());
@@ -213,7 +214,7 @@ public class ExceptionUtil {
             map.put(paramBean.parameterKey(), value);
           }
 
-          message = needsItemName || bean.isMessageWithItemName()
+          message = isValidationMessagesWithItemNames || bean.isMessageWithItemName()
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
