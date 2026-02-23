@@ -212,8 +212,8 @@ public class ExceptionUtil {
       @Nullable Locale locale, @Nullable Boolean isValidationMessagesWithItemNames) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
-    isValidationMessagesWithItemNames =
-        isValidationMessagesWithItemNames == null ? false : isValidationMessagesWithItemNames;
+    isValidationMessagesWithItemNames = isValidationMessagesWithItemNames == null ? Boolean.FALSE
+        : isValidationMessagesWithItemNames;
 
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
