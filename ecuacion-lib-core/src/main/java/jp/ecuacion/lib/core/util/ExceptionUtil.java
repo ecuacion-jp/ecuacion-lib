@@ -60,7 +60,7 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolation) {
-    return getMessageList(constraintViolation, Locale.getDefault());
+    return getMessageList(constraintViolation, null, null);
   }
 
   /**
@@ -68,8 +68,8 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
-      Locale locale) {
-    return getMessageList(constraintViolationSet, locale, false);
+      @Nullable Locale locale) {
+    return getMessageList(constraintViolationSet, locale, null);
   }
 
   /**
@@ -77,9 +77,19 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
-      Locale locale, boolean needsItemName) {
+      @Nullable Boolean isValidationMessagesWithItemNames) {
+    return getMessageList(constraintViolationSet, null, isValidationMessagesWithItemNames);
+  }
 
-    return getMessageList(new ConstraintViolationBeanException(constraintViolationSet));
+  /**
+   * Returns Exception message list.
+   */
+  @Nonnull
+  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
+      Locale locale, Boolean isValidationMessagesWithItemNames) {
+
+    return getMessageList(new ConstraintViolationBeanException(constraintViolationSet), locale,
+        isValidationMessagesWithItemNames);
   }
 
   /**
@@ -98,7 +108,7 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable) {
-    return getMessageList(throwable, Locale.getDefault());
+    return getMessageList(throwable, null);
   }
 
   /**
@@ -120,7 +130,7 @@ public class ExceptionUtil {
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable,
       @Nullable Locale locale) {
-    return getMessageList(throwable, locale, false);
+    return getMessageList(throwable, locale, null);
   }
 
   /**
@@ -144,9 +154,11 @@ public class ExceptionUtil {
    */
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale, boolean isValidationMessagesWithItemNames) {
+      @Nullable Locale locale, @Nullable Boolean isValidationMessagesWithItemNames) {
     ObjectsUtil.requireNonNull(throwable);
     locale = locale == null ? Locale.getDefault() : locale;
+    isValidationMessagesWithItemNames =
+        isValidationMessagesWithItemNames == null ? false : isValidationMessagesWithItemNames;
 
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
@@ -214,7 +226,12 @@ public class ExceptionUtil {
             map.put(paramBean.parameterKey(), value);
           }
 
-          message = isValidationMessagesWithItemNames || bean.isMessageWithItemName()
+          // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
+          // because it is specified for each validation,
+          // and isValidationMessagesWithItemNames is assumed to be used as system default value.
+          Boolean bl = bean.isMessageWithItemName() != null ? bean.isMessageWithItemName()
+              : isValidationMessagesWithItemNames;
+          message = bl
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
@@ -403,15 +420,17 @@ public class ExceptionUtil {
    * @param appException AppException
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
-   * @param needsItemName true when itemName needed for ValidationAppException messages.
+   * @param isValidationMessagesWithItemNames true 
+   *     when itemName needed for ValidationAppException messages.
    * @return list of SingleAppException
    */
   @Nonnull
   public static List<String> getAppExceptionMessageList(@RequireNonnull AppException appException,
-      @Nullable Locale locale, boolean needsItemName) {
+      @Nullable Locale locale, boolean isValidationMessagesWithItemNames) {
     List<String> rtnList = new ArrayList<>();
     getSingleAppExceptionList(ObjectsUtil.requireNonNull(appException)).stream()
-        .map(ex -> getMessageList(ex, locale, needsItemName)).forEach(list -> rtnList.addAll(list));
+        .map(ex -> getMessageList(ex, locale, isValidationMessagesWithItemNames))
+        .forEach(list -> rtnList.addAll(list));
     return rtnList;
   }
 

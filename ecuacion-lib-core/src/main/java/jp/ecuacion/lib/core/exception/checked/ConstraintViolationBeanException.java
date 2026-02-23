@@ -50,6 +50,10 @@ public class ConstraintViolationBeanException extends AppException {
 
     } else if (obj instanceof ConstraintViolationBean) {
       this.constraintViolationBeans = (Set<ConstraintViolationBean<?>>) constraintViolations;
+
+    } else {
+      throw new EclibRuntimeException(
+          "T needs to be an instance of either ConstraintViolation or ConstraintViolationBean.");
     }
   }
 
