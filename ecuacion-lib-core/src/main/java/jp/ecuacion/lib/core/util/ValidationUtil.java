@@ -186,7 +186,7 @@ public class ValidationUtil {
       @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationBeanException {
 
     Set<ConstraintViolationBean<T>> set = validate(object,
-        new ParameterBean(addsItemNameToMessage == null ? false : addsItemNameToMessage,
+        new ParameterBean(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
             messagePrefix, messagePostfix),
         groups);
     if (set.size() > 0) {
@@ -298,7 +298,8 @@ public class ValidationUtil {
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
         new ParameterBean()
-            .isMessageWithItemNames(addsItemNameToMessage == null ? false : addsItemNameToMessage)
+            .isMessageWithItemNames(
+                addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
 
