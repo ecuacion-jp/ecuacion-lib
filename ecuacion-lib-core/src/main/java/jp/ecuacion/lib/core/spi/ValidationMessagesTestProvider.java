@@ -20,5 +20,5 @@ import java.util.spi.ResourceBundleProvider;
 /**
  * Is a {@code ResourceBundleProvider} for messages in app projects.
  */
-public interface ValidationMessagesProvider extends ResourceBundleProvider {
+public interface ValidationMessagesTestProvider extends ResourceBundleProvider {
 }

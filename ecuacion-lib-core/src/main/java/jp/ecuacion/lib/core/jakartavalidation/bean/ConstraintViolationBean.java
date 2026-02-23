@@ -57,7 +57,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   private List<FieldInfoBean> fieldInfoBeanList;
 
-  private boolean isMessageWithItemName;
+  private Boolean isMessageWithItemName;
   private Arg messagePrefix;
   private Arg messagePostfix;
 
@@ -330,11 +330,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return messageTemplate;
   }
 
-  public boolean isMessageWithItemName() {
+  public Boolean isMessageWithItemName() {
     return isMessageWithItemName;
   }
 
-  public void setMessageWithItemName(boolean isMessageWithItemName) {
+  public void setMessageWithItemName(Boolean isMessageWithItemName) {
     this.isMessageWithItemName = isMessageWithItemName;
   }
 
