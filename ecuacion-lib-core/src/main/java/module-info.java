@@ -68,8 +68,7 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
 
   // apps: ValidationMessages
-  uses jp.ecuacion.lib.core.spi.ValidationMessagesProvider;
-  uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesProvider;
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider;
   
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
@@ -79,6 +78,9 @@ module jp.ecuacion.lib.core {
   
   provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
+
+  provides jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesLibCoreProviderImpl;
   
   // for test
   opens jp.ecuacion.lib.core.util to org.hibernate.validator;
@@ -89,6 +91,9 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.MessagesTestProvider;
   provides jp.ecuacion.lib.core.spi.MessagesTestProvider
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesTestProviderImpl;
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesTestProvider;
+  provides jp.ecuacion.lib.core.spi.ValidationMessagesTestProvider
+      with jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesTestProviderImpl;
   uses jp.ecuacion.lib.core.spi.Test92NoneProvider;
   provides jp.ecuacion.lib.core.spi.Test92NoneProvider
       with jp.ecuacion.lib.core.spi.impl.internal.Test92NoneProviderImpl;
