@@ -74,6 +74,14 @@ public class ExceptionUtil {
 
   /**
    * Returns Exception message list.
+   * 
+   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
+   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
+   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
+   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     overcomes it.</p>
    */
   @Nonnull
   public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
@@ -83,10 +91,18 @@ public class ExceptionUtil {
 
   /**
    * Returns Exception message list.
+   * 
+   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
+   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
+   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
+   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     overcomes it.</p>
    */
   @Nonnull
   public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
-      Locale locale, Boolean isValidationMessagesWithItemNames) {
+      @Nullable Locale locale, @Nullable Boolean isValidationMessagesWithItemNames) {
 
     return getMessageList(new ConstraintViolationBeanException(constraintViolationSet), locale,
         isValidationMessagesWithItemNames);
@@ -101,14 +117,14 @@ public class ExceptionUtil {
    * 
    * <p>One exception normally has one message, 
    * but one ConstraintViolationException can have multiple messages 
-   * so the return type is not a {@code String}, but a {@code List<String>}.
+   * so the return type is not a {@code String}, but a {@code List<String>}.</p>
    *
    * @param throwable throwable
    * @return a list of messages
    */
   @Nonnull
   public static List<String> getMessageList(@RequireNonnull Throwable throwable) {
-    return getMessageList(throwable, null);
+    return getMessageList(throwable, null, null);
   }
 
   /**
@@ -120,7 +136,7 @@ public class ExceptionUtil {
    * 
    * <p>One exception normally has one message, 
    * but one ConstraintViolationException can have multiple messages 
-   * so the return type is not a {@code String}, but a {@code List<String>}.
+   * so the return type is not a {@code String}, but a {@code List<String>}.</p>
    *
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
@@ -142,7 +158,46 @@ public class ExceptionUtil {
    * 
    * <p>One exception normally has one message, 
    * but one ConstraintViolationException can have multiple messages 
-   * so the return type is not a {@code String}, but a {@code List<String>}.
+   * so the return type is not a {@code String}, but a {@code List<String>}.</p>
+   * 
+   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
+   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
+   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
+   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     overcomes it.</p>
+   *
+   * @param throwable throwable
+   * @param isValidationMessagesWithItemNames 
+   *     isValidationMessagesWithItemNames, may be {@code null} 
+   *     which is treated as {@code Locale.getDefault()}.
+   * @return a list of messages
+   */
+  @Nonnull
+  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
+      @Nullable Boolean isValidationMessagesWithItemNames) {
+    return getMessageList(throwable, null, isValidationMessagesWithItemNames);
+  }
+
+  /**
+   * Returns exception message for 1 exception.
+   * 
+   * <p>This method covers all the exceptions including Java standard exceptions, 
+   * ConstraintViolationException used in Jakarta Validation
+   * and AppExceptions defined in this library.</p>
+   * 
+   * <p>One exception normally has one message, 
+   * but one ConstraintViolationException can have multiple messages 
+   * so the return type is not a {@code String}, but a {@code List<String>}.</p>
+   * 
+   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
+   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
+   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
+   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     overcomes it.</p>
    *
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
