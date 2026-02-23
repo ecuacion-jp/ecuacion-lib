@@ -338,7 +338,7 @@ public class ValidationUtil {
    */
   public static class ParameterBean {
 
-    private boolean isMessageWithItemNames = false;
+    private Boolean isMessageWithItemNames;
     private Arg messagePrefix;
     private Arg messagePostfix;
 
@@ -352,7 +352,7 @@ public class ValidationUtil {
     /**
      * Construct a new instance. Construction from outside not allowed.
      */
-    ParameterBean(boolean isMessageWithItemNames, Arg messagePrefix, Arg messagePostfix) {
+    ParameterBean(Boolean isMessageWithItemNames, Arg messagePrefix, Arg messagePostfix) {
       this.isMessageWithItemNames = isMessageWithItemNames;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
@@ -361,15 +361,15 @@ public class ValidationUtil {
     /**
      * Returns addsItemNameToMessage.
      */
-    public boolean isMessageWithItemNames() {
+    public Boolean isMessageWithItemNames() {
       return isMessageWithItemNames;
     }
 
     /**
      * Sets messagePrefix and returns this.
      */
-    public ParameterBean isMessageWithItemNames(boolean addsItemNameToMessage) {
-      this.isMessageWithItemNames = addsItemNameToMessage;
+    public ParameterBean isMessageWithItemNames(Boolean isMessageWithItemNames) {
+      this.isMessageWithItemNames = isMessageWithItemNames;
       return this;
     }
 
