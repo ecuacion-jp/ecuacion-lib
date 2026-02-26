@@ -41,8 +41,8 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
-import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.Options;
-import jp.ecuacion.lib.core.util.EmbeddedParameterUtil.StringFormatIncorrectException;
+import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
+import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -887,7 +887,7 @@ public class PropertyFileUtil {
     if (sb.toString().contains("${")) {
       // Analyze messageString for ${xxx} (EL expression) format parameters.
       try {
-        list = EmbeddedParameterUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
+        list = EmbeddedVariableUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
             new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
       } catch (StringFormatIncorrectException | MultipleAppException ex) {
@@ -938,7 +938,7 @@ public class PropertyFileUtil {
     // properties files are not managed by users
     // so exceptions occurring while analyzing string are changed to unchecked exceptions.
     try {
-      List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
+      List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
           startSymbols.toArray(new String[startSymbols.size()]), "}",
           new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
