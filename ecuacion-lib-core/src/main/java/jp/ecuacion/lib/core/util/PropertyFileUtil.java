@@ -912,18 +912,18 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Analyzes messages with the constructure of {@code message ID in message}.
+   * Analyzes and obtain final message part.
    * 
    * <p>When there's no message ID in a message, return will be {(null, {@code <message>})}.<br>
-   *     left hand side of a pair is {@code null} meeans 
+   *     left hand side of a pair is {@code null} means 
    *     that the message doesn't have a message ID in it.</p>
    * 
    * <p>.When one message ID is included in a message return will be 
    *     {(null, {@code prefixOfMessage}),  ({@code PropertyFileUtilFileKindEnum.MSG, message ID}), 
    *     (null, {@code postfixOfMessage})}.<br>
    *     3 parts of a message will be concatenated into a single string, 
-   *     and the middle part wlll be translated into a message.<br><br>
-   *     For example, when the message is {@code Hello, {messages:human}!}, 
+   *     and the middle part will be translated into a message.<br><br>
+   *     For example, when the message is {@code Hello, ${+messages:human}!}, 
    *     the analyzed result is: <br>
    *     ({@code (null, "Hello, "), (PropertyFileUtilFileKindEnum.MSG, "human"), (null, "!")}}.</p>
    * 
@@ -941,6 +941,13 @@ public class PropertyFileUtil {
       List<Pair<String, String>> list = EmbeddedParameterUtil.getPartList(string,
           startSymbols.toArray(new String[startSymbols.size()]), "}",
           new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+
+      // THrow an exception if a string still has "${+" because it happens only by a
+      // mistake of the string.
+      if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
+        throw new EclibRuntimeException(
+            "Improper '${+' symbols found in a message. message: " + string);
+      }
 
       // left of the pair starts with "{+" and ends with ":" but they're not needed
       return list.stream()
