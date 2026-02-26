@@ -33,17 +33,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Provides utilities to handle parameters embeddded in a string, 
+ * Provides utilities to handle variables embedded in a string, 
  *     enclosed by some symbols from both sides.
  */
-public class EmbeddedParameterUtil {
+public class EmbeddedVariableUtil {
 
-  private static final String MSG_PREFIX = "jp.ecuacion.lib.core.util.EmbeddedParameterUtil.";
+  private static final String MSG_PREFIX = "jp.ecuacion.lib.core.util.EmbeddedVariableUtil.";
 
   /**
    * Prevents other classes from instantiating it.
    */
-  private EmbeddedParameterUtil() {}
+  private EmbeddedVariableUtil() {}
 
   /*
    * Finds an index of symbol ignoring a symbol with an escape character.
@@ -68,35 +68,26 @@ public class EmbeddedParameterUtil {
   }
 
   /**
-   * Returns a first-found parameter name embedded in an argument string.
+   * Returns a first-found variable name embedded in an argument string.
    * 
-   * <p>The method finds a variable from the start of the string, 
-   *     and it returns the first one it finds.
-   *     In case of startSymbol = "${" and endSymbol = "}" (linux shell variable),
-   *     return value is {@code b} when the string is {@code <pre>a${b}c${d}e</pre>.</p>
+   * <p>The method searches a variable from the start of the string, 
+   *     and returns the first one.
+   *     When startSymbol = "${" and endSymbol = "}" (linux shell variable),
+   *     return value from string the string <pre>a${b}c${d}e</pre> is {@code b}.</p>
    * 
-   * <p>The return value of the method is often used like
-   *     "If the value is present, else exit the while loop (break)".
-   *     Even if the method returns Optional it's not very useful 
-   *     because you cannot "break" in ifPresentOrElse. (because it's lambda)<br>
-   *     That's why return value is not Optional 
-   *     and it returns {@code null} when no value exists.</p>
-   * 
-   * <p>When a string with multiple variables, you cannot replace variables to values one by one.
+   * <p>You cannot replace variables to values one by one with a string with multiple variables.
    *     You need to know all the variable locations first, and then replace them to values
-   *     because if the first value contains "}", 
-   *     you cannot find the location of the second variable.
-   *     That's why this method should not be used from outside, and it's not public.
-   *     (It's not private because of unit test)</p>
+   *     because you cannot find the location of the second variable 
+   *     if the replaced first value contains the start symbol.</p>
    * 
-   * @param string string which contains linux shell variable
+   * @param string string which contains variable(s) 
    * @return variable name, may be {@code null} 
-   *     when argument string doesn't contain parameters.
+   *     when argument string doesn't contain variables.
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws MultipleAppException MultipleAppException
    */
   @Nullable
-  static String getFirstFoundEmbeddedParameter(@RequireNonnull String string,
+  static String getFirstFoundEmbeddedVariable(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @Nullable Options options) throws StringFormatIncorrectException, MultipleAppException {
 
@@ -121,7 +112,7 @@ public class EmbeddedParameterUtil {
 
       } else {
         // Ignore the emergence of endSymbol. Remove that part and call the method recursively.
-        return getFirstFoundEmbeddedParameter(
+        return getFirstFoundEmbeddedVariable(
             string.substring(getFirstFoundIndexOfSymbol(string, endSymbol) + endSymbol.length()),
             startSymbol, endSymbol, options);
       }
@@ -135,7 +126,7 @@ public class EmbeddedParameterUtil {
   }
 
   /**
-   * Returns a first-found parameter name embedded in an argument string 
+   * Returns a first-found variable name embedded in an argument string 
    * with multiple kinds of start symbols.
    * 
    * <p>For example, there are two kinds of start symbols: 
@@ -148,13 +139,13 @@ public class EmbeddedParameterUtil {
    * @param string string
    * @param startSymbols multiple kinds of start symbols
    * @param endSymbol end symbol
-   * @return Pair: start symbol is the left side, and the parameter name is the right-side,
-   *     may be {@code null} when argument string doesn't contain parameters.
+   * @return Pair: start symbol is the left side, and the variable name is the right-side,
+   *     may be {@code null} when the argument string doesn't contain variables.
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
   @Nullable
-  static Pair<String, String> getFirstFoundEmbeddedParameter(@RequireNonnull String string,
+  static Pair<String, String> getFirstFoundEmbeddedVariable(@RequireNonnull String string,
       @RequireNonnull @RequireSizeNonzero @RequireElementNonempty String[] startSymbols,
       @RequireNonempty String endSymbol, @Nullable Options options)
       throws MultipleAppException, StringFormatIncorrectException {
@@ -165,7 +156,7 @@ public class EmbeddedParameterUtil {
     Map<Integer, String> firstFoundParamNameMap = new HashMap<>();
     for (String startSymbol : startSymbols) {
       try {
-        String param = getFirstFoundEmbeddedParameter(string, startSymbol, endSymbol, options);
+        String param = getFirstFoundEmbeddedVariable(string, startSymbol, endSymbol, options);
 
         if (param != null) {
           int i = string.indexOf(startSymbol + param + endSymbol);
@@ -183,7 +174,7 @@ public class EmbeddedParameterUtil {
 
     if (firstFoundParamNameList.size() == 0) {
       if (exList.size() == 0) {
-        // simply no parameter found.
+        // simply no variable found.
         return null;
 
       } else {
@@ -194,29 +185,29 @@ public class EmbeddedParameterUtil {
     } else {
       String firstFoundStartSymbol = firstFoundParamNameMap.get(firstFoundParamNameList.get(0));
       return Pair.of(firstFoundParamNameMap.get(firstFoundParamNameList.get(0)),
-          getFirstFoundEmbeddedParameter(string, firstFoundStartSymbol, endSymbol, options));
+          getFirstFoundEmbeddedVariable(string, firstFoundStartSymbol, endSymbol, options));
     }
   }
 
   /**
-   * Divides the argument string into simple string and parameter parts and Returns list of them.
+   * Divides the argument string into simple string and variable parts and Returns list of them.
    * 
-   * <p>When you replace embedded parameter into strings, the following logic is not good:
-   * search 1st parameter -> replace 1st parameter -> search 2nd parameter -> ...
-   * because if 1st parameter constains start or end symbol, 2nd parameter cannot be found.</p>
+   * <p>When you replace embedded variable into strings, the following logic is not good:
+   * search 1st variable -> replace 1st variable -> search 2nd variable -> ...
+   * because if 1st variable contains start or end symbol, 2nd variable cannot be found.</p>
    * 
    * <p>The logic must be like this:
-   * search all parameters -> replace all parameters</p>
+   * search all variables -> replace all variables</p>
    * 
    * <p>This method is in charge of the former part.
-   *     It searches and divides all the parameters and strings.</p>
+   *     It searches and divides all the variables and strings.</p>
    * 
    * <p>In the case that there are multiple start symbols, 
    *     it's passed as String[].</p>
    * 
    * @return Pair of String, String. 
    *     The left side of the pair is the startSymbol, 
-   *     and the right parameter name when param exists.
+   *     and the right variable name when param exists.
    *     And {null, "string"} when it's simple string.
    *     It returns list with size zero when the argument string is blank("").
    * @throws MultipleAppException MultipleAppException
@@ -228,21 +219,21 @@ public class EmbeddedParameterUtil {
       @RequireNonempty String endSymbol, @Nullable Options options)
       throws StringFormatIncorrectException, MultipleAppException {
 
-    // the left side of the pair is startSymbol, and the right parameter name.
+    // the left side of the pair is startSymbol, and the right variable name.
     Pair<String, String> param = null;
 
-    // search all the parameters and put each part to the list.
+    // search all the variables and put each part to the list.
     List<Pair<String, String>> list = new ArrayList<>();
 
     String part = string;
     while (true) {
       // In each loop, one part is added to the list.
-      // but when a parameter exists and there is a normal string part before the parameter,
-      // both the normal string and a parameter are added to the list.
+      // but when a variable exists and there is a normal string part before the variable,
+      // both the normal string and a variable are added to the list.
 
-      param = getFirstFoundEmbeddedParameter(part, startSymbols, endSymbol, options);
+      param = getFirstFoundEmbeddedVariable(part, startSymbols, endSymbol, options);
 
-      // param == null means parameter not contained in part
+      // param == null means variable not contained in part
       if (param == null) {
         if (part.length() > 0) {
           list.add(Pair.of(null, part));
@@ -254,40 +245,40 @@ public class EmbeddedParameterUtil {
         String firstFoundStartSymbol = param.getLeft();
         String firstFoundParamName = param.getRight();
 
-        String parameterWithSymbols = firstFoundStartSymbol + firstFoundParamName + endSymbol;
+        String variableWithSymbols = firstFoundStartSymbol + firstFoundParamName + endSymbol;
 
         // When a prefix string exists, add it to list
-        if (part.indexOf(parameterWithSymbols) > 0) {
-          list.add(Pair.of(null, part.substring(0, part.indexOf(parameterWithSymbols))));
+        if (part.indexOf(variableWithSymbols) > 0) {
+          list.add(Pair.of(null, part.substring(0, part.indexOf(variableWithSymbols))));
         }
 
-        // Add the parameter to list
+        // Add the variable to list
         list.add(Pair.of(firstFoundStartSymbol, firstFoundParamName));
 
-        part = part.substring(part.indexOf(parameterWithSymbols) + parameterWithSymbols.length());
+        part = part.substring(part.indexOf(variableWithSymbols) + variableWithSymbols.length());
       }
     }
   }
 
   /**
-   * Divides the argument string into simple string and parameter parts and Returns list of them.
+   * Divides the argument string into simple string and variable parts and Returns list of them.
    * 
-   * <p>When you replace embedded parameter into strings, the following logic is not good:
-   * search 1st parameter -> replace 1st parameter -> search 2nd parameter -> ...
-   * because if 1st parameter constains start or end symbol, 2nd parameter cannot be found.</p>
+   * <p>When you replace embedded variable into strings, the following logic is not good:
+   * search 1st variable -> replace 1st variable -> search 2nd variable -> ...
+   * because if 1st variable constains start or end symbol, 2nd variable cannot be found.</p>
    * 
    * <p>The logic must be like this:
-   * search all parameters -> replace all parameters</p>
+   * search all variables -> replace all variables</p>
    * 
    * <p>This method is in charge of the former part.
-   *     It searches and divides all the parameters and strings.</p>
+   *     It searches and divides all the variables and strings.</p>
    * 
    * <p>In the case that there are multiple start symbols, 
    *     it's passed as String[].</p>
    * 
    * @return Pair of String, String. 
    *     The left side of the pair is the startSymbol, 
-   *     and the right parameter name when param exists.
+   *     and the right variable name when param exists.
    *     And {null, "string"} when it's simple string.
    *     It returns list with size zero when the argument string is blank("").
    * @throws AppException AppException 
@@ -307,22 +298,22 @@ public class EmbeddedParameterUtil {
   }
 
   /**
-   * Returns string with embedded parameters replaced.
+   * Returns string with embedded variables replaced.
    * 
-   * @param string string with parameters embedded
-   * @param startSymbol left-side symbol enclosing parameters
-   * @param endSymbol right-side symbol enclosing parameters
+   * @param string string with variables embedded
+   * @param startSymbol left-side symbol enclosing variables
+   * @param endSymbol right-side symbol enclosing variables
    * @param valueGetterFromKey Function which obtains value from key.
    * @param options options
-   * @return string with embedded parameters replaced
+   * @return string with embedded variables replaced
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
-   * @throws ParameterNotFoundException StringFormatIncorrectException
+   * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getParameterReplacedString(@RequireNonnull String string,
+  public static String getVariableReplacedString(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @RequireNonnull Function<String, String> valueGetterFromKey, @Nullable Options options)
-      throws StringFormatIncorrectException, MultipleAppException, ParameterNotFoundException {
+      throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     ObjectsUtil.requireNonNull(valueGetterFromKey);
 
@@ -339,7 +330,7 @@ public class EmbeddedParameterUtil {
         // Throw an error when the map does not contain the key
         String value = valueGetterFromKey.apply(pair.getRight());
         if (value == null) {
-          throw new ParameterNotFoundException(pair.getRight());
+          throw new VariableNotFoundException(pair.getRight());
 
         } else {
           sb.append(value);
@@ -351,67 +342,67 @@ public class EmbeddedParameterUtil {
   }
 
   /**
-   * Returns string with embedded parameters replaced.
+   * Returns string with embedded variables replaced.
    * 
-   * @param string string with parameters embedded
-   * @param startSymbol left-side symbol enclosing parameters
-   * @param endSymbol right-side symbol enclosing parameters
+   * @param string string with variables embedded
+   * @param startSymbol left-side symbol enclosing variables
+   * @param endSymbol right-side symbol enclosing variables
    * @param valueGetterFromKey Function which obtains value from key.
-   * @return string with embedded parameters replaced
+   * @return string with embedded variables replaced
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
-   * @throws ParameterNotFoundException StringFormatIncorrectException
+   * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getParameterReplacedString(@RequireNonnull String string,
+  public static String getVariableReplacedString(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @RequireNonnull Function<String, String> valueGetterFromKey)
-      throws StringFormatIncorrectException, MultipleAppException, ParameterNotFoundException {
+      throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
-    return getParameterReplacedString(string, startSymbol, endSymbol, valueGetterFromKey, null);
+    return getVariableReplacedString(string, startSymbol, endSymbol, valueGetterFromKey, null);
   }
 
   /**
-   * Returns string with embedded parameters replaced.
+   * Returns string with embedded variables replaced.
    * 
-   * @param string string with parameters embedded
-   * @param startSymbol left-side symbol enclosing parameters
-   * @param endSymbol right-side symbol enclosing parameters
+   * @param string string with variables embedded
+   * @param startSymbol left-side symbol enclosing variables
+   * @param endSymbol right-side symbol enclosing variables
    * @param parameterMap It stores parameter keys and those values.
    * @param options options
-   * @return string with embedded parameters replaced
+   * @return string with embedded variables replaced
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
-   * @throws ParameterNotFoundException StringFormatIncorrectException
+   * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getParameterReplacedString(@RequireNonnull String string,
+  public static String getVariableReplacedString(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @RequireNonnull Map<String, String> parameterMap, @Nullable Options options)
-      throws StringFormatIncorrectException, MultipleAppException, ParameterNotFoundException {
+      throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     ObjectsUtil.requireNonNull(parameterMap);
 
-    return getParameterReplacedString(string, startSymbol, endSymbol,
+    return getVariableReplacedString(string, startSymbol, endSymbol,
         getValueGetterFromKey(parameterMap), options);
   }
 
   /**
-   * Returns string with embedded parameters replaced.
+   * Returns string with embedded variables replaced.
    * 
-   * @param string string with parameters embedded
-   * @param startSymbol left-side symbol enclosing parameters
-   * @param endSymbol right-side symbol enclosing parameters
+   * @param string string with variables embedded
+   * @param startSymbol left-side symbol enclosing variables
+   * @param endSymbol right-side symbol enclosing variables
    * @param parameterMap It stores parameter keys and those values.
-   * @return string with embedded parameters replaced
+   * @return string with embedded variables replaced
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
-   * @throws ParameterNotFoundException ParameterNotFoundException
+   * @throws VariableNotFoundException VariableNotFoundException
    */
-  public static String getParameterReplacedString(@RequireNonnull String string,
+  public static String getVariableReplacedString(@RequireNonnull String string,
       @RequireNonempty String startSymbol, @RequireNonempty String endSymbol,
       @RequireNonnull Map<String, String> parameterMap)
-      throws StringFormatIncorrectException, MultipleAppException, ParameterNotFoundException {
+      throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
-    return getParameterReplacedString(string, startSymbol, endSymbol, parameterMap, null);
+    return getVariableReplacedString(string, startSymbol, endSymbol, parameterMap, null);
   }
 
   /**
@@ -465,14 +456,14 @@ public class EmbeddedParameterUtil {
   /**
    * Designates an exception which occurs because the format of an argument string is wrong.
    */
-  public static class ParameterNotFoundException extends BizLogicAppException {
+  public static class VariableNotFoundException extends BizLogicAppException {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Construct a new instance.
      */
-    public ParameterNotFoundException(String key) {
+    public VariableNotFoundException(String key) {
       super(MSG_PREFIX + "paramNotFoundInMap.message", key);
     }
   }
