@@ -942,6 +942,13 @@ public class PropertyFileUtil {
           startSymbols.toArray(new String[startSymbols.size()]), "}",
           new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
+      // THrow an exception if a string still has "${+" because it happens only by a
+      // mistake of the string.
+      if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
+        throw new EclibRuntimeException(
+            "Improper '${+' symbols found in a message. message: " + string);
+      }
+
       // left of the pair starts with "{+" and ends with ":" but they're not needed
       return list.stream()
           .map(pair -> pair.getLeft() == null ? pair
