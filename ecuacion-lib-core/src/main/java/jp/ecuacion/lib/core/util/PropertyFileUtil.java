@@ -798,7 +798,8 @@ public class PropertyFileUtil {
   }
 
   /**
-   * Adds postfix dinamically.
+   * Adds postfix dynamically.
+   * This is basically for unit-test. NOT RECOMMENDED for production code.
    * 
    * <p>If you add {@code test} for example, 
    *     {@code messages_test[_lang].properties, 
