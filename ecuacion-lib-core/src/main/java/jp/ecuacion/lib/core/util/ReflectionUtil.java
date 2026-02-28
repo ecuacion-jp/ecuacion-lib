@@ -151,11 +151,9 @@ public class ReflectionUtil {
       }
 
     } catch (IllegalArgumentException | IllegalAccessException ex) {
-      throwRuntimeException(ex, propertyPath, "Field value");
+      throw new EclibRuntimeException(
+          "Field value cannot be obtained " + "from the field name '" + propertyPath + "'", ex);
     }
-
-    // throwRuntimeException always throws Exception so this will never executed.
-    return null;
   }
 
   /**
@@ -218,16 +216,6 @@ public class ReflectionUtil {
       cls = cls.getSuperclass();
     }
 
-    throwRuntimeException(ex, propertyPath, "Field");
-
-    // throwRuntimeException always throws Exception so this will never executed.
-    return null;
-  }
-
-  private static void throwRuntimeException(Exception ex, String fieldName,
-      String whatIsTriedToObtain) {
-    throw new EclibRuntimeException(
-        whatIsTriedToObtain + " cannot be obtained " + "from the field name '" + fieldName + "'",
-        ex);
+    throw new RuntimeException(ex);
   }
 }
