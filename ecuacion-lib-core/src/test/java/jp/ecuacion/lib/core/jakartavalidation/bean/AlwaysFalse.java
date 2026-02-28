@@ -51,7 +51,7 @@ public @interface AlwaysFalse {
    * 
    * @return message ID
    */
-  String message() default "test error message.";
+  String message() default "jp.ecuacion.lib.validation.constraints.AlwaysFalse.message";
 
   /** 
    * Returns groups.

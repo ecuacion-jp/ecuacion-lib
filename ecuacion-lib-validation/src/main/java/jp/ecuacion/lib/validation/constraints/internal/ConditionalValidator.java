@@ -25,6 +25,7 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +39,7 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-public abstract class ConditionalValidator extends ClassValidator {
+public abstract class ConditionalValidator<A extends Annotation, T> extends ClassValidator<A, T> {
   private String conditionPropertyPath;
   private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;
@@ -82,7 +83,8 @@ public abstract class ConditionalValidator extends ClassValidator {
   /**
    * Executes validation check.
    */
-  public boolean isValid(Object instance, ConstraintValidatorContext context) {
+  @Override
+  public boolean internalIsValid(Object instance, ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
