@@ -91,8 +91,8 @@ public class ReflectionUtilTest {
       f = ReflectionUtil.getField(SimpleClass.class, "a.b");
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
-      // OK
+    } catch (RuntimeException ex) {
+      Assertions.assertTrue(ex.getCause() instanceof NoSuchFieldException);
     }
 
     // fieldName with "["
