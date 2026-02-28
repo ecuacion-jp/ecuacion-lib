@@ -19,7 +19,7 @@ import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.validation.constraints.EmptyWhen;
 
 @SuppressWarnings("unused")
-public class ConditinalValidatorTestBean {
+public class ConditionalValidatorTestBean {
 
   public static enum TestEnum {
     value1, value2, value3;
@@ -60,9 +60,9 @@ public class ConditinalValidatorTestBean {
     public static class TestEnum {
 
       private java.lang.String field = "X";
-      private ConditinalValidatorTestBean.TestEnum condField;
+      private ConditionalValidatorTestBean.TestEnum condField;
 
-      public TestEnum(ConditinalValidatorTestBean.TestEnum condFieldValue) {
+      public TestEnum(ConditionalValidatorTestBean.TestEnum condFieldValue) {
         condField = condFieldValue;
       }
     }
@@ -92,9 +92,9 @@ public class ConditinalValidatorTestBean {
     public static class TestEnum {
 
       private java.lang.String field = "X";
-      private ConditinalValidatorTestBean.TestEnum condField;
+      private ConditionalValidatorTestBean.TestEnum condField;
 
-      public TestEnum(ConditinalValidatorTestBean.TestEnum condFieldValue) {
+      public TestEnum(ConditionalValidatorTestBean.TestEnum condFieldValue) {
         condField = condFieldValue;
       }
     }
