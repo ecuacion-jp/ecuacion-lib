@@ -15,14 +15,12 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintValidator;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
  */
-public class ConcreteComparisonValidator extends ComparisonValidator
-    implements ConstraintValidator<Comparison, Object> {
+public class ConcreteComparisonValidator extends ComparisonValidator<Comparison, Object> {
 
   /** Initializes an instance. */
   @Override

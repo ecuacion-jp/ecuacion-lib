@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintValidator;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidator;
 import org.apache.commons.lang3.StringUtils;
@@ -23,8 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Provides the validation logic for {@code ConditionalNotEmpty}.
  */
-public class NotEmptyWhenValidator extends ConditionalValidator
-    implements ConstraintValidator<NotEmptyWhen, Object> {
+public class NotEmptyWhenValidator extends ConditionalValidator<NotEmptyWhen, Object> {
 
   /** Initializes an instance. */
   @Override
