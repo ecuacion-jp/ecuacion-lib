@@ -75,7 +75,7 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilJpaProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilPdfboxProvider;
-  
+
   provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
 

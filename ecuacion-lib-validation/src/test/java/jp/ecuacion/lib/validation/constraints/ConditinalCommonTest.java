@@ -17,7 +17,6 @@ package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ValidationException;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ValidationUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -32,8 +31,8 @@ public class ConditinalCommonTest {
       ValidationUtil.validate(new ConditinalCommonTestBean.NoField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
-
+      Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
+      Assertions.assertEquals(true, ex.getCause().getCause() instanceof NoSuchFieldException);
     }
 
     // No Condition Field
@@ -41,7 +40,8 @@ public class ConditinalCommonTest {
       ValidationUtil.validate(new ConditinalCommonTestBean.NoConditionField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
-      Assertions.assertEquals(true, ex.getCause() instanceof EclibRuntimeException);
+      Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
+      Assertions.assertEquals(true, ex.getCause().getCause() instanceof NoSuchFieldException);
     }
   }
 

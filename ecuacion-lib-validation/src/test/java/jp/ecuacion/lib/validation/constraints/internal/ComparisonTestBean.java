@@ -33,17 +33,18 @@ public class ComparisonTestBean {
 
   public static class Irregular {
 
-    @Comparison(propertyPath = {"propertyPath", "propertyPath2"},
+    @Comparison(propertyPath = {"propertyPath1", "propertyPath2"},
         basisPropertyPath = "basisPropertyPath")
     public static class PropertyPathNotExist {
-      private int propertyPath;
+      private int propertyPath1;
       private int basisPropertyPath;
     }
 
-    @Comparison(propertyPath = {"propertyPath", "propertyPath2"},
+    @Comparison(propertyPath = {"propertyPath1", "propertyPath2"},
         basisPropertyPath = "basisPropertyPath")
     public static class BasisPropertyPathNotExist {
-      private int propertyPath;
+      private int propertyPath1;
+      private int propertyPath2;
     }
 
     @Comparison(propertyPath = {"propertyPath1", "propertyPath2"},
