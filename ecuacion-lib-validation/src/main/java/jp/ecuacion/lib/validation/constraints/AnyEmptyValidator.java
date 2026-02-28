@@ -15,15 +15,13 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jp.ecuacion.lib.validation.constraints.internal.AllAnyValidator;
 
 /**
  * Provides the validation logic for {@code AnyEmpty}.
  */
-public class AnyEmptyValidator extends AllAnyValidator
-    implements ConstraintValidator<AnyEmpty, Object> {
+public class AnyEmptyValidator extends AllAnyValidator<AnyEmpty, Object> {
 
   /** Initializes an instance. */
   @Override
@@ -32,7 +30,7 @@ public class AnyEmptyValidator extends AllAnyValidator
   }
 
   @Override
-  public boolean isValid(Object object, ConstraintValidatorContext context) {
-    return numberOfNonEmptyValues(object, propertyPaths) < propertyPaths.length;
+  public boolean internalIsValid(Object object, ConstraintValidatorContext context) {
+    return numberOfNonEmptyValues(object) < propertyPaths.length;
   }
 }
