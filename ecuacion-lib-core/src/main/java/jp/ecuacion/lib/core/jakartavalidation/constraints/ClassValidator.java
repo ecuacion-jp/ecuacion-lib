@@ -17,8 +17,9 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ValidationException;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 
@@ -44,6 +45,10 @@ public abstract class ClassValidator<A extends Annotation, T> extends Reflection
    */
   public void initialize(String[] propertyPath) {
     this.propertyPaths = propertyPath;
+    
+    if (propertyPaths.length == 0) {
+      throw new ValidationException("Length of propertyPath is zero.");
+    }
   }
 
   @Override
@@ -54,12 +59,9 @@ public abstract class ClassValidator<A extends Annotation, T> extends Reflection
   }
 
   private Object[] setValuesOfPropertyPaths(T object) {
-    List<Object> list = new ArrayList<>();
-    
-    for (String propertyPath : propertyPaths) {
-      list.add(getValue(object, propertyPath));
-    }
-    
+    List<Object> list =
+        Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();
+
     return list.toArray(new Object[list.size()]);
   }
 }
