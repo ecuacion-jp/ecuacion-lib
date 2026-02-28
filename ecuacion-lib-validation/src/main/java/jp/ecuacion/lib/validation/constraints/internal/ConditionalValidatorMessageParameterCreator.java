@@ -46,7 +46,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     final String validatorClassWithPackage = (String) paramMap.get("annotation");
     final String validatorClass =
         validatorClassWithPackage.substring(validatorClassWithPackage.lastIndexOf(".") + 1);
-    
+
     // conditionFieldItemNameKey
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
@@ -61,7 +61,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
     // displayStringOfConditionValue
     ConditionValue conditionPtn =
-        (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_PATTERN);
+        (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_VALUE);
     String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
         PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
         PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
@@ -105,9 +105,11 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
       displayStringOfConditionValueArg = Arg.get(fileKinds, StringUtil.getCsvWithSpace(strs));
     }
 
-    String propKey =
-        annotationPrefix + ".messagePart." + paramMap.get(ConditionalValidator.CONDITION_PATTERN)
-            + "." + paramMap.get(ConditionalValidator.CONDITION_OPERATOR);
+    String propKey = annotationPrefix + ".messagePart."
+        + StringUtil
+            .getLowerCamelFromSnake(paramMap.get(ConditionalValidator.CONDITION_VALUE).toString())
+        + "." + StringUtil.getLowerCamelFromSnake(
+            paramMap.get(ConditionalValidator.CONDITION_OPERATOR).toString());
     messageParameterSet
         .add(new LocalizedMessageParameter(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,

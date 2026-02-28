@@ -53,7 +53,7 @@ public abstract class ConditionalValidator extends ClassValidator {
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
       "conditionPropertyPathItemNameKey";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME = "conditionPropertyPathItemName";
-  public static final String CONDITION_PATTERN = "conditionPattern";
+  public static final String CONDITION_VALUE = "conditionValue";
   public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
