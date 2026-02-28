@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,7 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 /**
  * Provides the validation logic for {@code EnumElement}.
  */
-public abstract class ComparisonValidator extends ClassValidator {
+public abstract class ComparisonValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
   private String basisPropertyPath;
   private boolean isValidWhenLessThanBasis;
@@ -63,7 +64,7 @@ public abstract class ComparisonValidator extends ClassValidator {
   /**
    * Executes validation check.
    */
-  public boolean isValid(Object instance, ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
