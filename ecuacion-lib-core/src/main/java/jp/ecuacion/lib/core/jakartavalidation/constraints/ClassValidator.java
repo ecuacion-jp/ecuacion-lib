@@ -15,6 +15,12 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ValidationException;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 
 /**
@@ -23,14 +29,39 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
  * 
  * <p>The field "propertyPath" is always needed as the field for validation.</p>
  */
-public abstract class ClassValidator extends ReflectionUtil {
+public abstract class ClassValidator<A extends Annotation, T> extends ReflectionUtil
+    implements ConstraintValidator<A, T> {
 
   protected String[] propertyPaths;
+  protected Object[] valuesOfPropertyPaths;
+
+  /**
+   * is {@code isValid} method for each class-level validators.
+   */
+  protected abstract boolean internalIsValid(T value, ConstraintValidatorContext context);
 
   /**
    * Constructs a new instance.
    */
   public void initialize(String[] propertyPath) {
     this.propertyPaths = propertyPath;
+    
+    if (propertyPaths.length == 0) {
+      throw new ValidationException("Length of propertyPath is zero.");
+    }
+  }
+
+  @Override
+  public boolean isValid(T value, ConstraintValidatorContext context) {
+    valuesOfPropertyPaths = setValuesOfPropertyPaths(value);
+
+    return internalIsValid(value, context);
+  }
+
+  private Object[] setValuesOfPropertyPaths(T object) {
+    List<Object> list =
+        Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();
+
+    return list.toArray(new Object[list.size()]);
   }
 }

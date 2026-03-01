@@ -15,19 +15,16 @@
  */
 /**
  * Provides custom jakarta validation validators and related utilities.
+ * 
+ * <p>It must be open module for PropertyFileUtil to read properties files at the root package.</p>
  */
-module jp.ecuacion.lib.validation {
+open module jp.ecuacion.lib.validation {
   exports jp.ecuacion.lib.validation.constant;
   exports jp.ecuacion.lib.validation.constraints;
   exports jp.ecuacion.lib.validation.constraints.enums;
-  
-  requires transitive jakarta.validation;
 
+  requires transitive jakarta.validation;
   requires transitive jp.ecuacion.lib.core;
 
   requires org.apache.commons.lang3;
-
-  // for test
-  opens jp.ecuacion.lib.validation.constraints to jp.ecuacion.lib.core;
-  opens jp.ecuacion.lib.validation.constraints.internal to jp.ecuacion.lib.core;
 }

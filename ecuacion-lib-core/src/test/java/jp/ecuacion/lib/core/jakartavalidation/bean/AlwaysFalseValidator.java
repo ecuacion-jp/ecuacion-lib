@@ -15,15 +15,13 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
-import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 
 /**
  * Provides the validation logic for {@code AlwaysFalse}.
  */
-public class AlwaysFalseValidator extends ClassValidator
-    implements ConstraintValidator<AlwaysFalse, Object> {
+public class AlwaysFalseValidator extends ClassValidator<AlwaysFalse, Object> {
 
   @Override
   public void initialize(AlwaysFalse annotation) {
@@ -31,7 +29,7 @@ public class AlwaysFalseValidator extends ClassValidator
   }
 
   @Override
-  public boolean isValid(Object value, ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
     return false;
   }
 }

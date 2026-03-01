@@ -19,12 +19,14 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQU
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +38,8 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
-public abstract class ConditionalValidator extends ClassValidator {
+public abstract class ConditionalValidator<A extends Annotation, T> extends ClassValidator<A, T> {
   private String conditionPropertyPath;
   private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;
@@ -53,7 +54,7 @@ public abstract class ConditionalValidator extends ClassValidator {
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
       "conditionPropertyPathItemNameKey";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME = "conditionPropertyPathItemName";
-  public static final String CONDITION_PATTERN = "conditionPattern";
+  public static final String CONDITION_VALUE = "conditionValue";
   public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
@@ -82,15 +83,13 @@ public abstract class ConditionalValidator extends ClassValidator {
   /**
    * Executes validation check.
    */
-  public boolean isValid(Object instance, ConstraintValidatorContext context) {
+  @Override
+  public boolean internalIsValid(Object instance, ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
-        .map(path -> Pair.of(path, getValue(instance, path))).toList();
-
-    for (Pair<String, Object> pair : valueOfFieldList) {
-      boolean result = isValidForSinglePropertyPath(pair.getLeft(), pair.getRight());
+    for (int i = 0; i < propertyPaths.length; i++) {
+      boolean result = isValidForSinglePropertyPath(propertyPaths[i], valuesOfPropertyPaths[i]);
 
       if (!result) {
         return false;
@@ -122,7 +121,7 @@ public abstract class ConditionalValidator extends ClassValidator {
 
     Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == EMPTY) {
+    if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
 
       conditionValueStringMustNotSet();
       conditionValueRegexpMustNotSet();

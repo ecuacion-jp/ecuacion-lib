@@ -15,21 +15,11 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.Payload;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.Locale;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
-import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import jp.ecuacion.lib.core.jakartavalidation.bean.AlwaysFalse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,7 +30,7 @@ public class ExceptionUtilTest {
 
   @BeforeAll
   public static void before() {
-    PropertyFileUtil.addResourceBundlePostfix("test");
+    PropertyFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
   @Test
@@ -79,39 +69,11 @@ public class ExceptionUtilTest {
   public static record FieldValidator(@NotNull String str1) {
   }
 
-  @SampleClassValidator(propertyPath = "str1")
+  @AlwaysFalse(propertyPath = "str1")
   public static record ClassValidator1(String str1) {
   }
 
-  @SampleClassValidator(propertyPath = {"str1", "str2"})
+  @AlwaysFalse(propertyPath = {"str1", "str2"})
   public static record ClassValidator2(String str1, String str2) {
-  }
-
-
-  @PlacedAtClass
-  @Target({ElementType.TYPE})
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @Constraint(validatedBy = {SampleClassValidatorLogic.class})
-  static @interface SampleClassValidator {
-
-    String[] propertyPath();
-    String message() default "{jp.ecuacion.lib.validation.constraints.SampleClassValidator.message}";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
-  }
-
-  public static class SampleClassValidatorLogic extends ClassValidator
-      implements ConstraintValidator<SampleClassValidator, Object> {
-
-    @Override
-    public void initialize(@SuppressWarnings("exports") SampleClassValidator annotation) {
-      super.initialize(annotation.propertyPath());
-    }
-
-    @Override
-    public boolean isValid(Object object, ConstraintValidatorContext context) {
-      return false;
-    }
   }
 }

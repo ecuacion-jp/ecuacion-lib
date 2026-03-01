@@ -22,7 +22,7 @@ public enum ConditionValue {
 
   // null (for any data type) or String blank.
   // no additional value selection is needed.
-  EMPTY,
+  EMPTY, NOT_EMPTY,
 
   // boolean.
   // no additional value selection is needed.

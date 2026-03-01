@@ -41,7 +41,8 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertyFileUtilValueGetter.addToDynamicPostfixList("test");
+    PropertyFileUtilValueGetter.addToDynamicPostfixList("lib-core-test");
+    PropertyFileUtilValueGetter.addToDynamicPostfixList("lib-core-2nd-test");
   }
 
   @Test
@@ -85,6 +86,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
 
   @Test
   public void getProp_basicTest() {
+    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp("TEST_KEY", null));
 
     // # argument: key
 
@@ -156,7 +158,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
     // # properties file: none-and-langCountry
 
     PropertyFileUtilValueGetter noneAndLangCountry = new PropertyFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country"}});
+        new String[][] {new String[] {"test92-none-and-lang-country_lib-core-test"}});
     // argument: lang
     Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", null));
     // argument: lang (other lang)
@@ -240,7 +242,7 @@ public class PropertyFileUtilValueGetterTest extends TestTools {
   public void defaultLocaleRemovedFromLocaleCandidateTest() {
     Locale.setDefault(Locale.ITALY);
     PropertyFileUtilValueGetter noneAndLang =
-        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
+        new PropertyFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang_test"}});
     Assertions.assertEquals("none", noneAndLang.getProp("FILE_LOCALE", null));
   }
 

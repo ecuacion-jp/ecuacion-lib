@@ -15,14 +15,12 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintValidator;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
 
 /**
  * Provides the validation logic for {@code LessThan}.
  */
-public class LessThanValidator extends ComparisonValidator
-    implements ConstraintValidator<LessThan, Object> {
+public class LessThanValidator extends ComparisonValidator<LessThan, Object> {
  
   /** Initializes an instance. */
   @Override
