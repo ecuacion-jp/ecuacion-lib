@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.ecuacion.lib.core.spi;
+
+import java.util.spi.ResourceBundleProvider;
+
 /**
- * Provides custom jakarta validation validators and related utilities.
- * 
- * <p>It must be open module for PropertyFileUtil to read properties files at the root package.</p>
+ * Is a {@code ResourceBundleProvider} for messages in app projects.
  */
-open module jp.ecuacion.lib.validation {
-  exports jp.ecuacion.lib.validation.constant;
-  exports jp.ecuacion.lib.validation.constraints;
-  exports jp.ecuacion.lib.validation.constraints.enums;
-
-  requires transitive jakarta.validation;
-  requires transitive jp.ecuacion.lib.core;
-
-  requires org.apache.commons.lang3;
+public interface ValidationMessagesLibValidationProvider extends ResourceBundleProvider {
 }

@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Provides custom jakarta validation validators and related utilities.
- * 
- * <p>It must be open module for PropertyFileUtil to read properties files at the root package.</p>
- */
-open module jp.ecuacion.lib.validation {
-  exports jp.ecuacion.lib.validation.constant;
-  exports jp.ecuacion.lib.validation.constraints;
-  exports jp.ecuacion.lib.validation.constraints.enums;
+package jp.ecuacion.lib.core.test.spi.internal;
 
-  requires transitive jakarta.validation;
-  requires transitive jp.ecuacion.lib.core;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.test.spi.ItemNamesLibValidationTestProvider;
 
-  requires org.apache.commons.lang3;
+public class ItemNamesLibValidationTestProviderImpl extends AbstractPropertyFileProviderImpl
+    implements ItemNamesLibValidationTestProvider {
+
 }
