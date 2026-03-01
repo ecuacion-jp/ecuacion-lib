@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.test.spi.internal;
 
-import java.util.spi.ResourceBundleProvider;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.test.spi.Test92NoneAndLangAndLangCountryLibCoreTestProvider;
 
-/**
- * Is a {@code ResourceBundleProvider} for messages in app projects.
- */
-public interface ValidationMessagesTestProvider extends ResourceBundleProvider {
+public class Test92NoneAndLangAndLangCountryLibCoreTestProviderImpl extends AbstractPropertyFileProviderImpl
+    implements Test92NoneAndLangAndLangCountryLibCoreTestProvider {
+
 }
