@@ -269,6 +269,16 @@ public class PropertyFileUtilValueGetter {
     } catch (MissingResourceException ex) {
       // do nothing.
     }
+    
+    // java 9 module system for test
+    try {
+      String bundle = "jp.ecuacion.lib.core.test."
+          + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
+      return ResourceBundle.getBundle(bundle, locale);
+
+    } catch (MissingResourceException ex) {
+      // do nothing.
+    }
 
     // non-module apps
     try {

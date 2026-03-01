@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.spi.impl.internal;
+package jp.ecuacion.lib.core.test.spi.internal;
 
-import jp.ecuacion.lib.core.spi.ApplicationTestProvider;
 import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.test.spi.Test92NoneAndLangLibCoreTestProvider;
 
-public class ApplicationTestProviderImpl extends AbstractPropertyFileProviderImpl
-    implements ApplicationTestProvider {
+public class Test92NoneAndLangLibCoreTestProviderImpl extends AbstractPropertyFileProviderImpl
+    implements Test92NoneAndLangLibCoreTestProvider {
 
 }
