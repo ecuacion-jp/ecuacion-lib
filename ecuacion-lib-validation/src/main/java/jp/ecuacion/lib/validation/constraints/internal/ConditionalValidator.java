@@ -19,6 +19,7 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQU
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
@@ -37,7 +38,6 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 public abstract class ConditionalValidator<A extends Annotation, T> extends ClassValidator<A, T> {
   private String conditionPropertyPath;
@@ -88,11 +88,8 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
-        .map(path -> Pair.of(path, getValue(instance, path))).toList();
-
-    for (Pair<String, Object> pair : valueOfFieldList) {
-      boolean result = isValidForSinglePropertyPath(pair.getLeft(), pair.getRight());
+    for (int i = 0; i < propertyPaths.length; i++) {
+      boolean result = isValidForSinglePropertyPath(propertyPaths[i], valuesOfPropertyPaths[i]);
 
       if (!result) {
         return false;
@@ -124,7 +121,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
 
     Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == EMPTY) {
+    if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
 
       conditionValueStringMustNotSet();
       conditionValueRegexpMustNotSet();

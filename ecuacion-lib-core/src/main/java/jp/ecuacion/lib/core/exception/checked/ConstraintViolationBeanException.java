@@ -40,7 +40,7 @@ public class ConstraintViolationBeanException extends AppException {
   @SuppressWarnings("unchecked")
   public <T> ConstraintViolationBeanException(Set<T> constraintViolations) {
     if (constraintViolations == null || constraintViolations.size() == 0) {
-      throw new EclibRuntimeException("ConstraintViolation required.");
+      throw new EclibRuntimeException("Size of ConstraintViolation is zero.");
     }
 
     T obj = constraintViolations.stream().toList().get(0);

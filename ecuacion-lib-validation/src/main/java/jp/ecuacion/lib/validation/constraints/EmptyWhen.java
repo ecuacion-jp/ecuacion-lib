@@ -123,6 +123,14 @@ public @interface EmptyWhen {
   String conditionValueRegexp() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
+   * Specifies description for condition regular expression.
+   */
+  //@formatter:off  
+  String conditionValuePatternDescription() 
+      default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  //@formatter:on
+
+  /**
    * Specifies condition value field.
    * 
    * <p>This is used when {@code ConditionValue} is {@code VALUE_OF_PROPERTY_PATH}.
