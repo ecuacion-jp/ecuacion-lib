@@ -32,11 +32,14 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
 public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
+
+  private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   @Override
   public Set<LocalizedMessageParameter> create(ConstraintViolation<?> cv,
@@ -91,6 +94,18 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
       displayStringOfConditionValueArg =
           strs.length > 1 ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
               : valueArg;
+
+    } else if (conditionPtn == ConditionValue.PATTERN) {
+      String description = (String) paramMap.get("conditionValuePatternDescription");
+      String regExp = (String) paramMap.get("conditionValueRegexp");
+
+      if (description.equals(NULL) || description.equals("")) {
+        displayStringOfConditionValueArg = Arg.string(regExp);
+
+      } else {
+        displayStringOfConditionValueArg =
+            Arg.get(new String[] {PropertyFileUtilFileKindEnum.ITEM_NAMES.toString()}, description);
+      }
     }
 
     // when fieldHoldingConditionValueDisplayName is not blank,

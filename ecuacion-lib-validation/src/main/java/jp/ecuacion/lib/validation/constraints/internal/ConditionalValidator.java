@@ -19,6 +19,7 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQU
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
@@ -120,7 +121,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
 
     Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == EMPTY) {
+    if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
 
       conditionValueStringMustNotSet();
       conditionValueRegexpMustNotSet();
