@@ -120,7 +120,7 @@ public @interface NotEmptyWhen {
    * 
    * @return regular expression
    */
-  String conditionValueRegexp() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  String conditionValuePatternRegexp() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   /**
    * Specifies description for condition regular expression.
@@ -158,7 +158,7 @@ public @interface NotEmptyWhen {
    * 
    * @return String
    */
-  String displayStringOfConditionValue() default "";
+  String conditionValuePropertyPathDisplayString() default "";
 
   /**
    * Decides whether validation check is executed when the condition is not satisfied.
