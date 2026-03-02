@@ -120,15 +120,12 @@ public @interface EmptyWhen {
    * 
    * @return regular expression
    */
-  String conditionValuePatternRegexp() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  String conditionValuePatternRegexp() default "";
 
   /**
    * Specifies description for condition regular expression.
    */
-  //@formatter:off  
-  String conditionValuePatternDescription() 
-      default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
-  //@formatter:on
+  String conditionValuePatternDescription() default "";
 
   /**
    * Specifies condition value field.
@@ -147,7 +144,7 @@ public @interface EmptyWhen {
    * 
    * @return an array of string values
    */
-  String conditionValuePropertyPath() default EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  String conditionValuePropertyPath() default "";
 
   /**
    * Specifies the the display string of condition value.
@@ -158,7 +155,7 @@ public @interface EmptyWhen {
    * 
    * @return String
    */
-  String conditionValuePropertyPathDisplayString() default "";
+  String conditionValuePropertyPathDisplayStringPropertyPath() default "";
 
   /**
    * Decides whether validation check is executed when the condition is not satisfied.
