@@ -43,9 +43,6 @@ module jp.ecuacion.lib.core {
   requires org.hibernate.validator;
   requires jakarta.el;
 
-  // for test
-  opens jp.ecuacion.lib.core.jakartavalidation.bean to org.hibernate.validator;
-
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
   uses jp.ecuacion.lib.core.spi.ApplicationProfileProvider;
@@ -93,6 +90,7 @@ module jp.ecuacion.lib.core {
 
   // for test below
 
+  opens jp.ecuacion.lib.core.jakartavalidation.bean to org.hibernate.validator;
   opens jp.ecuacion.lib.core.util to org.hibernate.validator;
 
   // lib-core
@@ -116,8 +114,8 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangCountryLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangCountryLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangAndLangCountryLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangAndLangCountryLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangAndLangCountryLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangAndLangCountryLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.Test92DuplicateInOneFileLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.Test92DuplicateInOneFileProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCoreTestProvider
@@ -135,8 +133,11 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCore2ndTestProvider;
 
   // lib-validation
+  provides jp.ecuacion.lib.core.test.spi.MessagesLibValidationTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.MessagesLibValidationTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ItemNamesLibValidationTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.ItemNamesLibValidationTestProviderImpl;
 
+  uses jp.ecuacion.lib.core.test.spi.MessagesLibValidationTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ItemNamesLibValidationTestProvider;
 }

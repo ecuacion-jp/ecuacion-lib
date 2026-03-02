@@ -833,8 +833,12 @@ public class PropertyFileUtil {
     String msgIdStr = "";
     if (arg.argKind == ArgKind.MESSAGE_ID) {
       for (String fileKind : arg.getFileKinds()) {
+        arg.messageArgs = arg.messageArgs == null ? new Arg[] {} : arg.messageArgs;
+        // Obtain the return value even if key does not exist because it returns the key string.
+        msgIdStr = PropertyFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
+
         if (PropertyFileUtil.has(fileKind, arg.getArgString())) {
-          msgIdStr = PropertyFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
+          break;
         }
       }
     }

@@ -59,7 +59,8 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
 
-  public static final String DISPLAY_STRING_OF_CONDITION_VALUE =
+  public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
+  public static final String CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH =
       "conditionValuePropertyPathDisplayStringPropertyPath";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
