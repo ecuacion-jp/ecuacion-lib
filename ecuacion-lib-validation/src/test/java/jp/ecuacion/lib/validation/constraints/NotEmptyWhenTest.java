@@ -201,20 +201,20 @@ public class NotEmptyWhenTest {
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*")
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*")
   public static record PatternEqualToBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*",
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*",
       conditionValuePatternDescription = "notExistBean.test")
   public static record PatternEqualToWithDescNonResolvedBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*",
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*",
       conditionValuePatternDescription = "bean.test")
   public static record PatternEqualToWithDescResolvedBean(String value, String condValue) {
   }
@@ -222,21 +222,21 @@ public class NotEmptyWhenTest {
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*")
+      conditionValuePatternRegexp = ".*test.*")
   public static record PatternNotEqualToBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*", conditionValuePatternDescription = "notExistBean.test")
+      conditionValuePatternRegexp = ".*test.*", conditionValuePatternDescription = "notExistBean.test")
   public static record PatternNotEqualToWithDescNonResolvedBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*", conditionValuePatternDescription = "bean.test")
+      conditionValuePatternRegexp = ".*test.*", conditionValuePatternDescription = "bean.test")
   public static record PatternNotEqualToWithDescResolvedBean(String value, String condValue) {
   }
 }

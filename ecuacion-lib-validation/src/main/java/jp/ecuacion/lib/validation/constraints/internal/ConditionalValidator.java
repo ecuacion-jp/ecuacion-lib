@@ -59,7 +59,8 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
 
-  public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
+  public static final String DISPLAY_STRING_OF_CONDITION_VALUE =
+      "conditionValuePropertyPathDisplayStringPropertyPath";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
@@ -125,7 +126,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
 
       conditionValueStringMustNotSet();
       conditionValueRegexpMustNotSet();
-      conditionValueFieldMustNotSet();
+      conditionValuePropertyPathMustNotSet();
 
       boolean isEmpty =
           valueOfConditionPropertyPath == null || (valueOfConditionPropertyPath instanceof String
@@ -140,7 +141,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
 
       conditionValueStringMustNotSet();
       conditionValueRegexpMustNotSet();
-      conditionValueFieldMustNotSet();
+      conditionValuePropertyPathMustNotSet();
 
       if (valueOfConditionPropertyPath != null
           && !(valueOfConditionPropertyPath instanceof Boolean)) {
@@ -159,7 +160,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
     } else if (conditionPattern == STRING) {
 
       conditionValueRegexpMustNotSet();
-      conditionValueFieldMustNotSet();
+      conditionValuePropertyPathMustNotSet();
 
       if (valueOfConditionPropertyPath == null) {
         valueOfConditionPropertyPath = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
@@ -179,7 +180,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
     } else if (conditionPattern == PATTERN) {
 
       conditionValueStringMustNotSet();
-      conditionValueFieldMustNotSet();
+      conditionValuePropertyPathMustNotSet();
 
       // Condition is considered not to be satisfied when valueOfConditionPropertyPath is null or
       // blank.
@@ -196,7 +197,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
       }
 
       // Pattern must be set.
-      if (conditionValueRegexp.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
+      if (conditionValueRegexp.equals("")) {
         throw new EclibRuntimeException("'conditionValuePattern' must be set.");
       }
 
@@ -275,9 +276,9 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
     return true;
   }
 
-  private void conditionValueFieldMustNotSet() {
+  private void conditionValuePropertyPathMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!conditionValuePropertyPath.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
+    if (!conditionValuePropertyPath.equals("")) {
       throw new EclibRuntimeException("You cannot set 'conditionValuePropertyPath' when "
           + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
     }
@@ -293,7 +294,7 @@ public abstract class ConditionalValidator<A extends Annotation, T> extends Clas
   }
 
   private void conditionValueRegexpMustNotSet() {
-    if (!conditionValueRegexp.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
+    if (!conditionValueRegexp.equals("")) {
       throw new EclibRuntimeException(
           "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
     }
