@@ -59,10 +59,16 @@ public class NotEmptyWhenTest {
   @Test
   public void messagePatternTest() {
     String msg;
-    String prefix = "needs to be not empty when ";
+    String prefix1 = "needs to be not empty when ";
+    String prefix2 = prefix1 + "condition value ";
+
+    msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
+        new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is one of some value 1, some value 2.", msg);
+
     // EMPTY, EQUAL_TO
     msg = getMessage(new EmptyEqualToBean(null, null));
-    Assertions.assertEquals(prefix + "condition value is empty.", msg);
+    Assertions.assertEquals(prefix2 + "is empty.", msg);
     // EMPTY, NOT_EQUAL_TO
     msg = getMessage(new NotEmptyEqualToBean(null, null));
     Assertions.assertEquals("needs to be not empty when condition value is not empty.", msg);
@@ -89,40 +95,72 @@ public class NotEmptyWhenTest {
     Assertions.assertEquals("needs to be not empty when condition value is test.", msg);
     // STRING, EQUAL_TO, multiple
     msg = getMessage(new StringEqualToMultipleBean(null, "test1"));
-    Assertions.assertEquals(prefix + "condition value is one of test1, test2.", msg);
+    Assertions.assertEquals(prefix1 + "condition value is one of test1, test2.", msg);
     // STRING, NOT_EQUAL_TO, single
     msg = getMessage(new StringNotEqualToSingleBean(null, "a"));
-    Assertions.assertEquals(prefix + "condition value is not test.", msg);
+    Assertions.assertEquals(prefix1 + "condition value is not test.", msg);
     // STRING, NOT_EQUAL_TO, multiple
     msg = getMessage(new StringNotEqualToMultipleBean(null, "a"));
-    Assertions.assertEquals(prefix + "condition value is not one of test1, test2.", msg);
+    Assertions.assertEquals(prefix1 + "condition value is not one of test1, test2.", msg);
     // PATTERN, EQUAL_TO, no description
     msg = getMessage(new PatternEqualToBean(null, "test"));
-    Assertions.assertEquals(
-        "needs to be not empty when condition value matches the pattern: .*test.*.", msg);
+    Assertions.assertEquals(prefix1 + "condition value matches the pattern: .*test.*.", msg);
     // PATTERN, EQUAL_TO, description which is not defined in item_names
-    // msg = getMessage(new PatternEqualToWithDescNonResolvedBean(null, "test"));
-    // Assertions.assertEquals(
-    // "needs to be not empty when condition value matches the pattern: notExistBean.test.", msg);
+    msg = getMessage(new PatternEqualToWithDescNonResolvedBean(null, "test"));
+    Assertions.assertEquals(prefix2 + "matches the pattern: notExistBean.test.", msg);
     // PATTERN, EQUAL_TO, description which is defined in item_names
     msg = getMessage(new PatternEqualToWithDescResolvedBean(null, "test"));
-    Assertions.assertEquals(
-        "needs to be not empty when condition value matches the pattern: the string which contains 'test'.",
+    Assertions.assertEquals(prefix2 + "matches the pattern: the string which contains 'test'.",
         msg);
     // PATTERN, NOT_EQUAL_TO, no description
     msg = getMessage(new PatternNotEqualToBean(null, "a"));
-    Assertions.assertEquals(
-        "needs to be not empty when condition value does not match the pattern: .*test.*.", msg);
+    Assertions.assertEquals(prefix2 + "does not match the pattern: .*test.*.", msg);
     // PATTERN, NOT_EQUAL_TO, description which is not defined in item_names
-    // msg = getMessage(new PatternNotEqualToWithDescNonResolvedBean(null, "test"));
-    // Assertions.assertEquals(
-    // "needs to be not empty when condition value matches the pattern: notExistBean.test.", msg);
+    msg = getMessage(new PatternNotEqualToWithDescNonResolvedBean(null, "a"));
+    Assertions.assertEquals(prefix2 + "does not match the pattern: notExistBean.test.", msg);
     // PATTERN, NOT_EQUAL_TO, description which is defined in item_names
     msg = getMessage(new PatternNotEqualToWithDescResolvedBean(null, "a"));
     Assertions.assertEquals(
-        "needs to be not empty when condition value does not match the pattern: the string which contains 'test'.",
-        msg);
-    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, single, 
+        prefix2 + "does not match the pattern: the string which contains 'test'.", msg);
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, single
+    msg = getMessage(new PropertyPathEqualToSinBean(null, "abc", "abc"));
+    Assertions.assertEquals(prefix2 + "is abc.", msg);
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, multiple
+    msg = getMessage(new PropertyPathEqualToMulBean(null, "abc", new String[] {"abc", "def"}));
+    Assertions.assertEquals(prefix2 + "is one of abc, def.", msg);
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, displayString not defined in properties file, single
+    msg = getMessage(
+        new PropertyPathEqualToWithDisplayStringSinBean(null, "abc", "abc", "some value"));
+    Assertions.assertEquals(prefix2 + "is some value.", msg);
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, description not defined in properties file, multiple
+    msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
+        new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is one of some value 1, some value 2.", msg);
+
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, single
+    msg = getMessage(new PropertyPathNotEqualToSinBean(null, "xyz", "abc"));
+    Assertions.assertEquals(prefix2 + "is not abc.", msg);
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, multiple
+    msg = getMessage(new PropertyPathNotEqualToMulBean(null, "xyz", new String[] {"abc", "def"}));
+    Assertions.assertEquals(prefix2 + "is not one of abc, def.", msg);
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, displayString not defined in properties file, single
+    msg = getMessage(
+        new PropertyPathNotEqualToWithDisplayStringSinBean(null, "xyz", "abc", "some value"));
+    Assertions.assertEquals(prefix2 + "is not some value.", msg);
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description not defined in properties file, multiple
+    msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
+        new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is not one of some value 1, some value 2.", msg);
+
+    // emptyWhenConditionNotSatisfied
+    msg = getMessage(new EmptyWhenConditionNotSatisfiedBean(null, null));
+    Assertions.assertEquals(prefix2 + "is empty, and empty when otherwise.", msg);
+
+    // parenthesis for item name
+    msg = ExceptionUtil
+        .getMessageList(validator.validate(new EmptyEqualToBean(null, null)), Locale.ITALIAN)
+        .get(0);
+    Assertions.assertEquals(prefix1 + "'condition value' is empty.", msg);
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
@@ -201,20 +239,20 @@ public class NotEmptyWhenTest {
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*")
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*")
   public static record PatternEqualToBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*",
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*",
       conditionValuePatternDescription = "notExistBean.test")
   public static record PatternEqualToWithDescNonResolvedBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.PATTERN, conditionValueRegexp = ".*test.*",
+      conditionValue = ConditionValue.PATTERN, conditionValuePatternRegexp = ".*test.*",
       conditionValuePatternDescription = "bean.test")
   public static record PatternEqualToWithDescResolvedBean(String value, String condValue) {
   }
@@ -222,21 +260,100 @@ public class NotEmptyWhenTest {
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*")
+      conditionValuePatternRegexp = ".*test.*")
   public static record PatternNotEqualToBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*", conditionValuePatternDescription = "notExistBean.test")
+      conditionValuePatternRegexp = ".*test.*",
+      conditionValuePatternDescription = "notExistBean.test")
   public static record PatternNotEqualToWithDescNonResolvedBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.PATTERN,
-      conditionValueRegexp = ".*test.*", conditionValuePatternDescription = "bean.test")
+      conditionValuePatternRegexp = ".*test.*", conditionValuePatternDescription = "bean.test")
   public static record PatternNotEqualToWithDescResolvedBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual")
+  public static record PropertyPathEqualToSinBean(String value, String condValue,
+      String condEqual) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual")
+  public static record PropertyPathEqualToMulBean(String value, String condValue,
+      String[] condEqual) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual",
+      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+  public static record PropertyPathEqualToWithDisplayStringSinBean(String value, String condValue,
+      String condEqual, String condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual",
+      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+  public static record PropertyPathEqualToWithDisplayStringMulBean(String value, String condValue,
+      String[] condEqual, String[] condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO,
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual")
+  public static record PropertyPathNotEqualToSinBean(String value, String condValue,
+      String condEqual) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO,
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual")
+  public static record PropertyPathNotEqualToMulBean(String value, String condValue,
+      String[] condEqual) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO,
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual",
+      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+  public static record PropertyPathNotEqualToWithDisplayStringSinBean(String value,
+      String condValue, String condEqual, String condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO,
+      conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
+      conditionValuePropertyPath = "condEqual",
+      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+  public static record PropertyPathNotEqualToWithDisplayStringMulBean(String value,
+      String condValue, String[] condEqual, String[] condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.EMPTY, emptyWhenConditionNotSatisfied = true)
+  public static record EmptyWhenConditionNotSatisfiedBean(String value, String condValue) {
   }
 }
