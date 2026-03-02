@@ -65,27 +65,24 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     // displayStringOfConditionValue
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_VALUE);
-    String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
-        PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
-        PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
     Arg displayStringOfConditionValueArg = Arg.string("");
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
-      Object obj = getValue(cv.getLeafBean(),
+      Object values = getValue(cv.getLeafBean(),
           (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
-      String displayStringOfConditionValue = null;
+      String displayStringPp = (String) paramMap
+          .get(ConditionalValidator.CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
-      if (obj instanceof Object[]) {
-        List<String> strList = Arrays.asList(obj).stream().map(o -> o.toString()).toList();
-        displayStringOfConditionValue =
-            StringUtil.getCsvWithSpace((String[]) strList.toArray(new String[strList.size()]));
+      Object displayStrings =
+          displayStringPp.equals("") ? values : getValue(cv.getLeafBean(), displayStringPp);
+      List<String> strList = (displayStrings instanceof Object[])
+          ? Arrays.asList((Object[]) displayStrings).stream().map(o -> o.toString()).toList()
+          : Arrays.asList(new String[] {displayStrings.toString()});
 
-      } else {
-        // String
-        displayStringOfConditionValue = String.valueOf(obj);
-      }
-
-      displayStringOfConditionValueArg = Arg.get(fileKinds, displayStringOfConditionValue);
+      Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strList));
+      displayStringOfConditionValueArg = strList.size() > 1
+          ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
+          : valueArg;
 
     } else if (conditionPtn == STRING) {
       // conditionValue is used
@@ -97,7 +94,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
     } else if (conditionPtn == ConditionValue.PATTERN) {
       String description = (String) paramMap.get("conditionValuePatternDescription");
-      String regExp = (String) paramMap.get("conditionValueRegexp");
+      String regExp = (String) paramMap.get("conditionValuePatternRegexp");
 
       if (description.equals(NULL) || description.equals("")) {
         displayStringOfConditionValueArg = Arg.string(regExp);
@@ -106,18 +103,6 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
         displayStringOfConditionValueArg =
             Arg.get(new String[] {PropertyFileUtilFileKindEnum.ITEM_NAMES.toString()}, description);
       }
-    }
-
-    // when fieldHoldingConditionValueDisplayName is not blank,
-    // valuesOfConditionFieldToValidate is overrided by its value.
-    String displayStringPropertyPathOfConditionValuePropertyPath =
-        (String) paramMap.get(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE);
-    if (!displayStringPropertyPathOfConditionValuePropertyPath.equals("")) {
-      Object obj =
-          getValue(cv.getLeafBean(), displayStringPropertyPathOfConditionValuePropertyPath);
-
-      String[] strs = obj instanceof String[] ? (String[]) obj : new String[] {((String) obj)};
-      displayStringOfConditionValueArg = Arg.get(fileKinds, StringUtil.getCsvWithSpace(strs));
     }
 
     String propKey = annotationPrefix + ".messagePart."
