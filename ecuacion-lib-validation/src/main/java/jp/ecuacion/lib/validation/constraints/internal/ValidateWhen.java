@@ -39,7 +39,7 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class ConditionalValidator<A extends Annotation, T> extends ClassValidator<A, T> {
+public abstract class ValidateWhen<A extends Annotation, T> extends ClassValidator<A, T> {
   private String conditionPropertyPath;
   private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;

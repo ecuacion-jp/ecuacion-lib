@@ -53,14 +53,14 @@ public class NotEmptyWhenTest {
   }
 
   /**
-   * Tests of messages of condition part is done in ConditionalValidatorTest.
+   * Tests of messages of condition part is done in ValidateWhenTest.
    * This method tests NotEmptyWhen dependent part only.
    */
   @Test
   public void messagePatternTest() {
     String msg;
     String prefix1 = "needs to be not empty when ";
-    String prefix2 = prefix1 + "condition value ";
+    String prefix2 = prefix1 + "'condition value' ";
 
     msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
@@ -71,40 +71,40 @@ public class NotEmptyWhenTest {
     Assertions.assertEquals(prefix2 + "is empty.", msg);
     // EMPTY, NOT_EQUAL_TO
     msg = getMessage(new NotEmptyEqualToBean(null, null));
-    Assertions.assertEquals("needs to be not empty when condition value is not empty.", msg);
+    Assertions.assertEquals(prefix2 + "is not empty.", msg);
     // NOT_EMPTY, EQUAL_TO
     msg = getMessage(new EmptyNotEqualToBean(null, "a"));
-    Assertions.assertEquals("needs to be not empty when condition value is not empty.", msg);
+    Assertions.assertEquals(prefix2 + "is not empty.", msg);
     // NOT_EMPTY, NOT_EQUAL_TO
     msg = getMessage(new NotEmptyNotEqualToBean(null, "a"));
-    Assertions.assertEquals("needs to be not empty when condition value is empty.", msg);
+    Assertions.assertEquals(prefix2 + "is empty.", msg);
     // TRUE, EQUAL_TO
     msg = getMessage(new TrueEqualToBean(null, true));
-    Assertions.assertEquals("needs to be not empty when condition value is ON.", msg);
+    Assertions.assertEquals(prefix2 + "is ON.", msg);
     // TRUE, NOT_EQUAL_TO
     msg = getMessage(new TrueNotEqualToBean(null, false));
-    Assertions.assertEquals("needs to be not empty when condition value is not ON.", msg);
+    Assertions.assertEquals(prefix2 + "is not ON.", msg);
     // FALSE, EQUAL_TO
     msg = getMessage(new FalseEqualToBean(null, false));
-    Assertions.assertEquals("needs to be not empty when condition value is OFF.", msg);
+    Assertions.assertEquals(prefix2 + "is OFF.", msg);
     // FALSE, NOT_EQUAL_TO
     msg = getMessage(new FalseNotEqualToBean(null, true));
-    Assertions.assertEquals("needs to be not empty when condition value is not OFF.", msg);
+    Assertions.assertEquals(prefix2 + "is not OFF.", msg);
     // STRING, EQUAL_TO, single
     msg = getMessage(new StringEqualToSingleBean(null, "test"));
-    Assertions.assertEquals("needs to be not empty when condition value is test.", msg);
+    Assertions.assertEquals(prefix2 + "is test.", msg);
     // STRING, EQUAL_TO, multiple
     msg = getMessage(new StringEqualToMultipleBean(null, "test1"));
-    Assertions.assertEquals(prefix1 + "condition value is one of test1, test2.", msg);
+    Assertions.assertEquals(prefix2 + "is one of test1, test2.", msg);
     // STRING, NOT_EQUAL_TO, single
     msg = getMessage(new StringNotEqualToSingleBean(null, "a"));
-    Assertions.assertEquals(prefix1 + "condition value is not test.", msg);
+    Assertions.assertEquals(prefix2 + "is not test.", msg);
     // STRING, NOT_EQUAL_TO, multiple
     msg = getMessage(new StringNotEqualToMultipleBean(null, "a"));
-    Assertions.assertEquals(prefix1 + "condition value is not one of test1, test2.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of test1, test2.", msg);
     // PATTERN, EQUAL_TO, no description
     msg = getMessage(new PatternEqualToBean(null, "test"));
-    Assertions.assertEquals(prefix1 + "condition value matches the pattern: .*test.*.", msg);
+    Assertions.assertEquals(prefix2 + "matches the pattern: .*test.*.", msg);
     // PATTERN, EQUAL_TO, description which is not defined in item_names
     msg = getMessage(new PatternEqualToWithDescNonResolvedBean(null, "test"));
     Assertions.assertEquals(prefix2 + "matches the pattern: notExistBean.test.", msg);

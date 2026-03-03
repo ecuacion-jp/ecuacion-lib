@@ -16,13 +16,13 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
-import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidator;
+import jp.ecuacion.lib.validation.constraints.internal.ValidateWhen;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides the validation logic for {@code ConditionalNotEmpty}.
  */
-public class NotEmptyWhenValidator extends ConditionalValidator<NotEmptyWhen, Object> {
+public class NotEmptyWhenValidator extends ValidateWhen<NotEmptyWhen, Object> {
 
   /** Initializes an instance. */
   @Override

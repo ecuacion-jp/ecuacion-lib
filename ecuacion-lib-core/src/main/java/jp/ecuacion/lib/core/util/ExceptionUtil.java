@@ -327,9 +327,9 @@ public class ExceptionUtil {
   @Nonnull
   private static String getItemNames(Locale locale, @RequireNonnull String[] itemNameKeys) {
     final String prependParenthesis = PropertyFileUtil.getMessage(locale,
-        "jp.ecuacion.lib.core.common.itemName.prependParenthesis");
+        "jp.ecuacion.lib.core.common.itemName.prependSymbol");
     final String appendParenthesis = PropertyFileUtil.getMessage(locale,
-        "jp.ecuacion.lib.core.common.itemName.appendParenthesis");
+        "jp.ecuacion.lib.core.common.itemName.appendSymbol");
     final String separator =
         PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.separator");
 
