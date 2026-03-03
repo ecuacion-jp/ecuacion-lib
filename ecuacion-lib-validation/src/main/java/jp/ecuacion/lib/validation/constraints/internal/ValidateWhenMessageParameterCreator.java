@@ -36,7 +36,7 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
-public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
+public class ValidateWhenMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
 
   private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
@@ -44,7 +44,7 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
   @Override
   public Set<LocalizedMessageParameter> create(ConstraintViolation<?> cv,
       Map<String, Object> paramMap, String rootRecordNameForForm) {
-    final String annotationPrefix = "jp.ecuacion.lib.validation.constraints.Conditional";
+    final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
     final String validatorClassWithPackage = (String) paramMap.get("annotation");
     final String validatorClass =
@@ -53,25 +53,25 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
     // conditionFieldItemNameKey
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
-        + ((String) paramMap.get(ConditionalValidator.CONDITION_PROPERTY_PATH));
+        + ((String) paramMap.get(ValidateWhen.CONDITION_PROPERTY_PATH));
     FieldInfoBean bean = ConstraintViolationBean.getItemDependentValues(conditionPropertyPath,
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
         cv.getRootBean(), rootRecordNameForForm);
     messageParameterSet
-        .add(new LocalizedMessageParameter(ConditionalValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
+        .add(new LocalizedMessageParameter(ValidateWhen.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
             bean.itemNameKey));
 
     // displayStringOfConditionValue
     ConditionValue conditionPtn =
-        (ConditionValue) paramMap.get(ConditionalValidator.CONDITION_VALUE);
+        (ConditionValue) paramMap.get(ValidateWhen.CONDITION_VALUE);
     Arg displayStringOfConditionValueArg = Arg.string("");
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
       Object values = getValue(cv.getLeafBean(),
-          (String) paramMap.get(ConditionalValidator.CONDITION_VALUE_PROPERTY_PATH));
+          (String) paramMap.get(ValidateWhen.CONDITION_VALUE_PROPERTY_PATH));
       String displayStringPp = (String) paramMap
-          .get(ConditionalValidator.CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
+          .get(ValidateWhen.CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
       Object displayStrings =
           displayStringPp.equals("") ? values : getValue(cv.getLeafBean(), displayStringPp);
@@ -81,16 +81,16 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
 
       Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strList));
       displayStringOfConditionValueArg = strList.size() > 1
-          ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
+          ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
           : valueArg;
 
     } else if (conditionPtn == STRING) {
       // conditionValue is used
-      String[] strs = (String[]) paramMap.get(ConditionalValidator.CONDITION_VALUE_STRING);
+      String[] strs = (String[]) paramMap.get(ValidateWhen.CONDITION_VALUE_STRING);
       Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strs));
-      displayStringOfConditionValueArg =
-          strs.length > 1 ? Arg.message(annotationPrefix + ".messagePart.string.multiple", valueArg)
-              : valueArg;
+      displayStringOfConditionValueArg = strs.length > 1
+          ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
+          : valueArg;
 
     } else if (conditionPtn == ConditionValue.PATTERN) {
       String description = (String) paramMap.get("conditionValuePatternDescription");
@@ -105,13 +105,13 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
       }
     }
 
-    String propKey = annotationPrefix + ".messagePart."
+    String propKey = commonMessagePrefix + ".messagePart."
         + StringUtil
-            .getLowerCamelFromSnake(paramMap.get(ConditionalValidator.CONDITION_VALUE).toString())
+            .getLowerCamelFromSnake(paramMap.get(ValidateWhen.CONDITION_VALUE).toString())
         + "." + StringUtil.getLowerCamelFromSnake(
-            paramMap.get(ConditionalValidator.CONDITION_OPERATOR).toString());
+            paramMap.get(ValidateWhen.CONDITION_OPERATOR).toString());
     messageParameterSet
-        .add(new LocalizedMessageParameter(ConditionalValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
+        .add(new LocalizedMessageParameter(ValidateWhen.DISPLAY_STRING_OF_CONDITION_VALUE,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
             displayStringOfConditionValueArg));
 
@@ -122,12 +122,12 @@ public class ConditionalValidatorMessageParameterCreator extends ReflectionUtil
       default -> false;
     };
 
-    String paramKey = ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
+    String paramKey = ValidateWhen.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
       messageParameterSet.add(new LocalizedMessageParameter(paramKey,
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES},
           paramMap.get("annotation") + ".messagePart."
-              + ConditionalValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
+              + ValidateWhen.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
 
     } else {
       // Add blank ("") value by designating empty PropertyFileUtilFileKindEnum array.
