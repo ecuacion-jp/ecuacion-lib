@@ -53,7 +53,7 @@ public class NotEmptyWhenTest {
   }
 
   /**
-   * Tests of messages of condition part is done in ConditionalValidatorTest.
+   * Tests of messages of condition part is done in ValidateWhenTest.
    * This method tests NotEmptyWhen dependent part only.
    */
   @Test

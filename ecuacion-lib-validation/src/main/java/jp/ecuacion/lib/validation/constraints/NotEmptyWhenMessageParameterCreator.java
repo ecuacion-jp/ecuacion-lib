@@ -15,11 +15,11 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidatorMessageParameterCreator;
+import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenMessageParameterCreator;
 
 /**
  * Is a kind of ValidatorMessageParameterCreator.
  */
 public class NotEmptyWhenMessageParameterCreator
-    extends ConditionalValidatorMessageParameterCreator {
+    extends ValidateWhenMessageParameterCreator {
 }

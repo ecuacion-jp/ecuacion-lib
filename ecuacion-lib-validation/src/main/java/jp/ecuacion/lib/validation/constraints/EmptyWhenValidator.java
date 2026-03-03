@@ -16,12 +16,12 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
-import jp.ecuacion.lib.validation.constraints.internal.ConditionalValidator;
+import jp.ecuacion.lib.validation.constraints.internal.ValidateWhen;
 
 /**
  * Provides the validation logic for {@code ConditionalEmpty}.
  */
-public class EmptyWhenValidator extends ConditionalValidator<EmptyWhen, Object> {
+public class EmptyWhenValidator extends ValidateWhen<EmptyWhen, Object> {
 
   /** Initializes an instance. */
   @Override
