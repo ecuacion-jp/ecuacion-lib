@@ -88,16 +88,16 @@ public class NotEmptyWhenTest {
     Assertions.assertEquals(prefix2 + "is not OFF.", msg);
     // STRING, EQUAL_TO, single
     msg = getMessage(new StringEqualToSingleBean(null, "test"));
-    Assertions.assertEquals(prefix2 + "is test.", msg);
+    Assertions.assertEquals(prefix2 + "is 'test'.", msg);
     // STRING, EQUAL_TO, multiple
     msg = getMessage(new StringEqualToMultipleBean(null, "test1"));
-    Assertions.assertEquals(prefix2 + "is one of test1, test2.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'test1', 'test2'.", msg);
     // STRING, NOT_EQUAL_TO, single
     msg = getMessage(new StringNotEqualToSingleBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is not test.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'test'.", msg);
     // STRING, NOT_EQUAL_TO, multiple
     msg = getMessage(new StringNotEqualToMultipleBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is not one of test1, test2.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'test1', 'test2'.", msg);
     // PATTERN, EQUAL_TO, no description
     msg = getMessage(new PatternEqualToBean(null, "test"));
     Assertions.assertEquals(prefix2 + "matches the pattern: .*test.*.", msg);
@@ -120,33 +120,33 @@ public class NotEmptyWhenTest {
         prefix2 + "does not match the pattern: the string which contains 'test'.", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathEqualToSinBean(null, "abc", "abc"));
-    Assertions.assertEquals(prefix2 + "is abc.", msg);
+    Assertions.assertEquals(prefix2 + "is 'abc'.", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, multiple
     msg = getMessage(new PropertyPathEqualToMulBean(null, "abc", new String[] {"abc", "def"}));
-    Assertions.assertEquals(prefix2 + "is one of abc, def.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'abc', 'def'.", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, displayString not defined in properties file, single
     msg = getMessage(
         new PropertyPathEqualToWithDisplayStringSinBean(null, "abc", "abc", "some value"));
-    Assertions.assertEquals(prefix2 + "is some value.", msg);
+    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is one of some value 1, some value 2.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
 
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathNotEqualToSinBean(null, "xyz", "abc"));
-    Assertions.assertEquals(prefix2 + "is not abc.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'abc'.", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, multiple
     msg = getMessage(new PropertyPathNotEqualToMulBean(null, "xyz", new String[] {"abc", "def"}));
-    Assertions.assertEquals(prefix2 + "is not one of abc, def.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'abc', 'def'.", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, displayString not defined in properties file, single
     msg = getMessage(
         new PropertyPathNotEqualToWithDisplayStringSinBean(null, "xyz", "abc", "some value"));
-    Assertions.assertEquals(prefix2 + "is not some value.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is not one of some value 1, some value 2.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
 
     // emptyWhenConditionNotSatisfied
     msg = getMessage(new EmptyWhenConditionNotSatisfiedBean(null, null));
