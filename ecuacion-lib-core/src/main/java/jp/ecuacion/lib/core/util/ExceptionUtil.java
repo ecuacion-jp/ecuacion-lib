@@ -21,7 +21,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -297,7 +296,7 @@ public class ExceptionUtil {
             List<String> ink =
                 bean.getFieldInfoBeanList().stream().map(b -> b.itemNameKey).toList();
             message = MessageFormat.format(message,
-                getItemNames(locale, ink.toArray(new String[ink.size()])));
+                MessageUtil.getItemNames(locale, ink.toArray(new String[ink.size()])));
           }
 
           // add prefix and postfix messages.
@@ -322,22 +321,6 @@ public class ExceptionUtil {
 
     return rtnList;
 
-  }
-
-  @Nonnull
-  private static String getItemNames(Locale locale, @RequireNonnull String[] itemNameKeys) {
-    final String prependParenthesis = PropertyFileUtil.getMessage(locale,
-        "jp.ecuacion.lib.core.common.itemName.prependSymbol");
-    final String appendParenthesis = PropertyFileUtil.getMessage(locale,
-        "jp.ecuacion.lib.core.common.itemName.appendSymbol");
-    final String separator =
-        PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.separator");
-
-    List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(itemNameKeys)).stream()
-        .map(key -> PropertyFileUtil.getItemName(locale, key))
-        .map(name -> prependParenthesis + name + appendParenthesis).toList();
-
-    return StringUtil.getSeparatedValuesString(itemNameList, separator);
   }
 
   /*

@@ -28,6 +28,7 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -78,8 +79,8 @@ public class ValidateWhenMessageParameterCreator extends ReflectionUtil
       List<String> strList = (displayStrings instanceof Object[])
           ? Arrays.asList((Object[]) displayStrings).stream().map(o -> o.toString()).toList()
           : Arrays.asList(new String[] {displayStrings.toString()});
-
-      Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strList));
+          
+      Arg valueArg = Arg.formattedString(MessageUtil.getValuesOfFormattedString(strList));
       displayStringOfConditionValueArg = strList.size() > 1
           ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
           : valueArg;
@@ -87,7 +88,7 @@ public class ValidateWhenMessageParameterCreator extends ReflectionUtil
     } else if (conditionPtn == STRING) {
       // conditionValue is used
       String[] strs = (String[]) paramMap.get(ValidateWhen.CONDITION_VALUE_STRING);
-      Arg valueArg = Arg.string(StringUtil.getCsvWithSpace(strs));
+      Arg valueArg = Arg.formattedString(MessageUtil.getValuesOfFormattedString(strs));
       displayStringOfConditionValueArg = strs.length > 1
           ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
           : valueArg;
