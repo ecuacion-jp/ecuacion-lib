@@ -132,7 +132,15 @@ public class NotEmptyWhenTest {
     msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
     Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
-
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, displayString defined in properties file, single
+    msg = getMessage(new PropertyPathEqualToWithDisplayStringSinBean(null, "abc", "abc",
+        "value.from.enum_names"));
+    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    // VALUE_OF_PROPERTY_PATH, EQUAL_TO, description defined in properties file, multiple
+    msg = getMessage(
+        new PropertyPathEqualToWithDisplayStringMulBean(null, "abc", new String[] {"abc", "def"},
+            new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathNotEqualToSinBean(null, "xyz", "abc"));
     Assertions.assertEquals(prefix2 + "is not 'abc'.", msg);
@@ -146,6 +154,14 @@ public class NotEmptyWhenTest {
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, displayString defined in properties file, single
+    msg = getMessage(new PropertyPathNotEqualToWithDisplayStringSinBean(null, "xyz", "abc",
+        "value.from.enum_names"));
+    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description defined in properties file, multiple
+    msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
+        new String[] {"abc", "def"}, new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
     Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
 
     // emptyWhenConditionNotSatisfied

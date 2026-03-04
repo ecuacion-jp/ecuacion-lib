@@ -1,15 +1,25 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 
 /**
  * Provides utilities for Message creation.
  */
 public class MessageUtil {
+
+  private static final String VALUE_PREPEND_SYMBOL =
+      "${+messages:jp.ecuacion.lib.core.common.value.prependSymbol}";
+  private static final String VALUE_APPEND_SYMBOL =
+      "${+messages:jp.ecuacion.lib.core.common.value.appendSymbol}";
+  private static final String VALUE_SEPARATOR =
+      "${+messages:jp.ecuacion.lib.core.common.value.separator}";
 
   /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
@@ -43,15 +53,11 @@ public class MessageUtil {
    */
   @Nonnull
   public static String getValuesOfFormattedString(@RequireNonnull String[] values) {
-    final String prependParenthesis =
-        "${+messages:jp.ecuacion.lib.core.common.value.prependSymbol}";
-    final String appendParenthesis = "${+messages:jp.ecuacion.lib.core.common.value.appendSymbol}";
-    final String separator = "${+messages:jp.ecuacion.lib.core.common.value.separator}";
 
     List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(values)).stream()
-        .map(name -> prependParenthesis + name + appendParenthesis).toList();
+        .map(name -> VALUE_PREPEND_SYMBOL + name + VALUE_APPEND_SYMBOL).toList();
 
-    return StringUtil.getSeparatedValuesString(itemNameList, separator);
+    return StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR);
   }
 
   /**
@@ -60,5 +66,35 @@ public class MessageUtil {
    */
   public static String getValuesOfFormattedString(@RequireNonnull List<String> valueList) {
     return getValuesOfFormattedString(valueList.toArray(new String[valueList.size()]));
+  }
+
+  /**
+   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
+   *     considering the prependSymbol, appendSymbol and the separator.
+   */
+  @Nonnull
+  public static Arg getValuesArg(@RequireNonnull String[] values) {
+    // Get a list of Args from values
+    String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
+        PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
+        PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
+    List<Arg> argList = Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
+
+    List<String> itemNameList = new ArrayList<>();
+    for (int i = 0; i < argList.size(); i++) {
+      itemNameList.add(VALUE_PREPEND_SYMBOL + "{" + i + "}" + VALUE_APPEND_SYMBOL);
+    }
+
+    return Arg.formattedString(StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR),
+        argList.toArray(new Arg[argList.size()]));
+  }
+
+  /**
+   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
+   *     considering the prependSymbol, appendSymbol and the separator.
+   */
+  @Nonnull
+  public static Arg getValuesArg(@RequireNonnull List<String> valueList) {
+    return getValuesArg(valueList.toArray(new String[valueList.size()]));
   }
 }
