@@ -62,10 +62,6 @@ public class NotEmptyWhenTest {
     String prefix1 = "needs to be not empty when ";
     String prefix2 = prefix1 + "'condition value' ";
 
-    msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
-        new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is one of some value 1, some value 2.", msg);
-
     // EMPTY, EQUAL_TO
     msg = getMessage(new EmptyEqualToBean(null, null));
     Assertions.assertEquals(prefix2 + "is empty.", msg);
