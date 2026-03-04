@@ -828,10 +828,9 @@ public class PropertyFileUtil {
    */
   @Nonnull
   public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
-    String str = null;
 
-    String msgIdStr = "";
     if (arg.argKind == ArgKind.MESSAGE_ID) {
+      String msgIdStr = "";
       for (String fileKind : arg.getFileKinds()) {
         arg.messageArgs = arg.messageArgs == null ? new Arg[] {} : arg.messageArgs;
         // Obtain the return value even if key does not exist because it returns the key string.
@@ -841,17 +840,30 @@ public class PropertyFileUtil {
           break;
         }
       }
-    }
 
-    switch (arg.argKind) {
-      case MESSAGE_ID -> str = msgIdStr;
-      case FORMATTED_STRING -> str =
-          PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
-      case STRING -> str = arg.getArgString();
-      default -> throw new EclibRuntimeException("Unexpected.");
-    }
+      return msgIdStr;
 
-    return str;
+    } else if (arg.argKind == ArgKind.FORMATTED_STRING) {
+      List<String> argStrList = new ArrayList<>();
+
+
+      String argString = PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
+      
+      Arg[] messageArgs = arg.getMessageArgs() == null ? new Arg[] {} : arg.getMessageArgs();
+      for (Arg tmpArg : messageArgs) {
+        argStrList.add(getStringFromArg(locale, tmpArg));
+      }
+
+      // replace ' to '' because MessageFormat removes single '.
+      return MessageFormat.format(argString.replace("'", "''"),
+          (Object[]) argStrList.toArray(new String[argStrList.size()]));
+
+    } else if (arg.argKind == ArgKind.STRING) {
+      return arg.getArgString();
+
+    } else {
+      throw new EclibRuntimeException("Unexpected.");
+    }
   }
 
   private static String[] getStringsFromArgs(Locale locale, @RequireNonnull Arg[] args) {
@@ -1043,6 +1055,16 @@ public class PropertyFileUtil {
      */
     public static Arg formattedString(String formattedString) {
       return new Arg(ArgKind.FORMATTED_STRING, formattedString);
+    }
+
+    /**
+     * Constructs a new instance of normal string.
+     * 
+     * @param formattedString formattedString
+     * @return Arg
+     */
+    public static Arg formattedString(String formattedString, Arg... args) {
+      return new Arg(ArgKind.FORMATTED_STRING, formattedString, args);
     }
 
     /**

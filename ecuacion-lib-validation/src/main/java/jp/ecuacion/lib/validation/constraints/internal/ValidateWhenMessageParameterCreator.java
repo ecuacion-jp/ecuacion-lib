@@ -64,8 +64,7 @@ public class ValidateWhenMessageParameterCreator extends ReflectionUtil
             bean.itemNameKey));
 
     // displayStringOfConditionValue
-    ConditionValue conditionPtn =
-        (ConditionValue) paramMap.get(ValidateWhen.CONDITION_VALUE);
+    ConditionValue conditionPtn = (ConditionValue) paramMap.get(ValidateWhen.CONDITION_VALUE);
     Arg displayStringOfConditionValueArg = Arg.string("");
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
@@ -79,8 +78,11 @@ public class ValidateWhenMessageParameterCreator extends ReflectionUtil
       List<String> strList = (displayStrings instanceof Object[])
           ? Arrays.asList((Object[]) displayStrings).stream().map(o -> o.toString()).toList()
           : Arrays.asList(new String[] {displayStrings.toString()});
-          
-      Arg valueArg = Arg.formattedString(MessageUtil.getValuesOfFormattedString(strList));
+
+      Arg valueArg = displayStringPp.equals("")
+          ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(strList))
+          : MessageUtil.getValuesArg(strList);
+      
       displayStringOfConditionValueArg = strList.size() > 1
           ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
           : valueArg;
@@ -107,10 +109,9 @@ public class ValidateWhenMessageParameterCreator extends ReflectionUtil
     }
 
     String propKey = commonMessagePrefix + ".messagePart."
-        + StringUtil
-            .getLowerCamelFromSnake(paramMap.get(ValidateWhen.CONDITION_VALUE).toString())
-        + "." + StringUtil.getLowerCamelFromSnake(
-            paramMap.get(ValidateWhen.CONDITION_OPERATOR).toString());
+        + StringUtil.getLowerCamelFromSnake(paramMap.get(ValidateWhen.CONDITION_VALUE).toString())
+        + "." + StringUtil
+            .getLowerCamelFromSnake(paramMap.get(ValidateWhen.CONDITION_OPERATOR).toString());
     messageParameterSet
         .add(new LocalizedMessageParameter(ValidateWhen.DISPLAY_STRING_OF_CONDITION_VALUE,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
