@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintViolation;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 
 /**
  * Holds a Jakarta Validations violation.
@@ -34,6 +35,7 @@ public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
   private ConstraintViolationBean<?> bean;
+  private MessageParameters messageParameters;
 
   /**
    * Constructs a new instance with Jakarta Validation violation.
@@ -43,6 +45,19 @@ public class ValidationAppException extends SingleAppException {
   public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation) {
     super(violation.getMessage());
     this.bean = new ConstraintViolationBean<T>(ObjectsUtil.requireNonNull(violation));
+    this.messageParameters = new MessageParameters();
+  }
+
+  /**
+   * Constructs a new instance with Jakarta Validation violation.
+   *
+   * @param violation violation result
+   */
+  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation,
+      MessageParameters messageParameters) {
+    super(violation.getMessage());
+    this.bean = new ConstraintViolationBean<T>(ObjectsUtil.requireNonNull(violation));
+    this.messageParameters = messageParameters;
   }
 
   /**
@@ -52,6 +67,7 @@ public class ValidationAppException extends SingleAppException {
    */
   public <T> ValidationAppException(@RequireNonnull ConstraintViolationBean<T> bean) {
     this.bean = ObjectsUtil.requireNonNull(bean);
+    this.messageParameters = bean.getMessageParameters();
   }
 
   /**
@@ -66,5 +82,9 @@ public class ValidationAppException extends SingleAppException {
   @Override
   public String[] getItemPropertyPaths() {
     return null;
+  }
+
+  public MessageParameters getMessageParameters() {
+    return messageParameters;
   }
 }
