@@ -333,7 +333,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    * Sets isMessageWithItemName.
    */
   public void setMessageWithItemName(Boolean isMessageWithItemName) {
-    this.messageParameters.isMessageWithItemNames(isMessageWithItemName);
+    this.messageParameters.isMessageWithItemName(isMessageWithItemName);
   }
 
   /**

@@ -362,8 +362,8 @@ public class ExceptionUtil {
           // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
           // because it is specified for each validation,
           // and isValidationMessagesWithItemNames is assumed to be used as system default value.
-          Boolean bl = messageParameters.isMessageWithItemNames() != null
-              ? messageParameters.isMessageWithItemNames()
+          Boolean bl = messageParameters.isMessageWithItemName() != null
+              ? messageParameters.isMessageWithItemName()
               : isValidationMessagesWithItemNamesAsDefault;
           message = bl
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)

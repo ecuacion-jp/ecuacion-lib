@@ -121,7 +121,7 @@ public class ValidationUtil {
 
     List<ConstraintViolationBean<T>> list =
         set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
-            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemNames))
+            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemName))
             .peek(cv -> cv.setMessagePrefix(param.getMessagePrefix()))
             .peek(cv -> cv.setMessagePostfix(param.getMessagePostfix())).toList();
 
@@ -339,7 +339,7 @@ public class ValidationUtil {
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
         new MessageParameters()
-            .isMessageWithItemNames(
+            .isMessageWithItemName(
                 addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
@@ -380,7 +380,7 @@ public class ValidationUtil {
    */
   public static class MessageParameters {
 
-    private Boolean isMessageWithItemNames;
+    private Boolean isMessageWithItemName;
     private Arg messagePrefix;
     private Arg messagePostfix;
 
@@ -394,9 +394,9 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemNames, String messagePrefix,
+    public MessageParameters(Boolean isMessageWithItemName, String messagePrefix,
         String messagePostfix) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+      this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix == null ? null : Arg.string(messagePrefix);
       this.messagePostfix = messagePostfix == null ? null : Arg.string(messagePostfix);
     }
@@ -404,9 +404,9 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemNames, Arg messagePrefix,
+    public MessageParameters(Boolean isMessageWithItemName, Arg messagePrefix,
         Arg messagePostfix) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+      this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
     }
@@ -414,15 +414,15 @@ public class ValidationUtil {
     /**
      * Returns addsItemNameToMessage.
      */
-    public Boolean isMessageWithItemNames() {
-      return isMessageWithItemNames;
+    public Boolean isMessageWithItemName() {
+      return isMessageWithItemName;
     }
 
     /**
      * Sets messagePrefix and returns this.
      */
-    public MessageParameters isMessageWithItemNames(Boolean isMessageWithItemNames) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+    public MessageParameters isMessageWithItemName(Boolean isMessageWithItemName) {
+      this.isMessageWithItemName = isMessageWithItemName;
       return this;
     }
 
