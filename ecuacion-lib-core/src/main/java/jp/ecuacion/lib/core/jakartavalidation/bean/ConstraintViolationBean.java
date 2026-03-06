@@ -33,6 +33,7 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -57,9 +58,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   private List<FieldInfoBean> fieldInfoBeanList;
 
-  private Boolean isMessageWithItemName;
-  private Arg messagePrefix;
-  private Arg messagePostfix;
+  private MessageParameters messageParameters = new MessageParameters();
 
   // values needed for validations for form
 
@@ -207,11 +206,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   @Override
   public @Nonnull String toString() {
-    return "message:" + getOriginalMessage() + "\n" + "annotation:" + getValidatorClass()
-        + "\n" + "rootClassName:" + getRootBean().getClass().getName() + "\n"
-        + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(
-            getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
+    return "message:" + getOriginalMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
+        + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
+        + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
+        + StringUtil
+            .getCsv(getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
         + "\n" + "invalidValue:" + getInvalidValue();
   }
 
@@ -330,28 +329,41 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return messageTemplate;
   }
 
-  public Boolean isMessageWithItemName() {
-    return isMessageWithItemName;
-  }
-
+  /**
+   * Sets isMessageWithItemName.
+   */
   public void setMessageWithItemName(Boolean isMessageWithItemName) {
-    this.isMessageWithItemName = isMessageWithItemName;
+    this.messageParameters.isMessageWithItemNames(isMessageWithItemName);
   }
 
-  public Arg getMessagePrefix() {
-    return messagePrefix;
-  }
-  
+  /**
+   * Sets messagePrefix.
+   */
   public void setMessagePrefix(Arg messagePrefix) {
-    this.messagePrefix = messagePrefix;
+    this.messageParameters.messagePrefix(messagePrefix);
   }
 
-  public Arg getMessagePostfix() {
-    return messagePostfix;
-  }
-
+  /**
+   * Sets messagePostfix.
+   */
   public void setMessagePostfix(Arg messagePostfix) {
-    this.messagePostfix = messagePostfix;
+    this.messageParameters.messagePostfix(messagePostfix);
+  }
+
+  public MessageParameters getMessageParameters() {
+    return messageParameters;
+  }
+
+  /**
+   * Sets MessageParameters and returns ConstraintViolationBean for method chain.
+   */
+  public ConstraintViolationBean<?> setMessageParameters(MessageParameters messageParameters) {
+    if (messageParameters == null) {
+      messageParameters = new MessageParameters();
+    }
+
+    this.messageParameters = messageParameters;
+    return this;
   }
 
   public String getRootRecordNameForForm() {

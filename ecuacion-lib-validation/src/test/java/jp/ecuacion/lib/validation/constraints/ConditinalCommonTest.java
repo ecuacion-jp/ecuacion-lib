@@ -15,20 +15,22 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
+import jakarta.validation.Validator;
 import java.util.Set;
-import jp.ecuacion.lib.core.util.ValidationUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ConditinalCommonTest {
+  private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
   public void fieldNotExistTest() {
 
     // No Field
     try {
-      ValidationUtil.validate(new ConditinalCommonTestBean.NoField("X", null));
+      validator.validate(new ConditinalCommonTestBean.NoField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
@@ -37,7 +39,7 @@ public class ConditinalCommonTest {
 
     // No Condition Field
     try {
-      ValidationUtil.validate(new ConditinalCommonTestBean.NoConditionField("X", null));
+      validator.validate(new ConditinalCommonTestBean.NoConditionField("X", null));
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
@@ -49,12 +51,12 @@ public class ConditinalCommonTest {
   public void validatesWhenConditionNotSatisfiedTest() {
 
     // true
-    Set<?> setTrue = ValidationUtil
+    Set<?> setTrue = validator
         .validate(new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.TrueClass());
     Assertions.assertEquals(1, setTrue.size());
 
     // false
-    Set<?> setFalse = ValidationUtil
+    Set<?> setFalse = validator
         .validate(new ConditinalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass());
     Assertions.assertEquals(0, setFalse.size());
   }
@@ -62,38 +64,38 @@ public class ConditinalCommonTest {
   @Test
   public void multipleFieldsTest() {
 
-    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.AllTrue());
+    Set<?> set = validator.validate(new ConditinalCommonTestBean.MultipleFields.AllTrue());
     Assertions.assertEquals(0, set.size());
 
-    set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.OneFalse());
+    set = validator.validate(new ConditinalCommonTestBean.MultipleFields.OneFalse());
     Assertions.assertEquals(1, set.size());
 
-    set = ValidationUtil.validate(new ConditinalCommonTestBean.MultipleFields.AllFalse());
+    set = validator.validate(new ConditinalCommonTestBean.MultipleFields.AllFalse());
     Assertions.assertEquals(1, set.size());
 
-    set = ValidationUtil
+    set = validator
         .validate(new ConditinalCommonTestBean.MultipleFields.AllTrueConditionNotSatisfied());
     Assertions.assertEquals(1, set.size());
 
-    set = ValidationUtil
+    set = validator
         .validate(new ConditinalCommonTestBean.MultipleFields.OneFalseConditionNotSatisfied());
     Assertions.assertEquals(1, set.size());
 
-    set = ValidationUtil
+    set = validator
         .validate(new ConditinalCommonTestBean.MultipleFields.AllFalseConditionNotSatisfied());
     Assertions.assertEquals(0, set.size());
   }
 
   @Test
   public void fieldInParentClassTest() {
-    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.FieldInParentClass.Child());
+    Set<?> set = validator.validate(new ConditinalCommonTestBean.FieldInParentClass.Child());
     Assertions.assertEquals(1, set.size());
   }
 
   @Test
   public void itemNameKeyTest() {
     // values are null.
-    Set<?> set = ValidationUtil.validate(new ConditinalCommonTestBean.ItemNameKey.Obj());
+    Set<?> set = validator.validate(new ConditinalCommonTestBean.ItemNameKey.Obj());
     Assertions.assertEquals(1, set.size());
   }
 
