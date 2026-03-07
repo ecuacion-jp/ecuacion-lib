@@ -133,7 +133,7 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object)
       throws ConstraintViolationException {
@@ -146,7 +146,7 @@ public class ValidationUtil {
    * @param <T> any class
    * @param object object to validate
    * @param groups validation groups
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
       throws ConstraintViolationException {
@@ -159,7 +159,7 @@ public class ValidationUtil {
    * @param <T> any class
    * @param object object to validate
    * @param parameterBean See {@link MessageParameters}.
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable MessageParameters parameterBean) throws ConstraintViolationException {
@@ -173,7 +173,7 @@ public class ValidationUtil {
    * @param object object to validate
    * @param parameterBean See {@link MessageParameters}.
    * @param groups validation groups
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable MessageParameters parameterBean, Class<?>... groups)
@@ -193,7 +193,7 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   @Deprecated(since = "14.26.0")
   public static <T> void validateThenThrow(@RequireNonnull T object,
@@ -208,7 +208,7 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   * @throws ConstraintViolationException ConstraintViolationException
    */
   @Deprecated(since = "14.26.0")
   public static <T> void validateThenThrow(@RequireNonnull T object,
