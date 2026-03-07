@@ -54,14 +54,6 @@ public interface ItemContainer {
   public abstract Item[] customizedItems();
 
   /**
-   * Returns a new instance.
-   */
-  @Nonnull
-  public default Item getNewItem(@RequireNonempty String itemPropertyPath) {
-    return new Item(ObjectsUtil.requireNonEmpty(itemPropertyPath));
-  }
-
-  /**
    * Returns {@code EclibItem} from {@code EclibItem[]} and {@code fieldId}. 
    * 
    * @param itemPropertyPath itemPropertyPath
@@ -72,11 +64,11 @@ public interface ItemContainer {
 
     Map<String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
-            .collect(Collectors.toMap(e -> e.getItemPropertyPath(), e -> e));
+            .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
     Item item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
 
-    item = item == null ? getNewItem(itemPropertyPath) : item;
+    item = item == null ? new Item(itemPropertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
     Optional<ItemNameKeyClass> optAn =
@@ -109,9 +101,9 @@ public interface ItemContainer {
 
     // Throw an exception if item is duplicated.
     List<String> propertyPath1List =
-        Arrays.asList(items1).stream().map(e -> e.getItemPropertyPath()).toList();
+        Arrays.asList(items1).stream().map(e -> e.getPropertyPath()).toList();
 
-    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getItemPropertyPath())
+    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getPropertyPath())
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
