@@ -148,29 +148,29 @@ public class ComparisonTestBean {
       private int two = 2;
     }
     
-    @LessThan(propertyPath = "one", basisPropertyPath = "two")
-    @LessThanOrEqualTo(propertyPath = "one", basisPropertyPath = "two")
-    @LessThanOrEqualTo(propertyPath = "one", basisPropertyPath = "one")
-    @GreaterThan(propertyPath = "two", basisPropertyPath = "one")
-    @GreaterThanOrEqualTo(propertyPath = "two", basisPropertyPath = "one")
-    @GreaterThanOrEqualTo(propertyPath = "one", basisPropertyPath = "one")
+    @LessThan(propertyPath = "one", baselinePropertyPath = "two")
+    @LessThanOrEqualTo(propertyPath = "one", baselinePropertyPath = "two")
+    @LessThanOrEqualTo(propertyPath = "one", baselinePropertyPath = "one")
+    @GreaterThan(propertyPath = "two", baselinePropertyPath = "one")
+    @GreaterThanOrEqualTo(propertyPath = "two", baselinePropertyPath = "one")
+    @GreaterThanOrEqualTo(propertyPath = "one", baselinePropertyPath = "one")
     public static class Valid extends Bean {
       
     }
     
-    @LessThan(propertyPath = "one", basisPropertyPath = "one")
-    @LessThan(propertyPath = "two", basisPropertyPath = "one")
-    @LessThanOrEqualTo(propertyPath = "two", basisPropertyPath = "one")
-    @GreaterThan(propertyPath = "one", basisPropertyPath = "one")
-    @GreaterThan(propertyPath = "one", basisPropertyPath = "two")
-    @GreaterThanOrEqualTo(propertyPath = "one", basisPropertyPath = "two")
+    @LessThan(propertyPath = "one", baselinePropertyPath = "one")
+    @LessThan(propertyPath = "two", baselinePropertyPath = "one")
+    @LessThanOrEqualTo(propertyPath = "two", baselinePropertyPath = "one")
+    @GreaterThan(propertyPath = "one", baselinePropertyPath = "one")
+    @GreaterThan(propertyPath = "one", baselinePropertyPath = "two")
+    @GreaterThanOrEqualTo(propertyPath = "one", baselinePropertyPath = "two")
     public static class Invalid extends Bean {
       
     }
   }
   
   public static class DotContainingPropertyPaths {
-    @LessThan(propertyPath = "number1.number", basisPropertyPath = "number2.number")
+    @LessThan(propertyPath = "number1.number", baselinePropertyPath = "number2.number")
     public static class Bean {
       private NumberBean number1 = new NumberBean(3);
       private NumberBean number2 = new NumberBean(2);

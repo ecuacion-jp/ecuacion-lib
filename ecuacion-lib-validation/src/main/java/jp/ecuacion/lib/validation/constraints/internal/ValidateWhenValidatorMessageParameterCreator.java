@@ -37,7 +37,7 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
-public class ValidateWhenMessageParameterCreator extends ReflectionUtil
+public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
 
   private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;

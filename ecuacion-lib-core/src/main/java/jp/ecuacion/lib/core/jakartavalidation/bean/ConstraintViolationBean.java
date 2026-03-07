@@ -182,11 +182,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     }
 
     // Comparison validators
-    if (paramMap.containsKey("basisPropertyPath")) {
-      String bpp = (String) paramMap.get("basisPropertyPath");
+    if (paramMap.containsKey("baselinePropertyPath")) {
+      String bpp = (String) paramMap.get("baselinePropertyPath");
       String itemNameKey = getItemDependentValues(bpp, leafBean.getClass(), rootBean,
           rootRecordNameForForm).itemNameKey;
-      messageParameterSet.add(new LocalizedMessageParameter("basisPropertyPathItemName",
+      messageParameterSet.add(new LocalizedMessageParameter("baselinePropertyPathItemName",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
           itemNameKey));
     }
