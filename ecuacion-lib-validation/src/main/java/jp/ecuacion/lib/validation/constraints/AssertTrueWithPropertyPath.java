@@ -22,12 +22,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 
 /**
  * Is valid when the return value of the method is {@code true}.
  */
-@PlacedAtClass
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
