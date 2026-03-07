@@ -149,13 +149,15 @@ public @interface EmptyWhen {
   /**
    * Specifies the the display string of condition value.
    * 
+   * <p>It can be used when conditionValue == STRING or VALUE_OF_PROPERTY_PATH.</p>
+   * 
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the condionValue specified is displayed
    *     as a part of an error message.</p>
    * 
    * @return String
    */
-  String conditionValuePropertyPathDisplayStringPropertyPath() default "";
+  String conditionValueDisplayStringPropertyPath() default "";
 
   /**
    * Decides whether validation check is executed when the condition is not satisfied.
