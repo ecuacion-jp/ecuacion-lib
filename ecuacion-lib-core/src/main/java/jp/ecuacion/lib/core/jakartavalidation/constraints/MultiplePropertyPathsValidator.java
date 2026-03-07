@@ -75,7 +75,7 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T> ex
       context.disableDefaultConstraintViolation();
 
       for (String propertyPath : propertyPaths) {
-        context.buildConstraintViolationWithTemplate("").addPropertyNode(propertyPath)
+        context.buildConstraintViolationWithTemplate(message).addPropertyNode(propertyPath)
             .addConstraintViolation();
       }
     }

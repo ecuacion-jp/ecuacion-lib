@@ -179,12 +179,10 @@ public class ValidationUtil {
       @Nullable MessageParameters parameterBean, Class<?>... groups)
       throws ConstraintViolationException {
 
-    Set<ConstraintViolation<T>> set =
-        groups == null || groups.length == 00 ? validator.validate(object)
-            : validator.validate(object, groups);
+    Optional<ConstraintViolationException> opt = validateThenReturn(object, parameterBean, groups);
 
-    if (set.size() > 0) {
-      throw new ConstraintViolationExceptionWithParameters(set, parameterBean);
+    if (opt.isPresent()) {
+      throw opt.get();
     }
   }
 
@@ -214,7 +212,6 @@ public class ValidationUtil {
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
       @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationException {
-
     MessageParameters params =
         new MessageParameters(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
             messagePrefix, messagePostfix);
@@ -277,6 +274,7 @@ public class ValidationUtil {
     Set<ConstraintViolation<T>> set =
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
+
     return Optional
         .ofNullable(new ConstraintViolationExceptionWithParameters(set, messageParameters));
   }
@@ -404,8 +402,7 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemName, Arg messagePrefix,
-        Arg messagePostfix) {
+    public MessageParameters(Boolean isMessageWithItemName, Arg messagePrefix, Arg messagePostfix) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
