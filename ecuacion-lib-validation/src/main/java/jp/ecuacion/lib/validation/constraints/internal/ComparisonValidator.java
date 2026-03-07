@@ -49,10 +49,10 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   private Object valueOfBasisPropertyPath;
 
   /** Initializes an instance. */
-  public void initialize(String[] propertyPath, String basisPropertyPath,
+  public void initialize(String message, String[] propertyPath, String basisPropertyPath,
       boolean isValidWhenLessThanBasis, boolean allowsEqual,
       TypeConversionFromString typeConversionFromString, String typeConversionDateTimeFormat) {
-    super.initialize(propertyPath);
+    super.initialize(message, propertyPath);
 
     this.basisPropertyPath = basisPropertyPath;
     this.isValidWhenLessThanBasis = isValidWhenLessThanBasis;

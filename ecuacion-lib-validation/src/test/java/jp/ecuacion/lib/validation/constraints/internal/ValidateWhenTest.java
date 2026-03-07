@@ -49,7 +49,7 @@ public class ValidateWhenTest {
     // "X" is not related to getSatisfiesCondition() test.
 
     // null
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(true,
@@ -62,7 +62,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // blank
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {""}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -75,7 +75,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {"a"}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -91,7 +91,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // null % blank
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, ""}, "", "", false);
 
     Assertions.assertEquals(true,
@@ -104,7 +104,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // null % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, "a"}, "", "", false);
 
     Assertions.assertEquals(true,
@@ -120,7 +120,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {"", "a"}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -136,7 +136,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // null & blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, ConditionOperator.EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, "", "a"}, "", "", false);
 
     Assertions.assertEquals(true,
@@ -156,7 +156,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueStringIsNotEqualToTest() {
 
     // null
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -169,7 +169,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // blank
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO, new String[] {""}, "",
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO, new String[] {""}, "",
         "", false);
 
     Assertions.assertEquals(true,
@@ -182,7 +182,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO, new String[] {"a"},
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO, new String[] {"a"},
         "", "", false);
 
     Assertions.assertEquals(true,
@@ -198,7 +198,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // null % blank
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, ""}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -211,7 +211,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("a")));
 
     // null % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, "a"}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -227,7 +227,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, "a"}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -243,7 +243,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("b")));
 
     // null & blank % non-empty value
-    obj.initialize(new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", STRING, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL, "", "a"}, "", "", false);
 
     Assertions.assertEquals(false,
@@ -264,7 +264,7 @@ public class ValidateWhenTest {
 
     // pattern not set
     try {
-      obj.initialize(new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
+      obj.initialize("", new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
           new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
       Assertions.assertEquals(false,
@@ -276,7 +276,7 @@ public class ValidateWhenTest {
 
     // regExp broken
     try {
-      obj.initialize(new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
+      obj.initialize("", new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
           new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "^[.*$", "", false);
 
       Assertions.assertEquals(false,
@@ -287,7 +287,7 @@ public class ValidateWhenTest {
     }
 
     // valueOfConditionPropertyPath is null or blank
-    obj.initialize(new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, ".*", "", false);
 
     // null
@@ -298,7 +298,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("")));
 
     // normal values
-    obj.initialize(new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", PATTERN, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "^[A-Z]*$", "", false);
     // satisfied
     Assertions.assertEquals(true,
@@ -313,7 +313,7 @@ public class ValidateWhenTest {
 
     // pattern not set
     try {
-      obj.initialize(new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
+      obj.initialize("", new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
           new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
       Assertions.assertEquals(false,
@@ -325,7 +325,7 @@ public class ValidateWhenTest {
 
     // regExp broken
     try {
-      obj.initialize(new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
+      obj.initialize("", new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
           new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "^[.*$", "", false);
 
       Assertions.assertEquals(false,
@@ -336,7 +336,7 @@ public class ValidateWhenTest {
     }
 
     // valueOfConditionPropertyPath is null or blank
-    obj.initialize(new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, ".*", "", false);
 
     // null
@@ -347,7 +347,7 @@ public class ValidateWhenTest {
         obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("")));
 
     // normal values
-    obj.initialize(new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", PATTERN, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "^[A-Z]*$", "", false);
     // satisfied
     Assertions.assertEquals(false,
@@ -361,7 +361,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField", EMPTY, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", EMPTY, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
@@ -392,7 +392,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsNotEmptyTest() {
 
     // dataType of conditionField = String
-    obj.initialize(new String[] {"field"}, "condField", EMPTY, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", EMPTY, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
@@ -423,7 +423,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsBooleanTrueTest() {
 
     // dataType of conditionField = Boolean
-    obj.initialize(new String[] {"field"}, "condField", TRUE, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", TRUE, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
@@ -440,7 +440,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsNotBooleanTrueTest() {
 
     // dataType of conditionField = Boolean
-    obj.initialize(new String[] {"field"}, "condField", TRUE, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", TRUE, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
@@ -457,7 +457,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsBooleanFalseTest() {
 
     // dataType of conditionField = Boolean
-    obj.initialize(new String[] {"field"}, "condField", FALSE, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", FALSE, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
@@ -474,7 +474,7 @@ public class ValidateWhenTest {
   public void getSatisfiesConditionConditionValueIsNotBooleanFalseTest() {
 
     // dataType of conditionField = Boolean
-    obj.initialize(new String[] {"field"}, "condField", FALSE, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", FALSE, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
@@ -490,7 +490,7 @@ public class ValidateWhenTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "",
         "fieldHoldingConditionValue", false);
 
@@ -694,7 +694,7 @@ public class ValidateWhenTest {
   @Test
   public void getSatisfiesConditionValueOfConditionFieldIsNotEqualToValueOfTest() {
 
-    obj.initialize(new String[] {"field"}, "condField", VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO,
+    obj.initialize("", new String[] {"field"}, "condField", VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO,
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "",
         "fieldHoldingConditionValue", false);
 
