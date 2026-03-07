@@ -39,7 +39,7 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public abstract class ComparisonValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
-  private String basisPropertyPath;
+  private String baselinePropertyPath;
   private boolean isValidWhenLessThanBasis;
   private boolean allowsEqual;
   private TypeConversionFromString typeConversionFromString;
@@ -49,12 +49,12 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   private Object valueOfBasisPropertyPath;
 
   /** Initializes an instance. */
-  public void initialize(String message, String[] propertyPath, String basisPropertyPath,
+  public void initialize(String message, String[] propertyPath, String baselinePropertyPath,
       boolean isValidWhenLessThanBasis, boolean allowsEqual,
       TypeConversionFromString typeConversionFromString, String typeConversionDateTimeFormat) {
     super.initialize(message, propertyPath);
 
-    this.basisPropertyPath = basisPropertyPath;
+    this.baselinePropertyPath = baselinePropertyPath;
     this.isValidWhenLessThanBasis = isValidWhenLessThanBasis;
     this.allowsEqual = allowsEqual;
     this.typeConversionFromString = typeConversionFromString;
@@ -83,8 +83,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   }
 
   protected void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    fieldOfBasisPropertyPath = ReflectionUtil.getField(instance.getClass(), basisPropertyPath);
-    valueOfBasisPropertyPath = getValue(instance, basisPropertyPath);
+    fieldOfBasisPropertyPath = ReflectionUtil.getField(instance.getClass(), baselinePropertyPath);
+    valueOfBasisPropertyPath = getValue(instance, baselinePropertyPath);
   }
 
   protected boolean isValidForSinglePropertyPath(

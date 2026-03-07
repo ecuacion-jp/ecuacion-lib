@@ -45,8 +45,8 @@ public @interface GreaterThan {
   /** Is the propertyPath being compared. */
   String[] propertyPath();
 
-  /** Is the propertyPath of the basis for comparison. */
-  String basisPropertyPath();
+  /** Is the propertyPath of the baseline for comparison. */
+  String baselinePropertyPath();
 
   /** 
    * Offers conversion to designated type from string value before comparing values.
