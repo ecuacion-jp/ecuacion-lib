@@ -32,12 +32,11 @@ public class Item {
   /**
    * Is the ID string of an item.
    * 
-   * <p>rootRecordName part (= far left part) can be omitted. Namely it can be "name" or "dept.name"
-   *     when the propertyPath with rootRecordName (= also called "recordPropertyPath") 
-   *     is "acc.name" or "acc.dept.name" where "acc" is the rootRecordName.</p>
+   * <p>When you want a item corresponding to the field 'name', just set 'name' to it.<br>
+   *     It can be 'dept.name' when the field is 'dept' object.</p>
    */
   @Nonnull
-  protected String itemPropertyPath;
+  protected String propertyPath;
 
   /**
    * Is a class part (= left part) of itemNameKey. (like "acc" from itemNameKey: "acc.name")
@@ -72,12 +71,12 @@ public class Item {
    * <p>You cannot set recordPropertyPath here.
    *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
    * 
-   * @param itemPropertyPath itemPropertyPath
+   * @param propertyPath itemPropertyPath
    */
-  public Item(@RequireNonempty String itemPropertyPath) {
+  public Item(@RequireNonempty String propertyPath) {
 
-    this.itemPropertyPath =
-        ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(itemPropertyPath));
+    this.propertyPath =
+        ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(propertyPath));
   }
 
   /**
@@ -104,8 +103,8 @@ public class Item {
     return this;
   }
 
-  public String getItemPropertyPath() {
-    return itemPropertyPath;
+  public String getPropertyPath() {
+    return propertyPath;
   }
 
   /**
@@ -139,11 +138,11 @@ public class Item {
     if (StringUtils.isNotEmpty(itemNameKeyClass)) {
       tmpItemNameKeyClass = itemNameKeyClass;
 
-    } else if (itemPropertyPath.contains(".")) {
+    } else if (propertyPath.contains(".")) {
       // Remove far right part ("name" in "acc.name") from propertyPath.
       // It's null when propertyPath doesn't contain ".".
       String itemPropertyPathClass =
-          itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
+          propertyPath.substring(0, propertyPath.lastIndexOf("."));
 
       tmpItemNameKeyClass = (itemPropertyPathClass.contains(".")
           ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
@@ -154,7 +153,7 @@ public class Item {
 
     } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
       tmpItemNameKeyClass = defaultItemNameKeyClass;
-      
+
     } else {
       tmpItemNameKeyClass = itemNameKeyClassFromClassName;
     }
@@ -164,9 +163,9 @@ public class Item {
       tmpItemNameKeyField = itemNameKeyField;
 
     } else {
-      tmpItemNameKeyField = itemPropertyPath.contains(".")
-          ? itemPropertyPath.substring(itemPropertyPath.lastIndexOf(".") + 1)
-          : itemPropertyPath;
+      tmpItemNameKeyField = propertyPath.contains(".")
+          ? propertyPath.substring(propertyPath.lastIndexOf(".") + 1)
+          : propertyPath;
     }
 
     return tmpItemNameKeyClass + "." + tmpItemNameKeyField;
