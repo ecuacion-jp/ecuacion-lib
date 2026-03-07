@@ -101,18 +101,50 @@ public class NotEmptyWhenTest {
     // FALSE, NOT_EQUAL_TO
     msg = getMessage(new FalseNotEqualToBean(null, true));
     Assertions.assertEquals(prefix2 + "is not OFF.", msg);
-    // STRING, EQUAL_TO, single
-    msg = getMessage(new StringEqualToSingleBean(null, "test"));
+
+    // STRING, EQUAL_TO, no displayString, single
+    msg = getMessage(new StringEqualToSinBean(null, "test"));
     Assertions.assertEquals(prefix2 + "is 'test'.", msg);
-    // STRING, EQUAL_TO, multiple
-    msg = getMessage(new StringEqualToMultipleBean(null, "test1"));
+    // STRING, EQUAL_TO, no displayString, multiple
+    msg = getMessage(new StringEqualToMulBean(null, "test1"));
     Assertions.assertEquals(prefix2 + "is one of 'test1', 'test2'.", msg);
-    // STRING, NOT_EQUAL_TO, single
-    msg = getMessage(new StringNotEqualToSingleBean(null, "a"));
+    // STRING, EQUAL_TO, description not defined in properties file, single
+    msg = getMessage(new StringEqualToWithDisplayStringSinBean(null, "test", "some value"));
+    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    // STRING, EQUAL_TO, description not defined in properties file, multiple
+    msg = getMessage(new StringEqualToWithDisplayStringMulBean(null, "test1",
+        new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    // STRING, EQUAL_TO, description defined in properties file, single
+    msg = getMessage(
+        new StringEqualToWithDisplayStringSinBean(null, "test", "value.from.enum_names"));
+    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    // STRING, EQUAL_TO, description defined in properties file, multiple
+    msg = getMessage(new StringEqualToWithDisplayStringMulBean(null, "test1",
+        new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    // STRING, NOT_EQUAL_TO, no displayString, single
+    msg = getMessage(new StringNotEqualToSinBean(null, "a"));
     Assertions.assertEquals(prefix2 + "is not 'test'.", msg);
-    // STRING, NOT_EQUAL_TO, multiple
-    msg = getMessage(new StringNotEqualToMultipleBean(null, "a"));
+    // STRING, NOT_EQUAL_TO, no displayString, multiple
+    msg = getMessage(new StringNotEqualToMulBean(null, "a"));
     Assertions.assertEquals(prefix2 + "is not one of 'test1', 'test2'.", msg);
+    // STRING, NOT_EQUAL_TO, description not defined in properties file, single
+    msg = getMessage(new StringNotEqualToWithDisplayStringSinBean(null, "a", "some value"));
+    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    // STRING, NOT_EQUAL_TO, description not defined in properties file, multiple
+    msg = getMessage(new StringNotEqualToWithDisplayStringMulBean(null, "a",
+        new String[] {"some value 1", "some value 2"}));
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    // STRING, NOT_EQUAL_TO, description defined in properties file, single
+    msg = getMessage(
+        new StringNotEqualToWithDisplayStringSinBean(null, "a", "value.from.enum_names"));
+    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    // STRING, NOT_EQUAL_TO, description defined in properties file, multiple
+    msg = getMessage(new StringNotEqualToWithDisplayStringMulBean(null, "a",
+        new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+
     // PATTERN, EQUAL_TO, no description
     msg = getMessage(new PatternEqualToBean(null, "test"));
     Assertions.assertEquals(prefix2 + "matches the pattern: .*test.*.", msg);
@@ -133,6 +165,7 @@ public class NotEmptyWhenTest {
     msg = getMessage(new PatternNotEqualToWithDescResolvedBean(null, "a"));
     Assertions.assertEquals(
         prefix2 + "does not match the pattern: the string which contains 'test'.", msg);
+
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathEqualToSinBean(null, "abc", "abc"));
     Assertions.assertEquals(prefix2 + "is 'abc'.", msg);
@@ -175,8 +208,9 @@ public class NotEmptyWhenTest {
         "value.from.enum_names"));
     Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description defined in properties file, multiple
-    msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
-        new String[] {"abc", "def"}, new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
+    msg = getMessage(
+        new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz", new String[] {"abc", "def"},
+            new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
     Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
 
     // emptyWhenConditionNotSatisfied
@@ -241,27 +275,60 @@ public class NotEmptyWhenTest {
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.STRING, conditionValueString = {"test"})
-  public static record StringEqualToSingleBean(String value, String condValue) {
+  public static record StringEqualToSinBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.STRING, conditionValueString = {"test1", "test2"})
-  public static record StringEqualToMultipleBean(String value, String condValue) {
+  public static record StringEqualToMulBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.STRING, conditionValueString = {"test"},
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
+  public static record StringEqualToWithDisplayStringSinBean(String value, String condValue,
+      String condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.STRING, conditionValueString = {"test1", "test2"},
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
+  public static record StringEqualToWithDisplayStringMulBean(String value, String condValue,
+      String[] condEqualDisplay) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.STRING,
       conditionValueString = {"test"})
-  public static record StringNotEqualToSingleBean(String value, String condValue) {
+  public static record StringNotEqualToSinBean(String value, String condValue) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.STRING,
       conditionValueString = {"test1", "test2"})
-  public static record StringNotEqualToMultipleBean(String value, String condValue) {
+  public static record StringNotEqualToMulBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.STRING,
+      conditionValueString = {"test"}, conditionValueDisplayStringPropertyPath = "condEqualDisplay")
+  public static record StringNotEqualToWithDisplayStringSinBean(String value, String condValue,
+      String condEqualDisplay) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.STRING,
+      conditionValueString = {"test1", "test2"},
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
+  public static record StringNotEqualToWithDisplayStringMulBean(String value, String condValue,
+      String[] condEqualDisplay) {
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
@@ -326,7 +393,7 @@ public class NotEmptyWhenTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
       conditionValuePropertyPath = "condEqual",
-      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
   public static record PropertyPathEqualToWithDisplayStringSinBean(String value, String condValue,
       String condEqual, String condEqualDisplay) {
   }
@@ -335,7 +402,7 @@ public class NotEmptyWhenTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
       conditionValuePropertyPath = "condEqual",
-      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
   public static record PropertyPathEqualToWithDisplayStringMulBean(String value, String condValue,
       String[] condEqual, String[] condEqualDisplay) {
   }
@@ -363,7 +430,7 @@ public class NotEmptyWhenTest {
       conditionOperator = ConditionOperator.NOT_EQUAL_TO,
       conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
       conditionValuePropertyPath = "condEqual",
-      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
   public static record PropertyPathNotEqualToWithDisplayStringSinBean(String value,
       String condValue, String condEqual, String condEqualDisplay) {
   }
@@ -373,7 +440,7 @@ public class NotEmptyWhenTest {
       conditionOperator = ConditionOperator.NOT_EQUAL_TO,
       conditionValue = ConditionValue.VALUE_OF_PROPERTY_PATH,
       conditionValuePropertyPath = "condEqual",
-      conditionValuePropertyPathDisplayStringPropertyPath = "condEqualDisplay")
+      conditionValueDisplayStringPropertyPath = "condEqualDisplay")
   public static record PropertyPathNotEqualToWithDisplayStringMulBean(String value,
       String condValue, String[] condEqual, String[] condEqualDisplay) {
   }
