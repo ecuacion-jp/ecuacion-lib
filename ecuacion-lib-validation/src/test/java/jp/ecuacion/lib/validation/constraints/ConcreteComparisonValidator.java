@@ -25,8 +25,8 @@ public class ConcreteComparisonValidator extends ComparisonValidator<Comparison,
   /** Initializes an instance. */
   @Override
   public void initialize(Comparison annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(),
-        annotation.isValidWhenLessThanBasis(), annotation.allowsEqual(),
-        annotation.typeConversionFromString(), "yyyy-MM-dd");
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.basisPropertyPath(), annotation.isValidWhenLessThanBasis(),
+        annotation.allowsEqual(), annotation.typeConversionFromString(), "yyyy-MM-dd");
   }
 }

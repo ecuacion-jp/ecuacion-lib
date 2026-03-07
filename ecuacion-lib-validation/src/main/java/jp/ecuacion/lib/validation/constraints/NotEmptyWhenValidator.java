@@ -27,10 +27,11 @@ public class NotEmptyWhenValidator extends ValidateWhen<NotEmptyWhen, Object> {
   /** Initializes an instance. */
   @Override
   public void initialize(NotEmptyWhen annotation) {
-    super.initialize(annotation.propertyPath(), annotation.conditionPropertyPath(),
-        annotation.conditionValue(), annotation.conditionOperator(),
-        annotation.conditionValueString(), annotation.conditionValuePatternRegexp(),
-        annotation.conditionValuePropertyPath(), annotation.emptyWhenConditionNotSatisfied());
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.conditionPropertyPath(), annotation.conditionValue(),
+        annotation.conditionOperator(), annotation.conditionValueString(),
+        annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
+        annotation.emptyWhenConditionNotSatisfied());
   }
 
   @Override

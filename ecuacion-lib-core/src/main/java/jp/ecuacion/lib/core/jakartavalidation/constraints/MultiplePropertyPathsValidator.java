@@ -17,9 +17,9 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ValidationException;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.List;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -35,22 +35,56 @@ import java.util.List;
  *     messages with the same string and so on. One ConstraintViolation 
  *     for one validator is easier to manipulate.</p>
  */
-public abstract class ClassValidator<A extends Annotation, T>
-    extends MultiplePropertyPathsValidator<A, T> implements ConstraintValidator<A, T> {
+public abstract class MultiplePropertyPathsValidator<A extends Annotation, T> extends ReflectionUtil
+    implements ConstraintValidator<A, T> {
 
-  protected Object[] valuesOfPropertyPaths;
+  protected String message;
+  protected String[] propertyPaths;
+
+  private boolean createsMultipleConstraintViolations = false;
+
+  /**
+   * is {@code isValid} method for each class-level validators.
+   */
+  protected abstract boolean internalIsValid(T value, ConstraintValidatorContext context);
+
+  /**
+   * Constructs a new instance.
+   */
+  public void initialize(String message, String[] propertyPath) {
+    this.message = message;
+    this.propertyPaths = propertyPath;
+
+    if (propertyPaths.length == 0) {
+      throw new ValidationException("Length of propertyPath is zero.");
+    }
+  }
 
   @Override
   public boolean isValid(T value, ConstraintValidatorContext context) {
-    valuesOfPropertyPaths = setValuesOfPropertyPaths(value);
-
     return isValidCommon(value, context);
   }
-  
-  private Object[] setValuesOfPropertyPaths(T object) {
-    List<Object> list =
-        Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();
 
-    return list.toArray(new Object[list.size()]);
+  /**
+   * Is a common procedure of {@code isValid}.
+   */
+  protected boolean isValidCommon(T value, ConstraintValidatorContext context) {
+    boolean result = internalIsValid(value, context);
+
+    if (createsMultipleConstraintViolations) {
+      context.disableDefaultConstraintViolation();
+
+      for (String propertyPath : propertyPaths) {
+        context.buildConstraintViolationWithTemplate("").addPropertyNode(propertyPath)
+            .addConstraintViolation();
+      }
+    }
+
+    return result;
   }
+
+  public void setCreatesMultipleConstraintViolations(boolean createsMultipleConstraintViolations) {
+    this.createsMultipleConstraintViolations = createsMultipleConstraintViolations;
+  }
+
 }

@@ -25,7 +25,8 @@ public class GreaterThanValidator extends ComparisonValidator<GreaterThan, Objec
   /** Initializes an instance. */
   @Override
   public void initialize(GreaterThan annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), false, false,
-        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.basisPropertyPath(), false, false, annotation.typeConversionFromString(),
+        annotation.typeConversionDateFormat());
   }
 }

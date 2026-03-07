@@ -26,7 +26,7 @@ public class AllEmptyOrAllNotEmptyValidator extends AllAnyValidator<AllEmptyOrAl
   /** Initializes an instance. */
   @Override
   public void initialize(AllEmptyOrAllNotEmpty annotation) {
-    super.initialize(annotation.propertyPath());
+    super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override

@@ -50,8 +50,10 @@ public @interface PatternWithDescription {
    * 
    * @return message ID
    */
-  String message() default 
-      "{jp.ecuacion.lib.validation.constraints.PatternWithDescription.message}";
+  // @formatter:off
+  String message() 
+      default "{jp.ecuacion.lib.validation.constraints.PatternWithDescription.message}";
+  // @formatter:on
 
   /** 
    * Returns groups.
@@ -73,7 +75,7 @@ public @interface PatternWithDescription {
    * @return regular expression
    */
   String regexp();
-  
+
   /**
    * Stores description to add description string to the message to users.
    * 

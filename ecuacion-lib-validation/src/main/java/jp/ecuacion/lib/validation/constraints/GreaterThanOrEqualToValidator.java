@@ -26,7 +26,8 @@ public class GreaterThanOrEqualToValidator
   /** Initializes an instance. */
   @Override
   public void initialize(GreaterThanOrEqualTo annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), false, true,
-        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.basisPropertyPath(), false, true, annotation.typeConversionFromString(),
+        annotation.typeConversionDateFormat());
   }
 }

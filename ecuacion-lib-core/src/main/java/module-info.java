@@ -26,9 +26,10 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.exception.checked;
   exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.item;
+  exports jp.ecuacion.lib.core.jakartavalidation.annotation;
   exports jp.ecuacion.lib.core.jakartavalidation.bean;
   exports jp.ecuacion.lib.core.jakartavalidation.constraints;
-  exports jp.ecuacion.lib.core.jakartavalidation.annotation;
+  exports jp.ecuacion.lib.core.jakartavalidation.constraintvalidator;
   exports jp.ecuacion.lib.core.logging;
   exports jp.ecuacion.lib.core.spi;
   exports jp.ecuacion.lib.core.spi.impl;
