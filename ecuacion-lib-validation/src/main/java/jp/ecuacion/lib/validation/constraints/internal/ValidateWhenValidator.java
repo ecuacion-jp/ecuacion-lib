@@ -39,7 +39,7 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 
-public abstract class ValidateWhen<A extends Annotation, T> extends ClassValidator<A, T> {
+public abstract class ValidateWhenValidator<A extends Annotation, T> extends ClassValidator<A, T> {
   private String conditionPropertyPath;
   private ConditionValue conditionPattern;
   private ConditionOperator conditionOperator;
@@ -61,7 +61,7 @@ public abstract class ValidateWhen<A extends Annotation, T> extends ClassValidat
 
   public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH =
-      "conditionValuePropertyPathDisplayStringPropertyPath";
+      "conditionValueDisplayStringPropertyPath";
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 

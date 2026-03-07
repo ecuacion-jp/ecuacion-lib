@@ -32,9 +32,9 @@ import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenTestBean.Test
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ValidateWhenTest {
+public class ValidateWhenValidatorTest {
 
-  private ValidateWhen<Annotation, Object> obj = new ValidateWhen<>() {
+  private ValidateWhenValidator<Annotation, Object> obj = new ValidateWhenValidator<>() {
     @Override
     protected boolean isValid(Object valueOfField) {
       return false;
