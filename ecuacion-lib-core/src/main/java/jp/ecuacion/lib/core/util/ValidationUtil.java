@@ -275,8 +275,8 @@ public class ValidationUtil {
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
 
-    return Optional
-        .ofNullable(new ConstraintViolationExceptionWithParameters(set, messageParameters));
+    return set.size() == 0 ? Optional.empty()
+        : Optional.of(new ConstraintViolationExceptionWithParameters(set, messageParameters));
   }
 
   /**
