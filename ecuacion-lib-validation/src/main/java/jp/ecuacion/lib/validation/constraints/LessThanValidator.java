@@ -21,11 +21,12 @@ import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
  * Provides the validation logic for {@code LessThan}.
  */
 public class LessThanValidator extends ComparisonValidator<LessThan, Object> {
- 
+
   /** Initializes an instance. */
   @Override
   public void initialize(LessThan annotation) {
-    super.initialize(annotation.propertyPath(), annotation.basisPropertyPath(), true, false,
-        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.basisPropertyPath(), true, false, annotation.typeConversionFromString(),
+        annotation.typeConversionDateFormat());
   }
 }

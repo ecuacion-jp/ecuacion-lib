@@ -25,7 +25,7 @@ public class AlwaysFalseValidator extends ClassValidator<AlwaysFalse, Object> {
 
   @Override
   public void initialize(AlwaysFalse annotation) {
-    super.initialize(annotation.propertyPath());
+    super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override

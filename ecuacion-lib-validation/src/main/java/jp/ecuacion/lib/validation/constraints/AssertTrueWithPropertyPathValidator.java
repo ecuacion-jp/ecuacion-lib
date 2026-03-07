@@ -15,18 +15,24 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 
 /**
- * Provides the validation logic for {@code LessThanOrEqualTo}.
+ * Provides the validation logic for {@code AnyNotEmpty}.
  */
-public class LessThanOrEqualToValidator extends ComparisonValidator<LessThanOrEqualTo, Object> {
+public class AssertTrueWithPropertyPathValidator
+    extends MultiplePropertyPathsValidator<AssertTrueWithPropertyPath, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(LessThanOrEqualTo annotation) {
-    super.initialize(annotation.message(), annotation.propertyPath(),
-        annotation.basisPropertyPath(), true, true, annotation.typeConversionFromString(),
-        annotation.typeConversionDateFormat());
+  public void initialize(AssertTrueWithPropertyPath annotation) {
+    super.initialize(annotation.message(), annotation.propertyPath());
+  }
+
+  @Override
+  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
+    Boolean bl = (Boolean) value;
+    return bl != null && bl;
   }
 }

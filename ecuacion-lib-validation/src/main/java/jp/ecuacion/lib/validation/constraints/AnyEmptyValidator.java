@@ -26,7 +26,7 @@ public class AnyEmptyValidator extends AllAnyValidator<AnyEmpty, Object> {
   /** Initializes an instance. */
   @Override
   public void initialize(AnyEmpty annotation) {
-    super.initialize(annotation.propertyPath());
+    super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override

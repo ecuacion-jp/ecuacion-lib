@@ -65,11 +65,11 @@ public abstract class ValidateWhen<A extends Annotation, T> extends ClassValidat
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
-  public void initialize(String[] propertyPath, String conditionPropertyPath,
+  public void initialize(String message, String[] propertyPath, String conditionPropertyPath,
       ConditionValue conditionPattern, ConditionOperator conditionOperator,
       String[] conditionValueString, String conditionValuePattern,
       String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
-    super.initialize(propertyPath);
+    super.initialize(message, propertyPath);
 
     this.conditionPropertyPath = conditionPropertyPath;
     this.conditionPattern = conditionPattern;
