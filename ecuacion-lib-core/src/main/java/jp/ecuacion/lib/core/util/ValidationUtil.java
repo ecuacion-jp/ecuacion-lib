@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
+import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -35,6 +37,8 @@ import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
  * Provides validation-related utilities.
  */
 public class ValidationUtil {
+
+  private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   /**
    * Prevents other classes from instantiating it.
@@ -51,6 +55,7 @@ public class ValidationUtil {
    * @param object object to validate
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
+  @Deprecated
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object) {
     return validate(object, new Class<?>[] {});
@@ -67,6 +72,7 @@ public class ValidationUtil {
    * @param groups validation groups
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
+  @Deprecated
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
       Class<?>... groups) {
@@ -84,6 +90,7 @@ public class ValidationUtil {
    * @param parameterBean See {@link MessageParameters}.
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
+  @Deprecated
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
       @Nullable MessageParameters parameterBean) {
@@ -102,6 +109,7 @@ public class ValidationUtil {
    * @param groups validation groups
    * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
    */
+  @Deprecated
   @Nonnull
   public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
       @Nullable MessageParameters parameterBean, Class<?>... groups) {
@@ -113,7 +121,7 @@ public class ValidationUtil {
 
     List<ConstraintViolationBean<T>> list =
         set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
-            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemNames))
+            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemName))
             .peek(cv -> cv.setMessagePrefix(param.getMessagePrefix()))
             .peek(cv -> cv.setMessagePostfix(param.getMessagePostfix())).toList();
 
@@ -128,7 +136,7 @@ public class ValidationUtil {
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object)
-      throws ConstraintViolationBeanException {
+      throws ConstraintViolationException {
     validateThenThrow(object, (Class<?>[]) null);
   }
 
@@ -141,8 +149,43 @@ public class ValidationUtil {
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
-      throws ConstraintViolationBeanException {
-    validateThenThrow(object, null, null, null, groups);
+      throws ConstraintViolationException {
+    validateThenThrow(object, new MessageParameters(), groups);
+  }
+
+  /**
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @param parameterBean See {@link MessageParameters}.
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   */
+  public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable MessageParameters parameterBean) throws ConstraintViolationException {
+    validateThenThrow(object, parameterBean, (Class<?>[]) null);
+  }
+
+  /**
+   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @param parameterBean See {@link MessageParameters}.
+   * @param groups validation groups
+   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
+   */
+  public static <T> void validateThenThrow(@RequireNonnull T object,
+      @Nullable MessageParameters parameterBean, Class<?>... groups)
+      throws ConstraintViolationException {
+
+    Set<ConstraintViolation<T>> set =
+        groups == null || groups.length == 00 ? validator.validate(object)
+            : validator.validate(object, groups);
+
+    if (set.size() > 0) {
+      throw new ConstraintViolationExceptionWithParameters(set, parameterBean);
+    }
   }
 
   /**
@@ -165,51 +208,20 @@ public class ValidationUtil {
    * 
    * @param <T> any class
    * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
-   */
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean) throws ConstraintViolationBeanException {
-    validateThenThrow(object, parameterBean, (Class<?>[]) null);
-  }
-
-  /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
-   * 
-   * @param <T> any class
-   * @param object object to validate
    * @throws ConstraintViolationBeanException ConstraintViolationBeanException
    */
   @Deprecated(since = "14.26.0")
   public static <T> void validateThenThrow(@RequireNonnull T object,
       @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationBeanException {
+      @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationException {
 
-    Set<ConstraintViolationBean<T>> set = validate(object,
+    MessageParameters params =
         new MessageParameters(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
-            messagePrefix, messagePostfix),
-        groups);
-    if (set.size() > 0) {
-      throw new ConstraintViolationBeanException(set);
-    }
-  }
+            messagePrefix, messagePostfix);
 
-  /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
-   * 
-   * @param <T> any class
-   * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
-   * @param groups validation groups
-   * @throws ConstraintViolationBeanException ConstraintViolationBeanException
-   */
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean, Class<?>... groups)
-      throws ConstraintViolationBeanException {
-
-    Set<ConstraintViolationBean<T>> set = validate(object, parameterBean, groups);
+    Set<ConstraintViolation<T>> set = validator.validate(object, groups);
     if (set.size() > 0) {
-      throw new ConstraintViolationBeanException(set);
+      throw new ConstraintViolationExceptionWithParameters(set, params);
     }
   }
 
@@ -221,9 +233,9 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  @Deprecated(since = "14.26.0")
-  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object) {
-    return validateThenReturn(object, false, null, null, (Class<?>[]) null);
+  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+      @RequireNonnull T object) {
+    return validateThenReturn(object, (Class<?>[]) null);
   }
 
   /**
@@ -234,10 +246,39 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  @Deprecated(since = "14.26.0")
-  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
-      Class<?>... groups) {
-    return validateThenReturn(object, false, null, null, groups);
+  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+      @RequireNonnull T object, Class<?>... groups) {
+    return validateThenReturn(object, null, groups);
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+      @RequireNonnull T object, MessageParameters messageParameters) {
+    return validateThenReturn(object, messageParameters, (Class<?>[]) null);
+  }
+
+  /**
+   * Validates and returns {@code MultipleAppException} if validation errors exist.
+   * 
+   * @param <T> any class
+   * @param object object to validate
+   * @return MultipleAppException, may be null when no validation errors exist.
+   */
+  @Nonnull
+  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+      @RequireNonnull T object, MessageParameters messageParameters, Class<?>... groups) {
+    Set<ConstraintViolation<T>> set =
+        groups == null || groups.length == 0 ? validator.validate(object)
+            : validator.validate(object, groups);
+    return Optional
+        .ofNullable(new ConstraintViolationExceptionWithParameters(set, messageParameters));
   }
 
   /**
@@ -298,7 +339,7 @@ public class ValidationUtil {
       Class<?>... groups) {
     Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
         new MessageParameters()
-            .isMessageWithItemNames(
+            .isMessageWithItemName(
                 addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage)
             .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
         groups);
@@ -339,7 +380,7 @@ public class ValidationUtil {
    */
   public static class MessageParameters {
 
-    private Boolean isMessageWithItemNames;
+    private Boolean isMessageWithItemName;
     private Arg messagePrefix;
     private Arg messagePostfix;
 
@@ -353,9 +394,9 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemNames, String messagePrefix,
+    public MessageParameters(Boolean isMessageWithItemName, String messagePrefix,
         String messagePostfix) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+      this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix == null ? null : Arg.string(messagePrefix);
       this.messagePostfix = messagePostfix == null ? null : Arg.string(messagePostfix);
     }
@@ -363,9 +404,9 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemNames, Arg messagePrefix,
+    public MessageParameters(Boolean isMessageWithItemName, Arg messagePrefix,
         Arg messagePostfix) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+      this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
     }
@@ -373,15 +414,15 @@ public class ValidationUtil {
     /**
      * Returns addsItemNameToMessage.
      */
-    public Boolean isMessageWithItemNames() {
-      return isMessageWithItemNames;
+    public Boolean isMessageWithItemName() {
+      return isMessageWithItemName;
     }
 
     /**
      * Sets messagePrefix and returns this.
      */
-    public MessageParameters isMessageWithItemNames(Boolean isMessageWithItemNames) {
-      this.isMessageWithItemNames = isMessageWithItemNames;
+    public MessageParameters isMessageWithItemName(Boolean isMessageWithItemName) {
+      this.isMessageWithItemName = isMessageWithItemName;
       return this;
     }
 

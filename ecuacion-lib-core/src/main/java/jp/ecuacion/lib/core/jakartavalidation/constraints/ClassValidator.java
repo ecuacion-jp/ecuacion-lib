@@ -28,6 +28,14 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
  * This is accepted by ConstraintViolationBean.
  * 
  * <p>The field "propertyPath" is always needed as the field for validation.</p>
+ * 
+ * <p>Jakarta Validation has the feature to create multiple ConstraintViolations 
+ *     out of one validator using 
+ *     {@code ConstraintValidatorContext.disableDefaultConstraintViolation()} 
+ *     and {@code ConstraintViolationBuilder#addConstraintViolation()}, 
+ *     but its feature is not used because it makes difficult to manage the number of 
+ *     messages with the same string and so on. One ConstraintViolation 
+ *     for one validator is easier to manipulate.</p>
  */
 public abstract class ClassValidator<A extends Annotation, T> extends ReflectionUtil
     implements ConstraintValidator<A, T> {
