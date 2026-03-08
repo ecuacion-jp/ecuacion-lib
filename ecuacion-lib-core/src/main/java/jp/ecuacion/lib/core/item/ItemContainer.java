@@ -30,45 +30,29 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Accepts and store data from user input, external system, and so on.
+ * Accepts and stores data from user input, external system, and so on.
  * 
- * <p>This is an interface, not a class 
- *     because record can be customized according to the specification of page templates.
- *     Each record in apps always extends EclibRecord or its extended class, 
- *     so interface is needed to customize records.<br>
- *     At that time in that interface you want to record feature like getItems(),
- *     but if this is a class it can't be used.</p>
- * 
- * <p>It is frequently validated with jakarta validation. So it should have features below.</p>
- * <ul>
- * <li>To resolve item name from propertyPath. {@code getItems()} is used for it.<br>
- *     It's used especially for error message to users.</li>
- * </ul>
+ * <p>It is mainly used when you want to customize an item name and its value 
+ *     in validation messages.</p>
  */
 public interface ItemContainer {
 
   /**
-   * Returns an array of items.
-   */
-  @Nullable
-  public abstract Item[] customizedItems();
-
-  /**
-   * Returns {@code EclibItem} from {@code EclibItem[]} and {@code fieldId}. 
+   * Returns {@code Item} from {@code items[]}. 
    * 
-   * @param itemPropertyPath itemPropertyPath
+   * @param propertyPath propertyPath
    * @return HtmlItem
    */
   @Nonnull
-  default Item getItem(@RequireNonempty String itemPropertyPath) {
+  public default Item getItem(@RequireNonempty String propertyPath) {
 
     Map<String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
             .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
-    Item item = map.get(ObjectsUtil.requireNonEmpty(itemPropertyPath));
+    Item item = map.get(ObjectsUtil.requireNonEmpty(propertyPath));
 
-    item = item == null ? new Item(itemPropertyPath) : item;
+    item = item == null ? getNewItem(propertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
     Optional<ItemNameKeyClass> optAn =
@@ -85,10 +69,31 @@ public interface ItemContainer {
   }
 
   /**
+   * Returns an array of items.
+   * 
+   * <p>It is NOT meant for use from outside.
+   *     It's supposed to be used by concrete classes.<br>
+   */
+  @Nullable
+  abstract Item[] customizedItems();
+
+  /**
+   * Creates new item.
+   * 
+   * <p>It is NOT meant for use from outside.
+   *     It's supposed to be used by ItemContainers 
+   *     which extends this class like {@code HtmlItemContainer}.<br>
+   */
+  default Item getNewItem(String propertyPath) {
+    return new Item(propertyPath);
+  }
+
+  /**
    * Merge common items and record dependent items.
    * 
-   * <p>This is an utility method so it can be defined in Util class, 
-   *     but it's frequently used in record instance and not used outside 
+   * <p>It is NOT meant for use from outside.
+   *     This is an utility method so it can be defined in Util class, 
+   *     but it's frequently used in extended classes and not used outside 
    *     so let it be defined here.</p>
    */
   @Nonnull
@@ -107,7 +112,7 @@ public interface ItemContainer {
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
-            "'itemPropertyPath' of EclibItem[] duplicated in Items. key: " + propertyPath2);
+            "'propertyPath' of Item[] duplicated in Items. key: " + propertyPath2);
       }
     }
 
