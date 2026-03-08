@@ -175,7 +175,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     // invalidValue
     if (!beanList.get(0).showsValue) {
-      String key = "jp.ecuacion.lib.validation.constraints.displayStringForHiddenValue";
+      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
       messageParameterSet.add(new LocalizedMessageParameter("invalidValue",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
       // argMap.put(, PropertyFileUtil.getMessage(locale, key));
