@@ -33,7 +33,6 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationRuntimeException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
@@ -286,13 +285,9 @@ public class ExceptionUtil {
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
     // In that case it's not transformed to AppBeanValidationException,
     // So the transformation procedure is added here.
-    if (throwable instanceof ConstraintViolationException
-        || throwable instanceof ConstraintViolationRuntimeException) {
+    if (throwable instanceof ConstraintViolationException) {
 
-      ConstraintViolationException cve = throwable instanceof ConstraintViolationException
-          ? (ConstraintViolationException) throwable
-          : ((ConstraintViolationException) ((ConstraintViolationRuntimeException) throwable)
-              .getCause());
+      ConstraintViolationException cve = (ConstraintViolationException) throwable;
 
       MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
           ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
