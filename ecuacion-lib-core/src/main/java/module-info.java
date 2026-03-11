@@ -78,9 +78,12 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.spi.impl.internal.MessagesLibCoreProviderImpl;
   provides jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider
       with jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesLibCoreProviderImpl;
+  provides jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibCoreProvider with
+  jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesWithItemNamesLibCoreProviderImpl;
 
   uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
   uses jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider;
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibCoreProvider;
 
   // ecuacion-lib-validation
   provides jp.ecuacion.lib.core.spi.MessagesLibValidationProvider
