@@ -129,7 +129,7 @@ public class ValidationUtil {
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
@@ -141,7 +141,7 @@ public class ValidationUtil {
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
@@ -154,32 +154,33 @@ public class ValidationUtil {
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
+   * @param messageParameters See {@link MessageParameters}.
    * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean) throws ConstraintViolationException {
-    validateThenThrow(object, parameterBean, (Class<?>[]) null);
+      @Nullable MessageParameters messageParameters) throws ConstraintViolationException {
+    validateThenThrow(object, messageParameters, (Class<?>[]) null);
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
+   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
    * 
    * @param <T> any class
    * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
+   * @param messageParameters See {@link MessageParameters}.
    * @param groups validation groups
    * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean, Class<?>... groups)
+      @Nullable MessageParameters messageParameters, Class<?>... groups)
       throws ConstraintViolationException {
 
-    Optional<ConstraintViolationException> opt = validateThenReturn(object, parameterBean, groups);
+    Optional<ConstraintViolationException> opt =
+        validateThenReturn(object, messageParameters, groups);
 
     if (opt.isPresent()) {
       throw opt.get();
@@ -363,18 +364,17 @@ public class ValidationUtil {
    * Stores validation parameters.
    * 
    * <p>Parameters are meant to show
-   *     understandable error messages especially for non-display-value-validations 
+   *     understandable error messages especially for non-display-value validations 
    *     (like validation errors for uploaded excel files).</p>
    * 
-   * <p>addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
-   *        Default value is {@code false}.</p>
+   * <p>{@code isMessageWithItemName}: You'll get message with itemName 
+   *     when {@code true} is specified.
+   *     Default value is {@code false}.</p>
    * 
-   * <p>messagePrefix Used when you want to put an additional message 
+   * <p>{@code messagePrefix} and {@code messagePostfix}: Used 
+   *     when you want to put an additional message 
    *     before the original message like "About the uploaded excel file, ". 
    *     It may be {@code null}, which means no messages added.</p>
-   * 
-   * <p>messagePostfix Used when you want to put an additional message 
-   *     after the original message. It may be {@code null}, which means no messages added.</p>
    */
   public static class MessageParameters {
 
@@ -437,9 +437,15 @@ public class ValidationUtil {
 
     /**
      * Sets messagePrefix and returns this.
+     * 
+     * <p>The argument string is treated as a message key 
+     *     and the value is adopted when the message key is found 
+     *     in {@code messages.properties}.
+     *     When not found, the argument string itself is used as the prefix message.</p>
+
      */
     public MessageParameters messagePrefix(String messagePrefix) {
-      this.messagePrefix = Arg.string(messagePrefix);
+      this.messagePrefix = Arg.message(messagePrefix);
       return this;
     }
 
@@ -450,16 +456,21 @@ public class ValidationUtil {
     /**
      * Sets messagePostfix and returns this.
      */
-    public MessageParameters messagePostfix(String messagePostfix) {
-      this.messagePostfix = Arg.string(messagePostfix);
+    public MessageParameters messagePostfix(Arg messagePostfix) {
+      this.messagePostfix = messagePostfix;
       return this;
     }
 
     /**
      * Sets messagePostfix and returns this.
+     * 
+     * <p>The argument string is treated as a message key 
+     *     and the value is adopted when the message key is found 
+     *     in {@code messages.properties}.
+     *     When not found, the argument string itself is used as the postfix message.</p>
      */
-    public MessageParameters messagePostfix(Arg messagePostfix) {
-      this.messagePostfix = messagePostfix;
+    public MessageParameters messagePostfix(String messagePostfix) {
+      this.messagePostfix = Arg.message(messagePostfix);
       return this;
     }
   }
