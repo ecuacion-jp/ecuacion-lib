@@ -79,149 +79,149 @@ public class NotEmptyWhenTest {
 
     // EMPTY, EQUAL_TO
     msg = getMessage(new EmptyEqualToBean(null, null));
-    Assertions.assertEquals(prefix2 + "is empty.", msg);
+    Assertions.assertEquals(prefix2 + "is empty", msg);
     // EMPTY, NOT_EQUAL_TO
     msg = getMessage(new NotEmptyEqualToBean(null, null));
-    Assertions.assertEquals(prefix2 + "is not empty.", msg);
+    Assertions.assertEquals(prefix2 + "is not empty", msg);
     // NOT_EMPTY, EQUAL_TO
     msg = getMessage(new EmptyNotEqualToBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is not empty.", msg);
+    Assertions.assertEquals(prefix2 + "is not empty", msg);
     // NOT_EMPTY, NOT_EQUAL_TO
     msg = getMessage(new NotEmptyNotEqualToBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is empty.", msg);
+    Assertions.assertEquals(prefix2 + "is empty", msg);
     // TRUE, EQUAL_TO
     msg = getMessage(new TrueEqualToBean(null, true));
-    Assertions.assertEquals(prefix2 + "is ON.", msg);
+    Assertions.assertEquals(prefix2 + "is ON", msg);
     // TRUE, NOT_EQUAL_TO
     msg = getMessage(new TrueNotEqualToBean(null, false));
-    Assertions.assertEquals(prefix2 + "is not ON.", msg);
+    Assertions.assertEquals(prefix2 + "is not ON", msg);
     // FALSE, EQUAL_TO
     msg = getMessage(new FalseEqualToBean(null, false));
-    Assertions.assertEquals(prefix2 + "is OFF.", msg);
+    Assertions.assertEquals(prefix2 + "is OFF", msg);
     // FALSE, NOT_EQUAL_TO
     msg = getMessage(new FalseNotEqualToBean(null, true));
-    Assertions.assertEquals(prefix2 + "is not OFF.", msg);
+    Assertions.assertEquals(prefix2 + "is not OFF", msg);
 
     // STRING, EQUAL_TO, no displayString, single
     msg = getMessage(new StringEqualToSinBean(null, "test"));
-    Assertions.assertEquals(prefix2 + "is 'test'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'test'", msg);
     // STRING, EQUAL_TO, no displayString, multiple
     msg = getMessage(new StringEqualToMulBean(null, "test1"));
-    Assertions.assertEquals(prefix2 + "is one of 'test1', 'test2'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'test1', 'test2'", msg);
     // STRING, EQUAL_TO, description not defined in properties file, single
     msg = getMessage(new StringEqualToWithDisplayStringSinBean(null, "test", "some value"));
-    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'some value'", msg);
     // STRING, EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new StringEqualToWithDisplayStringMulBean(null, "test1",
         new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'", msg);
     // STRING, EQUAL_TO, description defined in properties file, single
     msg = getMessage(
         new StringEqualToWithDisplayStringSinBean(null, "test", "value.from.enum_names"));
-    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'some value'", msg);
     // STRING, EQUAL_TO, description defined in properties file, multiple
     msg = getMessage(new StringEqualToWithDisplayStringMulBean(null, "test1",
         new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
-    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'", msg);
     // STRING, NOT_EQUAL_TO, no displayString, single
     msg = getMessage(new StringNotEqualToSinBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is not 'test'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'test'", msg);
     // STRING, NOT_EQUAL_TO, no displayString, multiple
     msg = getMessage(new StringNotEqualToMulBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "is not one of 'test1', 'test2'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'test1', 'test2'", msg);
     // STRING, NOT_EQUAL_TO, description not defined in properties file, single
     msg = getMessage(new StringNotEqualToWithDisplayStringSinBean(null, "a", "some value"));
-    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'some value'", msg);
     // STRING, NOT_EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new StringNotEqualToWithDisplayStringMulBean(null, "a",
         new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'", msg);
     // STRING, NOT_EQUAL_TO, description defined in properties file, single
     msg = getMessage(
         new StringNotEqualToWithDisplayStringSinBean(null, "a", "value.from.enum_names"));
-    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'some value'", msg);
     // STRING, NOT_EQUAL_TO, description defined in properties file, multiple
     msg = getMessage(new StringNotEqualToWithDisplayStringMulBean(null, "a",
         new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
-    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'", msg);
 
     // PATTERN, EQUAL_TO, no description
     msg = getMessage(new PatternEqualToBean(null, "test"));
-    Assertions.assertEquals(prefix2 + "matches the pattern: .*test.*.", msg);
+    Assertions.assertEquals(prefix2 + "matches the pattern: .*test.*", msg);
     // PATTERN, EQUAL_TO, description which is not defined in item_names
     msg = getMessage(new PatternEqualToWithDescNonResolvedBean(null, "test"));
-    Assertions.assertEquals(prefix2 + "matches the pattern: notExistBean.test.", msg);
+    Assertions.assertEquals(prefix2 + "matches the pattern: notExistBean.test", msg);
     // PATTERN, EQUAL_TO, description which is defined in item_names
     msg = getMessage(new PatternEqualToWithDescResolvedBean(null, "test"));
-    Assertions.assertEquals(prefix2 + "matches the pattern: the string which contains 'test'.",
+    Assertions.assertEquals(prefix2 + "matches the pattern: the string which contains 'test'",
         msg);
     // PATTERN, NOT_EQUAL_TO, no description
     msg = getMessage(new PatternNotEqualToBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "does not match the pattern: .*test.*.", msg);
+    Assertions.assertEquals(prefix2 + "does not match the pattern: .*test.*", msg);
     // PATTERN, NOT_EQUAL_TO, description which is not defined in item_names
     msg = getMessage(new PatternNotEqualToWithDescNonResolvedBean(null, "a"));
-    Assertions.assertEquals(prefix2 + "does not match the pattern: notExistBean.test.", msg);
+    Assertions.assertEquals(prefix2 + "does not match the pattern: notExistBean.test", msg);
     // PATTERN, NOT_EQUAL_TO, description which is defined in item_names
     msg = getMessage(new PatternNotEqualToWithDescResolvedBean(null, "a"));
     Assertions.assertEquals(
-        prefix2 + "does not match the pattern: the string which contains 'test'.", msg);
+        prefix2 + "does not match the pattern: the string which contains 'test'", msg);
 
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathEqualToSinBean(null, "abc", "abc"));
-    Assertions.assertEquals(prefix2 + "is 'abc'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'abc'", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, no displayString, multiple
     msg = getMessage(new PropertyPathEqualToMulBean(null, "abc", new String[] {"abc", "def"}));
-    Assertions.assertEquals(prefix2 + "is one of 'abc', 'def'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'abc', 'def'", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, displayString not defined in properties file, single
     msg = getMessage(
         new PropertyPathEqualToWithDisplayStringSinBean(null, "abc", "abc", "some value"));
-    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'some value'", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new PropertyPathEqualToWithDisplayStringMulBean(null, "abc",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, displayString defined in properties file, single
     msg = getMessage(new PropertyPathEqualToWithDisplayStringSinBean(null, "abc", "abc",
         "value.from.enum_names"));
-    Assertions.assertEquals(prefix2 + "is 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is 'some value'", msg);
     // VALUE_OF_PROPERTY_PATH, EQUAL_TO, description defined in properties file, multiple
     msg = getMessage(
         new PropertyPathEqualToWithDisplayStringMulBean(null, "abc", new String[] {"abc", "def"},
             new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
-    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is one of 'some value 1', 'some value 2'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, single
     msg = getMessage(new PropertyPathNotEqualToSinBean(null, "xyz", "abc"));
-    Assertions.assertEquals(prefix2 + "is not 'abc'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'abc'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, no displayString, multiple
     msg = getMessage(new PropertyPathNotEqualToMulBean(null, "xyz", new String[] {"abc", "def"}));
-    Assertions.assertEquals(prefix2 + "is not one of 'abc', 'def'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'abc', 'def'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, displayString not defined in properties file, single
     msg = getMessage(
         new PropertyPathNotEqualToWithDisplayStringSinBean(null, "xyz", "abc", "some value"));
-    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'some value'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description not defined in properties file, multiple
     msg = getMessage(new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz",
         new String[] {"abc", "def"}, new String[] {"some value 1", "some value 2"}));
-    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, displayString defined in properties file, single
     msg = getMessage(new PropertyPathNotEqualToWithDisplayStringSinBean(null, "xyz", "abc",
         "value.from.enum_names"));
-    Assertions.assertEquals(prefix2 + "is not 'some value'.", msg);
+    Assertions.assertEquals(prefix2 + "is not 'some value'", msg);
     // VALUE_OF_PROPERTY_PATH, NOT_EQUAL_TO, description defined in properties file, multiple
     msg = getMessage(
         new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz", new String[] {"abc", "def"},
             new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
-    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'.", msg);
+    Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'", msg);
 
     // emptyWhenConditionNotSatisfied
     msg = getMessage(new EmptyWhenConditionNotSatisfiedBean(null, null));
-    Assertions.assertEquals(prefix2 + "is empty, and empty when otherwise.", msg);
+    Assertions.assertEquals(prefix2 + "is empty, and empty when otherwise", msg);
 
     // parenthesis for item name
     msg = ExceptionUtil
         .getMessageList(validator.validate(new EmptyEqualToBean(null, null)), Locale.ITALIAN)
         .get(0);
-    Assertions.assertEquals(prefix1 + "'condition value' is empty.", msg);
+    Assertions.assertEquals(prefix1 + "'condition value' is empty", msg);
   }
 
   @ItemNameKeyClass("NotEmptyWhenTest")
