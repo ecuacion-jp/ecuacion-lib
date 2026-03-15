@@ -70,10 +70,10 @@ public class ConstraintViolationBeanTest {
     checkForForm(cvBean, "field", "root.field");
     cvBean = new ConstraintViolationBean<>(new dataPatternTest.No1.Form(), "", NOT_EMPTY, "root",
         "child.field");
-    checkForForm(cvBean, "child.field", "child.field");
+    checkForForm(cvBean, "child.field", "root.field");
     cvBean = new ConstraintViolationBean<>(new dataPatternTest.No1.Form(), "", NOT_EMPTY, "root",
         "child.grandChild.field");
-    checkForForm(cvBean, "child.grandChild.field", "grandChild.field");
+    checkForForm(cvBean, "child.grandChild.field", "root.field");
 
     // 2. container structure pattern: `record` / (`root`, `child`, `grandChild`)
     // = (`field validator`, `class validator`, `field validator`)
@@ -238,7 +238,7 @@ public class ConstraintViolationBeanTest {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("child", bean);
+          assertEqualsItemNameKeyClass("root", bean);
 
       } else {
         throw new RuntimeException();

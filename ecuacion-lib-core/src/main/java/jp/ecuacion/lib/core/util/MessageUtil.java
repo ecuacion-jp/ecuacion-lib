@@ -61,15 +61,6 @@ public class MessageUtil {
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
       tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
 
-    } else if (propertyPath.contains(".")) {
-      // Remove far right part ("name" in "acc.name") from propertyPath.
-      // It's null when propertyPath doesn't contain ".".
-      String itemPropertyPathClass = propertyPath.substring(0, propertyPath.lastIndexOf("."));
-
-      tmpItemNameKeyClass = (itemPropertyPathClass.contains(".")
-          ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
-          : itemPropertyPathClass);
-
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
 
