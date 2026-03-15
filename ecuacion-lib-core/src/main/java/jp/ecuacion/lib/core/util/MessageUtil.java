@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
@@ -85,19 +87,39 @@ public class MessageUtil {
   }
 
   /**
-   * Returns an array of item names considering prependSymbol, appendSymbol and separator.
+   * Returns {@code itemNameKey} value.
+   *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
    */
-  public static String getItemNames(Locale locale, @RequireNonnull FieldInfoBean[] fieldNameBeans,
-      boolean showsItemNamePath) {
-    return getItemNames(locale, Arrays.asList(fieldNameBeans), showsItemNamePath);
+  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Class<?> leafBeanClass,
+      String defaultItemNameKeyClass, String itemNameKeyClassFromClassName, String itemNameKeyField,
+      String propertyPath) {
+
+    // Set finalDefaultItemNameKeyClass.
+    Optional<ItemNameKeyClass> optAn =
+        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
+    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
+
+    return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
+        defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
+
+
+  // /**
+  // * Returns an array of item names considering prependSymbol, appendSymbol and separator.
+  // */
+  // public static String getItemNames(Locale locale, @RequireNonnull FieldInfoBean[]
+  // fieldNameBeans,
+  // boolean showsItemNamePath) {
+  // return getItemNames(locale, Arrays.asList(fieldNameBeans), showsItemNamePath);
+  // }
 
   /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
    */
   @Nonnull
   public static String getItemNames(Locale locale,
-      @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath) {
+      @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath,
+      Object rootBean) {
     final String prependParenthesis =
         PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.prependSymbol");
     final String appendParenthesis =
