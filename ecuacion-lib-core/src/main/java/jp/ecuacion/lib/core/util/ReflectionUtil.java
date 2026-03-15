@@ -169,6 +169,34 @@ public class ReflectionUtil {
   }
 
   /**
+   * Returns leafBean from rootBean and propertyPath from rootBean.
+   */
+  public static Class<?> getLeafBeanClass(Class<?> rootBeanClass, String propertyPath) {
+
+    String tmpPropertyPath = propertyPath;
+    Class<?> cls = rootBeanClass;
+
+    while (true) {
+      if (!tmpPropertyPath.contains(".")) {
+        return cls;
+      }
+
+      String root = tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("."));
+      tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf(".") + 1);
+
+      Field field = null;
+      try {
+        field = cls.getDeclaredField(root);
+
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+
+      cls = field.getType();
+    }
+  }
+
+  /**
    * Obtains a field with any scopes and also searches fields in super classes.
    * 
    * @param propertyPath fieldName
