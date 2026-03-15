@@ -252,12 +252,16 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     Item item = null;
     // boolean setsItemNameKeyClassExplicitly = false;
 
+    boolean isChildItemContainer = false;
+
     // Get item if exists.
     if (rootBean instanceof ItemContainer) {
       // the case that rootBean is an EclibRecord
       item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
 
     } else if (firstChild != null && firstChild instanceof ItemContainer) {
+      isChildItemContainer = true;
+
       // the case that EclibRecord is stored in form or something
       item = ((ItemContainer) firstChild)
           .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
@@ -274,7 +278,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
           leafBeanClass.getSimpleName(), null, fullPropertyPath);
 
     } else {
-      bean.itemNameKey = item.getItemNameKey(rootRecordNameForForm);
+      bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);
       // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
       bean.showsValue = item.getShowsValue();
     }
