@@ -21,7 +21,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class EclibItemTest {
+public class ItemTest {
 
   @Test
   public void constructorTest() {
@@ -51,11 +51,11 @@ public class EclibItemTest {
 
     // No itemNameKey settings / itemPropertyPath have 1 "."
     result = new Item("itemProperty.Path").getItemNameKey("rootRecordName");
-    Assertions.assertEquals("itemProperty.Path", result);
+    Assertions.assertEquals("rootRecordName.Path", result);
 
     // No itemNameKey settings / itemPropertyPath have 2 "."
     result = new Item("item.Property.Path").getItemNameKey("rootRecordName");
-    Assertions.assertEquals("property.Path", result);
+    Assertions.assertEquals("rootRecordName.Path", result);
 
     // itemNameKeyField settings / itemPropertyPath does not have "."
     result = new Item("itemPropertyPath").itemNameKey("itemNameKeyField")
@@ -65,12 +65,12 @@ public class EclibItemTest {
     // itemNameKeyField settings / itemPropertyPath has 1 "."
     result = new Item("itemProperty.Path").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("itemProperty.itemNameKeyField", result);
+    Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
 
     // itemNameKeyField settings / itemPropertyPath has 2 "."
     result = new Item("item.Property.Path").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("property.itemNameKeyField", result);
+    Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
     
     // full itemNameKey settings / itemPropertyPath does not have "."
     result = new Item("itemPropertyPath").itemNameKey("itemNameKeyClass.itemNameKeyField")
