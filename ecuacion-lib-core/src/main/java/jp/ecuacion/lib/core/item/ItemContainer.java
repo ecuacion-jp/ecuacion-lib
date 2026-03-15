@@ -62,8 +62,13 @@ public interface ItemContainer {
       item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
     }
 
-    item.setItemNameKeyClassFromClassName(
-        StringUtils.uncapitalize(this.getClass().getSimpleName()));
+    // Get leafBeanClass.
+    Class<?> leafBeanClass = this.getClass();
+    if (propertyPath.contains(".")) {
+      leafBeanClass = ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath);
+    }
+
+    item.setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
 
     return item;
   }
