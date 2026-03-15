@@ -55,7 +55,7 @@ public class EclibItemTest {
 
     // No itemNameKey settings / itemPropertyPath have 2 "."
     result = new Item("item.Property.Path").getItemNameKey("rootRecordName");
-    Assertions.assertEquals("Property.Path", result);
+    Assertions.assertEquals("property.Path", result);
 
     // itemNameKeyField settings / itemPropertyPath does not have "."
     result = new Item("itemPropertyPath").itemNameKey("itemNameKeyField")
@@ -70,7 +70,7 @@ public class EclibItemTest {
     // itemNameKeyField settings / itemPropertyPath has 2 "."
     result = new Item("item.Property.Path").itemNameKey("itemNameKeyField")
         .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("Property.itemNameKeyField", result);
+    Assertions.assertEquals("property.itemNameKeyField", result);
     
     // full itemNameKey settings / itemPropertyPath does not have "."
     result = new Item("itemPropertyPath").itemNameKey("itemNameKeyClass.itemNameKeyField")

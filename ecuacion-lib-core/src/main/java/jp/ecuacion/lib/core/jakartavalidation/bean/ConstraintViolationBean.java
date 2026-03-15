@@ -29,6 +29,7 @@ import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
+import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -249,7 +250,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
     Item item = null;
-    boolean setsItemNameKeyClassExplicitly = false;
+    // boolean setsItemNameKeyClassExplicitly = false;
 
     // Get item if exists.
     if (rootBean instanceof ItemContainer) {
@@ -263,36 +264,19 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     }
 
     if (item == null) {
-      String itemNameKeyField = fullPropertyPath.contains(".")
-          ? fullPropertyPath.substring(fullPropertyPath.lastIndexOf(".") + 1)
-          : fullPropertyPath;
+      // Set finalDefaultItemNameKeyClass.
+      Optional<ItemNameKeyClass> optAn =
+          ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
+      String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
 
-      String fullPropertyPathWithoutInkf = fullPropertyPath.contains(".")
-          ? fullPropertyPath.substring(0, fullPropertyPath.length() - itemNameKeyField.length() - 1)
-          : null;
-
-      String itemNameKeyClass = fullPropertyPathWithoutInkf == null ? rootRecordNameForForm
-          : (fullPropertyPathWithoutInkf.contains(".")
-              ? fullPropertyPathWithoutInkf.substring(
-                  fullPropertyPathWithoutInkf.lastIndexOf(".") + 1)
-              : fullPropertyPathWithoutInkf);
-
-      bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
+      // bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
+      bean.itemNameKey = MessageUtil.getItemNameKey(null, itemNameKeyClassFromAnnotation, null,
+          leafBeanClass.getSimpleName(), null, fullPropertyPath);
 
     } else {
       bean.itemNameKey = item.getItemNameKey(rootRecordNameForForm);
-      setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+      // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
       bean.showsValue = item.getShowsValue();
-    }
-
-    // Check existence of itemNameKeyClass to determine rootRecordName.
-    Optional<ItemNameKeyClass> opItemNameKeyClassAn =
-        searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-    String itemNameKeyClass =
-        opItemNameKeyClassAn.isPresent() ? opItemNameKeyClassAn.get().value() : null;
-    if (itemNameKeyClass != null && !setsItemNameKeyClassExplicitly) {
-      bean.itemNameKey =
-          itemNameKeyClass + bean.itemNameKey.substring(bean.itemNameKey.indexOf("."));
     }
 
     return bean;

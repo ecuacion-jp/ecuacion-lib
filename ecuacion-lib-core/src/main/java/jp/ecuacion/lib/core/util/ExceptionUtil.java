@@ -353,7 +353,7 @@ public class ExceptionUtil {
           }
 
           MessageParameters messageParameters = ex.getMessageParameters();
-          
+
           // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
           // because it is specified for each validation,
           // and isValidationMessagesWithItemNames is assumed to be used as system default value.
@@ -364,14 +364,10 @@ public class ExceptionUtil {
               ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
               : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
 
-          // Additional procedure which is like spring like itemName method to add itemName to
-          // messages.
-          // Replace {0} in messages to itemName.
+          // Replace {0} to itemName.
           if (message.contains("{0}")) {
-            List<String> ink =
-                bean.getFieldInfoBeanList().stream().map(b -> b.itemNameKey).toList();
-            message = MessageFormat.format(message,
-                MessageUtil.getItemNames(locale, ink.toArray(new String[ink.size()])));
+            message = MessageFormat.format(message, MessageUtil.getItemNames(locale,
+                bean.getFieldInfoBeanList(), messageParameters.showsItemNamePath()));
           }
 
           // add prefix and postfix messages.
