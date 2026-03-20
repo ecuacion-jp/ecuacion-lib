@@ -39,6 +39,8 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
@@ -327,10 +329,13 @@ public class ExceptionUtil {
         String message = null;
         try {
           ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
-          final Map<String, Object> map = new HashMap<>(bean.getParamMap());
+          final Map<String, Object> map = new HashMap<>(bean.getEmbeddedParamMap());
+
+          // Get localize-needed message embedded parameters
+          Set<LocalizedEmbeddedParameter> embeddedParameterSet = getMessageParameterSet(bean);
 
           // Add parameters from messageParameterSet.
-          for (LocalizedEmbeddedParameter paramBean : bean.getMessageParameterSet()) {
+          for (LocalizedEmbeddedParameter paramBean : embeddedParameterSet) {
 
             // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
             if (paramBean.fileKinds() == null || paramBean.fileKinds().length == 0) {
@@ -396,6 +401,40 @@ public class ExceptionUtil {
 
     return rtnList;
 
+  }
+
+  private static Set<LocalizedEmbeddedParameter> getMessageParameterSet(
+      ConstraintViolationBean<?> cvBean) {
+    Set<LocalizedEmbeddedParameter> rtnSet = new HashSet<>();
+    List<FieldInfoBean> beanList = cvBean.getFieldInfoBeanList();
+
+    // invalidValue
+    if (!beanList.get(0).showsValue()) {
+      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
+      rtnSet.add(new LocalizedEmbeddedParameter("invalidValue",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
+      // argMap.put(, PropertyFileUtil.getMessage(locale, key));
+    }
+
+    // Comparison validators
+    if (cvBean.getEmbeddedParamMap().containsKey("baselinePropertyPath")) {
+      String bpp = (String) cvBean.getEmbeddedParamMap().get("baselinePropertyPath");
+      String itemNameKey =
+          MessageUtil.getFieldInfoBean(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
+              .itemNameKey();
+      rtnSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+          itemNameKey));
+    }
+
+    // Obtain and put additional parameters for its violation message to messageParameterSet.
+    String className = cvBean.getValidatorClass() + "MessageParameterCreator";
+    if (ReflectionUtil.classExists(className)) {
+      rtnSet.addAll(((ValidatorMessageParameterCreator) ReflectionUtil.newInstance(className))
+          .create(cvBean.getConstraintViolation(), cvBean.getEmbeddedParamMap()));
+    }
+
+    return rtnSet;
   }
 
   /*

@@ -233,16 +233,16 @@ public class ExceptionUtilTest {
 
     // element of Map key is not regexp (propertyPath: strDateMap<K>[a].<map key>)
     Map<String, LocalDate> strDateMap = new HashMap<>();
-    strDateMap.put("a", LocalDate.now().plusDays(1));
+    strDateMap.put("a", LocalDate.of(2101, 1, 1));
     msg = validateCollection(new ColFieldOfBasicNonNull.StringDateMap(strDateMap));
     Assertions.assertEquals(
         "One of the key item of 'string date map' must match \"[1-9]*\". (input: a)", msg);
     // element of Map value is null (propertyPath: strDateMap[1].<map value>)
     strDateMap.clear();
-    strDateMap.put("1", LocalDate.now());
+    strDateMap.put("1", LocalDate.of(2001, 1, 1));
     msg = validateCollection(new ColFieldOfBasicNonNull.StringDateMap(strDateMap));
     Assertions.assertEquals(
-        "Value of 'string date map' with key [1] must be a future date. (input: 2026-03-19)", msg);
+        "Value of 'string date map' with key [1] must be a future date. (input: 2001-01-01)", msg);
 
     // array is null (propertyPath: blArray)
     msg = validateCollection(new ColFieldOfBasicNonNull.BooleanArray(null));
@@ -277,7 +277,6 @@ public class ExceptionUtilTest {
     strListList.add(strList);
     msg = validateCollection(new ColFieldOfMulLayerBasic.StringListList(strListList));
     Assertions.assertEquals("'data' 1 > 'string list list' 2 must not be null.", msg);
-
     // element of Set in Set is null
     // (propertyPath: intSetSet[].<iterable element>[].<iterable element>)
     Set<Set<Integer>> intSetSet = new HashSet<>();

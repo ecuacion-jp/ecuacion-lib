@@ -122,7 +122,8 @@ public class Item {
    */
   @Nonnull
   public String getItemNameKey() {
-    return getItemNameKey(null);
+    return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
+        null, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
   /**
@@ -130,6 +131,7 @@ public class Item {
    * 
    * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)}.</p>
    */
+  @Deprecated
   @Nonnull
   public String getItemNameKey(String defaultItemNameKeyClass) {
     return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,

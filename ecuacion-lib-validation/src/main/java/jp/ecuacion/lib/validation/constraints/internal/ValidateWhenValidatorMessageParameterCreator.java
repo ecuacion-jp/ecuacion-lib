@@ -44,7 +44,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv,
-      Map<String, Object> paramMap, String rootRecordNameForForm) {
+      Map<String, Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
     final String validatorClassWithPackage = (String) paramMap.get("annotation");
@@ -55,13 +55,12 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    FieldInfoBean bean = MessageUtil.getFieldInfoBean(conditionPropertyPath,
-        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
-        cv.getRootBean(), rootRecordNameForForm);
+    FieldInfoBean bean = MessageUtil.getFieldInfoBean(conditionPropertyPath, cv.getRootBean(),
+        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass());
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
-            bean.itemNameKey, new Arg[] {}));
+            bean.itemNameKey(), new Arg[] {}));
 
     // displayStringOfConditionValue
     displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, messageParameterSet);

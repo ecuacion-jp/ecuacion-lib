@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
@@ -56,7 +57,7 @@ public class ReflectionUtilTest {
       o = ReflectionUtil.getValue(new FieldValueRoot(), "childSet[0].value");
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
+    } catch (ElementOfCollectionCannotBeObtainedException ex) {
 
     }
   }

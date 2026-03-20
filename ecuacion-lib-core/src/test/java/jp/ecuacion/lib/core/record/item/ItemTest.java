@@ -44,9 +44,12 @@ public class ItemTest {
 
   @Test
   public void itemNameKeyTest() {
-
+    Item item = null;
+    
     // No itemNameKey settings / itemPropertyPath does not have "."
-    String result = new Item("itemPropertyPath").getItemNameKey("rootRecordName");
+    item = new Item("itemPropertyPath");
+    item.setItemNameKeyClassFromClassName("rootRecordName");
+    String result = item.getItemNameKey();
     Assertions.assertEquals("rootRecordName.itemPropertyPath", result);
 
     // No itemNameKey settings / itemPropertyPath have 1 "."

@@ -83,7 +83,8 @@ public class ValidationAppExceptionTest {
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
     Assertions.assertThat(bean.getRootBean().getClass().getName()).isEqualTo(className);
     Assertions.assertThat(bean.getLeafBean().getClass().getName()).isEqualTo(className);
-    Assertions.assertThat(bean.getFieldInfoBeans()[0].itemPropertyPathForForm).isEqualTo("str1");
+    String pp = bean.getFieldInfoBeans()[0].propertyPath();
+    Assertions.assertThat(pp).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
   }
 

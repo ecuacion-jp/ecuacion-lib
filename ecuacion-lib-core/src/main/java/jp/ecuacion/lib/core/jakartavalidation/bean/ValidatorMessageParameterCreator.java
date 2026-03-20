@@ -36,6 +36,5 @@ public interface ValidatorMessageParameterCreator {
    * Creates and returns message parameter set.
    */
   @Nonnull
-  Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv, Map<String, Object> paramMap,
-      String rootRecordNameForForm);
+  Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv, Map<String, Object> paramMap);
 }

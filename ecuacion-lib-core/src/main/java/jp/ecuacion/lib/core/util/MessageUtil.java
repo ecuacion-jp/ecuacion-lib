@@ -45,6 +45,10 @@ public class MessageUtil {
   private static final String EL_MAP_KEY = "<map key>";
   private static final String EL_MAP_VAL = "<map value>";
 
+
+  private static final String ipf = "jp.ecuacion.lib.core.common.itemName.";
+  private static final String ppf = "jp.ecuacion.lib.core.common.itemNamePath.";
+
   /**
    * Returns {@code itemNameKey} value.
    *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
@@ -156,16 +160,20 @@ public class MessageUtil {
   public static String getItemNames(Locale locale,
       @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath,
       Object rootBean) {
-    String pf = "jp.ecuacion.lib.core.common.itemName.";
-    final String separator = PropertyFileUtil.getMessage(locale, pf + "separator");
+    final String separator = PropertyFileUtil.getMessage(locale, ipf + "separator");
+    final String prependSymbol = PropertyFileUtil.getMessage(locale, ipf + "prependSymbol");
+    final String appendSymbol = PropertyFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
     for (FieldInfoBean infoBean : fieldInfoBeanList) {
-      getItemName(locale, itemNameList, infoBean);
-      
+      String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
+
       if (showsItemNamePath) {
-        addItemNamePath(locale, null, null, null, null, null);
+        itemName =
+            addItemNamePath(locale, rootBean, infoBean, itemName, prependSymbol, appendSymbol);
       }
+
+      itemNameList.add(itemName);
     }
 
     String rtn = StringUtil.getSeparatedValuesString(itemNameList, separator);
@@ -173,13 +181,10 @@ public class MessageUtil {
     return StringUtils.capitalize(rtn);
   }
 
-  private static void getItemName(Locale locale, List<String> itemNameList,
-      FieldInfoBean infoBean) {
-    String pf = "jp.ecuacion.lib.core.common.itemName.";
-    final String prependSymbol = PropertyFileUtil.getMessage(locale, pf + "prependSymbol");
-    final String appendSymbol = PropertyFileUtil.getMessage(locale, pf + "appendSymbol");
+  private static String getItemName(Locale locale, FieldInfoBean infoBean,
+      final String prependSymbol, final String appendSymbol) {
 
-    String itemNameKey = infoBean.itemNameKey;
+    String itemNameKey = infoBean.itemNameKey();
 
     // Handle collections and arrays.
     List<String> collectionLayerList = new ArrayList<>();
@@ -236,26 +241,24 @@ public class MessageUtil {
             default -> throw new RuntimeException("Not assumed.");
           };
 
-          tmpItemName = PropertyFileUtil.getMessage(locale, pf + keyword, tmpItemName, index);
+          tmpItemName = PropertyFileUtil.getMessage(locale, ipf + keyword, tmpItemName, index);
         }
 
-        itemName.append((i == 0 ? "" : PropertyFileUtil.getMessage(locale, pf + "pathSeparator"))
-            + tmpItemName);
+        itemName.append(
+            (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + tmpItemName);
       }
     }
 
-    itemNameList.add(itemName.toString());
+    return itemName.toString();
   }
 
-  private static String addItemNamePath(Locale locale, Object rootBean, final String prependSymbol,
-      final String appendSymbol, FieldInfoBean infoBean, String itemName) {
-    String ppf = "jp.ecuacion.lib.core.common.itemNamePath.";
+  private static String addItemNamePath(Locale locale, Object rootBean, FieldInfoBean infoBean,
+      String itemName, final String prependSymbol, final String appendSymbol) {
 
-    final String pprefix = PropertyFileUtil.getMessage(locale, ppf + "prefix");
-    final String ppostfix = PropertyFileUtil.getMessage(locale, ppf + "postfix");
+    final String pstring = PropertyFileUtil.getMessage(locale, ppf + "string");
     final String pseparator = PropertyFileUtil.getMessage(locale, ppf + "separator");
 
-    String tmpPropertyPath = infoBean.fullPropertyPath;
+    String tmpPropertyPath = infoBean.propertyPath();
     String prefix = "";
 
     List<String> itemNamePathList = new ArrayList<>();
@@ -270,9 +273,17 @@ public class MessageUtil {
       prefix = prefix + rootNode + ".";
     }
 
+    // Return itemName when no itemNamePath exists.
+    if (itemNamePathList.size() == 0) {
+      return itemName;
+    }
+
+    // The following is when itemNamePath exists.
+
     List<String> modifiedItemNamePathList = new ArrayList<>();
     for (String path : itemNamePathList) {
       String leaf = path.contains(".") ? path.split("\\.")[path.split("\\.").length - 1] : path;
+      // Prepares for collections. Usually (means leaf does not contain "[") it's -1.
       int order = leaf.contains("[")
           ? Integer.parseInt(leaf.substring(leaf.indexOf("[") + 1, leaf.indexOf("]"))) + 1
           : -1;
@@ -288,8 +299,8 @@ public class MessageUtil {
       modifiedItemNamePathList.add(finalItemName);
     }
 
-    itemName = pprefix + StringUtil.getSeparatedValuesString(modifiedItemNamePathList, pseparator)
-        + ppostfix + itemName;
+    String pathString = StringUtil.getSeparatedValuesString(modifiedItemNamePathList, pseparator);
+    itemName = PropertyFileUtil.getMessage(pstring, itemName, pathString);
 
     return itemName;
   }
@@ -304,8 +315,8 @@ public class MessageUtil {
    * @param fullPropertyPath itemPropertyPath
    * @return itemNameKey
    */
-  public static FieldInfoBean getFieldInfoBean(String fullPropertyPath,
-      Class<?> leafBeanClass, Object rootBean, String rootRecordNameForForm) {
+  public static FieldInfoBean getFieldInfoBean(String fullPropertyPath, Object rootBean,
+      Class<?> leafBeanClass) {
 
     String fullPropertyPath1stPart = fullPropertyPath.contains(".")
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
@@ -321,11 +332,11 @@ public class MessageUtil {
       // Do nothing.
     }
 
-    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
     Item item = null;
     // boolean setsItemNameKeyClassExplicitly = false;
 
-    boolean isChildItemContainer = false;
+    String itemNameKey = null;
+    boolean showsValue = true;
 
     // Get item if exists.
     if (rootBean instanceof ItemContainer) {
@@ -333,7 +344,6 @@ public class MessageUtil {
       item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
 
     } else if (firstChild != null && firstChild instanceof ItemContainer) {
-      isChildItemContainer = true;
 
       // the case that EclibRecord is stored in form or something
       item = ((ItemContainer) firstChild)
@@ -341,14 +351,15 @@ public class MessageUtil {
     }
 
     if (item == null) {
-      bean.itemNameKey =
-          MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
+      itemNameKey = MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
 
     } else {
-      bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);
+      itemNameKey = item.getItemNameKey();
       // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
-      bean.showsValue = item.getShowsValue();
+      showsValue = item.getShowsValue();
     }
+
+    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath, itemNameKey, showsValue);
 
     return bean;
   }

@@ -122,13 +122,13 @@ public class ReflectionUtil {
             String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
             // It's string because it can be non-number value when the validated object is Map.
             String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
-            
+
             // Handle Map key (propertyPath: field<K>[].<map key>)
             if (propertyPathWithoutIndex.contains("<")) {
               propertyPathWithoutIndex =
                   propertyPathWithoutIndex.substring(0, propertyPathWithoutIndex.indexOf("<"));
             }
-            
+
             Field rootField = getField(object.getClass(), propertyPathWithoutIndex);
             rootField.setAccessible(true);
             Object objs = rootField.get(object);
@@ -199,16 +199,30 @@ public class ReflectionUtil {
       tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf(".") + 1);
 
       Field field = null;
-      try {
-        field = cls.getDeclaredField(root);
+      Class<?> tmpCls = cls;
+      while (true) {
+        try {
+          field = tmpCls.getDeclaredField(root);
+          break;
 
-        if (!isCollection) {
-          cls = field.getType();
-          continue;
+        } catch (Exception ex) {
+          // Search its Ancestor class if not exist.
+          tmpCls = tmpCls.getSuperclass();
+          
+          // If field not found, throw.
+          if (tmpCls == Object.class) {
+            throw new RuntimeException(ex);
+          }
         }
+      }
 
-        // The following is only when isCollection == true
+      if (!isCollection) {
+        cls = field.getType();
+        continue;
+      }
 
+      // The following is only when isCollection == true
+      try {
         Type genericType1 = field.getGenericType();
         if (genericType1 instanceof ParameterizedType) {
           ParameterizedType prmType = (ParameterizedType) genericType1;

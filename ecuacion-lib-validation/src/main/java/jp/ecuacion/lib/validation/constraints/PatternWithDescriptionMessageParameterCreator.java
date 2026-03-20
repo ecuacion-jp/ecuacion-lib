@@ -35,7 +35,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv,
-      Map<String, Object> paramMap, String rootRecordNameForForm) {
+      Map<String, Object> paramMap) {
 
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 
