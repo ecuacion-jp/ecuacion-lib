@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
@@ -43,10 +43,10 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   @Override
-  public Set<LocalizedMessageParameter> create(ConstraintViolation<?> cv,
+  public Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv,
       Map<String, Object> paramMap, String rootRecordNameForForm) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
-    Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
+    Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
     final String validatorClassWithPackage = (String) paramMap.get("annotation");
     final String validatorClass =
         validatorClassWithPackage.substring(validatorClassWithPackage.lastIndexOf(".") + 1);
@@ -55,11 +55,11 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    FieldInfoBean bean = ConstraintViolationBean.getItemDependentValues(conditionPropertyPath,
+    FieldInfoBean bean = MessageUtil.getFieldInfoBean(conditionPropertyPath,
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass(),
         cv.getRootBean(), rootRecordNameForForm);
     messageParameterSet
-        .add(new LocalizedMessageParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
+        .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
             bean.itemNameKey, new Arg[] {}));
 
@@ -77,7 +77,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     if (bl) {
       messageParameterSet
           .add(
-              new LocalizedMessageParameter(paramKey,
+              new LocalizedEmbeddedParameter(paramKey,
                   new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES},
                   paramMap.get("annotation") + ".messagePart."
                       + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
@@ -85,7 +85,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
 
     } else {
       // Add blank ("") value by designating empty PropertyFileUtilFileKindEnum array.
-      messageParameterSet.add(new LocalizedMessageParameter(paramKey,
+      messageParameterSet.add(new LocalizedEmbeddedParameter(paramKey,
           new PropertyFileUtilFileKindEnum[] {}, "", new Arg[] {}));
     }
 
@@ -94,7 +94,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
 
   private void displayStringOfConditionValue(ConstraintViolation<?> cv,
       Map<String, Object> paramMap, final String commonMessagePrefix,
-      Set<LocalizedMessageParameter> messageParameterSet) {
+      Set<LocalizedEmbeddedParameter> messageParameterSet) {
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
     Arg displayStringOfConditionValueArg = Arg.string("");
@@ -132,7 +132,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
         + "." + StringUtil.getLowerCamelFromSnake(
             paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR).toString());
     messageParameterSet
-        .add(new LocalizedMessageParameter(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
+        .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
             new Arg[] {displayStringOfConditionValueArg}));
   }

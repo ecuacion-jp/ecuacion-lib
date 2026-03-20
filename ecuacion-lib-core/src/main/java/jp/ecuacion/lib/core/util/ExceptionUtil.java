@@ -39,7 +39,7 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 
@@ -330,7 +330,7 @@ public class ExceptionUtil {
           final Map<String, Object> map = new HashMap<>(bean.getParamMap());
 
           // Add parameters from messageParameterSet.
-          for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
+          for (LocalizedEmbeddedParameter paramBean : bean.getMessageParameterSet()) {
 
             // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
             if (paramBean.fileKinds() == null || paramBean.fileKinds().length == 0) {
@@ -671,5 +671,18 @@ public class ExceptionUtil {
       sb.append("\tat " + packageAndClass + "." + ste.getMethodName() + "(" + ste.getFileName()
           + ":" + ste.getLineNumber() + ")" + RT);
     }
+  }
+
+  /**
+   * Stores parameters of information on a message for ValidationAppException.
+   * 
+   * <p>It is resolved to message value at ExceptionHandler
+   *     Because there is a locale there.</p>
+   *     
+   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
+   *     propertyPathKey is set as the value.</p>
+   */
+  public static record LocalizedEmbeddedParameter(String parameterKey,
+      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
   }
 }

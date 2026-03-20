@@ -24,11 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
+import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.MessageUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -65,7 +63,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   @Nonnull
   private Map<String, Object> paramMap = new HashMap<>();
-  private Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
+  private Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 
   private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
       String originalMessage, String messageTemplate, String rootRecordNameForForm,
@@ -78,7 +76,13 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     this.rootRecordNameForForm = rootRecordNameForForm;
     this.fieldInfoBeanList = beanList;
 
-    getItemDependentValues(beanList, rootBean, leafBean, rootRecordNameForForm);
+    // Put item dependent values.
+    for (FieldInfoBean bean : beanList) {
+      FieldInfoBean newBean = MessageUtil.getFieldInfoBean(bean.fullPropertyPath,
+          leafBean.getClass(), rootBean, rootRecordNameForForm);
+      bean.itemNameKey = newBean.itemNameKey;
+      bean.showsValue = newBean.showsValue;
+    }
   }
 
   private void putArgsToParamMap(Object invalidValue) {
@@ -175,7 +179,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     // invalidValue
     if (!beanList.get(0).showsValue) {
       String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
-      messageParameterSet.add(new LocalizedMessageParameter("invalidValue",
+      messageParameterSet.add(new LocalizedEmbeddedParameter("invalidValue",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
       // argMap.put(, PropertyFileUtil.getMessage(locale, key));
     }
@@ -183,9 +187,9 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     // Comparison validators
     if (paramMap.containsKey("baselinePropertyPath")) {
       String bpp = (String) paramMap.get("baselinePropertyPath");
-      String itemNameKey = getItemDependentValues(bpp, leafBean.getClass(), rootBean,
+      String itemNameKey = MessageUtil.getFieldInfoBean(bpp, leafBean.getClass(), rootBean,
           rootRecordNameForForm).itemNameKey;
-      messageParameterSet.add(new LocalizedMessageParameter("baselinePropertyPathItemName",
+      messageParameterSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
           new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
           itemNameKey));
     }
@@ -211,79 +215,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
         + StringUtil
             .getCsv(getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
         + "\n" + "invalidValue:" + getInvalidValue();
-  }
-
-  /**
-   * Gets item dependent values.
-   */
-  public static void getItemDependentValues(List<FieldInfoBean> beanList, Object rootBean,
-      Object leafBean, String rootRecordNameForForm) {
-
-    for (FieldInfoBean bean : beanList) {
-      FieldInfoBean newBean = getItemDependentValues(bean.fullPropertyPath, leafBean.getClass(),
-          rootBean, rootRecordNameForForm);
-      bean.itemNameKey = newBean.itemNameKey;
-      bean.showsValue = newBean.showsValue;
-    }
-  }
-
-  /**
-   * Sets {@code itemNameKey} and {@code showsValue}.
-   * 
-   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
-   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
-   *     needs to be used together.</p>
-   * 
-   * @param fullPropertyPath itemPropertyPath
-   * @return itemNameKey
-   */
-  public static FieldInfoBean getItemDependentValues(String fullPropertyPath,
-      Class<?> leafBeanClass, Object rootBean, String rootRecordNameForForm) {
-
-    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
-        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
-        : null;
-
-    // firstChild cannot be obtained when the firstChild is Set or Map key.
-    Object firstChild = null;
-    try {
-      firstChild = fullPropertyPath1stPart == null ? null
-          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
-
-    } catch (ElementOfCollectionCannotBeObtainedException ex) {
-      // Do nothing.
-    }
-
-    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
-    Item item = null;
-    // boolean setsItemNameKeyClassExplicitly = false;
-
-    boolean isChildItemContainer = false;
-
-    // Get item if exists.
-    if (rootBean instanceof ItemContainer) {
-      // the case that rootBean is an EclibRecord
-      item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
-
-    } else if (firstChild != null && firstChild instanceof ItemContainer) {
-      isChildItemContainer = true;
-
-      // the case that EclibRecord is stored in form or something
-      item = ((ItemContainer) firstChild)
-          .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
-    }
-
-    if (item == null) {
-      bean.itemNameKey =
-          MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
-
-    } else {
-      bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);
-      // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
-      bean.showsValue = item.getShowsValue();
-    }
-
-    return bean;
   }
 
   public Object getRootBean() {
@@ -315,27 +246,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   public @Nonnull String getMessageId() {
     return messageTemplate;
-  }
-
-  /**
-   * Sets isMessageWithItemName.
-   */
-  public void setMessageWithItemName(Boolean isMessageWithItemName) {
-    this.messageParameters.isMessageWithItemName(isMessageWithItemName);
-  }
-
-  /**
-   * Sets messagePrefix.
-   */
-  public void setMessagePrefix(Arg messagePrefix) {
-    this.messageParameters.messagePrefix(messagePrefix);
-  }
-
-  /**
-   * Sets messagePostfix.
-   */
-  public void setMessagePostfix(Arg messagePostfix) {
-    this.messageParameters.messagePostfix(messagePostfix);
   }
 
   public MessageParameters getMessageParameters() {
@@ -371,7 +281,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return paramMap;
   }
 
-  public Set<LocalizedMessageParameter> getMessageParameterSet() {
+  public Set<LocalizedEmbeddedParameter> getMessageParameterSet() {
     return messageParameterSet;
   }
 
@@ -403,18 +313,5 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     public FieldInfoBean(String fullPropertyPath) {
       this.fullPropertyPath = fullPropertyPath;
     }
-  }
-
-  /**
-   * Stores parameters of information on a message for ValidationAppException.
-   * 
-   * <p>It is resolved to message value at ExceptionHandler
-   *     Because there is a locale there.</p>
-   *     
-   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
-   *     propertyPathKey is set as the value.</p>
-   */
-  public static record LocalizedMessageParameter(String parameterKey,
-      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
   }
 }

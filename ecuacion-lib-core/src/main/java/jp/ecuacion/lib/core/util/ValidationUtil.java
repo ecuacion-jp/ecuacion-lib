@@ -119,11 +119,11 @@ public class ValidationUtil {
 
     MessageParameters param = parameterBean == null ? new MessageParameters() : parameterBean;
 
-    List<ConstraintViolationBean<T>> list =
-        set.stream().map(cv -> new ConstraintViolationBean<T>(cv))
-            .peek(cv -> cv.setMessageWithItemName(param.isMessageWithItemName))
-            .peek(cv -> cv.setMessagePrefix(param.getMessagePrefix()))
-            .peek(cv -> cv.setMessagePostfix(param.getMessagePostfix())).toList();
+    List<ConstraintViolationBean<T>> list = set.stream()
+        .map(cv -> new ConstraintViolationBean<T>(cv))
+        .peek(cv -> cv.getMessageParameters().isMessageWithItemName(param.isMessageWithItemName))
+        .peek(cv -> cv.getMessageParameters().messagePrefix(param.getMessagePrefix()))
+        .peek(cv -> cv.getMessageParameters().messagePostfix(param.getMessagePostfix())).toList();
 
     return new HashSet<>(list);
   }

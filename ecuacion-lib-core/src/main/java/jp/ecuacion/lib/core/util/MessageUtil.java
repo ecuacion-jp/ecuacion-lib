@@ -22,10 +22,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.item.Item;
+import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -289,6 +292,65 @@ public class MessageUtil {
         + ppostfix + itemName;
 
     return itemName;
+  }
+
+  /**
+   * Sets {@code itemNameKey} and {@code showsValue}.
+   * 
+   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
+   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
+   *     needs to be used together.</p>
+   * 
+   * @param fullPropertyPath itemPropertyPath
+   * @return itemNameKey
+   */
+  public static FieldInfoBean getFieldInfoBean(String fullPropertyPath,
+      Class<?> leafBeanClass, Object rootBean, String rootRecordNameForForm) {
+
+    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
+        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
+        : null;
+
+    // firstChild cannot be obtained when the firstChild is Set or Map key.
+    Object firstChild = null;
+    try {
+      firstChild = fullPropertyPath1stPart == null ? null
+          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+
+    } catch (ElementOfCollectionCannotBeObtainedException ex) {
+      // Do nothing.
+    }
+
+    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
+    Item item = null;
+    // boolean setsItemNameKeyClassExplicitly = false;
+
+    boolean isChildItemContainer = false;
+
+    // Get item if exists.
+    if (rootBean instanceof ItemContainer) {
+      // the case that rootBean is an EclibRecord
+      item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
+
+    } else if (firstChild != null && firstChild instanceof ItemContainer) {
+      isChildItemContainer = true;
+
+      // the case that EclibRecord is stored in form or something
+      item = ((ItemContainer) firstChild)
+          .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
+    }
+
+    if (item == null) {
+      bean.itemNameKey =
+          MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
+
+    } else {
+      bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);
+      // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
+      bean.showsValue = item.getShowsValue();
+    }
+
+    return bean;
   }
 
   /**
