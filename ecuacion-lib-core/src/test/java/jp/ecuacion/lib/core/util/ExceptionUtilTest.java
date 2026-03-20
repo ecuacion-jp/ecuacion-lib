@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
-import jp.ecuacion.lib.core.jakartavalidation.bean.AlwaysFalse;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.AlwaysFalse;
 import jp.ecuacion.lib.core.util.ExceptionUtilTest.VariousPlaces.Child;
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Assertions;

@@ -53,16 +53,24 @@ public class MessageUtil {
    * Returns {@code itemNameKey} value.
    *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
    */
-  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Class<?> leafBeanClass,
-      String defaultItemNameKeyClass, String itemNameKeyField, String propertyPath) {
+  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Object rootBean,
+      Class<?> leafBeanClass, String defaultItemNameKeyClass, String itemNameKeyField,
+      String propertyPath) {
 
     // Set finalDefaultItemNameKeyClass.
     Optional<ItemNameKeyClass> optAn =
         ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
     String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
 
+    String leafBeanPropertyPath =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
+    Class<?> leafBeanClassClassValidatorConsidered =
+        leafBeanPropertyPath.equals("") ? rootBean.getClass()
+            : ReflectionUtil.getValue(rootBean, leafBeanPropertyPath).getClass();
+
     return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
-        defaultItemNameKeyClass, leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
+        defaultItemNameKeyClass, leafBeanClassClassValidatorConsidered.getSimpleName(),
+        itemNameKeyField, propertyPath);
   }
 
   /**
@@ -288,8 +296,8 @@ public class MessageUtil {
           ? Integer.parseInt(leaf.substring(leaf.indexOf("[") + 1, leaf.indexOf("]"))) + 1
           : -1;
       path = path.contains("[") ? path.substring(0, path.indexOf("[")) : path;
-      String itemNameKey = getItemNameKey(null,
-          ReflectionUtil.getLeafBeanClass(rootBean.getClass(), path), null, null, path);
+      String itemNameKey = getFieldInfoBean(path, rootBean,
+          ReflectionUtil.getLeafBeanClass(rootBean.getClass(), path)).itemNameKey();
       String finalItemName =
           prependSymbol + PropertyFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
       finalItemName = order == -1 ? finalItemName
@@ -312,15 +320,14 @@ public class MessageUtil {
    *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
    *     needs to be used together.</p>
    * 
-   * @param fullPropertyPath itemPropertyPath
+   * @param propertyPath itemPropertyPath
    * @return itemNameKey
    */
-  public static FieldInfoBean getFieldInfoBean(String fullPropertyPath, Object rootBean,
+  public static FieldInfoBean getFieldInfoBean(String propertyPath, Object rootBean,
       Class<?> leafBeanClass) {
 
-    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
-        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
-        : null;
+    String fullPropertyPath1stPart =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.indexOf(".")) : null;
 
     // firstChild cannot be obtained when the firstChild is Set or Map key.
     Object firstChild = null;
@@ -341,17 +348,18 @@ public class MessageUtil {
     // Get item if exists.
     if (rootBean instanceof ItemContainer) {
       // the case that rootBean is an EclibRecord
-      item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
+      item = ((ItemContainer) rootBean).getItem(propertyPath);
 
     } else if (firstChild != null && firstChild instanceof ItemContainer) {
 
       // the case that EclibRecord is stored in form or something
       item = ((ItemContainer) firstChild)
-          .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
+          .getItem(propertyPath.substring(fullPropertyPath1stPart.length() + 1));
     }
 
     if (item == null) {
-      itemNameKey = MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
+      itemNameKey =
+          MessageUtil.getItemNameKey(null, rootBean, leafBeanClass, null, null, propertyPath);
 
     } else {
       itemNameKey = item.getItemNameKey();
@@ -359,7 +367,7 @@ public class MessageUtil {
       showsValue = item.getShowsValue();
     }
 
-    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath, itemNameKey, showsValue);
+    FieldInfoBean bean = new FieldInfoBean(propertyPath, itemNameKey, showsValue);
 
     return bean;
   }
@@ -413,5 +421,20 @@ public class MessageUtil {
   @Nonnull
   public static Arg getValuesArg(@RequireNonnull List<String> valueList) {
     return getValuesArg(valueList.toArray(new String[valueList.size()]));
+  }
+
+  private static record PropertyPathBean(String leafBeanPropertyPath,
+      String propertyPathFromLeafBean) {
+
+    /**
+     * For propertyPath obtained from validators other than class validators.
+     */
+    public PropertyPathBean(String propertyPath) {
+      this(
+          propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
+              : "",
+          propertyPath.contains(".") ? propertyPath.substring(propertyPath.lastIndexOf(".") + 1)
+              : propertyPath);
+    }
   }
 }

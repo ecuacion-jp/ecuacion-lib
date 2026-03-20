@@ -23,12 +23,14 @@ import java.util.Locale;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.AlwaysFalse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ExceptionUtilTest_getMessageList_NonCollectionValues {
 
+  @SuppressWarnings("unused")
   private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @BeforeAll
@@ -71,6 +73,7 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
         getMsg(new SingleLayerConChild(), true, true));
 
     // Multiple layer
+
     // itemName
     Assertions.assertEquals("'sample field in grandChild' " + MSG,
         getMsg(new MultipleLayer(), true, false));
@@ -86,9 +89,13 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
         + " > '@ItemNameKeyClass considered grandChild field' " + MSG;
     Assertions.assertEquals(msg, getMsg(new MultipleLayerInkc(), true, true));
     // itemNamePath + ItemContiner(root)
-    msg = "'ItemContainer considered grandChild field' At 'ItemContainer considered child field'"
+    msg = "'ItemContainer considered field' At 'ItemContainer considered child field'"
         + " > 'ItemContainer considered grand child field' " + MSG;
     Assertions.assertEquals(msg, getMsg(new MultipleLayerConRoot(), true, true));
+    // itemNamePath + ItemContiner(child)
+    msg = "'ItemContainer considered field' At 'child field'"
+        + " > 'ItemContainer considered grand child field' " + MSG;
+    Assertions.assertEquals(msg, getMsg(new MultipleLayerConChild(), true, true));
   }
 
   public static class SingleLayer {
@@ -162,13 +169,135 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
     @Valid
     private Child child = new Child();
 
-    public static class Child {
+    public static class Child implements ItemContainer {
+      @Override
+      public Item[] customizedItems() {
+        return new Item[] {new Item("grandChild").itemNameKey("icGrandChild"),
+            new Item("grandChild.field").itemNameKey("icField")};
+      }
+
       @Valid
       private GrandChild grandChild = new GrandChild();
 
       public static class GrandChild {
         @NotNull
         private String field;
+      }
+    }
+  }
+
+  @Test
+  public void itemNameAndItemNamePathTestWithClassValidator() {
+    String msg = null;
+    final String MSG = " are always false.";
+
+    // ClassSingleLayer
+    Assertions.assertEquals("'field 1', 'field 2' are always false.",
+        getMsg(new ClassSingleLayer(), true, true));
+    // ClassSingleLayerContainerRoot
+    Assertions.assertEquals("'ItemContainer considered field 1', 'field 2' are always false.",
+        getMsg(new ClassSingleLayerConRoot(), true, true));
+    // ClassSingleLayerContainerChild
+    msg = "'ItemContainer considered field 1' At 'child', 'child field 2' At 'child'" + MSG;
+    Assertions.assertEquals(msg, getMsg(new ClassSingleLayerConChild(), true, true));
+
+    // ClassMultipleLayer
+    msg = "'field 1' At 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+    Assertions.assertEquals(msg, getMsg(new ClassMultipleLayer(), true, true));
+    // ClassMultipleLayerContainerRoot
+    msg = "'field 1' At 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+    Assertions.assertEquals(msg, getMsg(new ClassMultipleLayerConRoot(), true, true));
+    // ClassSingleLayerContainerChild
+    msg = "'field 1' At 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+    Assertions.assertEquals(msg, getMsg(new ClassMultipleLayerConChild(), true, true));
+  }
+
+  @AlwaysFalse(propertyPath = {"field1", "field2"})
+  public static class ClassSingleLayer {
+    @SuppressWarnings("unused")
+    private String field1;
+    @SuppressWarnings("unused")
+    private String field2;
+  }
+
+  @AlwaysFalse(propertyPath = {"field1", "field2"})
+  public static class ClassSingleLayerConRoot extends ClassSingleLayer implements ItemContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[] {new Item("field1").itemNameKey("icField1")};
+    }
+  }
+
+  public static class ClassSingleLayerConChild {
+    @Valid
+    private Child child = new Child();
+
+    @AlwaysFalse(propertyPath = {"field1", "field2"})
+    private static class Child extends ClassSingleLayer implements ItemContainer {
+      @Override
+      public Item[] customizedItems() {
+        return new Item[] {new Item("field1").itemNameKey("icField1")};
+      }
+    }
+  }
+
+  public static class ClassMultipleLayer {
+    @Valid
+    private Child child = new Child();
+
+    private static class Child {
+      @Valid
+      private GrandChild grandChild = new GrandChild();
+
+      @AlwaysFalse(propertyPath = {"theChild.field1", "theChild.field2"})
+      private static class GrandChild {
+        @SuppressWarnings("unused")
+        private TheChild theChild = new TheChild();
+
+        private static class TheChild {
+          @SuppressWarnings("unused")
+          private String field1;
+          @SuppressWarnings("unused")
+          private String field2;
+        }
+      }
+    }
+  }
+
+  public static class ClassMultipleLayerConRoot extends ClassMultipleLayer
+      implements ItemContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[] {new Item("child.grandChild.field1").itemNameKey("icField1")};
+    }
+  }
+  public static class ClassMultipleLayerConChild {
+    @Valid
+    private Child child = new Child();
+
+    private static class Child implements ItemContainer {
+      @Override
+      public Item[] customizedItems() {
+        return new Item[] {new Item("grandChild.theChild.icField1")};
+      }
+
+      @Valid
+      private GrandChild grandChild = new GrandChild();
+
+      @AlwaysFalse(propertyPath = {"theChild.field1", "theChild.field2"})
+      private static class GrandChild {
+        @SuppressWarnings("unused")
+        private TheChild theChild = new TheChild();
+
+        private static class TheChild {
+          @SuppressWarnings("unused")
+          private String field1;
+          @SuppressWarnings("unused")
+          private String field2;
+        }
       }
     }
   }

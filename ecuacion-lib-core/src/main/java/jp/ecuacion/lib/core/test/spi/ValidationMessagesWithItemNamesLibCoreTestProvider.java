@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.test.spi;
 
-import jakarta.validation.ConstraintValidatorContext;
-import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import java.util.spi.ResourceBundleProvider;
 
 /**
- * Provides the validation logic for {@code AlwaysFalse}.
+ * Is a {@code ResourceBundleProvider} for messages in app projects.
  */
-public class AlwaysFalseValidator extends ClassValidator<AlwaysFalse, Object> {
-
-  @Override
-  public void initialize(AlwaysFalse annotation) {
-    super.initialize(annotation.message(), annotation.propertyPath());
-  }
-
-  @Override
-  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
-    return false;
-  }
+public interface ValidationMessagesWithItemNamesLibCoreTestProvider extends ResourceBundleProvider {
 }

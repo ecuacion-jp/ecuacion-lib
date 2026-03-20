@@ -19,6 +19,7 @@ import jakarta.annotation.Nonnull;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 
 /**
  * Stores item attributes.
@@ -123,7 +124,23 @@ public class Item {
   @Nonnull
   public String getItemNameKey() {
     return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
-        null, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
+        (String) null, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
+  }
+
+  /**
+   * Returns {@code itemNameKey} value.
+   * 
+   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
+   *     with {@code defaultItemNameKeyClass = null}.</p>
+   */
+  @Nonnull
+  public String getItemNameKey(Object rootBean) {
+    String leafBeanPropertyPath =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
+    Object leafBean = ReflectionUtil.getLeafBean(rootBean, leafBeanPropertyPath);
+
+    return MessageUtil.getItemNameKey(itemNameKeyClass, rootBean, leafBean.getClass(),
+        leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
   }
 
   /**
