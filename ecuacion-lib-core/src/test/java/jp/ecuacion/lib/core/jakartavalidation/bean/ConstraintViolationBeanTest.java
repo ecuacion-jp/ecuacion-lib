@@ -262,7 +262,7 @@ public class ConstraintViolationBeanTest {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("child", bean);
+          assertEqualsItemNameKeyClass("childRecord", bean);
 
       } else {
         throw new RuntimeException();
@@ -596,10 +596,12 @@ public class ConstraintViolationBeanTest {
           assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
-        if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.child.field1"))
+        if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.child.field1")) {
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
-        else
+
+        } else {
           assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
+        }
 
       } else {
         throw new RuntimeException();
@@ -615,15 +617,15 @@ public class ConstraintViolationBeanTest {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("child.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
 
       } else {
         throw new RuntimeException();

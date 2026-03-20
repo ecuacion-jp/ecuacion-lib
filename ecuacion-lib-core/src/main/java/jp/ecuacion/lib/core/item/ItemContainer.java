@@ -65,6 +65,11 @@ public interface ItemContainer {
     // Get leafBeanClass.
     Class<?> leafBeanClass = this.getClass();
     if (propertyPath.contains(".")) {
+      // Handle collections and arrays
+      if (propertyPath.endsWith("<list element>")) {
+        propertyPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+      }
+
       leafBeanClass = ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath);
     }
 

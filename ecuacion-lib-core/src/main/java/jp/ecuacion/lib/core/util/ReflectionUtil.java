@@ -18,6 +18,8 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
@@ -120,6 +122,13 @@ public class ReflectionUtil {
             String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
             // It's string because it can be non-number value when the validated object is Map.
             String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
+            
+            // Handle Map key (propertyPath: field<K>[].<map key>)
+            if (propertyPathWithoutIndex.contains("<")) {
+              propertyPathWithoutIndex =
+                  propertyPathWithoutIndex.substring(0, propertyPathWithoutIndex.indexOf("<"));
+            }
+            
             Field rootField = getField(object.getClass(), propertyPathWithoutIndex);
             rootField.setAccessible(true);
             Object objs = rootField.get(object);
@@ -138,8 +147,10 @@ public class ReflectionUtil {
               return ((List<?>) objs).get(Integer.parseInt(index));
 
             } else {
-              throw new EclibRuntimeException("Multiple value types other than array and List "
-                  + "are not supported. The type of value: " + objs.getClass().getCanonicalName());
+              throw new ElementOfCollectionCannotBeObtainedException(
+                  "Multiple value types other than array and List "
+                      + "are not supported. The type of value: "
+                      + objs.getClass().getCanonicalName());
             }
 
           } else {
@@ -182,17 +193,39 @@ public class ReflectionUtil {
       }
 
       String root = tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("."));
+      // Remove [...] from root.
+      boolean isCollection = root.contains("[");
+      root = isCollection ? root.substring(0, root.indexOf("[")) : root;
       tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf(".") + 1);
 
       Field field = null;
       try {
         field = cls.getDeclaredField(root);
 
+        if (!isCollection) {
+          cls = field.getType();
+          continue;
+        }
+
+        // The following is only when isCollection == true
+
+        Type genericType1 = field.getGenericType();
+        if (genericType1 instanceof ParameterizedType) {
+          ParameterizedType prmType = (ParameterizedType) genericType1;
+
+          // List
+          if (List.class.isAssignableFrom(field.getType())) {
+            Type[] typeArgs = prmType.getActualTypeArguments();
+            cls = Class.forName(typeArgs[0].getTypeName());
+
+          } else {
+            throw new RuntimeException("Not implemented.");
+          }
+        }
+
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
-
-      cls = field.getType();
     }
   }
 
@@ -245,5 +278,25 @@ public class ReflectionUtil {
     }
 
     throw new RuntimeException(ex);
+  }
+
+  /**
+   * Is thrown when getValue method called for non-ordered collections: Sets and Map keys.
+   */
+  public static class ElementOfCollectionCannotBeObtainedException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs a new instance.
+     */
+    public ElementOfCollectionCannotBeObtainedException() {}
+
+    /**
+     * Constructs a new instance.
+     */
+    public ElementOfCollectionCannotBeObtainedException(String message) {
+      super(message);
+    }
   }
 }

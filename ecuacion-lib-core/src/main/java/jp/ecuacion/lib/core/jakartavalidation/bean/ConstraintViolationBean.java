@@ -23,11 +23,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
@@ -245,8 +243,16 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     String fullPropertyPath1stPart = fullPropertyPath.contains(".")
         ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
         : null;
-    Object firstChild = fullPropertyPath1stPart == null ? null
-        : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+
+    // firstChild cannot be obtained when the firstChild is Set or Map key.
+    Object firstChild = null;
+    try {
+      firstChild = fullPropertyPath1stPart == null ? null
+          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+
+    } catch (ElementOfCollectionCannotBeObtainedException ex) {
+      // Do nothing.
+    }
 
     FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
     Item item = null;
@@ -268,14 +274,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     }
 
     if (item == null) {
-      // Set finalDefaultItemNameKeyClass.
-      Optional<ItemNameKeyClass> optAn =
-          ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-      String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
-
-      // bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
-      bean.itemNameKey = MessageUtil.getItemNameKey(null, itemNameKeyClassFromAnnotation, null,
-          leafBeanClass.getSimpleName(), null, fullPropertyPath);
+      bean.itemNameKey =
+          MessageUtil.getItemNameKey(null, leafBeanClass, null, null, fullPropertyPath);
 
     } else {
       bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);

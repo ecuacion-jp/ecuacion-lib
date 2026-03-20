@@ -366,8 +366,9 @@ public class ExceptionUtil {
 
           // Replace {0} to itemName.
           if (message.contains("{0}")) {
-            message = MessageFormat.format(message, MessageUtil.getItemNames(locale,
-                bean.getFieldInfoBeanList(), messageParameters.showsItemNamePath()));
+            message = MessageFormat.format(message,
+                MessageUtil.getItemNames(locale, bean.getFieldInfoBeanList(),
+                    messageParameters.showsItemNamePath(), bean.getRootBean()));
           }
 
           // add prefix and postfix messages.

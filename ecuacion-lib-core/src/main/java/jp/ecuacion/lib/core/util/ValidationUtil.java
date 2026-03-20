@@ -215,7 +215,7 @@ public class ValidationUtil {
       @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationException {
     MessageParameters params =
         new MessageParameters(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
-            messagePrefix, messagePostfix);
+            false, messagePrefix, messagePostfix);
 
     Set<ConstraintViolation<T>> set = validator.validate(object, groups);
     if (set.size() > 0) {
@@ -379,6 +379,7 @@ public class ValidationUtil {
   public static class MessageParameters {
 
     private Boolean isMessageWithItemName;
+    private boolean showsItemNamePath;
     private Arg messagePrefix;
     private Arg messagePostfix;
 
@@ -393,8 +394,9 @@ public class ValidationUtil {
      * Construct a new instance.
      */
     public MessageParameters(Boolean isMessageWithItemName, String messagePrefix,
-        String messagePostfix) {
+        String messagePostfix, boolean showsItemNamePath) {
       this.isMessageWithItemName = isMessageWithItemName;
+      this.showsItemNamePath = showsItemNamePath;
       this.messagePrefix = messagePrefix == null ? null : Arg.string(messagePrefix);
       this.messagePostfix = messagePostfix == null ? null : Arg.string(messagePostfix);
     }
@@ -402,7 +404,8 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemName, Arg messagePrefix, Arg messagePostfix) {
+    public MessageParameters(Boolean isMessageWithItemName, boolean showsItemNamePath,
+        Arg messagePrefix, Arg messagePostfix) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
@@ -420,6 +423,21 @@ public class ValidationUtil {
      */
     public MessageParameters isMessageWithItemName(Boolean isMessageWithItemName) {
       this.isMessageWithItemName = isMessageWithItemName;
+      return this;
+    }
+
+    /**
+     * Returns the value of showsItemNamePath.
+     */
+    public boolean showsItemNamePath() {
+      return showsItemNamePath;
+    }
+
+    /**
+     * Sets showsItemNamePath.
+     */
+    public MessageParameters showsItemNamePath(boolean showsItemNamePath) {
+      this.showsItemNamePath = showsItemNamePath;
       return this;
     }
 
@@ -442,7 +460,6 @@ public class ValidationUtil {
      *     and the value is adopted when the message key is found 
      *     in {@code messages.properties}.
      *     When not found, the argument string itself is used as the prefix message.</p>
-
      */
     public MessageParameters messagePrefix(String messagePrefix) {
       this.messagePrefix = Arg.message(messagePrefix);
