@@ -16,10 +16,9 @@
 package jp.ecuacion.lib.core.item;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
+import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Stores item attributes.
@@ -75,8 +74,7 @@ public class Item {
    */
   public Item(@RequireNonempty String propertyPath) {
 
-    this.propertyPath =
-        ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(propertyPath));
+    this.propertyPath = ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(propertyPath));
   }
 
   /**
@@ -116,70 +114,26 @@ public class Item {
     return itemNameKeyClass != null;
   }
 
-
   /**
    * Returns {@code itemNameKey} value.
    * 
-   * <p>There can be 5 candidates for itemNameKeyClass. Candidates are ordered by their priority.
-   *     They are adopted only when they are not empty. The last one is never null.<br>
-   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
-   *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
-   *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
-   *     4: defaultItemNameKeyClass, the argument of this method<br>
-   *     5: uncapitalized className (always set by ItemContainer#getItem(String))
-   * </p>
-   */
-  @Nonnull
-  public String getItemNameKey(@Nullable String defaultItemNameKeyClass) {
-    String tmpItemNameKeyClass;
-    String tmpItemNameKeyField;
-
-    // tmpItemNameKeyClass
-    if (StringUtils.isNotEmpty(itemNameKeyClass)) {
-      tmpItemNameKeyClass = itemNameKeyClass;
-
-    } else if (propertyPath.contains(".")) {
-      // Remove far right part ("name" in "acc.name") from propertyPath.
-      // It's null when propertyPath doesn't contain ".".
-      String itemPropertyPathClass =
-          propertyPath.substring(0, propertyPath.lastIndexOf("."));
-
-      tmpItemNameKeyClass = (itemPropertyPathClass.contains(".")
-          ? itemPropertyPathClass.substring(itemPropertyPathClass.lastIndexOf(".") + 1)
-          : itemPropertyPathClass);
-
-    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
-      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
-
-    } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
-      tmpItemNameKeyClass = defaultItemNameKeyClass;
-
-    } else {
-      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
-    }
-
-    // tmpItemNameKeyField
-    if (!StringUtils.isEmpty(itemNameKeyField)) {
-      tmpItemNameKeyField = itemNameKeyField;
-
-    } else {
-      tmpItemNameKeyField = propertyPath.contains(".")
-          ? propertyPath.substring(propertyPath.lastIndexOf(".") + 1)
-          : propertyPath;
-    }
-
-    return tmpItemNameKeyClass + "." + tmpItemNameKeyField;
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
+   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
    *     with {@code defaultItemNameKeyClass = null}.</p>
    */
   @Nonnull
   public String getItemNameKey() {
     return getItemNameKey(null);
+  }
+
+  /**
+   * Returns {@code itemNameKey} value.
+   * 
+   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)}.</p>
+   */
+  @Nonnull
+  public String getItemNameKey(String defaultItemNameKeyClass) {
+    return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
+        defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
   /**

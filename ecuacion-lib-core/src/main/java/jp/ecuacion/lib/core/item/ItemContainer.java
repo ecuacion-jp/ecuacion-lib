@@ -55,15 +55,20 @@ public interface ItemContainer {
     item = item == null ? getNewItem(propertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
-    Optional<ItemNameKeyClass> optAn =
-        ReflectionUtil.searchAnnotationPlacedAtClass(this.getClass(), ItemNameKeyClass.class);
+    Optional<ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
+        ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath), ItemNameKeyClass.class);
 
     if (optAn.isPresent()) {
       item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
     }
 
-    item.setItemNameKeyClassFromClassName(
-        StringUtils.uncapitalize(this.getClass().getSimpleName()));
+    // Get leafBeanClass.
+    Class<?> leafBeanClass = this.getClass();
+    if (propertyPath.contains(".")) {
+      leafBeanClass = ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath);
+    }
+
+    item.setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
 
     return item;
   }

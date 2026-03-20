@@ -70,10 +70,10 @@ public class ConstraintViolationBeanTest {
     checkForForm(cvBean, "field", "root.field");
     cvBean = new ConstraintViolationBean<>(new dataPatternTest.No1.Form(), "", NOT_EMPTY, "root",
         "child.field");
-    checkForForm(cvBean, "child.field", "child.field");
+    checkForForm(cvBean, "child.field", "root.field");
     cvBean = new ConstraintViolationBean<>(new dataPatternTest.No1.Form(), "", NOT_EMPTY, "root",
         "child.grandChild.field");
-    checkForForm(cvBean, "child.grandChild.field", "grandChild.field");
+    checkForForm(cvBean, "child.grandChild.field", "root.field");
 
     // 2. container structure pattern: `record` / (`root`, `child`, `grandChild`)
     // = (`field validator`, `class validator`, `field validator`)
@@ -230,15 +230,15 @@ public class ConstraintViolationBeanTest {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.child.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("child", bean);
+          assertEqualsItemNameKeyClass("root", bean);
 
       } else {
         throw new RuntimeException();
@@ -254,13 +254,13 @@ public class ConstraintViolationBeanTest {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("rootRecord", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("child.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
           assertEqualsItemNameKeyClass("child", bean);
 
@@ -349,11 +349,11 @@ public class ConstraintViolationBeanTest {
       ConstraintViolationBean<?> bean = new ConstraintViolationBean<>(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_Root", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
       else if (leafClassName.equals("Child"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_Child", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
       else if (leafClassName.equals("GrandChild"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_GrandChild", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild", bean);
       else
         throw new RuntimeException();
     }
@@ -367,11 +367,11 @@ public class ConstraintViolationBeanTest {
       ConstraintViolationBean<?> bean = new ConstraintViolationBean<>(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("Root"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_Root_Parent", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_Root_Parent", bean);
       else if (leafClassName.equals("Child"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_Child_Parent", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_Child_Parent", bean);
       else if (leafClassName.equals("GrandChild"))
-        assertEqualsItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent", bean);
+        assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild_Parent", bean);
       else
         throw new RuntimeException();
     }
@@ -380,28 +380,28 @@ public class ConstraintViolationBeanTest {
     ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form> cvBean3;
     cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(
         new itemNameKeyClassAnnotationReadTest.No3.Form(), "", NOT_EMPTY, "root", "field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_Root", cvBean3);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_Root", cvBean3);
     cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(
         new itemNameKeyClassAnnotationReadTest.No3.Form(), "", NOT_EMPTY, "root", "child.field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_Child", cvBean3);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_Child", cvBean3);
     cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(
         new itemNameKeyClassAnnotationReadTest.No3.Form(), "", NOT_EMPTY, "root",
         "child.grandChild.field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_GrandChild", cvBean3);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild", cvBean3);
 
     /// 4. construction pattern: `the other constructor` / itemNameKeyClass existence:`
     /// ancestor` (*1)
     ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form> cvBean4;
     cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(
         new itemNameKeyClassAnnotationReadTest.No4.Form(), "", NOT_EMPTY, "root", "field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_Root_Parent", cvBean4);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_Root_Parent", cvBean4);
     cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(
         new itemNameKeyClassAnnotationReadTest.No4.Form(), "", NOT_EMPTY, "root", "child.field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_Child_Parent", cvBean4);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_Child_Parent", cvBean4);
     cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(
         new itemNameKeyClassAnnotationReadTest.No4.Form(), "", NOT_EMPTY, "root",
         "child.grandChild.field");
-    assertEqualsItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent", cvBean4);
+    assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild_Parent", cvBean4);
   }
 
   private <T> void assertEqualsItemNameKeyClass(String expected, ConstraintViolationBean<T> bean) {
@@ -591,15 +591,15 @@ public class ConstraintViolationBeanTest {
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_Root", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
         if (bean.getFieldInfoBeans()[0].fullPropertyPath.equals("root.child.field1"))
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_InItem_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("ItemNameKeyClass_Child", bean);
+          assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
 
       } else {
         throw new RuntimeException();
