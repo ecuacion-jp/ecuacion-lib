@@ -366,8 +366,9 @@ public class ExceptionUtil {
               ? messageParameters.isMessageWithItemName()
               : isValidationMessagesWithItemNamesAsDefault;
           message = bl
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
-              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
+                  map)
+              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
 
           // Replace {0} to itemName.
           if (message.contains("{0}")) {

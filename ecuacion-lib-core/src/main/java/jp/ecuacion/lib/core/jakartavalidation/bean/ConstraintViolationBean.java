@@ -17,6 +17,8 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.metadata.ConstraintDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,12 +40,12 @@ import org.apache.commons.lang3.StringUtils;
  *     which are not created by {@code Jakarata Validation} can also be treated 
  *     just like the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean<T> extends ReflectionUtil {
+public class ConstraintViolationBean<T> extends ReflectionUtil implements ConstraintViolation<T> {
   private ConstraintViolation<T> cv;
 
   // properties in ConstraintViolation
 
-  private Object rootBean;
+  private T rootBean;
   private Object leafBean;
   private String validatorClass;
   private String messageTemplate;
@@ -58,7 +60,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   @Nonnull
   private Map<String, Object> embeddedParamMap = new HashMap<>();
 
-  private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
+  private void putArgsToFields(T rootBean, Object leafBean, String validatorClass,
       String originalMessage, String messageTemplate, List<String> fullPropertyPathList,
       String invalidValue) {
     this.rootBean = rootBean;
@@ -151,7 +153,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   @Override
   public @Nonnull String toString() {
-    return "message:" + getOriginalMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
+    return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
         + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
         + StringUtil.getCsv(getFieldInfoBeanList().stream().map(b -> b.propertyPath).toList())
@@ -162,8 +164,14 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return cv;
   }
 
-  public Object getRootBean() {
+  public T getRootBean() {
     return rootBean;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Class<T> getRootBeanClass() {
+    return (Class<T>) rootBean.getClass();
   }
 
   public Object getLeafBean() {
@@ -177,8 +185,14 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    * 
    * @return original message
    */
-  public String getOriginalMessage() {
+  @Override
+  public String getMessage() {
     return originalMessage;
+  }
+
+  @Override
+  public @Nonnull String getMessageTemplate() {
+    return messageTemplate;
   }
 
   public String getValidatorClass() {
@@ -187,10 +201,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   public String getInvalidValue() {
     return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
-  }
-
-  public @Nonnull String getMessageId() {
-    return messageTemplate;
   }
 
   public MessageParameters getMessageParameters() {
@@ -220,6 +230,31 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   @Nonnull
   public Map<String, Object> getEmbeddedParamMap() {
     return embeddedParamMap;
+  }
+
+  @Override
+  public Object[] getExecutableParameters() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public Object getExecutableReturnValue() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public Path getPropertyPath() {
+    throw new RuntimeException("Not assumed to call. Use 'getFieldInfoBeanList'.");
+  }
+
+  @Override
+  public ConstraintDescriptor<?> getConstraintDescriptor() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public <U> U unwrap(Class<U> type) {
+    throw new RuntimeException("Not assumed to call.");
   }
 
   /**
