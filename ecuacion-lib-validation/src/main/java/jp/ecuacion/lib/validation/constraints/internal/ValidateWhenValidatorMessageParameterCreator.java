@@ -17,7 +17,6 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
-
 import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,7 +42,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
 
   @Override
-  public Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv,
+  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
       Map<String, Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();

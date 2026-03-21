@@ -57,17 +57,16 @@ public class MessageUtil {
       Class<?> leafBeanClass, String defaultItemNameKeyClass, String itemNameKeyField,
       String propertyPath) {
 
-    
-    // Set finalDefaultItemNameKeyClass.
-    Optional<ItemNameKeyClass> optAn =
-        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
-
     String leafBeanPropertyPath =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
     Class<?> leafBeanClassClassValidatorConsidered =
         leafBeanPropertyPath.equals("") ? rootBean.getClass()
             : ReflectionUtil.getValue(rootBean, leafBeanPropertyPath).getClass();
+
+    // Set finalDefaultItemNameKeyClass.
+    Optional<ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
+        leafBeanClassClassValidatorConsidered, ItemNameKeyClass.class);
+    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
 
     return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
         defaultItemNameKeyClass, leafBeanClassClassValidatorConsidered.getSimpleName(),

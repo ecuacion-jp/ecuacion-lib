@@ -15,11 +15,11 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
@@ -34,7 +34,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Set<LocalizedEmbeddedParameter> create(ConstraintViolation<?> cv,
+  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
       Map<String, Object> paramMap) {
 
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
