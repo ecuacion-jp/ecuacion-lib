@@ -21,16 +21,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 
 /**
@@ -44,89 +38,6 @@ public class ValidationUtil {
    * Prevents other classes from instantiating it.
    */
   private ValidationUtil() {}
-
-  /**
-   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
-   * 
-   * <p>It returns an empty set when no errors occur 
-   *     according to the specification of jakarta validation.</p>
-   * 
-   * @param <T> Any class 
-   * @param object object to validate
-   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
-   */
-  @Deprecated
-  @Nonnull
-  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object) {
-    return validate(object, new Class<?>[] {});
-  }
-
-  /**
-   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
-   * 
-   * <p>It returns an empty set when no errors occur 
-   *     according to the specification of jakarta validation.</p>
-   * 
-   * @param <T> Any class 
-   * @param object object to validate
-   * @param groups validation groups
-   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
-   */
-  @Deprecated
-  @Nonnull
-  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
-      Class<?>... groups) {
-    return validate(object, null, groups);
-  }
-
-  /**
-   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
-   * 
-   * <p>It returns an empty set when no errors occur 
-   *     according to the specification of jakarta validation.</p>
-   * 
-   * @param <T> Any class 
-   * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
-   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
-   */
-  @Deprecated
-  @Nonnull
-  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean) {
-    return validate(object, parameterBean, new Class<?>[] {});
-  }
-
-  /**
-   * Validates and returns {@code Set<ConstraintViolationBean<T>>}.
-   * 
-   * <p>It returns an empty set when no errors occur 
-   *     according to the specification of jakarta validation.</p>
-   * 
-   * @param <T> Any class 
-   * @param object object to validate
-   * @param parameterBean See {@link MessageParameters}.
-   * @param groups validation groups
-   * @return a set of ConstraintViolationBean, may be empty set when no validation errors exist.
-   */
-  @Deprecated
-  @Nonnull
-  public static <T> Set<ConstraintViolationBean<T>> validate(@RequireNonnull T object,
-      @Nullable MessageParameters parameterBean, Class<?>... groups) {
-    Validator v = Validation.buildDefaultValidatorFactory().getValidator();
-    Set<ConstraintViolation<T>> set =
-        (groups == null || groups.length == 0) ? v.validate(object) : v.validate(object, groups);
-
-    MessageParameters param = parameterBean == null ? new MessageParameters() : parameterBean;
-
-    List<ConstraintViolationBean<T>> list = set.stream()
-        .map(cv -> new ConstraintViolationBean<T>(cv))
-        .peek(cv -> cv.getMessageParameters().isMessageWithItemName(param.isMessageWithItemName))
-        .peek(cv -> cv.getMessageParameters().messagePrefix(param.getMessagePrefix()))
-        .peek(cv -> cv.getMessageParameters().messagePostfix(param.getMessagePostfix())).toList();
-
-    return new HashSet<>(list);
-  }
 
   /**
    * Validates and throws {@code ConstraintViolationException} if validation errors exist.
@@ -188,42 +99,6 @@ public class ValidationUtil {
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
-   * 
-   * @param <T> any class
-   * @param object object to validate
-   * @throws ConstraintViolationException ConstraintViolationException
-   */
-  @Deprecated(since = "14.26.0")
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix) throws ConstraintViolationBeanException {
-    validateThenThrow(object, addsItemNameToMessage, messagePrefix, messagePostfix,
-        (Class<?>[]) null);
-  }
-
-  /**
-   * Validates and throws {@code ConstraintViolationBeanException} if validation errors exist.
-   * 
-   * @param <T> any class
-   * @param object object to validate
-   * @throws ConstraintViolationException ConstraintViolationException
-   */
-  @Deprecated(since = "14.26.0")
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix, Class<?>... groups) throws ConstraintViolationException {
-    MessageParameters params =
-        new MessageParameters(addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage,
-            false, messagePrefix, messagePostfix);
-
-    Set<ConstraintViolation<T>> set = validator.validate(object, groups);
-    if (set.size() > 0) {
-      throw new ConstraintViolationExceptionWithParameters(set, params);
-    }
-  }
-
-  /**
    * Validates and returns {@code MultipleAppException} if validation errors exist.
    * 
    * @param <T> any class
@@ -278,79 +153,6 @@ public class ValidationUtil {
 
     return set.size() == 0 ? Optional.empty()
         : Optional.of(new ConstraintViolationExceptionWithParameters(set, messageParameters));
-  }
-
-  /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
-   * <p>3 parameters are added to arguments in addition to object, which are meant to show
-   *     understandable error messages for non-display-value-validations 
-   *     (like validations to uploaded excel files) 
-   *     when the message displaying setting designates messages are to be shown 
-   *     at the bottom of each item.<br>
-   *     Prefix and postfix are used to additional explanation for error messages, 
-   *     like "About the uploaded excel file, ".</p>
-   * 
-   * @param <T> any class
-   * @param object object to validate
-   * @param addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
-   *        It may be {@code null}, which is equal to {@code false}. 
-   * @param messagePrefix Used when you want to put an additional message 
-   *     before the original message. It may be {@code null}, which means no messages added.
-   * @param messagePostfix Used when you want to put an additional message 
-   *     after the original message. It may be {@code null}, which means no messages added.
-   * @return MultipleAppException, may be null when no validation errors exist.
-   */
-  @Nonnull
-  @Deprecated(since = "14.26.0")
-  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
-      @Nullable Boolean addsItemNameToMessage, @Nullable Arg messagePrefix,
-      @Nullable Arg messagePostfix) {
-    return validateThenReturn(object, addsItemNameToMessage, messagePrefix, messagePostfix,
-        (Class<?>[]) null);
-  }
-
-  /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
-   * <p>3 parameters are added to arguments in addition to object, which are meant to show
-   *     understandable error messages for non-display-value-validations 
-   *     (like validations to uploaded excel files) 
-   *     when the message displaying setting designates messages are to be shown 
-   *     at the bottom of each item.<br>
-   *     Prefix and postfix are used to additional explanation for error messages, 
-   *     like "About the uploaded excel file, ".</p>
-   * 
-   * @param <T> any class
-   * @param object object to validate
-   * @param addsItemNameToMessage you'll get message with itemName when {@code true} is specified.
-   *        It may be {@code null}, which is equal to {@code false}. 
-   * @param messagePrefix Used when you want to put an additional message 
-   *     before the original message. It may be {@code null}, which means no messages added.
-   * @param messagePostfix Used when you want to put an additional message 
-   *     after the original message. It may be {@code null}, which means no messages added.
-   * @return MultipleAppException, may be null when no validation errors exist.
-   */
-  @Nonnull
-  @Deprecated(since = "14.26.0")
-  public static <T> Optional<MultipleAppException> validateThenReturn(@RequireNonnull T object,
-      Boolean addsItemNameToMessage, @Nullable Arg messagePrefix, @Nullable Arg messagePostfix,
-      Class<?>... groups) {
-    Set<ConstraintViolationBean<T>> set = ValidationUtil.validate(object,
-        new MessageParameters()
-            .isMessageWithItemName(
-                addsItemNameToMessage == null ? Boolean.FALSE : addsItemNameToMessage)
-            .messagePrefix(messagePrefix).messagePostfix(messagePostfix),
-        groups);
-
-    if (set.size() == 0) {
-      return Optional.empty();
-    }
-
-    MultipleAppException listEx = new MultipleAppException(
-        set.stream().map(bean -> new ValidationAppException(bean)).toList());
-
-    return Optional.of(listEx);
   }
 
   /**

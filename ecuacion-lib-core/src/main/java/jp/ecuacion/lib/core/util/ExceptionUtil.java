@@ -296,8 +296,7 @@ public class ExceptionUtil {
           : null;
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
-        exList.add(new ValidationAppException(
-            new ConstraintViolationBean<>(cv).setMessageParameters(params)));
+        exList.add(new ValidationAppException(cv, params));
       }
 
     } else if (throwable instanceof ConstraintViolationBeanException) {

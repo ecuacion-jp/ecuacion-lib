@@ -35,6 +35,7 @@ public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
   private ConstraintViolationBean<?> bean;
+  private MessageParameters messageParameters = new MessageParameters();
 
   /**
    * Constructs a new instance with Jakarta Validation violation.
@@ -53,18 +54,16 @@ public class ValidationAppException extends SingleAppException {
   public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation,
       MessageParameters messageParameters) {
     super(violation.getMessage());
-    this.bean = new ConstraintViolationBean<T>(ObjectsUtil.requireNonNull(violation));
-    
-    this.bean.setMessageParameters(messageParameters);
+    this.bean =
+        violation instanceof ConstraintViolationBean ? (ConstraintViolationBean<T>) violation
+            : new ConstraintViolationBean<T>(ObjectsUtil.requireNonNull(violation));
+
+    this.messageParameters = messageParameters;
   }
 
-  /**
-   * Constructs a new instance with {@code BeanValidationErrorInfoBean}.
-   * 
-   * @param bean ConstraintViolationBean
-   */
-  public <T> ValidationAppException(@RequireNonnull ConstraintViolationBean<T> bean) {
-    this.bean = ObjectsUtil.requireNonNull(bean);
+  @Override
+  public String[] getItemPropertyPaths() {
+    return null;
   }
 
   /**
@@ -76,12 +75,7 @@ public class ValidationAppException extends SingleAppException {
     return bean;
   }
 
-  @Override
-  public String[] getItemPropertyPaths() {
-    return null;
-  }
-
   public MessageParameters getMessageParameters() {
-    return bean.getMessageParameters();
+    return messageParameters;
   }
 }

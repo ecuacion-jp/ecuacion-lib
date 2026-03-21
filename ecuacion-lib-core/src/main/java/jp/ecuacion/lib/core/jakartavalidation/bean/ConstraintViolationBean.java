@@ -30,7 +30,6 @@ import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -54,8 +53,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   // values needed for all the patterns
 
   private List<FieldInfoBean> fieldInfoBeanList = new ArrayList<>();
-
-  private MessageParameters messageParameters = new MessageParameters();
 
   @Nonnull
   private Map<String, Object> embeddedParamMap = new HashMap<>();
@@ -201,22 +198,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
   public String getInvalidValue() {
     return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
-  }
-
-  public MessageParameters getMessageParameters() {
-    return messageParameters;
-  }
-
-  /**
-   * Sets MessageParameters and returns ConstraintViolationBean for method chain.
-   */
-  public ConstraintViolationBean<?> setMessageParameters(MessageParameters messageParameters) {
-    if (messageParameters == null) {
-      messageParameters = new MessageParameters();
-    }
-
-    this.messageParameters = messageParameters;
-    return this;
   }
 
   public List<FieldInfoBean> getFieldInfoBeanList() {
