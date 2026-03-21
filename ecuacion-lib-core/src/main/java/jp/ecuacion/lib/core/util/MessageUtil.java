@@ -57,6 +57,7 @@ public class MessageUtil {
       Class<?> leafBeanClass, String defaultItemNameKeyClass, String itemNameKeyField,
       String propertyPath) {
 
+    
     // Set finalDefaultItemNameKeyClass.
     Optional<ItemNameKeyClass> optAn =
         ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
@@ -421,20 +422,5 @@ public class MessageUtil {
   @Nonnull
   public static Arg getValuesArg(@RequireNonnull List<String> valueList) {
     return getValuesArg(valueList.toArray(new String[valueList.size()]));
-  }
-
-  private static record PropertyPathBean(String leafBeanPropertyPath,
-      String propertyPathFromLeafBean) {
-
-    /**
-     * For propertyPath obtained from validators other than class validators.
-     */
-    public PropertyPathBean(String propertyPath) {
-      this(
-          propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
-              : "",
-          propertyPath.contains(".") ? propertyPath.substring(propertyPath.lastIndexOf(".") + 1)
-              : propertyPath);
-    }
   }
 }

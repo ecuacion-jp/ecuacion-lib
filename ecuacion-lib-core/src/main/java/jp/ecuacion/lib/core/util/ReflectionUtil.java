@@ -94,9 +94,9 @@ public class ReflectionUtil {
    * Obtains a field value with any scopes and searches fields in super classes.
    * 
    * <p>Since Class#getDeclaredField is used in the method, 
-   *     making its scope public causes a spotbugs error.<br>
+   *     making its scope public causes a spotbug's error.<br>
    *     That's why its scope is protected
-   *     and when you use it you need to extend this class.</p>
+   *     and you need to extend this class when you use it .</p>
    * 
    * <code>
    * Public method 

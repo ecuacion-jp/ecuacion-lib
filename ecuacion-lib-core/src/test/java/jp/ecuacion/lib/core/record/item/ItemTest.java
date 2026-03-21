@@ -42,52 +42,57 @@ public class ItemTest {
     }
   }
 
+  private void checkWithClassName(String itemPropertyPath, String className,
+      String resultItemNameKey) {
+    Item item = new Item(itemPropertyPath);
+    item.setItemNameKeyClassFromClassName(className);
+    String result = item.getItemNameKey();
+    Assertions.assertEquals(resultItemNameKey, result);
+  }
+
+  private void checkWithItemNameKey(String itemPropertyPath, String itemNameKey, String className,
+      String resultItemNameKey) {
+    Item item = new Item(itemPropertyPath);
+    item.itemNameKey(itemNameKey);
+    item.setItemNameKeyClassFromClassName(className);
+    String result = item.getItemNameKey();
+    Assertions.assertEquals(resultItemNameKey, result);
+  }
+
   @Test
   public void itemNameKeyTest() {
-    Item item = null;
-    
+
     // No itemNameKey settings / itemPropertyPath does not have "."
-    item = new Item("itemPropertyPath");
-    item.setItemNameKeyClassFromClassName("rootRecordName");
-    String result = item.getItemNameKey();
-    Assertions.assertEquals("rootRecordName.itemPropertyPath", result);
+    checkWithClassName("itemPropertyPath", "rootRecordName", "rootRecordName.itemPropertyPath");
 
     // No itemNameKey settings / itemPropertyPath have 1 "."
-    result = new Item("itemProperty.Path").getItemNameKey("rootRecordName");
-    Assertions.assertEquals("rootRecordName.Path", result);
+    checkWithClassName("itemProperty.Path", "rootRecordName", "rootRecordName.Path");
 
     // No itemNameKey settings / itemPropertyPath have 2 "."
-    result = new Item("item.Property.Path").getItemNameKey("rootRecordName");
-    Assertions.assertEquals("rootRecordName.Path", result);
+    checkWithClassName("item.Property.Path", "rootRecordName", "rootRecordName.Path");
 
     // itemNameKeyField settings / itemPropertyPath does not have "."
-    result = new Item("itemPropertyPath").itemNameKey("itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
+    checkWithItemNameKey("itemPropertyPath", "itemNameKeyField", "rootRecordName",
+        "rootRecordName.itemNameKeyField");
 
     // itemNameKeyField settings / itemPropertyPath has 1 "."
-    result = new Item("itemProperty.Path").itemNameKey("itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
+    checkWithItemNameKey("itemProperty.Path", "itemNameKeyField", "rootRecordName",
+        "rootRecordName.itemNameKeyField");
 
     // itemNameKeyField settings / itemPropertyPath has 2 "."
-    result = new Item("item.Property.Path").itemNameKey("itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("rootRecordName.itemNameKeyField", result);
-    
+    checkWithItemNameKey("item.Property.Path", "itemNameKeyField", "rootRecordName",
+        "rootRecordName.itemNameKeyField");
+
     // full itemNameKey settings / itemPropertyPath does not have "."
-    result = new Item("itemPropertyPath").itemNameKey("itemNameKeyClass.itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
+    checkWithItemNameKey("itemPropertyPath", "itemNameKeyClass.itemNameKeyField", "rootRecordName",
+        "itemNameKeyClass.itemNameKeyField");
 
     // full itemNameKey settings / itemPropertyPath has 1 "."
-    result = new Item("itemProperty.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
+    checkWithItemNameKey("itemProperty.Path", "itemNameKeyClass.itemNameKeyField", "rootRecordName",
+        "itemNameKeyClass.itemNameKeyField");
 
     // full itemNameKey settings / itemPropertyPath has 2 "."
-    result = new Item("item.Property.Path").itemNameKey("itemNameKeyClass.itemNameKeyField")
-        .getItemNameKey("rootRecordName");
-    Assertions.assertEquals("itemNameKeyClass.itemNameKeyField", result);
+    checkWithItemNameKey("item.Property.Path", "itemNameKeyClass.itemNameKeyField", "rootRecordName",
+        "itemNameKeyClass.itemNameKeyField");
   }
 }

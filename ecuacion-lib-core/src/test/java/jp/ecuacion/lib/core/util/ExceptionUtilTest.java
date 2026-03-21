@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
-import jp.ecuacion.lib.core.jakartavalidation.constraints.AlwaysFalse;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.util.ExceptionUtilTest.VariousPlaces.Child;
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Assertions;
@@ -85,11 +85,11 @@ public class ExceptionUtilTest {
   public static record FieldValidator(@NotNull String str1) {
   }
 
-  @AlwaysFalse(propertyPath = "str1")
+  @ClassAlwaysFalse(propertyPath = "str1")
   public static record ClassValidator1(String str1) {
   }
 
-  @AlwaysFalse(propertyPath = {"str1", "str2"})
+  @ClassAlwaysFalse(propertyPath = {"str1", "str2"})
   public static record ClassValidator2(String str1, String str2) {
   }
 
@@ -341,11 +341,11 @@ public class ExceptionUtilTest {
     }
   }
 
-  private String validateCollectionWithPath(Object object) {
-    ConstraintViolationExceptionWithParameters ex =
-        (ConstraintViolationExceptionWithParameters) ValidationUtil
-            .validateThenReturn(object, ValidationUtil.messageParameters()).get();
-
-    return ExceptionUtil.getMessageList(ex, Locale.ENGLISH, true).get(0);
-  }
+  // private String validateCollectionWithPath(Object object) {
+  // ConstraintViolationExceptionWithParameters ex =
+  // (ConstraintViolationExceptionWithParameters) ValidationUtil
+  // .validateThenReturn(object, ValidationUtil.messageParameters()).get();
+  //
+  // return ExceptionUtil.getMessageList(ex, Locale.ENGLISH, true).get(0);
+  // }
 }

@@ -28,11 +28,11 @@ import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
  * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
  */
 @PlacedAtClass
-@Target({ElementType.TYPE})
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {AlwaysFalseValidator.class})
-public @interface AlwaysFalse {
+@Constraint(validatedBy = {MethodAlwaysFalseValidator.class})
+public @interface MethodAlwaysFalse {
 
 
   /** 
@@ -51,7 +51,7 @@ public @interface AlwaysFalse {
    * 
    * @return message ID
    */
-  String message() default "jp.ecuacion.lib.validation.constraints.AlwaysFalse.message";
+  String message() default "jp.ecuacion.lib.validation.constraints.MethodAlwaysFalse.message";
 
   /** 
    * Returns groups.

@@ -20,10 +20,10 @@ import jakarta.validation.ConstraintValidatorContext;
 /**
  * Provides the validation logic for {@code AlwaysFalse}.
  */
-public class AlwaysFalseValidator extends ClassValidator<AlwaysFalse, Object> {
+public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, Object> {
 
   @Override
-  public void initialize(AlwaysFalse annotation) {
+  public void initialize(ClassAlwaysFalse annotation) {
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 

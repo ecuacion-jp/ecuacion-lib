@@ -173,7 +173,7 @@ public class ConstraintViolationBeanTest {
 
       }
 
-      @AlwaysFalse(propertyPath = "field")
+      @ClassAlwaysFalse(propertyPath = "field")
       public static class Child {
         public String field;
         public String conditionField;
@@ -190,7 +190,7 @@ public class ConstraintViolationBeanTest {
 
     public static class No3 {
 
-      @AlwaysFalse(propertyPath = "field")
+      @ClassAlwaysFalse(propertyPath = "field")
       public static class Root {
 
         public String field;
@@ -209,7 +209,7 @@ public class ConstraintViolationBeanTest {
         public GrandChild grandChild = new GrandChild();
       }
 
-      @AlwaysFalse(propertyPath = "field")
+      @ClassAlwaysFalse(propertyPath = "field")
       public static class GrandChild {
         public String field;
         public String conditionField;
@@ -428,7 +428,7 @@ public class ConstraintViolationBeanTest {
       public static class RootParent {
       }
 
-      @AlwaysFalse(propertyPath = "field")
+      @ClassAlwaysFalse(propertyPath = "field")
       @ItemNameKeyClass("ItemNameKeyClass_Child")
       public static class Child extends ChildParent {
         public Integer field = null;
@@ -468,7 +468,7 @@ public class ConstraintViolationBeanTest {
       public static class RootParent {
       }
 
-      @AlwaysFalse(propertyPath = "field")
+      @ClassAlwaysFalse(propertyPath = "field")
       public static class Child extends ChildParent {
         public Integer field = null;
         public String conditionField = null;

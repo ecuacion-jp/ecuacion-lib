@@ -22,7 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -109,16 +110,22 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
       embeddedParamMap.remove("payload");
     }
 
-    // Check if the validator is for class or field.
-    boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
-        .getAnnotation(PlacedAtClass.class) != null;
+    Class<?> validatorClass = cv.getConstraintDescriptor().getConstraintValidatorClasses().get(0);
+    boolean isMultiplePropertyPathsValidator =
+        MultiplePropertyPathsValidator.class.isAssignableFrom(validatorClass);
+    boolean isClassValidator = ClassValidator.class.isAssignableFrom(validatorClass);
 
     // propertyPath
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
     List<String> fullPpList = null;
-    if (isClassValidator) {
+    if (isMultiplePropertyPathsValidator) {
+      // Base differs class from method.
+      String cvPpBase = isClassValidator ? cvPp
+          : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
+      String cvPpPrefix = (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".");
+
       fullPpList = (Arrays.asList((String[]) embeddedParamMap.get("propertyPath")).stream()
-          .map(p -> (StringUtils.isEmpty(cvPp) ? "" : cvPp + ".") + p).toList());
+          .map(p -> cvPpPrefix + p).toList());
 
     } else {
       fullPpList = new ArrayList<>();

@@ -44,7 +44,7 @@ module jp.ecuacion.lib.core {
   requires org.hibernate.validator;
   requires jakarta.el;
 
-  opens jp.ecuacion.lib.core.jakartavalidation.bean to org.hibernate.validator;
+  opens jp.ecuacion.lib.core.jakartavalidation.constraints to org.hibernate.validator;
 
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
