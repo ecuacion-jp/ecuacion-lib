@@ -173,10 +173,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       ppList.add(cvPp);
     }
 
-    String rootClassName = StringUtils.uncapitalize(cv.getRootBean().getClass().getSimpleName());
-    // remove "aClass$" from "aClass$bCLass" when the class is internal.
-    rootClassName = rootClassName.split("\\$")[rootClassName.split("\\$").length - 1];
-
     return new ConstraintViolationBean<>(validatorKind,
         cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getRootBean(),
         cv.getLeafBean(), cv.getInvalidValue(),
