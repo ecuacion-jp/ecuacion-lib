@@ -74,20 +74,20 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
     // itemNamePath
     msg = validateCollection(new SingleList(targetList), true, true);
     Assertions.assertEquals(
-        "'target field' at element with index [1] contained by 'target list'" + MSG, msg);
+        "'target field' at element 2 contained by 'target list'" + MSG, msg);
     // itemNamePath + itemNameKeyClass
     msg = validateCollection(new SingleListInkc(targetInkcList), true, true);
-    Assertions.assertEquals("'ItemNameKeyClass considered field' at element "
-        + "with index [1] contained by 'target list'" + MSG, msg);
+    Assertions.assertEquals("'ItemNameKeyClass considered field' at element 2"
+        + " contained by 'target list'" + MSG, msg);
     // itemNamePath + ItemContiner(root)
     msg = validateCollection(new SingleListConRoot(targetList), true, true);
     Assertions.assertEquals("'ItemContainer considered field' "
-        + "at element with index [1] contained by 'target list'" + MSG, msg);
+        + "at element 2 contained by 'target list'" + MSG, msg);
     // itemNamePath + ItemContiner(child)
     SingleListConChild.Child child =
         new SingleListConChild.Child(List.of(List.of(new SingleListConChild.GrandChild(null))));
-    String expected = "'sample field in grandChild' at element 1 > element "
-        + "with index [0] contained by 'grand child list list'" + MSG;
+    String expected = "'sample field in grandChild' at element 1 > element 1 "
+        + "contained by 'grand child list list'" + MSG;
     msg = validateCollection(child, true, true);
     Assertions.assertEquals(expected, msg);
 
@@ -106,28 +106,28 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
     Assertions.assertEquals("'sample field in grandChild'" + MSG, msg);
     // itemNamePath
     expected = "'sample field in grandChild' at 'child field' "
-        + "> element 1 > element with index [0] contained by 'grand child field'" + MSG;
+        + "> element 1 > element 1 contained by 'grand child field'" + MSG;
     msg = validateCollection(mulListList, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + itemNameKeyClass
     MulListInkc mulListListInkc =
         new MulListInkc(new MulListInkc.Child(List.of(List.of(new MulListInkc.GrandChild(null)))));
-    expected = "'ItemNameKeyClass considered field' at 'child field' > element 1 > element"
-        + " with index [0] contained by 'grand child field'" + MSG;
+    expected = "'ItemNameKeyClass considered field' at 'child field' > element 1 > element 1"
+        + " contained by 'grand child field'" + MSG;
     msg = validateCollection(mulListListInkc, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + ItemContiner(root)
     MulListConRoot mulListListConRoot = new MulListConRoot(
         new MulListConRoot.Child(List.of(List.of(new MulListConRoot.GrandChild(null)))));
     expected = "'ItemContainer considered field' at 'child field' "
-        + "> element 1 > element with index [0] contained by 'grand child list list'" + MSG;
+        + "> element 1 > element 1 contained by 'grand child list list'" + MSG;
     msg = validateCollection(mulListListConRoot, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + ItemContiner(child)
     MulListConChild mulListListConChild = new MulListConChild(new MulListConChild.Child(
         new MulListConChild.GrandChild(List.of(List.of(new MulListConChild.TheChild(null))))));
     expected = "'ItemContainer considered field' at 'child field' "
-        + "> element 1 > element with index [0] contained by 'grand child list list'" + MSG;
+        + "> element 1 > element 1 contained by 'grand child list list'" + MSG;
     msg = validateCollection(mulListListConChild, true, true);
   }
 
