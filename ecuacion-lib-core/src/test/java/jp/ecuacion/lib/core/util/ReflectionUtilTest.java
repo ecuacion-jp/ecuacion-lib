@@ -144,4 +144,38 @@ public class ReflectionUtilTest {
 
     }
   }
+  
+  @Test
+  public void getClassTest() {
+    Class<?> cls = null;
+
+    // 1.list with generic type of basic object
+    cls = ReflectionUtil.getClass(GetClass.class, "strList[0].<list element>");
+    Assertions.assertTrue(String.class.isAssignableFrom(cls));
+    
+    // 2.lists with generic type of basic object
+    cls = ReflectionUtil.getClass(GetClass.class, "strListList[0].<list element>[0].<list element>");
+    Assertions.assertTrue(String.class.isAssignableFrom(cls));
+
+    // 3.list with generic type of custpmized object
+    cls = ReflectionUtil.getClass(GetClass.class, "childList[0]");
+    Assertions.assertTrue(GetClass.Child.class.isAssignableFrom(cls));
+
+    // 4.lists with generic type of custpmized object
+    cls = ReflectionUtil.getClass(GetClass.class, "childListList[0].<list element>[0]");
+    Assertions.assertTrue(GetClass.Child.class.isAssignableFrom(cls));
+  }
+
+  @SuppressWarnings("unused")
+  public static class GetClass {
+    private List<String> strList;
+    private List<List<String>> strListList;
+    
+    private List<Child> childList;
+    private List<List<Child>> childListList;
+    
+    private static class Child {
+      
+    }
+  }
 }

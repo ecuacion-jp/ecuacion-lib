@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
+
 import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -55,7 +56,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
     FieldInfoBean bean = MessageUtil.getFieldInfoBean(conditionPropertyPath, cv.getRootBean(),
-        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath).getClass());
+        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},

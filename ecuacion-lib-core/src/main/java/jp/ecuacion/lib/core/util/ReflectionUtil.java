@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -43,6 +44,41 @@ public class ReflectionUtil {
     } catch (ClassNotFoundException ex) {
       return false;
     }
+  }
+
+  /**
+   * Returns class specified by propertyPath.
+   */
+  public static Class<?> getClass(Class<?> rootBeanClass, String propertyPath) {
+    Class<?> tmpClass = rootBeanClass;
+    for (String node : PropertyPathUtil.getNodeList(propertyPath)) {
+      String nodeWithoutCollectionPart = PropertyPathUtil.removeCollectionPart(node);
+
+      try {
+        Field tmpField = getField(tmpClass, nodeWithoutCollectionPart);
+        tmpClass = tmpField.getType();
+        String tmpNode = node;
+
+        if (!tmpNode.contains("[")) {
+          continue;
+        }
+
+        // Count the number of "[" in propertyPath.
+        int count = propertyPath.length() - propertyPath.replaceAll("\\[", "").length();
+
+        Type type = tmpField.getGenericType();
+        for (int i = 0; i < count; i++) {
+          type = ((ParameterizedType) type).getActualTypeArguments()[0];
+        }
+
+        return tmpClass = Class.forName(type.getTypeName());
+
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    return tmpClass;
   }
 
   /**
@@ -77,7 +113,8 @@ public class ReflectionUtil {
       Class<?> classOfTargetInstance, Class<A> annotation) {
     while (true) {
       // No more ancestors
-      if (classOfTargetInstance == Object.class) {
+      // Equals to null when it's an anonymous class created directly from Interface.
+      if (classOfTargetInstance == null || classOfTargetInstance == Object.class) {
         return Optional.empty();
       }
 
@@ -88,6 +125,57 @@ public class ReflectionUtil {
 
       classOfTargetInstance = classOfTargetInstance.getSuperclass();
     }
+  }
+
+  /**
+   * Obtains a field with any scopes and also searches fields in super classes.
+   * 
+   * @param propertyPath fieldName
+   * @param cls classOfTargetInstance
+   * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
+   *     right-hand side is its instance.
+   *     When you set "dept.name" to fieldName, instance would be "dept".
+   */
+  @Nonnull
+  public static Field getField(Class<?> cls, String propertyPath) {
+    Field validationTargetField;
+
+    // store first exception
+    Exception ex = null;
+
+    if (propertyPath.contains(".")) {
+      String leftMost = propertyPath.substring(0, propertyPath.indexOf("."));
+      String theLeft = propertyPath.substring(leftMost.length() + 1);
+
+      return getField(getField(cls, leftMost).getType(), theLeft);
+    }
+
+    // fieldName with arrays or Collections not acceptable.
+    if (propertyPath.contains("[")) {
+      throw new EclibRuntimeException(
+          "fieldName with index (like value[0]) not acceptable. fieldName: " + propertyPath);
+    }
+
+    // loop for finding fields in parent's class.
+    while (true) {
+      if (cls.equals(Object.class)) {
+        break;
+      }
+
+      try {
+        validationTargetField = cls.getDeclaredField(propertyPath);
+        return validationTargetField;
+
+      } catch (Exception exception) {
+        if (ex == null) {
+          ex = exception;
+        }
+      }
+
+      cls = cls.getSuperclass();
+    }
+
+    throw new RuntimeException(ex);
   }
 
   /**
@@ -172,126 +260,10 @@ public class ReflectionUtil {
    */
   public static Object getLeafBean(Object rootBean, String propertyPath) {
     String leafBeanItemPropertyPath =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
-            : null;
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
 
-    return leafBeanItemPropertyPath == null ? rootBean
+    return StringUtils.isEmpty(leafBeanItemPropertyPath) ? rootBean
         : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
-  }
-
-  /**
-   * Returns leafBean from rootBean and propertyPath from rootBean.
-   */
-  public static Class<?> getLeafBeanClass(Class<?> rootBeanClass, String propertyPath) {
-
-    String tmpPropertyPath = propertyPath;
-    Class<?> cls = rootBeanClass;
-
-    while (true) {
-      if (!tmpPropertyPath.contains(".")) {
-        return cls;
-      }
-
-      String root = tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("."));
-      // Remove [...] from root.
-      boolean isCollection = root.contains("[");
-      root = isCollection ? root.substring(0, root.indexOf("[")) : root;
-      tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf(".") + 1);
-
-      Field field = null;
-      Class<?> tmpCls = cls;
-      while (true) {
-        try {
-          field = tmpCls.getDeclaredField(root);
-          break;
-
-        } catch (Exception ex) {
-          // Search its Ancestor class if not exist.
-          tmpCls = tmpCls.getSuperclass();
-          
-          // If field not found, throw.
-          if (tmpCls == Object.class) {
-            throw new RuntimeException(ex);
-          }
-        }
-      }
-
-      if (!isCollection) {
-        cls = field.getType();
-        continue;
-      }
-
-      // The following is only when isCollection == true
-      try {
-        Type genericType1 = field.getGenericType();
-        if (genericType1 instanceof ParameterizedType) {
-          ParameterizedType prmType = (ParameterizedType) genericType1;
-
-          // List
-          if (List.class.isAssignableFrom(field.getType())) {
-            Type[] typeArgs = prmType.getActualTypeArguments();
-            cls = Class.forName(typeArgs[0].getTypeName());
-
-          } else {
-            throw new RuntimeException("Not implemented.");
-          }
-        }
-
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-  }
-
-  /**
-   * Obtains a field with any scopes and also searches fields in super classes.
-   * 
-   * @param propertyPath fieldName
-   * @param cls classOfTargetInstance
-   * @return {@code Pair<Field, Object>} left-hand side is the obtained field, 
-   *     right-hand side is its instance.
-   *     When you set "dept.name" to fieldName, instance would be "dept".
-   */
-  @Nonnull
-  public static Field getField(Class<?> cls, String propertyPath) {
-    Field validationTargetField;
-
-    // store first exception
-    Exception ex = null;
-
-    if (propertyPath.contains(".")) {
-      String leftMost = propertyPath.substring(0, propertyPath.indexOf("."));
-      String theLeft = propertyPath.substring(leftMost.length() + 1);
-
-      return getField(getField(cls, leftMost).getType(), theLeft);
-    }
-
-    // fieldName with arrays or Collections not acceptable.
-    if (propertyPath.contains("[")) {
-      throw new EclibRuntimeException(
-          "fieldName with index (like value[0]) not acceptable. fieldName: " + propertyPath);
-    }
-
-    // loop for finding fields in parent's class.
-    while (true) {
-      if (cls.equals(Object.class)) {
-        break;
-      }
-
-      try {
-        validationTargetField = cls.getDeclaredField(propertyPath);
-        return validationTargetField;
-
-      } catch (Exception exception) {
-        if (ex == null) {
-          ex = exception;
-        }
-      }
-
-      cls = cls.getSuperclass();
-    }
-
-    throw new RuntimeException(ex);
   }
 
   /**

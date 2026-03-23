@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class ExceptionUtilTest_getMessageList_NonCollectionValues {
+public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
   @SuppressWarnings("unused")
   private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -70,7 +70,7 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
     Assertions.assertEquals("'ItemContainer considered field' " + MSG,
         getMsg(new SingleLayerConRoot(), true, true));
     // itemNamePath + ItemContiner(child)
-    Assertions.assertEquals("'ItemContainer considered field' At 'child field' " + MSG,
+    Assertions.assertEquals("'ItemContainer considered field' at 'child field' " + MSG,
         getMsg(new SingleLayerConChild(), true, true));
 
     // Multiple layer
@@ -83,18 +83,18 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
     Assertions.assertEquals("must not be null", getMsg(new MultipleLayer(), false, true));
     // itemNamePath
     Assertions.assertEquals(
-        "'sample field in grandChild' At 'child field' > 'grand child field' " + MSG,
+        "'sample field in grandChild' at 'child field' > 'grand child field' " + MSG,
         getMsg(new MultipleLayer(), true, true));
     // itemNamePath + itemNameKeyClass
-    msg = "'@ItemNameKeyClass considered field' At '@ItemNameKeyClass considered child field'"
+    msg = "'@ItemNameKeyClass considered field' at '@ItemNameKeyClass considered child field'"
         + " > '@ItemNameKeyClass considered grandChild field' " + MSG;
     Assertions.assertEquals(msg, getMsg(new MultipleLayerInkc(), true, true));
     // itemNamePath + ItemContiner(root)
-    msg = "'ItemContainer considered field' At 'ItemContainer considered child field'"
+    msg = "'ItemContainer considered field' at 'ItemContainer considered child field'"
         + " > 'ItemContainer considered grand child field' " + MSG;
     Assertions.assertEquals(msg, getMsg(new MultipleLayerConRoot(), true, true));
     // itemNamePath + ItemContiner(child)
-    msg = "'ItemContainer considered field' At 'child field'"
+    msg = "'ItemContainer considered field' at 'child field'"
         + " > 'ItemContainer considered grand child field' " + MSG;
     Assertions.assertEquals(msg, getMsg(new MultipleLayerConChild(), true, true));
   }
@@ -203,27 +203,27 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
     Assertions.assertEquals("'ItemContainer considered field 1', 'field 2' are always false.",
         getMsg(new ClassSingleLayerConRoot(), true, true));
     // ClassSingleLayerContainerChild
-    msg = "'ItemContainer considered field 1' At 'child', 'child field 2' At 'child'" + MSG;
+    msg = "'ItemContainer considered field 1' at 'child', 'child field 2' at 'child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new ClassSingleLayerConChild(), true, true));
 
     // ClassMultipleLayer
-    msg = "'field 1' At 'child field' > 'grand child field' > 'the child', "
-        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+    msg = "'field 1' at 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new ClassMultipleLayer(), true, true));
     // ClassMultipleLayer
-    msg = "'ItemNameKeyClass considered field 1' At 'child field' > 'grand child field'"
-        + " > 'the child', 'ItemNameKeyClass considered field 2' At 'child field' "
+    msg = "'ItemNameKeyClass considered field 1' at 'child field' > 'grand child field'"
+        + " > 'the child', 'ItemNameKeyClass considered field 2' at 'child field' "
         + "> 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new ClassMultipleLayerInkc(), true, true));
     // ClassMultipleLayerContainerRoot
     msg = "'ItemContainer considered the child field 1' "
-        + "At 'child field' > 'grand child field' > 'the child', "
-        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+        + "at 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new ClassMultipleLayerConRoot(), true, true));
     // ClassSingleLayerContainerChild
     msg = "'ItemContainer considered the child field 1' "
-        + "At 'child field' > 'grand child field' > 'the child', "
-        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+        + "at 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new ClassMultipleLayerConChild(), true, true));
   }
 
@@ -352,27 +352,27 @@ public class ExceptionUtilTest_getMessageList_NonCollectionValues {
     msg = "'ItemContainer considered field 1', 'field 2'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodSingleLayerConRoot(), true, true));
     // MethodSingleLayerContainerChild
-    msg = "'ItemContainer considered field 1' At 'child', 'child field 2' At 'child'" + MSG;
+    msg = "'ItemContainer considered field 1' at 'child', 'child field 2' at 'child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodSingleLayerConChild(), true, true));
 
     // MethodMultipleLayer
-    msg = "'field 1' At 'child field' > 'grand child field' > 'the child', "
-        + "'field 2' At 'child field' > 'grand child field' > 'the child'" + MSG;
+    msg = "'field 1' at 'child field' > 'grand child field' > 'the child', "
+        + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayer(), true, true));
     // MethodMultipleLayerItemNameKeyClass
-    msg = "'ItemNameKeyClass considered field 1' At 'child field' "
+    msg = "'ItemNameKeyClass considered field 1' at 'child field' "
         + "> 'grand child field' > 'the child', "
-        + "'ItemNameKeyClass considered field 2' At 'child field' "
+        + "'ItemNameKeyClass considered field 2' at 'child field' "
         + "> 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayerInkc(), true, true));
     // MethodMultipleLayerContainerRoot
-    msg = "'ItemContainer considered the child field 1' At 'child field' "
-        + "> 'grand child field' > 'the child', 'field 2' At 'child field' "
+    msg = "'ItemContainer considered the child field 1' at 'child field' "
+        + "> 'grand child field' > 'the child', 'field 2' at 'child field' "
         + "> 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayerConRoot(), true, true));
     // MethodMultipleLayerContainerChild
-    msg = "'ItemContainer considered the child field 1' At 'child field' "
-        + "> 'grand child field' > 'the child', 'field 2' At 'child field' "
+    msg = "'ItemContainer considered the child field 1' at 'child field' "
+        + "> 'grand child field' > 'the child', 'field 2' at 'child field' "
         + "> 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayerConChild(), true, true));
   }
