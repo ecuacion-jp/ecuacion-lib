@@ -22,23 +22,45 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.item.Item;
+import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utilities for Message creation.
  */
 public class MessageUtil {
+  private static final String MSG_CMN_VAL = "${+messages:jp.ecuacion.lib.core.common.value.";
+  private static final String VALUE_PREPEND_SYMBOL = MSG_CMN_VAL + "prependSymbol}";
+  private static final String VALUE_APPEND_SYMBOL = MSG_CMN_VAL + "appendSymbol}";
+  private static final String VALUE_SEPARATOR = MSG_CMN_VAL + "separator}";
 
-  private static final String VALUE_PREPEND_SYMBOL =
-      "${+messages:jp.ecuacion.lib.core.common.value.prependSymbol}";
-  private static final String VALUE_APPEND_SYMBOL =
-      "${+messages:jp.ecuacion.lib.core.common.value.appendSymbol}";
-  private static final String VALUE_SEPARATOR =
-      "${+messages:jp.ecuacion.lib.core.common.value.separator}";
+  private static final String ipf = "jp.ecuacion.lib.core.common.itemName.";
+  private static final String ppf = "jp.ecuacion.lib.core.common.itemNamePath.";
+
+  /**
+   * Returns {@code itemNameKey} value.
+   *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
+   */
+  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Object rootBean,
+      Object leafBeanFromConstraintViolation, String defaultItemNameKeyClass,
+      String itemNameKeyField, String propertyPath) {
+
+    Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
+    // Set finalDefaultItemNameKeyClass.
+    Optional<ItemNameKeyClass> optAn =
+        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
+    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
+
+    return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
+        defaultItemNameKeyClass, leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
+  }
 
   /**
    * Returns {@code itemNameKey} value.
@@ -79,39 +101,11 @@ public class MessageUtil {
 
     } else {
       tmpItemNameKeyField =
-          propertyPath.contains(".") ? propertyPath.substring(propertyPath.lastIndexOf(".") + 1)
-              : propertyPath;
+          PropertyPathUtil.removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
     }
 
     return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;
   }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
-   */
-  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Class<?> leafBeanClass,
-      String defaultItemNameKeyClass, String itemNameKeyClassFromClassName, String itemNameKeyField,
-      String propertyPath) {
-
-    // Set finalDefaultItemNameKeyClass.
-    Optional<ItemNameKeyClass> optAn =
-        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
-
-    return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
-        defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
-  }
-
-
-  // /**
-  // * Returns an array of item names considering prependSymbol, appendSymbol and separator.
-  // */
-  // public static String getItemNames(Locale locale, @RequireNonnull FieldInfoBean[]
-  // fieldNameBeans,
-  // boolean showsItemNamePath) {
-  // return getItemNames(locale, Arrays.asList(fieldNameBeans), showsItemNamePath);
-  // }
 
   /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
@@ -120,28 +114,209 @@ public class MessageUtil {
   public static String getItemNames(Locale locale,
       @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath,
       Object rootBean) {
-    final String prependParenthesis =
-        PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.prependSymbol");
-    final String appendParenthesis =
-        PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.appendSymbol");
-    final String separator =
-        PropertyFileUtil.getMessage(locale, "jp.ecuacion.lib.core.common.itemName.separator");
+    final String separator = PropertyFileUtil.getMessage(locale, ipf + "separator");
+    final String prependSymbol = PropertyFileUtil.getMessage(locale, ipf + "prependSymbol");
+    final String appendSymbol = PropertyFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
     for (FieldInfoBean infoBean : fieldInfoBeanList) {
-      String itemName = PropertyFileUtil.getItemName(locale, infoBean.itemNameKey);
-      itemName = prependParenthesis + itemName + appendParenthesis;
+      String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
 
-      // Add itemNamePath when showsItemNamePath == true.
       if (showsItemNamePath) {
-        String propertyPath = infoBean.fullPropertyPath;
-        System.out.println(propertyPath);
+        itemName =
+            addItemNamePath(locale, rootBean, infoBean, itemName, prependSymbol, appendSymbol);
       }
 
       itemNameList.add(itemName);
     }
 
-    return StringUtil.getSeparatedValuesString(itemNameList, separator);
+    String rtn = StringUtil.getSeparatedValuesString(itemNameList, separator);
+
+    return StringUtils.capitalize(rtn);
+  }
+
+  private static String getItemName(Locale locale, FieldInfoBean infoBean,
+      final String prependSymbol, final String appendSymbol) {
+
+    String itemNameKey = infoBean.itemNameKey();
+
+    // Handle collections and arrays.
+    List<String> collectionLayerList = new ArrayList<>();
+    String rightMostNode = PropertyPathUtil.getRightMostNode(infoBean.propertyPath());
+    while (true) {
+      if (rightMostNode.contains("<K>")) {
+        collectionLayerList.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
+        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("<K>"));
+
+      } else if (rightMostNode.contains("[")) {
+        collectionLayerList.add(rightMostNode.substring(rightMostNode.lastIndexOf("[")));
+        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("["));
+
+      } else {
+        break;
+      }
+    }
+
+    // reverse order
+    collectionLayerList = collectionLayerList.reversed();
+
+    String wholeItemName = null;
+    String itemName =
+        prependSymbol + PropertyFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
+
+    if (collectionLayerList.size() == 0) {
+      wholeItemName = itemName;
+
+    } else {
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < collectionLayerList.size(); i++) {
+        String elName = prependSymbol + "element" + appendSymbol;
+        String itemNamePath = "";
+
+        // Get index. (empty for Set)
+        String itemNameKeyPart = collectionLayerList.get(i);
+        String tmp = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("["));
+        String index = tmp.substring(1, tmp.indexOf("]"));
+
+        // Add "one of ...", "... n", etc...
+        if (itemNameKeyPart.endsWith(PropertyPathUtil.EL_LIST)) {
+          index = Integer.toString(Integer.valueOf(index) + 1);
+        }
+
+        String keyword = null;
+        if (itemNameKeyPart.contains("<")) {
+          keyword = switch (itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"))) {
+            case PropertyPathUtil.EL_LIST -> "order";
+            case PropertyPathUtil.EL_SET -> "any";
+            case PropertyPathUtil.EL_MAP_KEY -> "mapKey";
+            case PropertyPathUtil.EL_MAP_VAL -> "mapValue";
+            default -> throw new RuntimeException("Not assumed.");
+          };
+
+        } else {
+          keyword = "index";
+        }
+
+        itemNamePath = PropertyFileUtil.getMessage(locale, ipf + keyword, elName, index);
+
+        sb.append(
+            (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
+      }
+
+      wholeItemName =
+          PropertyFileUtil.getMessage(locale, ipf + "collectionItemName", itemName, sb.toString());
+    }
+
+    return wholeItemName.toString();
+  }
+
+  private static String addItemNamePath(Locale locale, Object rootBean, FieldInfoBean infoBean,
+      String itemName, final String prependSymbol, final String appendSymbol) {
+
+    final String pstring = PropertyFileUtil.getMessage(locale, ppf + "string");
+    final String pseparator = PropertyFileUtil.getMessage(locale, ppf + "separator");
+
+    // Cut each itemNamePath and put them into a list.
+    String leafBeanPropertyPath =
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(infoBean.propertyPath());
+    List<String> itemNamePathList = new ArrayList<>();
+    String prefix = "";
+    for (String node : PropertyPathUtil.getNodeList(leafBeanPropertyPath)) {
+      itemNamePathList.add(prefix + (prefix.equals("") ? "" : ".") + node);
+      prefix = prefix + (prefix.equals("") ? "" : ".") + node;
+    }
+
+    // Return itemName when no itemNamePath exists.
+    if (itemNamePathList.size() == 0) {
+      return itemName;
+    }
+
+    // The following is when itemNamePath exists.
+
+    List<String> modifiedPathItemNameList = new ArrayList<>();
+    for (String path : itemNamePathList) {
+      FieldInfoBean bean = getFieldInfoBean(path, rootBean, rootBean);
+      modifiedPathItemNameList.add(getItemName(locale, bean, prependSymbol, appendSymbol));
+    }
+
+    String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
+    itemName = PropertyFileUtil.getMessage(pstring, itemName, pathString);
+
+    return itemName;
+  }
+
+  /**
+   * Sets {@code itemNameKey} and {@code showsValue}.
+   * 
+   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
+   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
+   *     needs to be used together.</p>
+   * 
+   * @param propertyPath itemPropertyPath
+   * @return itemNameKey
+   */
+  public static FieldInfoBean getFieldInfoBean(String propertyPath, Object rootBean,
+      Object leafBean) {
+
+    String fullPropertyPath1stPart =
+        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.indexOf(".")) : null;
+
+    // firstChild cannot be obtained when the firstChild is Set or Map key.
+    Object firstChild = null;
+    try {
+      firstChild = fullPropertyPath1stPart == null ? null
+          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+
+    } catch (ElementOfCollectionCannotBeObtainedException ex) {
+      // Do nothing.
+    }
+
+    Item item = null;
+    // boolean setsItemNameKeyClassExplicitly = false;
+
+    String itemNameKey = null;
+    boolean showsValue = true;
+
+    String collectionPartRemovedPropertyPath = propertyPath;
+    while (true) {
+      String rightMostNode = PropertyPathUtil.getRightMostNode(collectionPartRemovedPropertyPath);
+
+      if (rightMostNode.contains("[")) {
+        collectionPartRemovedPropertyPath = collectionPartRemovedPropertyPath.substring(0,
+            collectionPartRemovedPropertyPath.lastIndexOf("["));
+
+      } else if (rightMostNode.contains("<")) {
+        collectionPartRemovedPropertyPath = collectionPartRemovedPropertyPath.substring(0,
+            collectionPartRemovedPropertyPath.lastIndexOf("<"));
+
+      } else {
+        break;
+      }
+    }
+
+    // Get item if exists.
+    if (rootBean instanceof ItemContainer) {
+      // the case that rootBean is an EclibRecord
+      item = ((ItemContainer) rootBean).getItem(propertyPath);
+
+    } else if (firstChild != null && firstChild instanceof ItemContainer) {
+
+      // the case that EclibRecord is stored in form or something
+      item = ((ItemContainer) firstChild)
+          .getItem(propertyPath.substring(fullPropertyPath1stPart.length() + 1));
+    }
+
+    if (item == null) {
+      itemNameKey = MessageUtil.getItemNameKey(null, rootBean, leafBean, null, null, propertyPath);
+
+    } else {
+      itemNameKey = item.getItemNameKey();
+      showsValue = item.getShowsValue();
+    }
+
+    FieldInfoBean bean = new FieldInfoBean(propertyPath, itemNameKey, showsValue);
+
+    return bean;
   }
 
   /**

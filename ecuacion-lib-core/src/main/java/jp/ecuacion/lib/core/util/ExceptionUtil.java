@@ -31,7 +31,6 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationBeanException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.SingleAppException;
@@ -39,7 +38,9 @@ import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.exception.unchecked.UncheckedAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 
@@ -61,7 +62,8 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolations) {
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations) {
     return getMessageList(constraintViolations, null, null, null);
   }
 
@@ -69,24 +71,25 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolations,
-      @Nullable Locale locale) {
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale) {
     return getMessageList(constraintViolations, locale, null, null);
   }
 
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
+   *     messageParameters.isMessageWithItemName value is adopted 
+   *     when messageParameters.isMessageWithItemName is not null 
    *     (= explicitly specified in ValidationUtil.validate).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolationSet,
       @Nullable Boolean isValidationMessagesWithItemNamesAsDefault) {
     return getMessageList(constraintViolationSet, null, isValidationMessagesWithItemNamesAsDefault);
   }
@@ -94,35 +97,37 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
+   *     messageParameters.isMessageWithItemName value is adopted 
+   *     when messageParameters.isMessageWithItemName is not null 
    *     (= explicitly specified in ValidationUtil.validate).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolationSet,
-      @Nullable Locale locale, @Nullable Boolean isValidationMessagesWithItemNamesAsDefault) {
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolationSet, @Nullable Locale locale,
+      @Nullable Boolean isValidationMessagesWithItemNamesAsDefault) {
 
-    return getMessageList(new ConstraintViolationBeanException(constraintViolationSet), locale,
-        isValidationMessagesWithItemNamesAsDefault);
+    return getMessageList(constraintViolationSet, locale,
+        isValidationMessagesWithItemNamesAsDefault, ValidationUtil.messageParameters());
   }
 
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
+   *     messageParameters.isMessageWithItemName value is adopted 
+   *     when messageParameters.isMessageWithItemName is not null 
    *     (= explicitly specified in ValidationUtil.validate).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolations,
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations,
       @Nullable Boolean isValidationMessagesWithItemNamesAsDefault,
       @Nullable MessageParameters messageParameters) {
 
@@ -133,40 +138,26 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
+   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
+   *     messageParameters.isMessageWithItemName value is adopted 
+   *     when messageParameters.isMessageWithItemName is not null 
    *     (= explicitly specified in ValidationUtil.validate).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
+   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
   @Nonnull
-  public static <T> List<String> getMessageList(@RequireNonnull Set<T> constraintViolations,
-      @Nullable Locale locale, @Nullable Boolean isValidationMessagesWithItemNamesAsDefault,
+  public static <T> List<String> getMessageList(
+      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale,
+      @Nullable Boolean isValidationMessagesWithItemNamesAsDefault,
       @Nullable MessageParameters messageParameters) {
 
     if (constraintViolations == null || constraintViolations.size() == 0) {
       throw new EclibRuntimeException("Size of ConstraintViolation is zero.");
     }
 
-    Exception ex = null;
-    T obj = constraintViolations.stream().toList().get(0);
-
-    if (obj instanceof ConstraintViolation) {
-      Set<? extends ConstraintViolation<?>> set = new HashSet<>(
-          constraintViolations.stream().map(cv -> (ConstraintViolation<?>) cv).toList());
-      ex = new ConstraintViolationExceptionWithParameters(set, messageParameters);
-
-    } else if (obj instanceof ConstraintViolationBean) {
-      Set<? extends ConstraintViolationBean<?>> set = new HashSet<>(
-          constraintViolations.stream().map(cv -> (ConstraintViolationBean<?>) cv).toList());
-      ex = new ConstraintViolationBeanException(set);
-
-    } else {
-      throw new EclibRuntimeException(
-          "T needs to be an instance of either ConstraintViolation or ConstraintViolationBean.");
-    }
+    Exception ex =
+        new ConstraintViolationExceptionWithParameters(constraintViolations, messageParameters);
 
     return getMessageList(ex, locale, isValidationMessagesWithItemNamesAsDefault);
   }
@@ -294,15 +285,14 @@ public class ExceptionUtil {
           : null;
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
-        exList.add(new ValidationAppException(
-            new ConstraintViolationBean<>(cv).setMessageParameters(params)));
+        exList.add(new ValidationAppException(cv, params));
       }
 
-    } else if (throwable instanceof ConstraintViolationBeanException) {
-      ConstraintViolationBeanException cve = (ConstraintViolationBeanException) throwable;
-      for (ConstraintViolationBean<?> cv : cve.getConstraintViolationBeans()) {
-        exList.add(new ValidationAppException(cv));
-      }
+      // } else if (throwable instanceof ConstraintViolationBeanException) {
+      // ConstraintViolationBeanException cve = (ConstraintViolationBeanException) throwable;
+      // for (ConstraintViolationBean<?> cv : cve.getConstraintViolationBeans()) {
+      // exList.add(new ValidationAppException(cv));
+      // }
 
     } else {
       exList.add(throwable);
@@ -327,10 +317,13 @@ public class ExceptionUtil {
         String message = null;
         try {
           ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
-          final Map<String, Object> map = new HashMap<>(bean.getParamMap());
+          final Map<String, Object> map = new HashMap<>(bean.getEmbeddedParamMap());
+
+          // Get localize-needed message embedded parameters
+          Set<LocalizedEmbeddedParameter> embeddedParameterSet = getMessageParameterSet(bean);
 
           // Add parameters from messageParameterSet.
-          for (LocalizedMessageParameter paramBean : bean.getMessageParameterSet()) {
+          for (LocalizedEmbeddedParameter paramBean : embeddedParameterSet) {
 
             // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
             if (paramBean.fileKinds() == null || paramBean.fileKinds().length == 0) {
@@ -353,6 +346,8 @@ public class ExceptionUtil {
           }
 
           MessageParameters messageParameters = ex.getMessageParameters();
+          messageParameters = messageParameters == null ? new ValidationUtil.MessageParameters()
+              : messageParameters;
 
           // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
           // because it is specified for each validation,
@@ -361,13 +356,15 @@ public class ExceptionUtil {
               ? messageParameters.isMessageWithItemName()
               : isValidationMessagesWithItemNamesAsDefault;
           message = bl
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageId(), map)
-              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageId(), map);
+              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
+                  map)
+              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
 
           // Replace {0} to itemName.
           if (message.contains("{0}")) {
-            message = MessageFormat.format(message, MessageUtil.getItemNames(locale,
-                bean.getFieldInfoBeanList(), messageParameters.showsItemNamePath()));
+            message = MessageFormat.format(message,
+                MessageUtil.getItemNames(locale, bean.getFieldInfoBeanList(),
+                    messageParameters.showsItemNamePath(), bean.getRootBean()));
           }
 
           // add prefix and postfix messages.
@@ -395,6 +392,40 @@ public class ExceptionUtil {
 
     return rtnList;
 
+  }
+
+  private static Set<LocalizedEmbeddedParameter> getMessageParameterSet(
+      ConstraintViolationBean<?> cvBean) {
+    Set<LocalizedEmbeddedParameter> rtnSet = new HashSet<>();
+    List<FieldInfoBean> beanList = cvBean.getFieldInfoBeanList();
+
+    // invalidValue
+    if (!beanList.get(0).showsValue()) {
+      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
+      rtnSet.add(new LocalizedEmbeddedParameter("invalidValue",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
+      // argMap.put(, PropertyFileUtil.getMessage(locale, key));
+    }
+
+    // Comparison validators
+    if (cvBean.getEmbeddedParamMap().containsKey("baselinePropertyPath")) {
+      String bpp = (String) cvBean.getEmbeddedParamMap().get("baselinePropertyPath");
+      String itemNameKey =
+          MessageUtil.getFieldInfoBean(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
+              .itemNameKey();
+      rtnSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
+          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+          itemNameKey));
+    }
+
+    // Obtain and put additional parameters for its violation message to messageParameterSet.
+    String className = cvBean.getValidatorClass() + "MessageParameterCreator";
+    if (ReflectionUtil.classExists(className)) {
+      rtnSet.addAll(((ValidatorMessageParameterCreator) ReflectionUtil.newInstance(className))
+          .create(cvBean, cvBean.getEmbeddedParamMap()));
+    }
+
+    return rtnSet;
   }
 
   /*
@@ -670,5 +701,18 @@ public class ExceptionUtil {
       sb.append("\tat " + packageAndClass + "." + ste.getMethodName() + "(" + ste.getFileName()
           + ":" + ste.getLineNumber() + ")" + RT);
     }
+  }
+
+  /**
+   * Stores parameters of information on a message for ValidationAppException.
+   * 
+   * <p>It is resolved to message value at ExceptionHandler
+   *     Because there is a locale there.</p>
+   *     
+   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
+   *     propertyPathKey is set as the value.</p>
+   */
+  public static record LocalizedEmbeddedParameter(String parameterKey,
+      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
   }
 }

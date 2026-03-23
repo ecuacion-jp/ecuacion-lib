@@ -17,24 +17,21 @@ package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Path;
+import jakarta.validation.metadata.ConstraintDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.PropertyFileUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import org.apache.commons.lang3.StringUtils;
 
 /** 
@@ -42,162 +39,149 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * <p>The reason of the existence of the class is that the violations 
  *     which are not created by {@code Jakarata Validation} can also be treated 
- *     just like the one created by {@code Jakarata Validation}.</p>
+ *     just as the one created by {@code Jakarata Validation}.</p>
  */
-public class ConstraintViolationBean<T> extends ReflectionUtil {
-  private ConstraintViolation<T> cv;
+public class ConstraintViolationBean<T> extends ReflectionUtil implements ConstraintViolation<T> {
 
   // properties in ConstraintViolation
 
-  private Object rootBean;
+  private T rootBean;
   private Object leafBean;
   private String validatorClass;
+  /** 
+   * The propertyPath ConstraintViolation stores.<br>
+   * It is different from fieldInfoBean.propertyPath 
+   * when classValidators or methodValidators are used.
+   */
+  private String constraintViolationPropertyPath;
+  private Object invalidValue;
   private String messageTemplate;
-  private String originalMessage;
+  private String message;
 
   // values needed for all the patterns
 
-  private List<FieldInfoBean> fieldInfoBeanList;
-
-  private MessageParameters messageParameters = new MessageParameters();
-
-  // values needed for validations for form
-
-  private String rootRecordNameForForm;
-
+  private ValidatorKindEnum validatorKind;
+  private List<FieldInfoBean> fieldInfoBeanList = new ArrayList<>();
   @Nonnull
-  private Map<String, Object> paramMap = new HashMap<>();
-  private Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
+  private Map<String, Object> embeddedParamMap = new HashMap<>();
 
-  private void putArgsToFields(Object rootBean, Object leafBean, String validatorClass,
-      String originalMessage, String messageTemplate, String rootRecordNameForForm,
-      List<FieldInfoBean> beanList) {
+  private void putArgsToFields(ValidatorKindEnum validatorKind, T rootBean, Object leafBean,
+      String validatorClass, String message, String messageTemplate,
+      String constraintViolationPropertyPath, List<String> propertyPathList, Object invalidValue) {
+    this.validatorKind = validatorKind;
     this.rootBean = rootBean;
     this.leafBean = leafBean;
     this.validatorClass = validatorClass;
-    this.originalMessage = originalMessage;
+    this.constraintViolationPropertyPath = constraintViolationPropertyPath;
+    this.invalidValue = invalidValue;
+    this.message = message;
     this.messageTemplate = messageTemplate;
-    this.rootRecordNameForForm = rootRecordNameForForm;
-    this.fieldInfoBeanList = beanList;
 
-    getItemDependentValues(beanList, rootBean, leafBean, rootRecordNameForForm);
-  }
+    for (int i = 0; i < propertyPathList.size(); i++) {
+      String fullPropertyPath = propertyPathList.get(i);
+      fieldInfoBeanList.add(MessageUtil.getFieldInfoBean(fullPropertyPath, rootBean, leafBean));
+    }
 
-  private void putArgsToParamMap(Object invalidValue) {
-    paramMap.put("invalidValue", invalidValue.toString());
+    embeddedParamMap.put("invalidValue", invalidValue);
 
     // Put field in this instance to paramMap
-    paramMap.put("annotation", validatorClass);
-    paramMap.put("itemAttributes",
+    embeddedParamMap.put("annotation", validatorClass);
+    embeddedParamMap.put("itemAttributes",
         fieldInfoBeanList.toArray(new FieldInfoBean[fieldInfoBeanList.size()]));
   }
 
   /**
-   * Constructs a new instance with parameters, not a ConstraintViolation.
-   * 
-   * <p>This is used for {@code NotEmpty} validation logic.</p>
+   * Constructs a new instance.
    */
-  public ConstraintViolationBean(T rootBean, String message, String validatorClass,
-      String rootRecordNameForForm, String itemPropertyPath) {
-
-    List<FieldInfoBean> beanList = new ArrayList<>();
-    beanList.add(new FieldInfoBean(rootRecordNameForForm + "." + itemPropertyPath));
-    beanList.get(0).itemPropertyPathForForm = itemPropertyPath;
-
-    putArgsToFields(rootBean, getLeafBean(rootBean, rootRecordNameForForm + "." + itemPropertyPath),
-        validatorClass, message, validatorClass + ".message", rootRecordNameForForm, beanList);
-
-    putArgsToParamMap("(empty)");
-
-    // "paramMap" is used to get strings to embed them to error messages,
-    // but @NotEmpty does not need parameter strings because the message is like
-    // "The input is empty." and that's all so params are not really needed.
-    // this.paramMap = new HashMap<>();
+  public ConstraintViolationBean(String validatorClassName, T rootBean, String messageTemplate,
+      String propertyPath) {
+    this(validatorClassName, rootBean, null, messageTemplate, propertyPath);
   }
 
   /**
-   * Constructs a new instance with {@code ConstraintViolation}.
+   * Constructs a new instance.
+   */
+  public ConstraintViolationBean(String validatorClassName, T rootBean, Object invalidValue,
+      String messageTemplate, String propertyPath) {
+    this(ValidatorKindEnum.FIELD, validatorClassName, rootBean, rootBean, invalidValue,
+        messageTemplate, null, propertyPath, propertyPath);
+  }
+
+  /**
+   * Constructs a new instance with parameters, not a ConstraintViolation.
+   */
+  public ConstraintViolationBean(ValidatorKindEnum validatorKind, String validatorClassName,
+      T rootBean, Object leafBean, Object invalidValue, String messageTemplate,
+      Map<String, Object> embeddedParameterMap, String constraintViolationPropertyPath,
+      String... propertyPaths) {
+
+    putArgsToFields(validatorKind, rootBean, leafBean, validatorClassName,
+        PropertyFileUtil.getValidationMessage(Locale.ENGLISH, messageTemplate, new HashMap<>()),
+        messageTemplate, constraintViolationPropertyPath, List.of(propertyPaths),
+        invalidValue == null ? null : invalidValue.toString());
+
+    if (embeddedParameterMap != null) {
+      this.embeddedParamMap.putAll(embeddedParameterMap);
+    }
+  }
+
+  /**
+   * Creates a new ConstraintViolationBean instance from {@code ConstraintViolation}.
+   * 
+   * <p>Developers don't need to use this. It is used only in ecuacion libraries.</p>
    * 
    * @param cv ConstraintViolation
    */
-  public ConstraintViolationBean(ConstraintViolation<T> cv) {
-    this.cv = cv;
+  public static <U> ConstraintViolationBean<U> createConstraintViolationBean(
+      ConstraintViolation<U> cv) {
 
-    // Initialize paramMap.
-    if (cv.getConstraintDescriptor().getAttributes() != null) {
-      this.paramMap = new HashMap<>(cv.getConstraintDescriptor().getAttributes());
-      // Remove keys which are not used as message parameters.
-      paramMap.remove("groups");
-      paramMap.remove("message");
-      paramMap.remove("payload");
-    }
+    boolean isParamNull = cv.getConstraintDescriptor().getAttributes() == null;
 
-    // Check if the validator is for class or field.
-    boolean isClassValidator = cv.getConstraintDescriptor().getAnnotation().annotationType()
-        .getAnnotation(PlacedAtClass.class) != null;
+    // embeddedParamMap
+    Map<String, Object> embeddedParamMap =
+        isParamNull ? new HashMap<>() : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
+    // Remove keys which are not used as message parameters.
+    embeddedParamMap.remove("groups");
+    embeddedParamMap.remove("message");
+    embeddedParamMap.remove("payload");
 
-    // propertyPath
+    // validatorClass
+    Class<?> validatorClass = cv.getConstraintDescriptor().getConstraintValidatorClasses().get(0);
+
+    // validatorKind
+    boolean isMultiplePropertyPathsValidator =
+        MultiplePropertyPathsValidator.class.isAssignableFrom(validatorClass);
+    boolean isClassValidator = ClassValidator.class.isAssignableFrom(validatorClass);
+    ValidatorKindEnum validatorKind = isMultiplePropertyPathsValidator
+        ? (isClassValidator ? ValidatorKindEnum.CLASS : ValidatorKindEnum.METHOD)
+        : ValidatorKindEnum.FIELD;
+
+    // propertyPathList
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    List<String> fullPpList = null;
-    if (isClassValidator) {
-      fullPpList = (Arrays.asList((String[]) paramMap.get("propertyPath")).stream()
-          .map(p -> (StringUtils.isEmpty(cvPp) ? "" : cvPp + ".") + p).toList());
+    List<String> ppList = null;
+    if (isMultiplePropertyPathsValidator) {
+      // Base differs class from method.
+      String cvPpBase = isClassValidator ? cvPp
+          : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
+      String cvPpPrefix = (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".");
+
+      ppList = (Arrays.asList((String[]) embeddedParamMap.get("propertyPath")).stream()
+          .map(p -> cvPpPrefix + p).toList());
 
     } else {
-      fullPpList = new ArrayList<>();
-      fullPpList.add(cvPp);
+      ppList = new ArrayList<>();
+      ppList.add(cvPp);
     }
 
-    List<FieldInfoBean> beanList = new ArrayList<>();
-    fullPpList.stream().forEach(pp -> beanList.add(new FieldInfoBean(pp)));
-    beanList.stream()
-        .peek(bean -> bean.itemPropertyPathForForm = bean.fullPropertyPath.contains(".")
-            ? bean.fullPropertyPath.substring(bean.fullPropertyPath.indexOf(".") + 1)
-            : bean.fullPropertyPath)
-        .toList();
-    String fullPp0 = fullPpList.get(0);
     String rootClassName = StringUtils.uncapitalize(cv.getRootBean().getClass().getSimpleName());
     // remove "aClass$" from "aClass$bCLass" when the class is internal.
     rootClassName = rootClassName.split("\\$")[rootClassName.split("\\$").length - 1];
-    String rootRecordNameForForm =
-        fullPp0.contains(".") ? fullPp0.substring(0, fullPp0.indexOf(".")) : rootClassName;
 
-    // Substitute to common fields.
-    putArgsToFields(cv.getRootBean(), cv.getLeafBean(),
-        cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getMessage(),
-        // Remove {} since the value is usually enclosed with {} like
-        // {jakarta.validation.constraints.Pattern.message}.
-        cv.getMessageTemplate().replace("{", "").replace("}", ""), rootRecordNameForForm, beanList);
-
-    // Put params to paramMap.
-    // When localized messages are created, parameters are refered from the map.
-
-    putArgsToParamMap(getInvalidValue());
-
-    // invalidValue
-    if (!beanList.get(0).showsValue) {
-      String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
-      messageParameterSet.add(new LocalizedMessageParameter("invalidValue",
-          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
-      // argMap.put(, PropertyFileUtil.getMessage(locale, key));
-    }
-
-    // Comparison validators
-    if (paramMap.containsKey("baselinePropertyPath")) {
-      String bpp = (String) paramMap.get("baselinePropertyPath");
-      String itemNameKey = getItemDependentValues(bpp, leafBean.getClass(), rootBean,
-          rootRecordNameForForm).itemNameKey;
-      messageParameterSet.add(new LocalizedMessageParameter("baselinePropertyPathItemName",
-          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
-          itemNameKey));
-    }
-
-    // Obtain and put additional parameters for its violation message to messageParameterSet.
-    String className = getValidatorClass() + "MessageParameterCreator";
-    if (classExists(className)) {
-      messageParameterSet.addAll(((ValidatorMessageParameterCreator) newInstance(className))
-          .create(cv, paramMap, rootRecordNameForForm));
-    }
+    return new ConstraintViolationBean<>(validatorKind,
+        cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getRootBean(),
+        cv.getLeafBean(), cv.getInvalidValue(),
+        cv.getMessageTemplate().replace("{", "").replace("}", ""), embeddedParamMap,
+        cv.getPropertyPath().toString(), ppList.toArray(new String[ppList.size()]));
   }
 
   /** 
@@ -207,102 +191,50 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   @Override
   public @Nonnull String toString() {
-    return "message:" + getOriginalMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
+    return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
         + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil
-            .getCsv(getFieldInfoBeanList().stream().map(b -> b.itemPropertyPathForForm).toList())
+        + StringUtil.getCsv(getFieldInfoBeanList().stream().map(b -> b.propertyPath).toList())
         + "\n" + "invalidValue:" + getInvalidValue();
   }
 
-  /**
-   * Gets item dependent values.
-   */
-  public static void getItemDependentValues(List<FieldInfoBean> beanList, Object rootBean,
-      Object leafBean, String rootRecordNameForForm) {
-
-    for (FieldInfoBean bean : beanList) {
-      FieldInfoBean newBean = getItemDependentValues(bean.fullPropertyPath, leafBean.getClass(),
-          rootBean, rootRecordNameForForm);
-      bean.itemNameKey = newBean.itemNameKey;
-      bean.showsValue = newBean.showsValue;
-    }
-  }
-
-  /**
-   * Sets {@code itemNameKey} and {@code showsValue}.
-   * 
-   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
-   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
-   *     needs to be used together.</p>
-   * 
-   * @param fullPropertyPath itemPropertyPath
-   * @return itemNameKey
-   */
-  public static FieldInfoBean getItemDependentValues(String fullPropertyPath,
-      Class<?> leafBeanClass, Object rootBean, String rootRecordNameForForm) {
-
-    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
-        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
-        : null;
-    Object firstChild = fullPropertyPath1stPart == null ? null
-        : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
-
-    FieldInfoBean bean = new FieldInfoBean(fullPropertyPath);
-    Item item = null;
-    // boolean setsItemNameKeyClassExplicitly = false;
-
-    boolean isChildItemContainer = false;
-
-    // Get item if exists.
-    if (rootBean instanceof ItemContainer) {
-      // the case that rootBean is an EclibRecord
-      item = ((ItemContainer) rootBean).getItem(fullPropertyPath);
-
-    } else if (firstChild != null && firstChild instanceof ItemContainer) {
-      isChildItemContainer = true;
-
-      // the case that EclibRecord is stored in form or something
-      item = ((ItemContainer) firstChild)
-          .getItem(fullPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
-    }
-
-    if (item == null) {
-      // Set finalDefaultItemNameKeyClass.
-      Optional<ItemNameKeyClass> optAn =
-          ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-      String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
-
-      // bean.itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
-      bean.itemNameKey = MessageUtil.getItemNameKey(null, itemNameKeyClassFromAnnotation, null,
-          leafBeanClass.getSimpleName(), null, fullPropertyPath);
-
-    } else {
-      bean.itemNameKey = item.getItemNameKey(isChildItemContainer ? rootRecordNameForForm : null);
-      // setsItemNameKeyClassExplicitly = item.setsItemNameKeyClassExplicitly();
-      bean.showsValue = item.getShowsValue();
-    }
-
-    return bean;
-  }
-
-  public Object getRootBean() {
+  public T getRootBean() {
     return rootBean;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Class<T> getRootBeanClass() {
+    return (Class<T>) rootBean.getClass();
   }
 
   public Object getLeafBean() {
     return leafBean;
   }
 
-  /**
-   * Gets message created by jakarta validation.
-   * 
-   * <p>DO NOT USE for user interface. Use the message obtained by ExceptionUtil instead.</p>
-   * 
-   * @return original message
-   */
-  public String getOriginalMessage() {
-    return originalMessage;
+  @Override
+  public Path getPropertyPath() {
+    return new Path() {
+
+      public String toString() {
+        return constraintViolationPropertyPath;
+      }
+
+      @Override
+      public Iterator<Node> iterator() {
+        return null;
+      }
+    };
+  }
+
+  @Override
+  public String getMessage() {
+    return message;
+  }
+
+  @Override
+  public @Nonnull String getMessageTemplate() {
+    return messageTemplate;
   }
 
   public String getValidatorClass() {
@@ -310,52 +242,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   }
 
   public String getInvalidValue() {
-    return (cv == null || cv.getInvalidValue() == null) ? "null" : cv.getInvalidValue().toString();
+    return invalidValue == null ? "null" : invalidValue.toString();
   }
 
-  public @Nonnull String getMessageId() {
-    return messageTemplate;
-  }
-
-  /**
-   * Sets isMessageWithItemName.
-   */
-  public void setMessageWithItemName(Boolean isMessageWithItemName) {
-    this.messageParameters.isMessageWithItemName(isMessageWithItemName);
-  }
-
-  /**
-   * Sets messagePrefix.
-   */
-  public void setMessagePrefix(Arg messagePrefix) {
-    this.messageParameters.messagePrefix(messagePrefix);
-  }
-
-  /**
-   * Sets messagePostfix.
-   */
-  public void setMessagePostfix(Arg messagePostfix) {
-    this.messageParameters.messagePostfix(messagePostfix);
-  }
-
-  public MessageParameters getMessageParameters() {
-    return messageParameters;
-  }
-
-  /**
-   * Sets MessageParameters and returns ConstraintViolationBean for method chain.
-   */
-  public ConstraintViolationBean<?> setMessageParameters(MessageParameters messageParameters) {
-    if (messageParameters == null) {
-      messageParameters = new MessageParameters();
-    }
-
-    this.messageParameters = messageParameters;
-    return this;
-  }
-
-  public String getRootRecordNameForForm() {
-    return rootRecordNameForForm;
+  public ValidatorKindEnum getValidatorKind() {
+    return validatorKind;
   }
 
   public List<FieldInfoBean> getFieldInfoBeanList() {
@@ -367,54 +258,44 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   }
 
   @Nonnull
-  public Map<String, Object> getParamMap() {
-    return paramMap;
+  public Map<String, Object> getEmbeddedParamMap() {
+    return embeddedParamMap;
   }
 
-  public Set<LocalizedMessageParameter> getMessageParameterSet() {
-    return messageParameterSet;
+  @Override
+  public Object[] getExecutableParameters() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public Object getExecutableReturnValue() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public ConstraintDescriptor<?> getConstraintDescriptor() {
+    throw new RuntimeException("Not assumed to call.");
+  }
+
+  @Override
+  public <U> U unwrap(Class<U> type) {
+    throw new RuntimeException("Not assumed to call.");
   }
 
   /**
    * Stores field-unit parameters.
+   * 
+   * @param propertyPath The key of the bean.
+   *     It's a propertyPath which designate from rootBean to the violation-occurring field.
    */
-  public static class FieldInfoBean {
+  public static record FieldInfoBean(String propertyPath, String itemNameKey, boolean showsValue) {
 
-    /** 
-     * The key of the bean.
-     * It's a propertyPath which designate from rootBean to the violation-occurring field.
-     */
-    public String fullPropertyPath;
-
-    /** 
-     * When a validator added to a class detects a violation, 
-     * it can be a combination of values between multiple items. 
-     * In that case you want to set error multiple itemPropertyPaths for those items.
-     */
-    public String itemPropertyPathForForm;
-
-    public String itemNameKey;
-
-    public boolean showsValue = true;
-
-    /**
-     * Constructs a new instance.
-     */
-    public FieldInfoBean(String fullPropertyPath) {
-      this.fullPropertyPath = fullPropertyPath;
-    }
   }
 
   /**
-   * Stores parameters of information on a message for ValidationAppException.
-   * 
-   * <p>It is resolved to message value at ExceptionHandler
-   *     Because there is a locale there.</p>
-   *     
-   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
-   *     propertyPathKey is set as the value.</p>
+   * Stores validation kind.
    */
-  public static record LocalizedMessageParameter(String parameterKey,
-      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
+  public static enum ValidatorKindEnum {
+    CLASS, METHOD, FIELD;
   }
 }

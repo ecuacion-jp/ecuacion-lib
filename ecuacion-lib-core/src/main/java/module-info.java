@@ -44,7 +44,7 @@ module jp.ecuacion.lib.core {
   requires org.hibernate.validator;
   requires jakarta.el;
 
-  opens jp.ecuacion.lib.core.jakartavalidation.bean to org.hibernate.validator;
+  opens jp.ecuacion.lib.core.jakartavalidation.constraints to org.hibernate.validator;
 
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
@@ -79,7 +79,7 @@ module jp.ecuacion.lib.core {
   provides jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider
       with jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesLibCoreProviderImpl;
   provides jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibCoreProvider with
-  jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesWithItemNamesLibCoreProviderImpl;
+      jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesWithItemNamesLibCoreProviderImpl;
 
   uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
   uses jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider;
@@ -108,10 +108,13 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.test.spi.internal.MessagesLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.ValidationMessagesLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal.ValidationMessagesWithItemNamesLibCoreTestProviderImpl;
 
   uses jp.ecuacion.lib.core.test.spi.ApplicationLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider;
 
   // lib-core : customized
   provides jp.ecuacion.lib.core.test.spi.Test92NoneLibCoreTestProvider
@@ -144,9 +147,9 @@ module jp.ecuacion.lib.core {
   provides jp.ecuacion.lib.core.test.spi.MessagesLibValidationTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.MessagesLibValidationTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ItemNamesLibValidationTestProvider
-  with jp.ecuacion.lib.core.test.spi.internal.ItemNamesLibValidationTestProviderImpl;
+      with jp.ecuacion.lib.core.test.spi.internal.ItemNamesLibValidationTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.EnumNamesLibValidationTestProvider
-  with jp.ecuacion.lib.core.test.spi.internal.EnumNamesLibValidationTestProviderImpl;
+      with jp.ecuacion.lib.core.test.spi.internal.EnumNamesLibValidationTestProviderImpl;
 
   uses jp.ecuacion.lib.core.test.spi.MessagesLibValidationTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ItemNamesLibValidationTestProvider;

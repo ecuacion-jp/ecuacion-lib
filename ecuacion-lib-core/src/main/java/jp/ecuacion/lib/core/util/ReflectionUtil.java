@@ -18,9 +18,12 @@ package jp.ecuacion.lib.core.util;
 import jakarta.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -41,6 +44,41 @@ public class ReflectionUtil {
     } catch (ClassNotFoundException ex) {
       return false;
     }
+  }
+
+  /**
+   * Returns class specified by propertyPath.
+   */
+  public static Class<?> getClass(Class<?> rootBeanClass, String propertyPath) {
+    Class<?> tmpClass = rootBeanClass;
+    for (String node : PropertyPathUtil.getNodeList(propertyPath)) {
+      String nodeWithoutCollectionPart = PropertyPathUtil.removeCollectionPart(node);
+
+      try {
+        Field tmpField = getField(tmpClass, nodeWithoutCollectionPart);
+        tmpClass = tmpField.getType();
+        String tmpNode = node;
+
+        if (!tmpNode.contains("[")) {
+          continue;
+        }
+
+        // Count the number of "[" in propertyPath.
+        int count = propertyPath.length() - propertyPath.replaceAll("\\[", "").length();
+
+        Type type = tmpField.getGenericType();
+        for (int i = 0; i < count; i++) {
+          type = ((ParameterizedType) type).getActualTypeArguments()[0];
+        }
+
+        return tmpClass = Class.forName(type.getTypeName());
+
+      } catch (Exception ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    return tmpClass;
   }
 
   /**
@@ -75,7 +113,8 @@ public class ReflectionUtil {
       Class<?> classOfTargetInstance, Class<A> annotation) {
     while (true) {
       // No more ancestors
-      if (classOfTargetInstance == Object.class) {
+      // Equals to null when it's an anonymous class created directly from Interface.
+      if (classOfTargetInstance == null || classOfTargetInstance == Object.class) {
         return Optional.empty();
       }
 
@@ -85,114 +124,6 @@ public class ReflectionUtil {
       }
 
       classOfTargetInstance = classOfTargetInstance.getSuperclass();
-    }
-  }
-
-  /**
-   * Obtains a field value with any scopes and searches fields in super classes.
-   * 
-   * <p>Since Class#getDeclaredField is used in the method, 
-   *     making its scope public causes a spotbugs error.<br>
-   *     That's why its scope is protected
-   *     and when you use it you need to extend this class.</p>
-   * 
-   * <code>
-   * Public method 
-   * jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
-   * uses reflection to modify a field it gets in its parameter 
-   * which could increase the accessibility of any class. 
-   * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
-   * </code>
-   */
-  protected static Object getValue(Object object, String propertyPath) {
-    try {
-
-      while (true) {
-        if (propertyPath.contains(".")) {
-          String leftMostOfPropertyPath = propertyPath.substring(0, propertyPath.indexOf("."));
-          String theRestOfPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
-
-          return getValue(getValue(object, leftMostOfPropertyPath), theRestOfPropertyPath);
-
-        } else {
-          if (propertyPath.contains("[")) {
-            String propertyPathWithoutIndex = propertyPath.substring(0, propertyPath.indexOf("["));
-            String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
-            // It's string because it can be non-number value when the validated object is Map.
-            String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
-            Field rootField = getField(object.getClass(), propertyPathWithoutIndex);
-            rootField.setAccessible(true);
-            Object objs = rootField.get(object);
-
-            // Resolve the field for array or List.
-            // Occur an exception for any other collections
-            // because it's impossible to speciry the element in Set
-            // (since the propertyPath is like "childSet[]")
-            // and Map (since the propertyPath is like "childMap[test]"
-            // where test is the key of them map entry. Any type can be key and
-            // it's impossible to resolve it).
-            if (objs instanceof Object[]) {
-              return ((Object[]) objs)[Integer.parseInt(index)];
-
-            } else if (objs instanceof List<?>) {
-              return ((List<?>) objs).get(Integer.parseInt(index));
-
-            } else {
-              throw new EclibRuntimeException("Multiple value types other than array and List "
-                  + "are not supported. The type of value: " + objs.getClass().getCanonicalName());
-            }
-
-          } else {
-            Field rootField = getField(object.getClass(), propertyPath);
-            rootField.setAccessible(true);
-            return rootField.get(object);
-          }
-        }
-      }
-
-    } catch (IllegalArgumentException | IllegalAccessException ex) {
-      throw new EclibRuntimeException(
-          "Field value cannot be obtained " + "from the field name '" + propertyPath + "'", ex);
-    }
-  }
-
-  /**
-   * Returns leafBean from rootBean and propertyPath from rootBean.
-   */
-  public static Object getLeafBean(Object rootBean, String propertyPath) {
-    String leafBeanItemPropertyPath =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf("."))
-            : null;
-
-    return leafBeanItemPropertyPath == null ? rootBean
-        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
-  }
-
-  /**
-   * Returns leafBean from rootBean and propertyPath from rootBean.
-   */
-  public static Class<?> getLeafBeanClass(Class<?> rootBeanClass, String propertyPath) {
-
-    String tmpPropertyPath = propertyPath;
-    Class<?> cls = rootBeanClass;
-
-    while (true) {
-      if (!tmpPropertyPath.contains(".")) {
-        return cls;
-      }
-
-      String root = tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("."));
-      tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf(".") + 1);
-
-      Field field = null;
-      try {
-        field = cls.getDeclaredField(root);
-
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-
-      cls = field.getType();
     }
   }
 
@@ -245,5 +176,113 @@ public class ReflectionUtil {
     }
 
     throw new RuntimeException(ex);
+  }
+
+  /**
+   * Obtains a field value with any scopes and searches fields in super classes.
+   * 
+   * <p>Since Class#getDeclaredField is used in the method, 
+   *     making its scope public causes a spotbug's error.<br>
+   *     That's why its scope is protected
+   *     and you need to extend this class when you use it .</p>
+   * 
+   * <code>
+   * Public method 
+   * jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
+   * uses reflection to modify a field it gets in its parameter 
+   * which could increase the accessibility of any class. 
+   * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
+   * </code>
+   */
+  protected static Object getValue(Object object, String propertyPath) {
+    try {
+
+      while (true) {
+        if (propertyPath.contains(".")) {
+          String leftMostOfPropertyPath = propertyPath.substring(0, propertyPath.indexOf("."));
+          String theRestOfPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
+
+          return getValue(getValue(object, leftMostOfPropertyPath), theRestOfPropertyPath);
+
+        } else {
+          if (propertyPath.contains("[")) {
+            String propertyPathWithoutIndex = propertyPath.substring(0, propertyPath.indexOf("["));
+            String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
+            // It's string because it can be non-number value when the validated object is Map.
+            String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
+
+            // Handle Map key (propertyPath: field<K>[].<map key>)
+            if (propertyPathWithoutIndex.contains("<")) {
+              propertyPathWithoutIndex =
+                  propertyPathWithoutIndex.substring(0, propertyPathWithoutIndex.indexOf("<"));
+            }
+
+            Field rootField = getField(object.getClass(), propertyPathWithoutIndex);
+            rootField.setAccessible(true);
+            Object objs = rootField.get(object);
+
+            // Resolve the field for array or List.
+            // Occur an exception for any other collections
+            // because it's impossible to speciry the element in Set
+            // (since the propertyPath is like "childSet[]")
+            // and Map (since the propertyPath is like "childMap[test]"
+            // where test is the key of them map entry. Any type can be key and
+            // it's impossible to resolve it).
+            if (objs instanceof Object[]) {
+              return ((Object[]) objs)[Integer.parseInt(index)];
+
+            } else if (objs instanceof List<?>) {
+              return ((List<?>) objs).get(Integer.parseInt(index));
+
+            } else {
+              throw new ElementOfCollectionCannotBeObtainedException(
+                  "Multiple value types other than array and List "
+                      + "are not supported. The type of value: "
+                      + objs.getClass().getCanonicalName());
+            }
+
+          } else {
+            Field rootField = getField(object.getClass(), propertyPath);
+            rootField.setAccessible(true);
+            return rootField.get(object);
+          }
+        }
+      }
+
+    } catch (IllegalArgumentException | IllegalAccessException ex) {
+      throw new EclibRuntimeException(
+          "Field value cannot be obtained " + "from the field name '" + propertyPath + "'", ex);
+    }
+  }
+
+  /**
+   * Returns leafBean from rootBean and propertyPath from rootBean.
+   */
+  public static Object getLeafBean(Object rootBean, String propertyPath) {
+    String leafBeanItemPropertyPath =
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
+
+    return StringUtils.isEmpty(leafBeanItemPropertyPath) ? rootBean
+        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
+  }
+
+  /**
+   * Is thrown when getValue method called for non-ordered collections: Sets and Map keys.
+   */
+  public static class ElementOfCollectionCannotBeObtainedException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs a new instance.
+     */
+    public ElementOfCollectionCannotBeObtainedException() {}
+
+    /**
+     * Constructs a new instance.
+     */
+    public ElementOfCollectionCannotBeObtainedException(String message) {
+      super(message);
+    }
   }
 }

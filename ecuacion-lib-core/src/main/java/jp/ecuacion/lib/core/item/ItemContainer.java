@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonempty;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,18 +46,22 @@ public interface ItemContainer {
    */
   @Nonnull
   public default Item getItem(@RequireNonempty String propertyPath) {
+    String collectionRemovedPropertyPath = PropertyPathUtil.removeCollectionPart(propertyPath);
 
     Map<String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
             .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
-    Item item = map.get(ObjectsUtil.requireNonEmpty(propertyPath));
+    Item item = map.get(ObjectsUtil.requireNonEmpty(collectionRemovedPropertyPath));
 
-    item = item == null ? getNewItem(propertyPath) : item;
+    item = item == null ? getNewItem(collectionRemovedPropertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
+    // Since what we want to know is class, instance is not needed.
     Optional<ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
-        ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath), ItemNameKeyClass.class);
+        ReflectionUtil.getClass(this.getClass(),
+            PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath)),
+        ItemNameKeyClass.class);
 
     if (optAn.isPresent()) {
       item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
@@ -65,7 +70,13 @@ public interface ItemContainer {
     // Get leafBeanClass.
     Class<?> leafBeanClass = this.getClass();
     if (propertyPath.contains(".")) {
-      leafBeanClass = ReflectionUtil.getLeafBeanClass(this.getClass(), propertyPath);
+      // Handle collections and arrays
+      if (propertyPath.endsWith("<list element>")) {
+        propertyPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+      }
+
+      leafBeanClass = ReflectionUtil.getClass(this.getClass(),
+          PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
     }
 
     item.setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
