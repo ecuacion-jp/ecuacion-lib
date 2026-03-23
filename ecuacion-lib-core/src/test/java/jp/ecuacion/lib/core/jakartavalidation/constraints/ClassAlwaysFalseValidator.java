@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
-import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 
 /**
  * Provides the validation logic for {@code AlwaysFalse}.
  */
-public class AlwaysFalseValidator extends ClassValidator<AlwaysFalse, Object> {
+public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, Object> {
 
   @Override
-  public void initialize(AlwaysFalse annotation) {
+  public void initialize(ClassAlwaysFalse annotation) {
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 

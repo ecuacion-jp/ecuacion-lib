@@ -78,12 +78,13 @@ public class ValidationAppExceptionTest {
     ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     Assertions.assertThat(bean.getValidatorClass())
         .isEqualTo("jakarta.validation.constraints.NotNull");
-    Assertions.assertThat(bean.getOriginalMessage()).isEqualTo("null は許可されていません");
-    Assertions.assertThat(bean.getMessageId())
+    Assertions.assertThat(bean.getMessage()).isEqualTo("must not be null");
+    Assertions.assertThat(bean.getMessageTemplate())
         .isEqualTo("jakarta.validation.constraints.NotNull.message");
     Assertions.assertThat(bean.getRootBean().getClass().getName()).isEqualTo(className);
     Assertions.assertThat(bean.getLeafBean().getClass().getName()).isEqualTo(className);
-    Assertions.assertThat(bean.getFieldInfoBeans()[0].itemPropertyPathForForm).isEqualTo("str1");
+    String pp = bean.getFieldInfoBeans()[0].propertyPath();
+    Assertions.assertThat(pp).isEqualTo("str1");
     Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
   }
 
@@ -96,7 +97,7 @@ public class ValidationAppExceptionTest {
 
   @Test
   public void test12_toStringの取得() {
-    String str = "message:null は許可されていません\n" + "annotation:jakarta.validation.constraints.NotNull\n"
+    String str = "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
         + "rootClassName:jp.ecuacion.lib.core.exception.checked."
         + "ValidationAppExceptionTest$SampleObj\n"
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."

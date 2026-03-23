@@ -671,7 +671,7 @@ public class PropertyFileUtil {
 
       // itemName
       List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
-          .map(bean -> PropertyFileUtil.getItemName(locale, bean.itemNameKey)).toList();
+          .map(bean -> PropertyFileUtil.getItemName(locale, bean.itemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }
 
@@ -848,7 +848,7 @@ public class PropertyFileUtil {
 
 
       String argString = PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
-      
+
       Arg[] messageArgs = arg.getMessageArgs() == null ? new Arg[] {} : arg.getMessageArgs();
       for (Arg tmpArg : messageArgs) {
         argStrList.add(getStringFromArg(locale, tmpArg));

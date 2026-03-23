@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
@@ -81,22 +81,22 @@ public class ClassValidatorTest {
     }
   }
 
-  @AlwaysFalse(propertyPath = "")
+  @ClassAlwaysFalse(propertyPath = "")
   public static record PropertyPathNotSet(String propertyPath) {
 
   }
 
-  @AlwaysFalse(propertyPath = {"propertyPath", ""})
+  @ClassAlwaysFalse(propertyPath = {"propertyPath", ""})
   public static record PropertyPathContainsEmpty(String propertyPath) {
 
   }
 
-  @AlwaysFalse(propertyPath = {})
+  @ClassAlwaysFalse(propertyPath = {})
   public static record PropertyPathLengthZero(String propertyPath) {
 
   }
 
-  @AlwaysFalse(propertyPath = {"a"})
+  @ClassAlwaysFalse(propertyPath = {"a"})
   public static record PropertyPathNotFound(String propertyPath) {
 
   }

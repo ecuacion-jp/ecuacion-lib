@@ -15,13 +15,13 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import jakarta.validation.ConstraintViolation;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.LocalizedMessageParameter;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -34,10 +34,10 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Set<LocalizedMessageParameter> create(ConstraintViolation<?> cv,
-      Map<String, Object> paramMap, String rootRecordNameForForm) {
+  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
+      Map<String, Object> paramMap) {
 
-    Set<LocalizedMessageParameter> messageParameterSet = new HashSet<>();
+    Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 
     final String key = "description";
     String description = (String) paramMap.get(key);
@@ -46,7 +46,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
       throw new EclibRuntimeException("@PatternWithDescription needs " + key + " value.");
     }
 
-    messageParameterSet.add(new LocalizedMessageParameter("description",
+    messageParameterSet.add(new LocalizedEmbeddedParameter("description",
         new PropertyFileUtilFileKindEnum[] {
             PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
         (String) paramMap.get("description"), new Arg[] {}));

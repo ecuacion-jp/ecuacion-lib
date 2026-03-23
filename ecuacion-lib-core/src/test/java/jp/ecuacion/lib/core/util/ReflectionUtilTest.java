@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
@@ -56,7 +57,7 @@ public class ReflectionUtilTest {
       o = ReflectionUtil.getValue(new FieldValueRoot(), "childSet[0].value");
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
+    } catch (ElementOfCollectionCannotBeObtainedException ex) {
 
     }
   }
@@ -141,6 +142,40 @@ public class ReflectionUtilTest {
 
     public static class SecondExtendedClass extends ExtendedClass {
 
+    }
+  }
+  
+  @Test
+  public void getClassTest() {
+    Class<?> cls = null;
+
+    // 1.list with generic type of basic object
+    cls = ReflectionUtil.getClass(GetClass.class, "strList[0].<list element>");
+    Assertions.assertTrue(String.class.isAssignableFrom(cls));
+    
+    // 2.lists with generic type of basic object
+    cls = ReflectionUtil.getClass(GetClass.class, "strListList[0].<list element>[0].<list element>");
+    Assertions.assertTrue(String.class.isAssignableFrom(cls));
+
+    // 3.list with generic type of custpmized object
+    cls = ReflectionUtil.getClass(GetClass.class, "childList[0]");
+    Assertions.assertTrue(GetClass.Child.class.isAssignableFrom(cls));
+
+    // 4.lists with generic type of custpmized object
+    cls = ReflectionUtil.getClass(GetClass.class, "childListList[0].<list element>[0]");
+    Assertions.assertTrue(GetClass.Child.class.isAssignableFrom(cls));
+  }
+
+  @SuppressWarnings("unused")
+  public static class GetClass {
+    private List<String> strList;
+    private List<List<String>> strListList;
+    
+    private List<Child> childList;
+    private List<List<Child>> childListList;
+    
+    private static class Child {
+      
     }
   }
 }

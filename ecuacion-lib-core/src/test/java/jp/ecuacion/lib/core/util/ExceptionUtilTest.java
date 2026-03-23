@@ -21,9 +21,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Locale;
-import jp.ecuacion.lib.core.jakartavalidation.bean.AlwaysFalse;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.util.ExceptionUtilTest.VariousPlaces.Child;
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ public class ExceptionUtilTest {
   }
 
   @Test
-  public void getMessageList_propertyPathLabelNameDisplayTest() {
+  public void getMessageList_propertyPathLabelNameDisplayWithVariousParenthesisTest() {
     // field validator
     // Italian (parenthesis not blank)
     String message = ExceptionUtil
@@ -47,7 +46,7 @@ public class ExceptionUtilTest {
     // German (parenthesis blank)
     message = ExceptionUtil
         .getMessageList(validator.validate(new FieldValidator(null)), Locale.GERMAN).get(0);
-    Assertions.assertEquals("name ist erforderlich", message);
+    Assertions.assertEquals("Name ist erforderlich", message);
 
     // class validator with 1 field
     // Italian (parenthesis not blank)
@@ -57,7 +56,7 @@ public class ExceptionUtilTest {
     // German (parenthesis blank)
     message = ExceptionUtil
         .getMessageList(validator.validate(new ClassValidator1(null)), Locale.GERMAN).get(0);
-    Assertions.assertEquals("classValidator1.str1 ist Beispielnachricht", message);
+    Assertions.assertEquals("ClassValidator1.str1 ist Beispielnachricht", message);
 
     // class validator with multiple fields
     // Italian (parenthesis not blank)
@@ -68,18 +67,18 @@ public class ExceptionUtilTest {
     // German (parenthesis blank)
     message = ExceptionUtil
         .getMessageList(validator.validate(new ClassValidator2(null, null)), Locale.GERMAN).get(0);
-    Assertions.assertEquals("classValidator2.str1, classValidator2.str2 ist Beispielnachricht",
+    Assertions.assertEquals("ClassValidator2.str1, classValidator2.str2 ist Beispielnachricht",
         message);
   }
 
   public static record FieldValidator(@NotNull String str1) {
   }
 
-  @AlwaysFalse(propertyPath = "str1")
+  @ClassAlwaysFalse(propertyPath = "str1")
   public static record ClassValidator1(String str1) {
   }
 
-  @AlwaysFalse(propertyPath = {"str1", "str2"})
+  @ClassAlwaysFalse(propertyPath = {"str1", "str2"})
   public static record ClassValidator2(String str1, String str2) {
   }
 
@@ -98,12 +97,11 @@ public class ExceptionUtilTest {
     message = getMsg(new VariousPlaces.InsideChildNode(new Child(null)));
     Assertions.assertEquals("'child.name' must not be null.", message);
     // inside child node in list
-    message = getMsg(
-        new VariousPlaces.InsideChildNodeInList(Arrays.asList(new Child[] {new Child(null)})));
-    Assertions.assertEquals("'myChildList[0].name' must not be null.", message);
+    message = getMsg(new VariousPlaces.InsideChildNodeInList(List.of(new Child(null))));
+    Assertions.assertEquals("'child.name' must not be null.", message);
     // anonymous class
     message = getMsg(new VariousPlaces.AnonymousClass());
-    Assertions.assertEquals("'myChild.name' must not be null.", message);
+    Assertions.assertEquals("'childIf.name' must not be null.", message);
   }
 
   public static class VariousPlaces {
@@ -111,7 +109,9 @@ public class ExceptionUtilTest {
     }
     public static record InsideChildNode(@Valid Child myChild) {
     }
-    public static record InsideChildNodeInList(List<@Valid Object> myChildList) {
+    public static record InsideChildNodeInList(List<@Valid Child> myChildList) {
+    }
+    public static record Child(@NotNull String name) {
     }
     public static class AnonymousClass {
       @Valid
@@ -119,10 +119,6 @@ public class ExceptionUtilTest {
         @NotNull
         private String name;
       };
-    }
-
-
-    public static record Child(@NotNull String name) {
     }
     public static interface ChildIf {
     };
