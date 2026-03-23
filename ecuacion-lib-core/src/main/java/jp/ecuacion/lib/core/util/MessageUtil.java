@@ -180,7 +180,7 @@ public class MessageUtil {
 
         // Add "one of ...", "... n", etc...
         if (itemNameKeyPart.endsWith(PropertyPathUtil.EL_LIST)) {
-          index = Integer.toString(Integer.valueOf(index) + 1);
+          index = Integer.toString(Integer.parseInt(index) + 1);
         }
 
         String keyword = null;
@@ -196,7 +196,7 @@ public class MessageUtil {
         } else {
           // In the case of Collection<CustomObject>, for now Collection is always 'List'.
           try {
-            index = Integer.toString(Integer.valueOf(index) + 1);
+            index = Integer.toString(Integer.parseInt(index) + 1);
             keyword = "order";
 
           } catch (NumberFormatException ex) {
