@@ -170,7 +170,7 @@ public class MessageUtil {
     } else {
       StringBuilder sb = new StringBuilder();
       for (int i = 0; i < collectionLayerList.size(); i++) {
-        String elName = prependSymbol + "element" + appendSymbol;
+        // String elName = prependSymbol + "element" + appendSymbol;
         String itemNamePath = "";
 
         // Get index. (empty for Set)
@@ -194,10 +194,17 @@ public class MessageUtil {
           };
 
         } else {
-          keyword = "index";
+          // In the case of Collection<CustomObject>, for now Collection is always 'List'.
+          try {
+            index = Integer.toString(Integer.valueOf(index) + 1);
+            keyword = "order";
+
+          } catch (NumberFormatException ex) {
+            keyword = "index";
+          }
         }
 
-        itemNamePath = PropertyFileUtil.getMessage(locale, ipf + keyword, elName, index);
+        itemNamePath = PropertyFileUtil.getMessage(locale, ipf + keyword, index);
 
         sb.append(
             (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
