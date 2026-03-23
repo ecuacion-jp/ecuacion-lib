@@ -57,21 +57,20 @@ public class ReflectionUtil {
       try {
         Field tmpField = getField(tmpClass, nodeWithoutCollectionPart);
         tmpClass = tmpField.getType();
-        String tmpNode = node;
 
-        if (!tmpNode.contains("[")) {
+        if (!node.contains("[")) {
           continue;
         }
 
         // Count the number of "[" in propertyPath.
-        int count = propertyPath.length() - propertyPath.replaceAll("\\[", "").length();
+        int count = node.length() - node.replaceAll("\\[", "").length();
 
         Type type = tmpField.getGenericType();
         for (int i = 0; i < count; i++) {
           type = ((ParameterizedType) type).getActualTypeArguments()[0];
         }
 
-        return tmpClass = Class.forName(type.getTypeName());
+        tmpClass = Class.forName(type.getTypeName());
 
       } catch (Exception ex) {
         throw new RuntimeException(ex);

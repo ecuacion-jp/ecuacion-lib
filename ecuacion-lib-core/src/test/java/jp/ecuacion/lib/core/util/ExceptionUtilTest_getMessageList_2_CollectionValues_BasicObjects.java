@@ -86,7 +86,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     strList = new ArrayList<>(List.of("a"));
     strList.add(null);
     msg = validateCollection(new StringListNotNull(strList), true, false);
-    Assertions.assertEquals("'element' 2 contained by 'string list' must not be null.", msg);
+    Assertions.assertEquals("Element 2 contained by 'string list' must not be null.", msg);
 
     String MSG = " must match \"[1-9]*\". (input: a)";
 
@@ -98,22 +98,22 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     Assertions.assertEquals("must match \"[1-9]*\"", msg);
     // itemName
     msg = validateCollection(new StringList(List.of("1", "a")), true, false);
-    Assertions.assertEquals("'element' 2 contained by 'string list'" + MSG, msg);
+    Assertions.assertEquals("Element 2 contained by 'string list'" + MSG, msg);
     // itemNamePath
     msg = validateCollection(new StringList(List.of("1", "a")), true, true);
-    Assertions.assertEquals("'element' 2 contained by 'string list'" + MSG, msg);
+    Assertions.assertEquals("Element 2 contained by 'string list'" + MSG, msg);
     // itemNamePath + itemNameKeyClass
     msg = validateCollection(new StringListInkc(List.of("1", "a")), true, true);
     Assertions.assertEquals(
-        "'element' 2 contained by 'ItemNameKeyClass considered string list'" + MSG, msg);
+        "Element 2 contained by 'ItemNameKeyClass considered string list'" + MSG, msg);
     // itemNamePath + ItemContiner(root)
     msg = validateCollection(new StringListConRoot(List.of("1", "a")), true, true);
-    Assertions.assertEquals("'element' 2 contained by 'ItemContainer considered string list'" + MSG,
+    Assertions.assertEquals("Element 2 contained by 'ItemContainer considered string list'" + MSG,
         msg);
     // itemNamePath + ItemContiner(child)
     StringListConChild.Child child = new StringListConChild.Child(List.of("1", "a"));
     String expected =
-        "'element' 2 contained by 'ItemContainer considered string list' at 'child field'" + MSG;
+        "Element 2 contained by 'ItemContainer considered string list' at 'child field'" + MSG;
     msg = validateCollection(new StringListConChild(child), true, true);
     Assertions.assertEquals(expected, msg);
 
@@ -129,9 +129,9 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     // itemName
     msg = validateCollection(strMulListList, true, false);
     Assertions.assertEquals(
-        "'element' 1 > 'element' 2 contained by 'grand child string list list'" + MSG, msg);
+        "Element 1 > element 2 contained by 'grand child string list list'" + MSG, msg);
     // // itemNamePath
-    expected = "'element' 1 > 'element' 2 contained by 'grand child string list list' "
+    expected = "Element 1 > element 2 contained by 'grand child string list list' "
         + "at 'child field' > 'grand child field'" + MSG;
     msg = validateCollection(strMulListList, true, true);
     Assertions.assertEquals(expected, msg);
@@ -139,7 +139,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     StringMulListListInkc strMulListListInkc =
         new StringMulListListInkc(new StringMulListListInkc.Child(
             new StringMulListListInkc.GrandChild(List.of(List.of("1", "a")))));
-    expected = "'element' 1 > 'element' 2 contained by "
+    expected = "Element 1 > element 2 contained by "
         + "'ItemNameKeyClass considered string list list' at 'child field' > 'grand child field'"
         + MSG;
     msg = validateCollection(strMulListListInkc, true, true);
@@ -147,13 +147,13 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     // itemNamePath + ItemContiner(root)
     StringMulListListConRoot strMulListListConRoot = new StringMulListListConRoot(
         new StringMulListList.Child(new StringMulListList.GrandChild(List.of(List.of("1", "a")))));
-    expected = "'element' 1 > 'element' 2 contained by 'ItemContainer considered string list list' "
+    expected = "Element 1 > element 2 contained by 'ItemContainer considered string list list' "
         + "at 'child field' > 'grand child field'" + MSG;
     msg = validateCollection(strMulListListConRoot, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + ItemContiner(child)
     StringMulListListConChild strMulListListConChild = new StringMulListListConChild();
-    expected = "'element' 1 > 'element' 2 contained by 'ItemContainer considered string list list' "
+    expected = "Element 1 > element 2 contained by 'ItemContainer considered string list list' "
         + "at 'child field' > 'grand child field'" + MSG;
     msg = validateCollection(strMulListListConChild, true, true);
     Assertions.assertEquals(expected, msg);
@@ -242,7 +242,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     intSet.add(1);
     intSet.add(null);
     msg = validateCollection(new ColFieldOfBasicNotNull.IntegerSet(intSet), true, false);
-    Assertions.assertEquals("Some 'element' contained by 'integer set' must not be null.", msg);
+    Assertions.assertEquals("Some element contained by 'integer set' must not be null.", msg);
 
     // Map is null (propertyPath: strDateMap)
     msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(null), true, false);
@@ -251,14 +251,14 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     Map<String, LocalDate> strDateMap = new HashMap<>();
     strDateMap.put(null, LocalDate.now());
     msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
-    Assertions.assertEquals("Some key 'element' of the key-value data contained "
+    Assertions.assertEquals("Some key element of key-value data contained "
         + "by 'string date map' must not be null.", msg);
     // element of Map value is null (propertyPath: strDateMap[test].<map value>)
     strDateMap.clear();
     strDateMap.put("testKey", null);
     msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
     Assertions.assertEquals(
-        "'element' with key [testKey] contained by 'string date map' must not be null.", msg);
+        "Element with key [testKey] contained by 'string date map' must not be null.", msg);
 
     // array is null (propertyPath: blArray)
     msg = validateCollection(new ColFieldOfBasicNotNull.BooleanArray(null), true, false);
@@ -288,7 +288,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     intSet.add(2);
     msg = validateCollection(new ColFieldOfBasicOtherThanNotNull.IntegerSet(intSet), true, false);
     Assertions.assertEquals(
-        "Some 'element' contained by 'integer set' must be greater than or equal to 3. (input: 2)",
+        "Some element contained by 'integer set' must be greater than or equal to 3. (input: 2)",
         msg);
 
     // element of Map key is not regexp (propertyPath: strDateMap<K>[a].<map key>)
@@ -297,7 +297,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     msg = validateCollection(new ColFieldOfBasicOtherThanNotNull.StringDateMap(strDateMap), true,
         false);
     Assertions
-        .assertEquals("Some key 'element' of the key-value data contained by 'string date map' "
+        .assertEquals("Some key element of key-value data contained by 'string date map' "
             + "must match \"[1-9]*\". (input: a)", msg);
 
     // element of Map value is null (propertyPath: strDateMap[1].<map value>)
@@ -305,7 +305,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     strDateMap.put("1", LocalDate.of(2001, 1, 1));
     msg = validateCollection(new ColFieldOfBasicOtherThanNotNull.StringDateMap(strDateMap), true,
         false);
-    Assertions.assertEquals("'element' with key [1] contained by 'string date map' "
+    Assertions.assertEquals("Element with key [1] contained by 'string date map' "
         + "must be a future date. (input: 2001-01-01)", msg);
 
     // array is null (propertyPath: blArray)
@@ -340,7 +340,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     intSetSet.add(intSet);
     msg = validateCollection(new ColFieldOfMulLayerBasic.IntegerSetSet(intSetSet), true, false);
     Assertions.assertEquals(
-        "Some 'element' > some 'element' contained by 'integer set set' must not be null.", msg);
+        "Some element > some element contained by 'integer set set' must not be null.", msg);
 
     // element of Map key in Map key is null
     // (propertyPath: strDateMapMap<K>[{null=2026-03-19}].<map key><K>[].<map key>)
@@ -353,7 +353,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     msg = validateCollection(new ColFieldOfMulLayerBasic.StringDateMapMap(strDateMapMap), true,
         false);
     Assertions.assertEquals(
-        "Some key 'element' of the key-value data > some key 'element' of the key-value data "
+        "Some key element of key-value data > some key element of key-value data "
             + "contained by 'string date map map' must not be null.",
         msg);
     // element of Map value in Map value is null
@@ -364,7 +364,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     strDateMapMap.put(nonnullStrDateMap, strDateMap);
     msg = validateCollection(new ColFieldOfMulLayerBasic.StringDateMapMap(strDateMapMap), true,
         false);
-    Assertions.assertEquals("'element' with key [{a=2001-01-01}] > 'element' with key [testKey] "
+    Assertions.assertEquals("Element with key [{a=2001-01-01}] > element with key [testKey] "
         + "contained by 'string date map map' must not be null.", msg);
 
     // element of array in array cannot be validated.
@@ -378,7 +378,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     Set<Map<String, @NotNull Integer>> setMap = Set.of(map);
     List<Set<Map<String, @NotNull Integer>>> listSetMap = List.of(setMap);
     msg = validateCollection(new ColFieldOfMulLayerBasic.ListSetMap(listSetMap), true, false);
-    Assertions.assertEquals("'element' 1 > some 'element' > 'element' with key [testKey] "
+    Assertions.assertEquals("Element 1 > some element > element with key [testKey] "
         + "contained by 'list set map' must not be null.", msg);
   }
 
