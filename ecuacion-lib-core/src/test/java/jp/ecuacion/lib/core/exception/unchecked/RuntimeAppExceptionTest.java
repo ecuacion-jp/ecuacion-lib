@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class RuntimeAppExceptionTest extends TestTools {
 
   @Test
-  public void test01_コンストラクタ_01_引数がnull() {
+  public void test01_constructor_01_argIsNull() {
     try {
       @SuppressWarnings("unused")
       UncheckedAppException ex = new UncheckedAppException(null);
@@ -35,7 +35,7 @@ public class RuntimeAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_02_引数がnull以外() {
+  public void test01_constructor_02_argIsNotNull() {
     AppException appEx = new BizLogicAppException("MSG1");
     UncheckedAppException ex = new UncheckedAppException(appEx);
 

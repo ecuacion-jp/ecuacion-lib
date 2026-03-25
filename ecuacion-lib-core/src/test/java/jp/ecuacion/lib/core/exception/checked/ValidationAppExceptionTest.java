@@ -42,9 +42,9 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test01_値の格納_01_ConstarintViolationを引数に取るコンストラクタ_01_引数がnull() {
+  public void test01_storingValues_01_constructorWithConstraintViolationArg_01_argIsNull() {
     try {
-      // NPEが起きるのが正解
+      // NPE is expected
       @SuppressWarnings("unused")
       ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
       Assertions.fail();
@@ -58,9 +58,9 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test01_値の格納_01_ConstarintViolationを引数に取るコンストラクタ_11_引数が正常() {
+  public void test01_storingValues_01_constructorWithConstraintViolationArg_11_validArg() {
     try {
-      // findbugsに引っかからないよう、変数に入れた上でそれを使用（getStackTrace()）する；
+      // Store in a variable and call getStackTrace() on it to avoid SpotBugs warnings.
       ValidationAppException ex = new ValidationAppException(violation);
       ex.getStackTrace();
 
@@ -96,7 +96,7 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test12_toStringの取得() {
+  public void test12_obtainingToString() {
     String str = "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
         + "rootClassName:jp.ecuacion.lib.core.exception.checked."
         + "ValidationAppExceptionTest$SampleObj\n"

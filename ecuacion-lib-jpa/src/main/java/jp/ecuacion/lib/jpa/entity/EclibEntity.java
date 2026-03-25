@@ -75,7 +75,8 @@ public abstract class EclibEntity {
       }
     }
 
-    // surrogate keyをつけることはecuacion-lib-jpaでは必須要件なのでRuntimeExceptionとする
+    // Adding a surrogate key is a mandatory requirement in ecuacion-lib-jpa,
+    // so a RuntimeException is thrown.
     throw new RuntimeException("Field with '@Id' not found.");
   }
 
