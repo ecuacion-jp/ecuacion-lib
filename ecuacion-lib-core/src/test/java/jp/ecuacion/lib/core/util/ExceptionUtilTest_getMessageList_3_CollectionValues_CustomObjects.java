@@ -17,8 +17,12 @@ package jp.ecuacion.lib.core.util;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
@@ -185,6 +189,73 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
     private static record GrandChild(@NotNull String field) {
     }
   }
+  @Test
+  public void itemNameAndItemNamePathTest_Set() {
+    String msg = null;
+    String MSG = " must not be null.";
+
+    Set<TargetCls> targetSet = new HashSet<>();
+    targetSet.add(new TargetCls("a"));
+    targetSet.add(new TargetCls(null));
+
+    // no itemName
+    msg = validateCollection(new SingleSet(targetSet), false, false);
+    Assertions.assertEquals("must not be null", msg);
+    // itemName
+    msg = validateCollection(new SingleSet(targetSet), true, false);
+    Assertions.assertEquals("'target field'" + MSG, msg);
+    // itemNamePath
+    msg = validateCollection(new SingleSet(targetSet), true, true);
+    Assertions.assertEquals(
+        "'target field' at some element contained by 'target set'" + MSG, msg);
+  }
+
+  @Test
+  public void itemNameAndItemNamePathTest_MapValue() {
+    String msg = null;
+    String MSG = " must not be null.";
+
+    Map<String, TargetCls> targetMapValue = new HashMap<>();
+    targetMapValue.put("key1", new TargetCls(null));
+
+    // no itemName
+    msg = validateCollection(new SingleMapValue(targetMapValue), false, false);
+    Assertions.assertEquals("must not be null", msg);
+    // itemName
+    msg = validateCollection(new SingleMapValue(targetMapValue), true, false);
+    Assertions.assertEquals("'target field'" + MSG, msg);
+    // itemNamePath
+    msg = validateCollection(new SingleMapValue(targetMapValue), true, true);
+    Assertions.assertEquals(
+        "'target field' at element with key [key1] contained by 'target map value'" + MSG, msg);
+  }
+
+  @Test
+  public void itemNameAndItemNamePathTest_Array() {
+    String msg = null;
+    String MSG = " must not be null.";
+
+    TargetCls[] targetArray = new TargetCls[] {new TargetCls("a"), new TargetCls(null)};
+
+    // no itemName
+    msg = validateCollection(new SingleArray(targetArray), false, false);
+    Assertions.assertEquals("must not be null", msg);
+    // itemName
+    msg = validateCollection(new SingleArray(targetArray), true, false);
+    Assertions.assertEquals("'target field'" + MSG, msg);
+    // itemNamePath
+    msg = validateCollection(new SingleArray(targetArray), true, true);
+    Assertions.assertEquals(
+        "'target field' at element 2 contained by 'target array'" + MSG, msg);
+  }
+
+  public static record SingleSet(@Valid Set<TargetCls> targetSet) {
+  }
+  public static record SingleMapValue(@Valid Map<String, TargetCls> targetMapValue) {
+  }
+  public static record SingleArray(@Valid TargetCls[] targetArray) {
+  }
+
   public static record MulListConChild(@Valid Child child) {
 
     private static record Child(@Valid GrandChild grandChild) implements ItemContainer {

@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
@@ -67,10 +68,20 @@ public class ReflectionUtil {
 
         Type type = tmpField.getGenericType();
         for (int i = 0; i < count; i++) {
-          type = ((ParameterizedType) type).getActualTypeArguments()[0];
+          if (type instanceof Class<?> cls && cls.isArray()) {
+            // Array: use component type
+            type = cls.getComponentType();
+          } else {
+            // Collection or Map: use type argument
+            Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
+            // Map value access (no <K> in node): use 2nd type arg; others use 1st
+            boolean isMapValueAccess = !node.contains("<K>") && Map.class
+                .isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType());
+            type = typeArgs[isMapValueAccess ? 1 : 0];
+          }
         }
 
-        tmpClass = Class.forName(type.getTypeName());
+        tmpClass = type instanceof Class<?> c ? c : Class.forName(type.getTypeName());
 
       } catch (Exception ex) {
         throw new RuntimeException(ex);
