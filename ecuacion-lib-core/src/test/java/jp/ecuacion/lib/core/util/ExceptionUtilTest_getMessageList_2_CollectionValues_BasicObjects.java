@@ -251,8 +251,9 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     Map<String, LocalDate> strDateMap = new HashMap<>();
     strDateMap.put(null, LocalDate.now());
     msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
-    Assertions.assertEquals("Some key element of key-value data contained "
-        + "by 'string date map' must not be null.", msg);
+    Assertions.assertEquals(
+        "Some key element of key-value data contained " + "by 'string date map' must not be null.",
+        msg);
     // element of Map value is null (propertyPath: strDateMap[test].<map value>)
     strDateMap.clear();
     strDateMap.put("testKey", null);
@@ -296,9 +297,8 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     strDateMap.put("a", LocalDate.of(2101, 1, 1));
     msg = validateCollection(new ColFieldOfBasicOtherThanNotNull.StringDateMap(strDateMap), true,
         false);
-    Assertions
-        .assertEquals("Some key element of key-value data contained by 'string date map' "
-            + "must match \"[1-9]*\". (input: a)", msg);
+    Assertions.assertEquals("Some key element of key-value data contained by 'string date map' "
+        + "must match \"[1-9]*\". (input: a)", msg);
 
     // element of Map value is null (propertyPath: strDateMap[1].<map value>)
     strDateMap.clear();
@@ -352,10 +352,9 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     strDateMapMap.put(strDateMap, nonnullStrDateMap);
     msg = validateCollection(new ColFieldOfMulLayerBasic.StringDateMapMap(strDateMapMap), true,
         false);
-    Assertions.assertEquals(
-        "Some key element of key-value data > some key element of key-value data "
-            + "contained by 'string date map map' must not be null.",
-        msg);
+    Assertions
+        .assertEquals("Some key element of key-value data > some key element of key-value data "
+            + "contained by 'string date map map' must not be null.", msg);
     // element of Map value in Map value is null
     // (propertyPath: strDateMapMap[{a=2026-03-19}].<map value>[testKey].<map value>)
     strDateMap.clear();

@@ -20,7 +20,36 @@ import java.util.List;
 
 /**
  * Provides utilities on propertyPaths.
+ * 
+ * <p>ProperyPath for collections:</p>
+ *
+ * <table border="1">
+ * <tr>
+ *  <th>Class</th>
+ *  <th>Parameter type</th>
+ *  <th>Type</th>
+ *  <th>propertyPath</th>
+ *  <th>Type (double)</th>
+ *  <th>propertyPath (double)</th>
+ * </tr>
+ * <tr>
+ *     <td rowspan="2">List</td><td>String</td><td>{@code List<String>}</td>
+ *     <td>{@code stringList[1].<list element>}</td>
+ *     <td>{@code List<List<String>>}</td><td>{@code List<String>}</td>
+ * </tr>
+ * <tr>
+ *     <td>String</td><td>{@code List<String>}</td>
+ *     <td>{@code stringList[1].<list element>}</td>
+ * </tr>
+ * 
+ * </table>
  */
+
+
+// // list : propertyPath=targetList[0].<list element>[0].field
+// // set : propertyPath=targetList[].<iterable element>[].field
+// // map key: propertyPath=targetList[].<map value><K>[TargetCls[field=null]].field
+// // map val: propertyPath=targetList[key1].<map value>[key2].field
 public class PropertyPathUtil {
 
   /**
@@ -126,7 +155,7 @@ public class PropertyPathUtil {
   private static String removeCollectionPartFromNode(String node) {
     node = node.contains("<K>") ? node.substring(0, node.indexOf("<K>")) : node;
     node = node.contains("[") ? node.substring(0, node.indexOf("[")) : node;
-    
+
     return node;
   }
 
