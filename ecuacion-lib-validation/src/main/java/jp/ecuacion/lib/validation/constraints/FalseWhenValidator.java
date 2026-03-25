@@ -1,0 +1,49 @@
+/*
+ * Copyright © 2012 ecuacion.jp (info@ecuacion.jp)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package jp.ecuacion.lib.validation.constraints;
+
+import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+
+/**
+ * Provides the validation logic for {@code FalseWhen}.
+ */
+public class FalseWhenValidator extends ValidateWhenValidator<FalseWhen, Object> {
+
+  /** Initializes an instance. */
+  @Override
+  public void initialize(FalseWhen annotation) {
+    super.initialize(annotation.message(), annotation.propertyPath(),
+        annotation.conditionPropertyPath(), annotation.conditionValue(),
+        annotation.conditionOperator(), annotation.conditionValueString(),
+        annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
+        annotation.trueWhenConditionNotSatisfied());
+  }
+
+  @Override
+  protected boolean isValid(Object valueOfField) {
+    if (valueOfField != null && !(valueOfField instanceof Boolean)) {
+      throw new EclibRuntimeException("The data type of propertyPath must be boolean");
+    }
+
+    return Boolean.FALSE.equals(valueOfField);
+  }
+
+  @Override
+  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
+    return !isValid(valueOfField);
+  }
+}
