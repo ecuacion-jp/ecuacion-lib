@@ -24,7 +24,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   private static final String SAMPLE_MSG_ID = "MSG_ID";
 
   @Test
-  public void test01_コンストラクタ_01_messageId_01_引数がnull() {
+  public void test01_constructor_01_messageId_01_argIsNull() {
     try {
       @SuppressWarnings("unused")
       BizLogicAppException ex = new BizLogicAppException(null);
@@ -39,13 +39,13 @@ public class BizLogicAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_01_messageId_02_引数がnull以外() {
+  public void test01_constructor_01_messageId_02_argIsNotNull() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
   }
 
   @Test
-  public void test01_コンストラクタ_02_messageId_messageArgs_01_全部null() {
+  public void test01_constructor_02_messageId_messageArgs_01_allNull() {
     try {
       @SuppressWarnings("unused")
       BizLogicAppException ex =
@@ -61,7 +61,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_02_messageId_messageArgs_02_messageId以外null() {
+  public void test01_constructor_02_messageId_messageArgs_02_allExceptMessageIdAreNull() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
@@ -70,7 +70,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_02_messageId_messageArgs_03_正常() {
+  public void test01_constructor_02_messageId_messageArgs_03_valid() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, "abc");
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
@@ -79,7 +79,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_12_locale_messageId_messageArgs_02_messageId以外null() {
+  public void test01_constructor_12_locale_messageId_messageArgs_02_allExceptMessageIdAreNull() {
     BizLogicAppException ex = new BizLogicAppException("TEST_KEY");
 
     Assertions.assertThat(ex.getMessageId()).isEqualTo("TEST_KEY");
@@ -88,7 +88,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   }
 
   // @Test
-  // public void test11_getMessageArgMapの取得_01_パラメータなし() {
+  // public void test11_getMessageArgMap_01_noParams() {
   // BizLogicAppException ex =
   // new BizLogicAppException(SAMPLE_MSG_ID);
   //
@@ -97,12 +97,12 @@ public class BizLogicAppExceptionTest extends TestTools {
   // }
 
   // @Test
-  // public void test11_getMessageArgMapの取得_02_パラメータあり() {
+  // public void test11_getMessageArgMap_02_withParams() {
   // BizLogicAppException ex =
   // new BizLogicAppException(SAMPLE_MSG_ID, "abc", "def");
   //
   // assertThat(ex.getMessageArgMap().size()).isEqualTo(2));
-  // //実はmapはlinkedHashMapなので順序が守られている
+  // // The map is actually a LinkedHashMap, so the order is preserved.
   // assertThat(ex.getMessageArgMap().get("$0")).isEqualTo("abc"));
   // assertThat(ex.getMessageArgMap().get("$1")).isEqualTo("def"));
   // }

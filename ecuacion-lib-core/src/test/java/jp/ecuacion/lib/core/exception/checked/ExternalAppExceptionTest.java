@@ -26,7 +26,7 @@
 // private static final String SAMPLE_MSG_ID = "MSG_ID";
 //
 // @Test
-// public void test01_コンストラクタ_01_message_01_引数がnull() {
+// public void test01_constructor_01_message_01_argIsNull() {
 // try {
 // new ExternalAppException(null);
 // fail();
@@ -40,7 +40,7 @@
 // }
 //
 // @Test
-// public void test01_コンストラクタ_01_message_02_引数がnull以外() {
+// public void test01_constructor_01_message_02_argIsNotNull() {
 // ExternalAppException ex = new ExternalAppException(SAMPLE_MSG_ID);
 //
 // assertThat(ex.getMessage()).isEqualTo(SAMPLE_MSG_ID)));

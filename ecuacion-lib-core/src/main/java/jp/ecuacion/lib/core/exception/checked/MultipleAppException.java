@@ -43,8 +43,9 @@ public class MultipleAppException extends AppException {
     ObjectsUtil.requireNonNull(list);
     ObjectsUtil.requireSizeNonZero(list);
 
-    // 本メソッドの引数としてはAppException、つまりMultipleAppExceptionも許しているが、
-    // 内部的にはSingleAppExceptionのListとして保持するため、MultipleAppExceptionは分解する。
+    // Although this method's parameter type is AppException (which allows MultipleAppException),
+    // MultipleAppException is decomposed because it is stored internally as a List of
+    // SingleAppException.
     List<SingleAppException> internalList = new ArrayList<>();
     for (SingleAppException ae : list) {
       internalList.add((SingleAppException) ae);
