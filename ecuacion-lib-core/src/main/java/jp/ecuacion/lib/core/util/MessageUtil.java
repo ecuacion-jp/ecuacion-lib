@@ -184,7 +184,11 @@ public class MessageUtil {
         }
 
         String keyword = null;
-        if (itemNameKeyPart.contains("<")) {
+        if (itemNameKeyPart.startsWith("<K>")) {
+          // Map key access via @Valid cascade (e.g., targetMap<K>[keyRep] -> layer "<K>[keyRep]")
+          keyword = "mapKey";
+
+        } else if (itemNameKeyPart.contains("<")) {
           keyword = switch (itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"))) {
             case PropertyPathUtil.EL_LIST -> "order";
             case PropertyPathUtil.EL_SET -> "any";
@@ -193,14 +197,18 @@ public class MessageUtil {
             default -> throw new RuntimeException("Not assumed.");
           };
 
+        } else if (index.isEmpty()) {
+          // Set element: empty index means unordered collection
+          keyword = "any";
+
         } else {
-          // In the case of Collection<CustomObject>, for now Collection is always 'List'.
           try {
             index = Integer.toString(Integer.parseInt(index) + 1);
             keyword = "order";
 
           } catch (NumberFormatException ex) {
-            keyword = "index";
+            // Non-integer index means Map value access via @Valid cascade
+            keyword = "mapValue";
           }
         }
 
