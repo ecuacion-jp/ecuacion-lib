@@ -67,7 +67,7 @@ public @interface AnyEmpty {
   public @interface AnyEmptyList {
 
     /**
-     * Returns an array of Comparison.
+     * Returns an array of {@link AnyEmpty}.
      */
     AnyEmpty[] value();
   }

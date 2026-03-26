@@ -115,9 +115,9 @@ public class ReflectionUtil {
    *     And if it continues to search the annotation and it reaches to Object.class,
    *     it stops to search and returns empty Optional.</p>
    *     
-   * <p>Search ends when it founds the first annotation.
-   *     Even if there is another anntation of same class, 
-   *     it ignores and it returns first-found annotation.</p>
+   * <p>Search ends when it finds the first annotation.
+   *     Even if there is another annotation of the same class,
+   *     it ignores it and returns the first found annotation.</p>
    */
   public static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(
       Class<?> classOfTargetInstance, Class<A> annotation) {
@@ -192,7 +192,7 @@ public class ReflectionUtil {
    * Obtains a field value with any scopes and searches fields in super classes.
    * 
    * <p>Since Class#getDeclaredField is used in the method, 
-   *     making its scope public causes a spotbug's error.<br>
+   *     making its scope public causes a SpotBugs error.<br>
    *     That's why its scope is protected
    *     and you need to extend this class when you use it .</p>
    * 

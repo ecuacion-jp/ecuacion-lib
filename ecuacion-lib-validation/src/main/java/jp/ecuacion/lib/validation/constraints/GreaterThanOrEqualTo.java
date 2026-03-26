@@ -87,7 +87,7 @@ public @interface GreaterThanOrEqualTo {
   public @interface GreaterThanOrEqualToList {
 
     /**
-     * Returns an array of Comparison.
+     * Returns an array of {@link GreaterThanOrEqualTo}.
      */
     GreaterThanOrEqualTo[] value();
   }

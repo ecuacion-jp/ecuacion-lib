@@ -66,7 +66,7 @@ public @interface ValueOfPropertyPathWhen {
   String propertyValuePropertyPath();
 
   /**
-   * Specifies the the display string of property value.
+   * Specifies the display string of the property value.
    *
    * <p>It can be an array datatype which has multiple values.<br>
    *     When the value is new String[] {""}, the propertyValue specified is displayed
@@ -170,7 +170,7 @@ public @interface ValueOfPropertyPathWhen {
   String conditionValuePropertyPath() default "";
 
   /**
-   * Specifies the the display string of condition value.
+   * Specifies the display string of the condition value.
    *
    * <p>It can be used when conditionValue == STRING or VALUE_OF_PROPERTY_PATH.</p>
    *
