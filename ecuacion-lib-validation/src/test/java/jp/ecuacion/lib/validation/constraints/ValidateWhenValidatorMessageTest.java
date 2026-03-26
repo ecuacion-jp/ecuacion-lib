@@ -18,6 +18,7 @@ package jp.ecuacion.lib.validation.constraints;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
@@ -38,61 +39,50 @@ public class ValidateWhenValidatorMessageTest {
     PropertyFileUtil.addResourceBundlePostfix("lib-validation-test");
   }
 
+  private <T> void assertEqual(T object, String msg) {
+    Set<ConstraintViolation<T>> cvs = validator.validate(object);
+    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvs, Locale.ENGLISH).get(0));
+  }
+
   @Test
   public void messageTest() {
     String msg = null;
 
     // @EmptyWhen
-    Set<ConstraintViolation<EmptyWhenTest>> cvsEmptyWhen = validator.validate(new EmptyWhenTest());
     msg = "needs to be empty when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsEmptyWhen).get(0));
+    assertEqual(new EmptyWhenTest(), msg);
 
     // @NotEmptyWhen
-    Set<ConstraintViolation<NotEmptyWhenTest>> cvsNotEmptyWhen =
-        validator.validate(new NotEmptyWhenTest());
     msg = "needs to be not empty when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsNotEmptyWhen).get(0));
+    assertEqual(new NotEmptyWhenTest(), msg);
 
     // @TrueWhen
-    Set<ConstraintViolation<TrueWhenTest>> cvsTrueWhen = validator.validate(new TrueWhenTest());
     msg = "needs to be true when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsTrueWhen).get(0));
+    assertEqual(new TrueWhenTest(), msg);
 
     // @FalseWhen
-    Set<ConstraintViolation<FalseWhenTest>> cvsFalseWhen = validator.validate(new FalseWhenTest());
     msg = "needs to be false when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsFalseWhen).get(0));
+    assertEqual(new FalseWhenTest(), msg);
 
     // @StringWhen
-    Set<ConstraintViolation<StringWhenTest>> cvsStringWhen =
-        validator.validate(new StringWhenTest());
     msg = "needs to be a specific value when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsStringWhen).get(0));
+    assertEqual(new StringWhenTest(), msg);
 
     // @NotStringWhen
-    Set<ConstraintViolation<NotStringWhenTest>> cvsNotStringWhen =
-        validator.validate(new NotStringWhenTest());
     msg = "needs to not be a specific value when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsNotStringWhen).get(0));
+    assertEqual(new NotStringWhenTest(), msg);
 
     // @PatternWhen
-    Set<ConstraintViolation<PatternWhenTest>> cvsPatternWhen =
-        validator.validate(new PatternWhenTest());
     msg = "needs to match the pattern when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsPatternWhen).get(0));
+    assertEqual(new PatternWhenTest(), msg);
 
     // @NotPatternWhen
-    Set<ConstraintViolation<NotPatternWhenTest>> cvsNotPatternWhen =
-        validator.validate(new NotPatternWhenTest());
     msg = "needs to not match the pattern when 'condition field' is ON";
-    Assertions.assertEquals(msg, ExceptionUtil.getMessageList(cvsNotPatternWhen).get(0));
+    assertEqual(new NotPatternWhenTest(), msg);
 
     // @ValueOfPropertyPathWhen
-    Set<ConstraintViolation<ValueOfPropertyPathWhenTest>> cvsValueOfPropertyPathWhen =
-        validator.validate(new ValueOfPropertyPathWhenTest());
     msg = "needs to be the value of a specific field when 'condition field' is ON";
-    Assertions.assertEquals(msg,
-        ExceptionUtil.getMessageList(cvsValueOfPropertyPathWhen).get(0));
+    assertEqual(new ValueOfPropertyPathWhenTest(), msg);
   }
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "conditionField",
