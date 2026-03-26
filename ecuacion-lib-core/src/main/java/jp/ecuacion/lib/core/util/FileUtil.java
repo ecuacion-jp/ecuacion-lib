@@ -154,7 +154,7 @@ public class FileUtil {
     int firstBackSlashIndex = path.indexOf("\\");
 
     if (firstSlashIndex == -1 && firstBackSlashIndex == -1) {
-      // Return -1 when separator stirng not found.
+      // Return -1 when separator string not found.
       return -1;
 
     } else if (firstSlashIndex == -1) {
@@ -435,9 +435,9 @@ public class FileUtil {
     ObjectsUtil.requireNonNull(fileSize);
 
     double d = Double.valueOf(fileSize);
+    
     // Since we want to round to the second decimal place, 
     // we first divide by the digit that is one place less, then round it up and divide by 10.
-    System.out.println(Math.round(d / 100000.0));
     return Double.valueOf(Math.round(d / 100000.0) / 10.0).toString();
   }
 
@@ -569,7 +569,7 @@ public class FileUtil {
         }
 
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     }
   }
