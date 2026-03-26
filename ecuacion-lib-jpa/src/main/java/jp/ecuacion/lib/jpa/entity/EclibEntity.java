@@ -111,8 +111,8 @@ public abstract class EclibEntity {
   }
 
   /**
-   * Returns an array of fields which constructs an unique 
-   * Constraint connected to natural key.
+   * Returns an array of fields which construct a unique
+   * constraint connected to the natural key.
    * 
    * @return set of unique constraint column list.
    */

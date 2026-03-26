@@ -93,7 +93,7 @@ public @interface LessThanOrEqualTo {
   public @interface LessThanOrEqualToList {
 
     /**
-     * Returns an array of Comparison.
+     * Returns an array of {@link LessThanOrEqualTo}.
      */
     LessThanOrEqualTo[] value();
   }

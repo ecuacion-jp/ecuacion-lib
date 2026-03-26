@@ -27,7 +27,7 @@ import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constraints.AllEmptyOrAllNotEmpty.AllEmptyOrAllNotEmptyList;
 
 /**
- * Is valid when all of the values of {@code propertyPath} is empty or not empty.
+ * Is valid when all of the values of {@code propertyPath} are empty or all are not empty.
  */
 @PlacedAtClass
 @Target({ElementType.TYPE})
@@ -67,7 +67,7 @@ public @interface AllEmptyOrAllNotEmpty {
   public @interface AllEmptyOrAllNotEmptyList {
 
     /**
-     * Returns an array of Comparison.
+     * Returns an array of {@link AllEmptyOrAllNotEmpty}.
      */
     AllEmptyOrAllNotEmpty[] value();
   }

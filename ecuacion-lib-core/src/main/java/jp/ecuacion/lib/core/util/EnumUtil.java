@@ -31,7 +31,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 
 /**
- * Provivdes utility methods for ecuacion library enums.
+ * Provides utility methods for ecuacion library enums.
  * 
  * <p>In apps with ecuacion library the extended enum format is used. 
  *     The format of enums created by code-generator are also that kind.<br>

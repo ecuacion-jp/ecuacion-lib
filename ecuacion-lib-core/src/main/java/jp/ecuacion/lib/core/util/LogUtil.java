@@ -49,7 +49,7 @@ public class LogUtil {
    * @param throwable throwable
    * @param additionalMessage additionalMessage,
    *     may be {@code null} if no {@code additionalMessage} is needed.
-   *     In the case o {@code null} no additional message is output.
+   *     In the case of {@code null}, no additional message is output.
    */
   public static void logSystemError(@RequireNonnull DetailLogger detailLog,
       @RequireNonnull Throwable throwable, @Nullable String additionalMessage) {

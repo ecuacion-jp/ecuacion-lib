@@ -49,7 +49,7 @@ public class StringUtil {
   public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
     ObjectsUtil.requireNonNull(snakeCaseString);
 
-    // Throw an exception if "_" exsits at the start or end because it means it's not a snake case.
+    // Throw an exception if "_" exists at the start or end because it means it's not a snake case.
     if (snakeCaseString.startsWith("_")) {
       throw new EclibRuntimeException(
           "snake-case string cannot start with '_'. (argment string: '" + snakeCaseString + "')");
@@ -153,7 +153,7 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy, boolean firstElemnetUncapitalized) {
+      String rightHandSideEnclosedBy, boolean firstElementUncapitalized) {
     ObjectsUtil.requireNonNull(array, separator, leftHandSideEnclosedBy, rightHandSideEnclosedBy);
 
     boolean is1stTime = true;
@@ -185,9 +185,9 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
       @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy, boolean firstElemnetUncapitalized) {
+      String rightHandSideEnclosedBy, boolean firstElementUncapitalized) {
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
-        leftHandSideEnclosedBy, rightHandSideEnclosedBy, firstElemnetUncapitalized);
+        leftHandSideEnclosedBy, rightHandSideEnclosedBy, firstElementUncapitalized);
   }
 
   /**
@@ -202,7 +202,7 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator, String elementEnclosedBy,
-      boolean firstElemnetUncapitalized) {
+      boolean firstElementUncapitalized) {
     ObjectsUtil.requireNonNull(array, separator);
 
     boolean is1stTime = true;
@@ -234,9 +234,9 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
       @RequireNonnull String separator, String elementEnclosedBy,
-      boolean firstElemnetUncapitalized) {
+      boolean firstElementUncapitalized) {
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
-        elementEnclosedBy, firstElemnetUncapitalized);
+        elementEnclosedBy, firstElementUncapitalized);
   }
 
   /**

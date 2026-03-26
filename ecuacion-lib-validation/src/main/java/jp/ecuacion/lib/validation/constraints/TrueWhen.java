@@ -147,7 +147,7 @@ public @interface TrueWhen {
   String conditionValuePropertyPath() default "";
 
   /**
-   * Specifies the the display string of condition value.
+   * Specifies the display string of the condition value.
    *
    * <p>It can be used when conditionValue == STRING or VALUE_OF_PROPERTY_PATH.</p>
    *

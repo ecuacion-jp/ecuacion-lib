@@ -147,7 +147,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolation<?> cv,
       Map<String, Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
-        .get(ValidateWhenValidator.CONDITIIOIN_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
+        .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
     Object displayStringObj =
         displayStringPp.equals("") ? values : getValue(cv.getLeafBean(), displayStringPp);
