@@ -69,6 +69,14 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     boolean bl = switch (validatorClass) {
       case "EmptyWhen" -> (boolean) paramMap.get("notEmptyWhenConditionNotSatisfied");
       case "NotEmptyWhen" -> (boolean) paramMap.get("emptyWhenConditionNotSatisfied");
+      case "TrueWhen" -> (boolean) paramMap.get("falseWhenConditionNotSatisfied");
+      case "FalseWhen" -> (boolean) paramMap.get("trueWhenConditionNotSatisfied");
+      case "StringWhen" -> (boolean) paramMap.get("notStringWhenConditionNotSatisfied");
+      case "NotStringWhen" -> (boolean) paramMap.get("stringWhenConditionNotSatisfied");
+      case "PatternWhen" -> (boolean) paramMap.get("notPatternWhenConditionNotSatisfied");
+      case "NotPatternWhen" -> (boolean) paramMap.get("patternWhenConditionNotSatisfied");
+      case "ValueOfPropertyPathWhen" ->
+          (boolean) paramMap.get("notValueOfPropertyPathWhenConditionNotSatisfied");
       default -> false;
     };
 

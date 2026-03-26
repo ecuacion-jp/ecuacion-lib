@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class MultipleAppExceptionTest extends TestTools {
 
   @Test
-  public void test01_コンストラクタ_01_list_01_引数がnull() {
+  public void test01_constructor_01_list_01_argIsNull() {
     try {
       @SuppressWarnings("unused")
       MultipleAppException ex = new MultipleAppException((List<SingleAppException>) null);
@@ -37,7 +37,7 @@ public class MultipleAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_01_list_02_引数がサイズ0() {
+  public void test01_constructor_01_list_02_argSizeIsZero() {
     try {
       @SuppressWarnings("unused")
       MultipleAppException ex = new MultipleAppException(new ArrayList<SingleAppException>());
@@ -49,7 +49,7 @@ public class MultipleAppExceptionTest extends TestTools {
   }
 
   @Test
-  public void test01_コンストラクタ_01_list_03_正常() {
+  public void test01_constructor_01_list_03_valid() {
     List<SingleAppException> list = new ArrayList<>();
     list.add(new BizLogicAppException("TEST_KEY"));
     list.add(new BizLogicAppException("TEST_KEY"));
