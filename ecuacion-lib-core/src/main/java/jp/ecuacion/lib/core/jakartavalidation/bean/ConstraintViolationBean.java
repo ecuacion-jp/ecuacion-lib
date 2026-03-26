@@ -38,8 +38,8 @@ import org.apache.commons.lang3.StringUtils;
  * Stores {@code ConstraintViolation} info.
  * 
  * <p>The reason of the existence of the class is that the violations 
- *     which are not created by {@code Jakarata Validation} can also be treated 
- *     just as the one created by {@code Jakarata Validation}.</p>
+ *     which are not created by {@code Jakarta Validation} can also be treated
+ *     just as the one created by {@code Jakarta Validation}.</p>
  */
 public class ConstraintViolationBean<T> extends ReflectionUtil implements ConstraintViolation<T> {
 

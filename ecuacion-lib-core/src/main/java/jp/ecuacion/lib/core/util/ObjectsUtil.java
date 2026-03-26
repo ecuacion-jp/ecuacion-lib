@@ -46,9 +46,8 @@ public class ObjectsUtil {
   private ObjectsUtil() {}
 
   /**
-   * Validates the argument is not {@code null}  
-   *     and throws {@code RequireNonNullException} 
-   *     if the argument value does not match the condition.
+   * Validates that the argument is not {@code null}
+   *     and throws {@code RequireNonNullException} if it is.
    * 
    * @param <T> The class of the argument
    * @param object Any object
@@ -64,9 +63,8 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates multiple arguments are not {@code null}  
-   *     and throws {@code RequireNonNullException} 
-   *     if arguments value do not match the condition.
+   * Validates that multiple arguments are not {@code null}
+   *     and throws {@code RequireNonNullException} if any of them is.
    * 
    * <p>This is used to validate multiple arguments at one time.</p>
    * 
@@ -86,9 +84,8 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates the argument is not {@code null} or {@code blank("")}  
-   *     and throws {@code RequireNonEmptyException} 
-   *     if the argument value does not match the condition.
+   * Validates that the argument is not {@code null} or {@code blank("")}
+   *     and throws {@code RequireNonEmptyException} if it is.
    *     
    * @param string Any string 
    * @return the argument
@@ -104,9 +101,8 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates multiple arguments are not {@code null} or {@code blank("")}  
-   *     and throws {@code RequireNonEmptyException} 
-   *     if arguments value do not match the condition.
+   * Validates that multiple arguments are not {@code null} or {@code blank("")}
+   *     and throws {@code RequireNonEmptyException} if any of them is.
    *     
    * @param string1 Any string
    * @param string2 Any string
@@ -159,10 +155,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of an array is not {@code null} 
-   *     and throws {@code RequireElementNonNullException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of an array are not {@code null}
+   *     and throws {@code RequireElementNonNullException} if any element is.
+   *
    * @param <T> The class of the argument array
    * @param objects Any object, {@code null} is acceptable.
    * @return the argument
@@ -175,10 +170,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of a collection is not {@code null} 
-   *     and throws {@code RequireElementNonNullException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of a collection are not {@code null}
+   *     and throws {@code RequireElementNonNullException} if any element is.
+   *
    * @param <T> The class of the argument collection
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
@@ -199,10 +193,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of an array is not {@code null} 
-   *     and throws {@code RequireElementNonEmptyException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of an array are not {@code null} or empty
+   *     and throws {@code RequireElementNonEmptyException} if any element is.
+   *
    * @param strings Any strings, {@code null} is acceptable.
    * @return the argument
    */
@@ -221,10 +214,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of a collection is not {@code null} 
-   *     and throws {@code RequireElementNonEmptyException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of a collection are not {@code null} or empty
+   *     and throws {@code RequireElementNonEmptyException} if any element is.
+   *
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
@@ -237,10 +229,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of an array is not {@code null} 
-   *     and throws {@code RequireElementNonNullException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of an array are not duplicated
+   *     and throws {@code RequireElementsNonDuplicatedException} if any duplicate is found.
+   *
    * @param <T> The class of the argument array
    * @param objects Any object, {@code null} is acceptable.
    * @return the argument
@@ -253,10 +244,9 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates elements of a collection is not {@code null} 
-   *     and throws {@code RequireElementNonNullException} 
-   *     if the argument value does not match the condition.
-   * 
+   * Validates that elements of a collection are not duplicated
+   *     and throws {@code RequireElementsNonDuplicatedException} if any duplicate is found.
+   *
    * @param <T> The class of the argument collection
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument

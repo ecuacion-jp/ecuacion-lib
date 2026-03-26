@@ -147,12 +147,12 @@ public @interface NotEmptyWhen {
   String conditionValuePropertyPath() default "";
 
   /**
-   * Specifies the the display string of condition value.
+   * Specifies the display string of the condition value.
    * 
    * <p>It can be used when conditionValue == STRING or VALUE_OF_PROPERTY_PATH.</p>
    * 
    * <p>It can be an array datatype which has multiple values.<br>
-   *     When the value is new String[] {""}, the condionValue specified is displayed
+   *     When the value is new String[] {""}, the conditionValue specified is displayed
    *     as a part of an error message.</p>
    * 
    * @return String

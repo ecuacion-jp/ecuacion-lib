@@ -208,7 +208,7 @@ public class DateTimeApiUtil {
           "Date format incorrect. (date time string: " + dateTimeString + ")");
     }
 
-    // Determine the string between the date paret and the time part.
+    // Determine the string between the date part and the time part.
     if (dateTimeString.matches("^" + obj.regStr + REG_OF_SEP1_T + ".*")) {
       obj.appendStrings(REG_OF_SEP1_T, FM_OF_SEP1_T);
 
@@ -236,7 +236,7 @@ public class DateTimeApiUtil {
     /* Is a regular expression of timestamp string. */
     public String regStr = "";
     
-    /* Is a DateTimeFortmatter format of timestamp string. */
+    /* Is a DateTimeFormatter format of timestamp string. */
     public String fmStr = "";
 
     public void appendStrings(String regStrAppender, String fmStrAppender) {

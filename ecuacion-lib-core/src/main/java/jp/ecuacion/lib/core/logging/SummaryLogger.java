@@ -20,8 +20,8 @@ import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.slf4j.event.Level;
 
 /**
- * Logs start and end time of the timer-triggered exections, 
- * espacially used in batch programs. Not used for web or rest.
+ * Logs start and end time of the timer-triggered executions,
+ * especially used in batch programs. Not used for web or rest.
  * 
  * <p>This is mainly expected to use in the ecuacion-lib or other library, 
  * but not in specific apps.<br>
@@ -34,7 +34,7 @@ import org.slf4j.event.Level;
  * <p>Available loglevels are as follows:</p>
  * <ul>
  * <li>info : uses for start and normal end</li>
- * <li>warn : uses for skip and any other special way of enging executions</li>
+ * <li>warn : uses for skip and any other special way of ending executions</li>
  * <li>error: uses for abnormal end</li>
  * </ul>
  */

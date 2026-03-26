@@ -426,7 +426,7 @@ public class EmbeddedVariableUtil {
      *     </pre>
      *     
      * <p>The point is, <code>{0}</code> is not replaced in this procedure.
-     * It's maybe replace in other procedures.<br>
+     * It may be replaced in other procedures.<br>
      * In this case the emergence of endSymbol needs to be ignored.</p>
      *     
      * @param ignoresEmergenceOfEndSymbolOnly ignoresEmergenceOfEndSymbolOnly
