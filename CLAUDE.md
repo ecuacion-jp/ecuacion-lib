@@ -71,6 +71,7 @@ mvn checkstyle:check
 
 ```bash
 mvn checkstyle:check spotbugs:check
+mvn javadoc:javadoc
 ```
 
 The most common violations are:
