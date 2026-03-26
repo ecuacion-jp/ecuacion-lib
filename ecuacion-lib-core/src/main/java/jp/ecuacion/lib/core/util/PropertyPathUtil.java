@@ -24,6 +24,7 @@ import java.util.List;
  * <p>ProperyPath for collections:</p>
  *
  * <table border="1">
+ * <caption>PropertyPath for collections</caption>
  * <tr>
  *  <th>Class</th>
  *  <th>Parameter type</th>
