@@ -105,8 +105,7 @@ public class MailUtil {
     StringBuffer msgSb = new StringBuffer();
     msgSb.append(ExceptionUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
-    String rtn = msgSb.toString();
-    return rtn;
+    return msgSb.toString();
   }
 
   /**
@@ -134,7 +133,7 @@ public class MailUtil {
   /**
    * Provides sending text-format mail function.
    * 
-   * <p>The following settings ars needed to application.properties 
+   * <p>The following settings are needed to application.properties
    *     to send mails with this object.</p>
    * 
    * <pre>
@@ -218,11 +217,11 @@ public class MailUtil {
   }
 
   /**
-   * Mail sending internal rocedure.
-   * 
-   * <p>Since mail sending procedure is an additinal function 
-   *     when sending system-error mails for administrators, 
-   *     it has the option that all the execptions can be catched 
+   * Mail sending internal procedure.
+   *
+   * <p>Since mail sending procedure is an additional function
+   *     when sending system-error mails for administrators,
+   *     it has the option that all the exceptions can be caught
    *     not to get in the way of business logic</p>
    */
   private static void sendMailInternal(String mailFrom, String pass,
@@ -232,7 +231,7 @@ public class MailUtil {
       // Finish when the number of senders is zero.
       if ((mailToList == null || mailToList.size() == 0)
           && (mailCcList == null || mailCcList.size() == 0)) {
-        System.out.println("mail:no TO or CC specified.");
+        dtlLog.info("mail:no TO or CC specified.");
         return;
       }
 
