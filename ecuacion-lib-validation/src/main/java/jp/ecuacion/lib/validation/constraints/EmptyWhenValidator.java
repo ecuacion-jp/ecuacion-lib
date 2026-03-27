@@ -39,8 +39,4 @@ public class EmptyWhenValidator extends ValidateWhenValidator<EmptyWhen, Object>
         || valueOfField.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL);
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }

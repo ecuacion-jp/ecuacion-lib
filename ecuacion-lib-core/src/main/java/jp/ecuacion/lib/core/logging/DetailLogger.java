@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.logging;
 import jakarta.annotation.Nullable;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -155,7 +156,7 @@ public class DetailLogger extends EclibLogger {
     }
 
     StringBuilder sb = new StringBuilder();
-    ExceptionUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null, null);
+    ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null, null);
     log(logLevel, sb.toString());
   }
 }

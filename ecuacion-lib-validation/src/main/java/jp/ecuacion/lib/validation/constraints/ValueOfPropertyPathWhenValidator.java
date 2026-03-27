@@ -67,8 +67,4 @@ public class ValueOfPropertyPathWhenValidator
         || (valueOfField != null && propertyValues.contains(valueOfField));
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }

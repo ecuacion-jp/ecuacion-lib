@@ -28,13 +28,6 @@ public class SizeStringValidator implements ConstraintValidator<SizeString, Stri
   private int min;
   private int max;
   
-  /**
-   * Constructs a new instance.
-   */
-  public SizeStringValidator() {
-
-  }
-
   /** Initializes an instance. */
   @Override
   public void initialize(SizeString constraintAnnotation) {

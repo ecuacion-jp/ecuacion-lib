@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -97,8 +98,7 @@ public class PropertyPathUtil {
 
       rightMostNode = removingString + (rightMostNode.equals("") ? "" : ".") + rightMostNode;
 
-      if (removingString.contains(EL_LIST) || removingString.contains(EL_SET)
-          || removingString.contains(EL_MAP_KEY) || removingString.contains(EL_MAP_VAL)) {
+      if (Arrays.stream(COLLECTION_ELS).anyMatch(removingString::contains)) {
         continue;
       }
 

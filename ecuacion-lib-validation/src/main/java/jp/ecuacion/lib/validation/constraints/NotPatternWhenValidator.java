@@ -18,8 +18,8 @@ package jp.ecuacion.lib.validation.constraints;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Provides the validation logic for {@code NotPatternWhen}.
@@ -42,8 +42,7 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
 
   @Override
   protected boolean isValid(Object valueOfField) {
-    if (valueOfField == null || (valueOfField instanceof String
-        && StringUtils.isEmpty((String) valueOfField))) {
+    if (StringUtil.isObjectNullOrEmpty(valueOfField)) {
       return true;
     }
 
@@ -57,8 +56,4 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
     return !m.find();
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }
