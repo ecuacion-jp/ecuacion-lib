@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -153,9 +154,13 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy, boolean firstElementUncapitalized) {
-    ObjectsUtil.requireNonNull(array, separator, leftHandSideEnclosedBy, rightHandSideEnclosedBy);
+      String rightHandSideEnclosedBy) {
+    ObjectsUtil.requireNonNull(array);
 
+    separator = separator == null ? "" : separator;
+    leftHandSideEnclosedBy = leftHandSideEnclosedBy == null ? "" : leftHandSideEnclosedBy;
+    rightHandSideEnclosedBy = rightHandSideEnclosedBy == null ? "" : rightHandSideEnclosedBy;
+    
     boolean is1stTime = true;
     StringBuilder sb = new StringBuilder();
     for (String value : array) {
@@ -166,8 +171,7 @@ public class StringUtil {
         sb.append(separator);
       }
 
-      sb.append(leftHandSideEnclosedBy + (is1stTime ? StringUtils.uncapitalize(value) : value)
-          + rightHandSideEnclosedBy);
+      sb.append(leftHandSideEnclosedBy + value + rightHandSideEnclosedBy);
     }
 
     return sb.toString();
@@ -185,9 +189,10 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
       @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy, boolean firstElementUncapitalized) {
+      String rightHandSideEnclosedBy) {
+
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
-        leftHandSideEnclosedBy, rightHandSideEnclosedBy, firstElementUncapitalized);
+        leftHandSideEnclosedBy, rightHandSideEnclosedBy);
   }
 
   /**
@@ -201,25 +206,9 @@ public class StringUtil {
    */
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
-      @RequireNonnull String separator, String elementEnclosedBy,
-      boolean firstElementUncapitalized) {
-    ObjectsUtil.requireNonNull(array, separator);
+      @RequireNonnull String separator, String elementEnclosedBy) {
 
-    boolean is1stTime = true;
-    StringBuilder sb = new StringBuilder();
-    for (String value : array) {
-      if (is1stTime) {
-        is1stTime = false;
-
-      } else {
-        sb.append(separator);
-      }
-
-      String enclosedBy = elementEnclosedBy == null ? "" : elementEnclosedBy;
-      sb.append(enclosedBy + (is1stTime ? StringUtils.uncapitalize(value) : value) + enclosedBy);
-    }
-
-    return sb.toString();
+    return getSeparatedValuesString(array, separator, elementEnclosedBy, elementEnclosedBy);
   }
 
   /**
@@ -233,10 +222,10 @@ public class StringUtil {
    */
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
-      @RequireNonnull String separator, String elementEnclosedBy,
-      boolean firstElementUncapitalized) {
+      @RequireNonnull String separator, String elementEnclosedBy) {
+
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
-        elementEnclosedBy, firstElementUncapitalized);
+        elementEnclosedBy);
   }
 
   /**
@@ -251,7 +240,8 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull String[] array,
       @RequireNonnull String separator) {
-    return getSeparatedValuesString(array, separator, null, false);
+
+    return getSeparatedValuesString(array, separator, null);
   }
 
 
@@ -266,6 +256,7 @@ public class StringUtil {
   @Nonnull
   public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
       @RequireNonnull String separator) {
+
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
   }
 
@@ -315,6 +306,21 @@ public class StringUtil {
   @Nonnull
   public static String getCsvWithSpace(@RequireNonnull Collection<String> collection) {
     return getCsvWithSpace(collection.toArray(new String[collection.size()]));
+  }
+
+  /* ■□■□ object ■□■□ */
+
+  /**
+   * Returns {@code true} if the value is {@code null} or is an empty {@code String}.
+   *
+   * <p>This is used to check {@code Object}-typed values that may hold a {@code String},
+   *     such as field values obtained via reflection.</p>
+   *
+   * @param value the value to check
+   * @return {@code true} if the value is {@code null} or an empty {@code String}
+   */
+  public static boolean isObjectNullOrEmpty(@Nullable Object value) {
+    return value == null || (value instanceof String && StringUtils.isEmpty((String) value));
   }
 
   /* ■□■□ html escape ■□■□ */

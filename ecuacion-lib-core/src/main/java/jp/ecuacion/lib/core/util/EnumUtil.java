@@ -175,24 +175,31 @@ public class EnumUtil {
     String optionValue = optionMap.get(optionKey);
 
     for (EnumValueInfo<T> value : enumInfo.getValueList()) {
-      if ((optionKey.equals("including")
-          && Arrays.asList(optionValue.split("\\|")).contains(value.getName()))
-          || (optionKey.equals("excluding")
-              && !Arrays.asList(optionValue.split("\\|")).contains(value.getName()))
-          || (optionKey.equals("firstCharOfCodeEqualTo")
-              && Arrays.asList(optionValue.split("\\|")).contains(value.getCode().substring(0, 1)))
-          || (optionKey.equals("firstCharOfCodeLessThanOrEqualTo") && value.getCode()
-              .substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0] <= optionValue
-                  .getBytes(StandardCharsets.US_ASCII)[0])
-          || (optionKey.equals("firstCharOfCodeGreaterThanOrEqualTo") && value.getCode()
-              .substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0] >= optionValue
-                  .getBytes(StandardCharsets.US_ASCII)[0])) {
-
+      if (matchesOption(value, optionKey, optionValue)) {
         rtnList.add(new String[] {value.getCode(), value.getLabel()});
       }
     }
 
     return rtnList;
+  }
+
+  private static <T> boolean matchesOption(EnumValueInfo<T> value, String optionKey,
+      String optionValue) {
+    return switch (optionKey) {
+      case "including" ->
+          Arrays.asList(optionValue.split("\\|")).contains(value.getName());
+      case "excluding" ->
+          !Arrays.asList(optionValue.split("\\|")).contains(value.getName());
+      case "firstCharOfCodeEqualTo" ->
+          Arrays.asList(optionValue.split("\\|")).contains(value.getCode().substring(0, 1));
+      case "firstCharOfCodeLessThanOrEqualTo" ->
+          value.getCode().substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0]
+              <= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
+      case "firstCharOfCodeGreaterThanOrEqualTo" ->
+          value.getCode().substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0]
+              >= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
+      default -> false;
+    };
   }
 
   /**

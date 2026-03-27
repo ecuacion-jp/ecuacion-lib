@@ -47,10 +47,6 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
       Map<String, Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
-    final String validatorClassWithPackage = (String) paramMap.get("annotation");
-    final String validatorClass =
-        validatorClassWithPackage.substring(validatorClassWithPackage.lastIndexOf(".") + 1);
-
     // conditionFieldItemNameKey
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
@@ -66,19 +62,14 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, messageParameterSet);
 
     // validatesWhenConditionNotSatisfied
-    boolean bl = switch (validatorClass) {
-      case "EmptyWhen" -> (boolean) paramMap.get("notEmptyWhenConditionNotSatisfied");
-      case "NotEmptyWhen" -> (boolean) paramMap.get("emptyWhenConditionNotSatisfied");
-      case "TrueWhen" -> (boolean) paramMap.get("falseWhenConditionNotSatisfied");
-      case "FalseWhen" -> (boolean) paramMap.get("trueWhenConditionNotSatisfied");
-      case "StringWhen" -> (boolean) paramMap.get("notStringWhenConditionNotSatisfied");
-      case "NotStringWhen" -> (boolean) paramMap.get("stringWhenConditionNotSatisfied");
-      case "PatternWhen" -> (boolean) paramMap.get("notPatternWhenConditionNotSatisfied");
-      case "NotPatternWhen" -> (boolean) paramMap.get("patternWhenConditionNotSatisfied");
-      case "ValueOfPropertyPathWhen" ->
-          (boolean) paramMap.get("notValueOfPropertyPathWhenConditionNotSatisfied");
-      default -> false;
-    };
+    // Each When-validator annotation must have exactly one parameter whose name ends with
+    // "ConditionNotSatisfied". That convention allows automatic lookup without a switch statement.
+    String conditionNotSatisfiedKey = paramMap.keySet().stream()
+        .filter(k -> k.endsWith("WhenConditionNotSatisfied"))
+        .findFirst().orElse(null);
+    boolean bl = conditionNotSatisfiedKey != null
+        ? (boolean) paramMap.get(conditionNotSatisfiedKey)
+        : false;
 
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {

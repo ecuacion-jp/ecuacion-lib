@@ -52,8 +52,4 @@ public class NotStringWhenValidator extends ValidateWhenValidator<NotStringWhen,
     return !Arrays.asList(propertyValueString).contains(valueOfField);
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }

@@ -103,7 +103,8 @@ public class MailUtil {
   private static String getErrorMailContent(@RequireNonnull Throwable e,
       @Nullable String additionalMessage) {
     StringBuffer msgSb = new StringBuffer();
-    msgSb.append(ExceptionUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
+    msgSb
+        .append(ExceptionLogUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
     return msgSb.toString();
   }
@@ -188,32 +189,32 @@ public class MailUtil {
           "Either mailToList or mailCcList need to have at least one element.");
     }
 
-    String mailFrom = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.sender");
-    String pass = PropertyFileUtil.getApplication(APP_PREFIX + "smtp.password");
+    String mailFrom = getApp("smtp.sender");
+    String pass = getApp("smtp.password");
 
     // Server connection settings
-    MailUtilEmailServer serverInfo = new MailUtilEmailServer(
-        PropertyFileUtil.getApplication(APP_PREFIX + "smtp.server"),
-        PropertyFileUtil.getApplication(APP_PREFIX + "smtp.port"),
-        (PropertyFileUtil.hasApplication(APP_PREFIX + "smtp.ssl-enabled"))
-            ? Boolean.parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.ssl-enabled"))
-            : false,
-        Boolean.parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.authentication")),
-        Boolean
-            .parseBoolean(PropertyFileUtil.getApplication(APP_PREFIX + "smtp.checks-certificate")),
-        (PropertyFileUtil.hasApplication(APP_PREFIX + "smtp.bounce-address"))
-            ? PropertyFileUtil.getApplication(APP_PREFIX + "smtp.bounce-address")
-            : null);
+    MailUtilEmailServer serverInfo =
+        new MailUtilEmailServer(getApp("smtp.server"), getApp("smtp.port"),
+            hasApp("smtp.ssl-enabled") ? Boolean.parseBoolean(getApp("smtp.ssl-enabled")) : false,
+            Boolean.parseBoolean(getApp("smtp.authentication")),
+            Boolean.parseBoolean(getApp("smtp.checks-certificate")),
+            hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null);
 
     // javaMail settings
-    boolean debug = (PropertyFileUtil.hasApplication(APP_PREFIX + "debug"))
-        ? Boolean.valueOf(PropertyFileUtil.getApplication(APP_PREFIX + "debug"))
-        : false;
+    boolean debug = (hasApp("debug")) ? Boolean.valueOf(getApp("debug")) : false;
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
         new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
             new MailUtilEmailSettings(debug)),
         throwsException);
+  }
+
+  private static String getApp(String postfix) {
+    return PropertyFileUtil.getApplication(APP_PREFIX + postfix);
+  }
+
+  private static boolean hasApp(String postfix) {
+    return PropertyFileUtil.hasApplication(APP_PREFIX + postfix);
   }
 
   /**

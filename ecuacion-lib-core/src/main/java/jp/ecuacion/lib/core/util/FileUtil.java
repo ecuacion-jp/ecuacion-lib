@@ -32,6 +32,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
@@ -49,6 +50,17 @@ public class FileUtil {
    */
   private FileUtil() {}
 
+  private static final Map<String, String> SAVABLE_NAME_REPLACEMENTS = Map.of(
+      "\\\\", "__yen__",
+      "/", "__slash__",
+      ":", "__colon__",
+      "\\*", "__asterisk__",
+      "\\?", "__question__",
+      "\"", "__dquotation__",
+      "<", "__lessthan__",
+      ">", "__morethan__",
+      "\\|", "__pipe__");
+
   /**
    * Changes argument filename into file-savable name.
    */
@@ -57,40 +69,8 @@ public class FileUtil {
     ObjectsUtil.requireNonNull(origName);
 
     String rtn = origName;
-    if (origName.indexOf("\\") >= 0) {
-      rtn = rtn.replaceAll("\\\\", "__yen__");
-    }
-
-    if (origName.indexOf("/") >= 0) {
-      rtn = rtn.replaceAll("/", "__slash__");
-    }
-
-    if (origName.indexOf(":") >= 0) {
-      rtn = rtn.replaceAll(":", "__colon__");
-    }
-
-    if (origName.indexOf("*") >= 0) {
-      rtn = rtn.replaceAll("\\*", "__asterisk__");
-    }
-
-    if (origName.indexOf("?") >= 0) {
-      rtn = rtn.replaceAll("\\?", "__question__");
-    }
-
-    if (origName.indexOf("\"") >= 0) {
-      rtn = rtn.replaceAll("\"", "__dquotation__");
-    }
-
-    if (origName.indexOf("<") >= 0) {
-      rtn = rtn.replaceAll("<", "__lessthan__");
-    }
-
-    if (origName.indexOf(">") >= 0) {
-      rtn = rtn.replaceAll(">", "__morethan__");
-    }
-
-    if (origName.indexOf("|") >= 0) {
-      rtn = rtn.replaceAll("\\|", "__pipe__");
+    for (Map.Entry<String, String> entry : SAVABLE_NAME_REPLACEMENTS.entrySet()) {
+      rtn = rtn.replaceAll(entry.getKey(), entry.getValue());
     }
 
     return rtn;

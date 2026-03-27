@@ -49,8 +49,4 @@ public class NotEmptyWhenValidator extends ValidateWhenValidator<NotEmptyWhen, O
     }
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }

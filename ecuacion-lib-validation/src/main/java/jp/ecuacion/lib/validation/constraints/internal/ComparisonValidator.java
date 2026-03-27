@@ -31,6 +31,7 @@ import java.util.List;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -99,11 +100,9 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     }
 
     // True when one of valueOfField or fieldOfBasisPropertyPath is empty.
-    boolean isValueOfPropertyPathEmpty = valueOfPropertyPath == null
-        || (valueOfPropertyPath instanceof String && ((String) valueOfPropertyPath).equals(""));
+    boolean isValueOfPropertyPathEmpty = StringUtil.isObjectNullOrEmpty(valueOfPropertyPath);
     boolean isValueOfBasisPropertyPathEmpty =
-        valueOfBasisPropertyPath == null || (valueOfBasisPropertyPath instanceof String
-            && ((String) valueOfBasisPropertyPath).equals(""));
+        StringUtil.isObjectNullOrEmpty(valueOfBasisPropertyPath);
     if (isValueOfPropertyPathEmpty || isValueOfBasisPropertyPathEmpty) {
       return true;
     }
