@@ -43,11 +43,45 @@
 	<dependencyManagement>
 		<dependencies>
 			
-			<!-- jakarta ee -->
 			<dependency>
 				<groupId>jakarta.servlet</groupId>
 				<artifactId>jakarta.servlet-api</artifactId>
 				<version>${jakarta.servlet.jakarta.servlet-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>${jakarta.annotation.jakarta.annotation-api.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>jakarta.persistence</groupId>
+			    <artifactId>jakarta.persistence-api</artifactId>
+				<version>${jakarta.persistence.jakarta.persistence-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.mail</groupId>
+				<artifactId>jakarta.mail-api</artifactId>
+				<version>${jakarta.mail.jakarta.mail-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.slf4j-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${com.fasterxml.jackson.core.jackson-databind.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.el</groupId>
+				<artifactId>jakarta.el-api</artifactId>
+				<version>${jakarta.el.jakarta.el-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish</groupId>
+				<artifactId>jakarta.el</artifactId>
+				<version>${org.glassfish.jakarta.el.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.validation</groupId>
@@ -59,48 +93,12 @@
 				<artifactId>hibernate-validator</artifactId>
 				<version>${org.hibernate.validator.hibernate-validator.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.glassfish</groupId>
-				<artifactId>jakarta.el</artifactId>
-				<version>${org.glassfish.jakarta.el.version}</version>
+			 <dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.commons-io.version}</version>
 			</dependency>
-			<dependency>
-			    <groupId>jakarta.persistence</groupId>
-			    <artifactId>jakarta.persistence-api</artifactId>
-				<version>${jakarta.persistence.jakarta.persistence-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.annotation</groupId>
-				<artifactId>jakarta.annotation-api</artifactId>
-				<version>${jakarta.annotation.jakarta.annotation-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.mail</groupId>
-				<artifactId>jakarta.mail-api</artifactId>
-				<version>${jakarta.mail.jakarta.mail-api.version}</version>
-			</dependency>
-	
-			<dependency>
-				<groupId>jakarta.el</groupId>
-				<artifactId>jakarta.el-api</artifactId>
-				<version>${jakarta.el.jakarta.el-api.version}</version>
-			</dependency>
-		
-			<!-- logging -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${org.slf4j.slf4j-api.version}</version>
-			</dependency>
-			
-			<!-- json -->
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${com.fasterxml.jackson.core.jackson-databind.version}</version>
-			</dependency>
-			
-			<!-- unit test -->
+
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
