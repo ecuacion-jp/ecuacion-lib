@@ -30,13 +30,6 @@ public class PatternWithDescriptionValidator
 
   private String regExp;
   
-  /**
-   * Constructs a new instance.
-   */
-  public PatternWithDescriptionValidator() {
-
-  }
-
   /** Initializes an instance. */
   @Override
   public void initialize(PatternWithDescription constraintAnnotation) {

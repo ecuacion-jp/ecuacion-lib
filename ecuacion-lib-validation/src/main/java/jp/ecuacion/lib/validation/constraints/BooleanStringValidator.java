@@ -25,13 +25,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BooleanStringValidator implements ConstraintValidator<BooleanString, String> {
 
-  /**
-   * Constructs a new instance.
-   */
-  public BooleanStringValidator() {
-
-  }
-
   /** Initializes an instance. */
   @Override
   public void initialize(BooleanString constraintAnnotation) {}

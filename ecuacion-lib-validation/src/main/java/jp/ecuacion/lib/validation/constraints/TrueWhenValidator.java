@@ -42,8 +42,4 @@ public class TrueWhenValidator extends ValidateWhenValidator<TrueWhen, Object> {
     return Boolean.TRUE.equals(valueOfField);
   }
 
-  @Override
-  protected boolean isValidWhenConditionNotSatisfied(Object valueOfField) {
-    return !isValid(valueOfField);
-  }
 }

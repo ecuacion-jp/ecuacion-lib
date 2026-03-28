@@ -26,13 +26,6 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
 
   private Class<?> enumClass;
 
-  /**
-   * Constructs a new instance.
-   */
-  public EnumElementValidator() {
-
-  }
-
   /** Initializes an instance. */
   @Override
   public void initialize(EnumElement constraintAnnotation) {

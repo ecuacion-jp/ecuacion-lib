@@ -139,90 +139,83 @@ public class MessageUtil {
       final String prependSymbol, final String appendSymbol) {
 
     String itemNameKey = infoBean.itemNameKey();
+    List<String> collectionLayerList =
+        extractCollectionLayers(PropertyPathUtil.getRightMostNode(infoBean.propertyPath()));
 
-    // Handle collections and arrays.
-    List<String> collectionLayerList = new ArrayList<>();
-    String rightMostNode = PropertyPathUtil.getRightMostNode(infoBean.propertyPath());
+    String itemName =
+        prependSymbol + PropertyFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
+
+    if (collectionLayerList.isEmpty()) {
+      return itemName;
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < collectionLayerList.size(); i++) {
+      String itemNameKeyPart = collectionLayerList.get(i);
+      String tmp = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("["));
+      String index = tmp.substring(1, tmp.indexOf("]"));
+
+      KeywordAndIndex ki = determineKeyword(itemNameKeyPart, index);
+      String itemNamePath = PropertyFileUtil.getMessage(locale, ipf + ki.keyword(), ki.index());
+
+      sb.append(
+          (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
+    }
+
+    return PropertyFileUtil.getMessage(locale, ipf + "collectionItemName", itemName, sb.toString());
+  }
+
+  private static List<String> extractCollectionLayers(String rightMostNode) {
+    List<String> layers = new ArrayList<>();
     while (true) {
       if (rightMostNode.contains("<K>")) {
-        collectionLayerList.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
+        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
         rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("<K>"));
 
       } else if (rightMostNode.contains("[")) {
-        collectionLayerList.add(rightMostNode.substring(rightMostNode.lastIndexOf("[")));
+        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("[")));
         rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("["));
 
       } else {
         break;
       }
     }
+    return layers.reversed();
+  }
 
-    // reverse order
-    collectionLayerList = collectionLayerList.reversed();
+  private record KeywordAndIndex(String keyword, String index) {}
 
-    String wholeItemName = null;
-    String itemName =
-        prependSymbol + PropertyFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
+  private static KeywordAndIndex determineKeyword(String itemNameKeyPart, String index) {
+    if (itemNameKeyPart.startsWith("<K>")) {
+      // Map key access via @Valid cascade (e.g., targetMap<K>[keyRep] -> layer "<K>[keyRep]")
+      return new KeywordAndIndex("mapKey", index);
 
-    if (collectionLayerList.size() == 0) {
-      wholeItemName = itemName;
+    } else if (itemNameKeyPart.contains("<")) {
+      String elType = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"));
+      String keyword = switch (elType) {
+        case PropertyPathUtil.EL_LIST -> "order";
+        case PropertyPathUtil.EL_SET -> "any";
+        case PropertyPathUtil.EL_MAP_KEY -> "mapKey";
+        case PropertyPathUtil.EL_MAP_VAL -> "mapValue";
+        default -> throw new RuntimeException("Not assumed.");
+      };
+      String adjustedIndex = PropertyPathUtil.EL_LIST.equals(elType)
+          ? Integer.toString(Integer.parseInt(index) + 1)
+          : index;
+      return new KeywordAndIndex(keyword, adjustedIndex);
+
+    } else if (index.isEmpty()) {
+      // Set element: empty index means unordered collection
+      return new KeywordAndIndex("any", index);
 
     } else {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < collectionLayerList.size(); i++) {
-        // String elName = prependSymbol + "element" + appendSymbol;
-        String itemNamePath = "";
-
-        // Get index. (empty for Set)
-        String itemNameKeyPart = collectionLayerList.get(i);
-        String tmp = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("["));
-        String index = tmp.substring(1, tmp.indexOf("]"));
-
-        // Add "one of ...", "... n", etc...
-        if (itemNameKeyPart.endsWith(PropertyPathUtil.EL_LIST)) {
-          index = Integer.toString(Integer.parseInt(index) + 1);
-        }
-
-        String keyword = null;
-        if (itemNameKeyPart.startsWith("<K>")) {
-          // Map key access via @Valid cascade (e.g., targetMap<K>[keyRep] -> layer "<K>[keyRep]")
-          keyword = "mapKey";
-
-        } else if (itemNameKeyPart.contains("<")) {
-          keyword = switch (itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"))) {
-            case PropertyPathUtil.EL_LIST -> "order";
-            case PropertyPathUtil.EL_SET -> "any";
-            case PropertyPathUtil.EL_MAP_KEY -> "mapKey";
-            case PropertyPathUtil.EL_MAP_VAL -> "mapValue";
-            default -> throw new RuntimeException("Not assumed.");
-          };
-
-        } else if (index.isEmpty()) {
-          // Set element: empty index means unordered collection
-          keyword = "any";
-
-        } else {
-          try {
-            index = Integer.toString(Integer.parseInt(index) + 1);
-            keyword = "order";
-
-          } catch (NumberFormatException ex) {
-            // Non-integer index means Map value access via @Valid cascade
-            keyword = "mapValue";
-          }
-        }
-
-        itemNamePath = PropertyFileUtil.getMessage(locale, ipf + keyword, index);
-
-        sb.append(
-            (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
+      try {
+        return new KeywordAndIndex("order", Integer.toString(Integer.parseInt(index) + 1));
+      } catch (NumberFormatException ex) {
+        // Non-integer index means Map value access via @Valid cascade
+        return new KeywordAndIndex("mapValue", index);
       }
-
-      wholeItemName =
-          PropertyFileUtil.getMessage(locale, ipf + "collectionItemName", itemName, sb.toString());
     }
-
-    return wholeItemName.toString();
   }
 
   private static String addItemNamePath(Locale locale, Object rootBean, FieldInfoBean infoBean,
