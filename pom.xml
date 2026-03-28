@@ -316,11 +316,7 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons-io.commons-io.version}</version>
-			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
