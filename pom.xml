@@ -22,9 +22,29 @@
 	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
+	<name>${project.artifactId}</name>
+	<description>It is a base library which contains basic features.</description>
+	<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
 	<organization>
 		<name>ecuacion.jp</name>
 	</organization>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>ecuacion.jp</name>
+			<email>info@ecuacion.jp</email>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/ecuacion-jp/ecuacion-lib.git</connection>
+		<developerConnection>scm:git:https://github.com/ecuacion-jp/ecuacion-lib.git</developerConnection>
+		<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
+	</scm>
 	<properties>
 		<java.version>21</java.version>
 		<!-- maven-compiler-plugin referred properties (no need to plugin definition) -->
@@ -65,6 +85,10 @@
 		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.3.2</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
+		<!-- gpg -->
+		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.7</org.apache.maven.plugins.maven-gpg-plugin.version>
+		<!-- central publishing -->
+		<org.sonatype.central.central-publishing-maven-plugin.version>0.6.0</org.sonatype.central.central-publishing-maven-plugin.version>
 
 		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
@@ -326,4 +350,50 @@
 		<module>ecuacion-lib-jpa</module>
 		<module>ecuacion-lib-validation</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+
+					<!-- maven-gpg-plugin (signs artifacts for Maven Central) -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-gpg-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
+					</plugin>
+
+					<!-- central-publishing-maven-plugin (publishes to Maven Central)
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>${org.sonatype.central.central-publishing-maven-plugin.version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<autoPublish>true</autoPublish>
+						</configuration>
+					</plugin>
+ 					-->
+ 
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
