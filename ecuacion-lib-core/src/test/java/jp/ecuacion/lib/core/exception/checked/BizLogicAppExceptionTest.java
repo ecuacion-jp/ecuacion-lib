@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class BizLogicAppExceptionTest extends TestTools {
@@ -41,7 +40,7 @@ public class BizLogicAppExceptionTest extends TestTools {
   @Test
   public void test01_constructor_01_messageId_02_argIsNotNull() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
+    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
   }
 
   @Test
@@ -64,27 +63,27 @@ public class BizLogicAppExceptionTest extends TestTools {
   public void test01_constructor_02_messageId_messageArgs_02_allExceptMessageIdAreNull() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
 
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
+    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
     assertFalse(ex.getMessageArgs() == null);
-    Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(0);
+    assertEquals(0, ex.getMessageArgs().length);
   }
 
   @Test
   public void test01_constructor_02_messageId_messageArgs_03_valid() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, "abc");
 
-    Assertions.assertThat(ex.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
-    Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(1);
-    Assertions.assertThat(ex.getMessageArgs()[0].getArgString()).isEqualTo("abc");
+    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
+    assertEquals(1, ex.getMessageArgs().length);
+    assertEquals("abc", ex.getMessageArgs()[0].getArgString());
   }
 
   @Test
   public void test01_constructor_12_locale_messageId_messageArgs_02_allExceptMessageIdAreNull() {
     BizLogicAppException ex = new BizLogicAppException("TEST_KEY");
 
-    Assertions.assertThat(ex.getMessageId()).isEqualTo("TEST_KEY");
-    Assertions.assertThat(ex.getMessageArgs() == null).isFalse();
-    Assertions.assertThat(ex.getMessageArgs().length).isEqualTo(0);
+    assertEquals("TEST_KEY", ex.getMessageId());
+    assertFalse(ex.getMessageArgs() == null);
+    assertEquals(0, ex.getMessageArgs().length);
   }
 
   // @Test
