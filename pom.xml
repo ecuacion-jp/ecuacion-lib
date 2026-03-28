@@ -32,32 +32,59 @@
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<ecuacion-lib.version>0.0.1-SNAPSHOT</ecuacion-lib.version>
+		
+		<!-- paths and urls -->
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/public</repository.ecuacion-repo-sftp-root>
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
 		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
-		<ecuacion-lib.version>0.0.1-SNAPSHOT</ecuacion-lib.version>
-		<!-- 3rd party module versions -->
-		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
-		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
+
+		<!-- plugin module versions -->
 		<org.apache.maven.plugins.maven-source-plugin.version>3.3.1</org.apache.maven.plugins.maven-source-plugin.version>
 		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.11.2</org.apache.maven.plugins.maven-javadoc-plugin.version>
-		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
 		<com.mycila.license-maven-plugin.version>4.6</com.mycila.license-maven-plugin.version>
+		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
 		<com.puppycrawl.tools.checkstyle.version>13.2.0</com.puppycrawl.tools.checkstyle.version>
+		<!-- wagon -->
+		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
+		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.3.2</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
-		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
+
+		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
+
+		<!-- module versions (ecuacion-lib doest not depend on it, but other ecuacion modules do) -->
 		<commons-io.commons-io.version>2.21.0</commons-io.commons-io.version>
+
+		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
+		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
+		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
+		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
+		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
+		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
+		<com.fasterxml.jackson.core.jackson-databind.version>2.20.2</com.fasterxml.jackson.core.jackson-databind.version>
+		<!-- jakarta-el -->
+		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
+		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
+		<!-- jakarta validation -->
+		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
+		<org.hibernate.validator.hibernate-validator.version>9.0.1.Final</org.hibernate.validator.hibernate-validator.version>
+
+		<!-- module versions (test scope) -->
+		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
+
 	</properties>
 	<distributionManagement>
-		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
+		<!-- Used only on the build server. Destination for deploying the generated jar. -->
 		<repository>
-			<!-- 一般ユーザには配置不可。build環境からのみ可能 -->
+			<!-- Not accessible to general users. Only available from the build environment. -->
 			<id>ecuacion-repo-sftp</id>
 			<name>ecuacion maven repository</name>
 			<url>${repository.ecuacion-repo-sftp-root}</url>
@@ -248,7 +275,7 @@
 		
 		<plugins>
 
-			<!-- maven-enforcer-plugin (maven version指定) -->
+			<!-- maven-enforcer-plugin (specify maven version) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>

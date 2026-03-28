@@ -23,7 +23,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import org.assertj.core.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,13 +48,13 @@ public class ValidationAppExceptionTest {
       // NPE is expected
       @SuppressWarnings("unused")
       ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
-      Assertions.fail();
+      fail();
 
     } catch (NullPointerException npe) {
       // OK
 
     } catch (Exception e) {
-      Assertions.fail();
+      fail();
     }
   }
 
@@ -65,7 +66,7 @@ public class ValidationAppExceptionTest {
       ex.getStackTrace();
 
     } catch (Exception e) {
-      Assertions.fail();
+      fail();
     }
   }
 
@@ -76,23 +77,21 @@ public class ValidationAppExceptionTest {
 
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
-    Assertions.assertThat(bean.getValidatorClass())
-        .isEqualTo("jakarta.validation.constraints.NotNull");
-    Assertions.assertThat(bean.getMessage()).isEqualTo("must not be null");
-    Assertions.assertThat(bean.getMessageTemplate())
-        .isEqualTo("jakarta.validation.constraints.NotNull.message");
-    Assertions.assertThat(bean.getRootBean().getClass().getName()).isEqualTo(className);
-    Assertions.assertThat(bean.getLeafBean().getClass().getName()).isEqualTo(className);
+    assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
+    assertEquals("must not be null", bean.getMessage());
+    assertEquals("jakarta.validation.constraints.NotNull.message", bean.getMessageTemplate());
+    assertEquals(className, bean.getRootBean().getClass().getName());
+    assertEquals(className, bean.getLeafBean().getClass().getName());
     String pp = bean.getFieldInfoBeans()[0].propertyPath();
-    Assertions.assertThat(pp).isEqualTo("str1");
-    Assertions.assertThat(bean.getInvalidValue()).isEqualTo("null");
+    assertEquals("str1", pp);
+    assertEquals("null", bean.getInvalidValue());
   }
 
   @Test
   public void test11_obtaining_messageId() {
     ValidationAppException ex = new ValidationAppException(violation);
     ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
-    Assertions.assertThat(bean.getValidatorClass()).isEqualTo("jakarta.validation.constraints.NotNull");
+    assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
   }
 
   @Test
@@ -103,7 +102,7 @@ public class ValidationAppExceptionTest {
         + "leafClassName:jp.ecuacion.lib.core.exception.checked."
         + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
-    Assertions.assertThat(ex.getConstraintViolationBean().toString()).isEqualTo(str);
+    assertEquals(str, ex.getConstraintViolationBean().toString());
   }
 
   public static class SampleObj {

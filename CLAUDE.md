@@ -22,7 +22,6 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 
 ### Javadoc
 - **All public classes, methods, and fields must have Javadoc**
-- `@return` and `@param` tags must not be omitted
 - When editing existing files, review and update Javadoc for any modified methods
 
 ### License Header
@@ -34,18 +33,6 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 ### Creating New Files
 - Always refer to existing files in the same package before creating a new one
 - When adding to a package that has `package-info.java`, check its contents first
-
-### Validator Pattern (ecuacion-lib-validation)
-When adding a new When-validator, always create 3 files as a set:
-1. `XxxWhen.java` - Annotation definition
-2. `XxxWhenValidator.java` - Validation logic extending `ValidateWhenValidator`
-3. `XxxWhenMessageParameterCreator.java` - Extends `ValidateWhenValidatorMessageParameterCreator` (empty body)
-
-Also add entries to the following files:
-- `ValidationMessages_lib_validation.properties` / `_ja.properties`
-- `ValidationMessagesWithItemNames_lib_validation.properties` / `_ja.properties`
-- `messages_lib_validation.properties` / `_ja.properties`
-- The switch statement in `ValidateWhenValidatorMessageParameterCreator.java`
 
 ## Work Style
 

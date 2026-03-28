@@ -16,15 +16,15 @@
 package jp.ecuacion.lib.core.util;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
-import org.assertj.core.util.Arrays;
-import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -69,8 +69,9 @@ public class ReflectionUtilTest {
 
       private FieldValueChild child = new FieldValueChild();
       private FieldValueChild[] childs = new FieldValueChild[] {new FieldValueChild()};
-      private List<Object> childList = Arrays.asList(new FieldValueChild[] {new FieldValueChild()});
-      private Set<Object> childSet = Sets.newHashSet(childList);
+      private List<FieldValueChild> childList =
+          Arrays.asList(new FieldValueChild[] {new FieldValueChild()});
+      private Set<FieldValueChild> childSet = childList.stream().collect(Collectors.toSet());
     }
 
     public static class FieldValueChild {
@@ -144,7 +145,7 @@ public class ReflectionUtilTest {
 
     }
   }
-  
+
   @Test
   public void getClassTest() {
     Class<?> cls = null;
@@ -152,9 +153,10 @@ public class ReflectionUtilTest {
     // 1.list with generic type of basic object
     cls = ReflectionUtil.getClass(GetClass.class, "strList[0].<list element>");
     Assertions.assertTrue(String.class.isAssignableFrom(cls));
-    
+
     // 2.lists with generic type of basic object
-    cls = ReflectionUtil.getClass(GetClass.class, "strListList[0].<list element>[0].<list element>");
+    cls =
+        ReflectionUtil.getClass(GetClass.class, "strListList[0].<list element>[0].<list element>");
     Assertions.assertTrue(String.class.isAssignableFrom(cls));
 
     // 3.list with generic type of custpmized object
@@ -170,12 +172,12 @@ public class ReflectionUtilTest {
   public static class GetClass {
     private List<String> strList;
     private List<List<String>> strListList;
-    
+
     private List<Child> childList;
     private List<List<Child>> childListList;
-    
+
     private static class Child {
-      
+
     }
   }
 }

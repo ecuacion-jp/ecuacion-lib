@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class MultipleAppExceptionTest extends TestTools {
@@ -56,9 +55,9 @@ public class MultipleAppExceptionTest extends TestTools {
     list.add(new BizLogicAppException("TEST_KEY"));
     MultipleAppException ex = new MultipleAppException(list);
 
-    Assertions.assertThat(list.size()).isEqualTo(3);
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(0)).getMessageId()).isEqualTo("TEST_KEY");
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(1)).getMessageId()).isEqualTo("TEST_KEY");
-    Assertions.assertThat(((BizLogicAppException) ex.getList().get(2)).getMessageId()).isEqualTo("TEST_KEY");
+    assertEquals(3, list.size());
+    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(0)).getMessageId());
+    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(1)).getMessageId());
+    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(2)).getMessageId());
   }
 }
