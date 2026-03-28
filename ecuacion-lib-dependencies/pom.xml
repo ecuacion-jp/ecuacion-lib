@@ -43,9 +43,6 @@
 		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
 		<org.hibernate.validator.hibernate-validator.version>9.0.1.Final</org.hibernate.validator.hibernate-validator.version>
 
-		<!-- module versions (ecuacion-lib does not depend on them, but other ecuacion modules do) -->
-		<commons-io.commons-io.version>2.21.0</commons-io.commons-io.version>
-
 		<!-- module versions (test scope) -->
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 
@@ -116,11 +113,6 @@
 				<groupId>org.hibernate.validator</groupId>
 				<artifactId>hibernate-validator</artifactId>
 				<version>${org.hibernate.validator.hibernate-validator.version}</version>
-			</dependency>
-			 <dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons-io.commons-io.version}</version>
 			</dependency>
 
 			<dependency>
