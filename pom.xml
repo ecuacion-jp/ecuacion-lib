@@ -58,7 +58,7 @@
 		<com.mycila.license-maven-plugin.version>4.6</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>13.2.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>13.3.0</com.puppycrawl.tools.checkstyle.version>
 		<!-- wagon -->
 		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
 		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
