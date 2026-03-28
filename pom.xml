@@ -379,7 +379,7 @@
 						</configuration>
 					</plugin>
 
-					<!-- central-publishing-maven-plugin (publishes to Maven Central)
+					<!-- central-publishing-maven-plugin (publishes to Maven Central) -->
 					<plugin>
 						<groupId>org.sonatype.central</groupId>
 						<artifactId>central-publishing-maven-plugin</artifactId>
@@ -390,7 +390,6 @@
 							<autoPublish>true</autoPublish>
 						</configuration>
 					</plugin>
- 					-->
  
 				</plugins>
 			</build>
