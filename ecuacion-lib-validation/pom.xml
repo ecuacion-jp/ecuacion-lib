@@ -22,9 +22,9 @@
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
-		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
+		<artifactId>ecuacion-lib-dependencies</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
+		<relativePath>../ecuacion-lib-dependencies</relativePath>
 	</parent>
 	
 	<build>
@@ -97,11 +97,9 @@
 			<artifactId>jakarta.mail-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<!-- This is a jakarta module but spring framework does not provide it -->
 		<dependency>
 			<groupId>jakarta.el</groupId>
 			<artifactId>jakarta.el-api</artifactId>
-			<version>${jakarta.el.jakarta.el-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -130,11 +128,6 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

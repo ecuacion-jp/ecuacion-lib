@@ -22,9 +22,29 @@
 	<artifactId>ecuacion-lib-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
+	<name>${project.artifactId}</name>
+	<description>It is a base library which contains basic features.</description>
+	<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
 	<organization>
 		<name>ecuacion.jp</name>
 	</organization>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>ecuacion.jp</name>
+			<email>info@ecuacion.jp</email>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/ecuacion-jp/ecuacion-lib.git</connection>
+		<developerConnection>scm:git:https://github.com/ecuacion-jp/ecuacion-lib.git</developerConnection>
+		<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
+	</scm>
 	<properties>
 		<java.version>21</java.version>
 		<!-- maven-compiler-plugin referred properties (no need to plugin definition) -->
@@ -32,32 +52,53 @@
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<ecuacion-lib.version>0.0.1-SNAPSHOT</ecuacion-lib.version>
+		
+		<!-- paths and urls -->
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/public</repository.ecuacion-repo-sftp-root>
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
 		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
-		<ecuacion-lib.version>0.0.1-SNAPSHOT</ecuacion-lib.version>
-		<!-- 3rd party module versions -->
-		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
-		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
+
+		<!--                 -->
+		<!-- module versions -->
+		<!--                 -->
+
+		<!-- 
+			When you select this pom.xml as a 'parent' project, versions below are referred from your projects.
+			But you can still override the version by setting the property with the same key if you want.
+		-->
+
+		<!-- plugin module versions -->
 		<org.apache.maven.plugins.maven-source-plugin.version>3.3.1</org.apache.maven.plugins.maven-source-plugin.version>
 		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.11.2</org.apache.maven.plugins.maven-javadoc-plugin.version>
-		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
 		<com.mycila.license-maven-plugin.version>4.6</com.mycila.license-maven-plugin.version>
+		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>13.2.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>13.3.0</com.puppycrawl.tools.checkstyle.version>
+		<!-- wagon -->
+		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
+		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.3.2</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
-		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
+		<!-- gpg -->
+		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.7</org.apache.maven.plugins.maven-gpg-plugin.version>
+		<!-- central publishing -->
+		<org.sonatype.central.central-publishing-maven-plugin.version>0.6.0</org.sonatype.central.central-publishing-maven-plugin.version>
+
+		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
-		<commons-io.commons-io.version>2.21.0</commons-io.commons-io.version>
+
 	</properties>
+	
 	<distributionManagement>
-		<!-- ビルドサーバでのみ使用。作成されたjarのdeploy先 -->
+		<!-- Used only on the build server. Destination for deploying the generated jar. -->
 		<repository>
-			<!-- 一般ユーザには配置不可。build環境からのみ可能 -->
+			<!-- Not accessible to general users. Only available from the build environment. -->
 			<id>ecuacion-repo-sftp</id>
 			<name>ecuacion maven repository</name>
 			<url>${repository.ecuacion-repo-sftp-root}</url>
@@ -248,7 +289,7 @@
 		
 		<plugins>
 
-			<!-- maven-enforcer-plugin (maven version指定) -->
+			<!-- maven-enforcer-plugin (specify maven version) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
@@ -299,18 +340,60 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons-io.commons-io.version}</version>
-			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
 	<modules>
-		<module>ecuacion-lib-dependency-jakartaee</module>
+		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-jpa</module>
 		<module>ecuacion-lib-validation</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+
+					<!-- maven-gpg-plugin (signs artifacts for Maven Central) -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-gpg-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
+					</plugin>
+
+					<!-- central-publishing-maven-plugin (publishes to Maven Central)
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>${org.sonatype.central.central-publishing-maven-plugin.version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<autoPublish>true</autoPublish>
+						</configuration>
+					</plugin>
+ 					-->
+ 
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
