@@ -88,7 +88,7 @@
 		<!-- gpg -->
 		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.7</org.apache.maven.plugins.maven-gpg-plugin.version>
 		<!-- central publishing -->
-		<org.sonatype.central.central-publishing-maven-plugin.version>0.6.0</org.sonatype.central.central-publishing-maven-plugin.version>
+		<org.sonatype.central.central-publishing-maven-plugin.version>0.10.0</org.sonatype.central.central-publishing-maven-plugin.version>
 
 		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
