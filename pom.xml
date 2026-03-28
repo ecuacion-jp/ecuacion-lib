@@ -69,26 +69,6 @@
 		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
 
-		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
-		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
-		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
-		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
-		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
-		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
-		<com.fasterxml.jackson.core.jackson-databind.version>2.20.2</com.fasterxml.jackson.core.jackson-databind.version>
-		<!-- jakarta-el -->
-		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
-		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
-		<!-- jakarta validation -->
-		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
-		<org.hibernate.validator.hibernate-validator.version>9.0.1.Final</org.hibernate.validator.hibernate-validator.version>
-
-		<!-- module versions (ecuacion-lib does not depend on them, but other ecuacion modules do) -->
-		<commons-io.commons-io.version>2.21.0</commons-io.commons-io.version>
-
-		<!-- module versions (test scope) -->
-		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
-
 	</properties>
 	
 	<distributionManagement>
@@ -345,7 +325,7 @@
 	</dependencyManagement>
 
 	<modules>
-		<module>ecuacion-lib-dependency-jakartaee</module>
+		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-jpa</module>
 		<module>ecuacion-lib-validation</module>

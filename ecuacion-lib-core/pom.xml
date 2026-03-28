@@ -22,9 +22,9 @@
 	<packaging>jar</packaging>
 	<parent>
 		<groupId>jp.ecuacion.lib</groupId>
-		<artifactId>ecuacion-lib-dependency-jakartaee</artifactId>
+		<artifactId>ecuacion-lib-dependencies</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../ecuacion-lib-dependency-jakartaee</relativePath>
+		<relativePath>../ecuacion-lib-dependencies</relativePath>
 	</parent>
 	
 	<build>
