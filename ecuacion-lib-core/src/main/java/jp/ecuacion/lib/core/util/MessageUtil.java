@@ -27,8 +27,8 @@ import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
