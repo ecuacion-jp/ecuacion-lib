@@ -175,8 +175,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
     return new ConstraintViolationBean<>(validatorKind,
         cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getRootBean(),
-        cv.getLeafBean(), cv.getInvalidValue(),
-        cv.getMessageTemplate().replace("{", "").replace("}", ""), embeddedParamMap,
+        cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(), embeddedParamMap,
         cv.getPropertyPath().toString(), ppList.toArray(new String[ppList.size()]));
   }
 

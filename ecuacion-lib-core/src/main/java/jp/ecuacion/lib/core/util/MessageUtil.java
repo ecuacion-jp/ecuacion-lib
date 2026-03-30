@@ -59,7 +59,7 @@ public class MessageUtil {
     String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
 
     return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
-        defaultItemNameKeyClass, leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
+        leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
   }
 
   /**
@@ -76,7 +76,7 @@ public class MessageUtil {
    */
   @Nonnull
   public static String getItemNameKey(String explicitlySetItemNameKeyClass,
-      String itemNameKeyClassFromAnnotation, String defaultItemNameKeyClass,
+      String itemNameKeyClassFromAnnotation, /* String defaultItemNameKeyClass, */
       String itemNameKeyClassFromClassName, String itemNameKeyField, String propertyPath) {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
@@ -88,8 +88,8 @@ public class MessageUtil {
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
 
-    } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
-      tmpItemNameKeyClass = defaultItemNameKeyClass;
+      // } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
+      // tmpItemNameKeyClass = defaultItemNameKeyClass;
 
     } else {
       tmpItemNameKeyClass = itemNameKeyClassFromClassName;
@@ -183,7 +183,8 @@ public class MessageUtil {
     return layers.reversed();
   }
 
-  private record KeywordAndIndex(String keyword, String index) {}
+  private record KeywordAndIndex(String keyword, String index) {
+  }
 
   private static KeywordAndIndex determineKeyword(String itemNameKeyPart, String index) {
     if (itemNameKeyPart.startsWith("<K>")) {
@@ -199,9 +200,9 @@ public class MessageUtil {
         case PropertyPathUtil.EL_MAP_VAL -> "mapValue";
         default -> throw new RuntimeException("Not assumed.");
       };
-      String adjustedIndex = PropertyPathUtil.EL_LIST.equals(elType)
-          ? Integer.toString(Integer.parseInt(index) + 1)
-          : index;
+      String adjustedIndex =
+          PropertyPathUtil.EL_LIST.equals(elType) ? Integer.toString(Integer.parseInt(index) + 1)
+              : index;
       return new KeywordAndIndex(keyword, adjustedIndex);
 
     } else if (index.isEmpty()) {

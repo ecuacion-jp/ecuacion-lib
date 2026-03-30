@@ -124,7 +124,7 @@ public class Item {
   @Nonnull
   public String getItemNameKey() {
     return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
-        (String) null, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
+        itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
   /**
@@ -143,17 +143,17 @@ public class Item {
         leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
   }
 
-  /**
-   * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)}.</p>
-   */
-  @Deprecated
-  @Nonnull
-  public String getItemNameKey(String defaultItemNameKeyClass) {
-    return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
-        defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
-  }
+  // /**
+  // * Returns {@code itemNameKey} value.
+  // *
+  // * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)}.</p>
+  // */
+  // @Deprecated
+  // @Nonnull
+  // public String getItemNameKey(String defaultItemNameKeyClass) {
+  // return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
+  // defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
+  // }
 
   /**
    * Hides value from error messages and so on.
