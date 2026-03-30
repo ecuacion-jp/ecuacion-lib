@@ -33,8 +33,8 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**

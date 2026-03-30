@@ -38,8 +38,8 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
