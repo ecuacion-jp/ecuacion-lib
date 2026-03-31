@@ -68,28 +68,37 @@ public class MessageUtil {
    * <p>There can be 5 candidates for itemNameKeyClass. Candidates are ordered by their priority.
    *     They are adopted only when they are not empty. The last one is never null.<br>
    *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
-   *     // 2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
+   *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
+   *        (This is needed when 2 variables with same data type exists in a validated object,
+   *         like "mobilePhoneNumber" and "homePhoneNumber" with PhoneNumber object.
+   *         It's such an important information 
+   *         that {@code @ItemNameKeyClass} should not be able to override.<br>
+   *         Only the explicit setting of itemNameKeyClass can override it.
    *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
-   *     4: defaultItemNameKeyClass, the argument of this method<br>
-   *     5: uncapitalized className (always set by ItemContainer#getItem(String))
+   *     4: uncapitalized className (always set by ItemContainer#getItem(String))
    * </p>
    */
   @Nonnull
   public static String getItemNameKey(String explicitlySetItemNameKeyClass,
-      String itemNameKeyClassFromAnnotation, /* String defaultItemNameKeyClass, */
-      String itemNameKeyClassFromClassName, String itemNameKeyField, String propertyPath) {
+      String itemNameKeyClassFromAnnotation, String itemNameKeyClassFromClassName,
+      String itemNameKeyField, String propertyPath) {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
-    // tmpItemNameKeyClass
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
       tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
 
+    } else if (propertyPath.contains(".")) {
+      String propertyPathWithoutRightMostNode =
+          propertyPath.substring(0, propertyPath.lastIndexOf("."));
+
+      tmpItemNameKeyClass = propertyPathWithoutRightMostNode.contains(".")
+          ? propertyPathWithoutRightMostNode
+              .substring(propertyPathWithoutRightMostNode.lastIndexOf(".") + 1)
+          : propertyPathWithoutRightMostNode;
+
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
-
-      // } else if (StringUtils.isNotEmpty(defaultItemNameKeyClass)) {
-      // tmpItemNameKeyClass = defaultItemNameKeyClass;
 
     } else {
       tmpItemNameKeyClass = itemNameKeyClassFromClassName;

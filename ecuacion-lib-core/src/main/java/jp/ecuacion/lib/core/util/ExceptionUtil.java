@@ -353,9 +353,9 @@ public class ExceptionUtil {
               : isValidationMessagesWithItemNamesAsDefault;
 
           String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
-          boolean isMessageDefined =
-              isMessageWithItemName ? PropertyFileUtil.hasValidationMessageWithItemName(messageKey)
-                  : PropertyFileUtil.hasValidationMessage(messageKey);
+          boolean isMessageDefined = isMessageWithItemName
+              ? PropertyFileUtil.hasValidationMessageWithItemName(locale, messageKey)
+              : PropertyFileUtil.hasValidationMessage(locale, messageKey);
           if (isMessageDefined) {
             message = isMessageWithItemName
                 ? PropertyFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
