@@ -90,18 +90,21 @@ public class ExceptionUtilTest {
   public void getMessageList_variousPlacesTest() {
     String message = null;
 
+    // warning becuase "myChildList[0].name" is not right.
+    String test = null;
+    
     // normal
     message = getMsg(new VariousPlaces.Normal(null));
     Assertions.assertEquals("'normal.name' must not be null.", message);
     // inside child node
     message = getMsg(new VariousPlaces.InsideChildNode(new Child(null)));
-    Assertions.assertEquals("'child.name' must not be null.", message);
+    Assertions.assertEquals("'myChild.name' must not be null.", message);
     // inside child node in list
     message = getMsg(new VariousPlaces.InsideChildNodeInList(List.of(new Child(null))));
-    Assertions.assertEquals("'child.name' must not be null.", message);
+    Assertions.assertEquals("'myChildList[0].name' must not be null.", message);
     // anonymous class
     message = getMsg(new VariousPlaces.AnonymousClass());
-    Assertions.assertEquals("'childIf.name' must not be null.", message);
+    Assertions.assertEquals("'myChild.name' must not be null.", message);
   }
 
   public static class VariousPlaces {

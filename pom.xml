@@ -45,6 +45,7 @@
 		<developerConnection>scm:git:https://github.com/ecuacion-jp/ecuacion-lib.git</developerConnection>
 		<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
 	</scm>
+
 	<properties>
 		<java.version>21</java.version>
 		<!-- maven-compiler-plugin referred properties (no need to plugin definition) -->
@@ -55,6 +56,9 @@
 		<ecuacion-lib.version>0.0.1-SNAPSHOT</ecuacion-lib.version>
 		
 		<!-- paths and urls -->
+		<repository.ecuacion-sftp>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp</repository.ecuacion-sftp>
+		<repository.ecuacion-http>http://maven-repo.ecuacion.jp/public</repository.ecuacion-http>
+		
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/public</repository.ecuacion-repo-sftp-root>
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
@@ -104,21 +108,8 @@
 			<url>${repository.ecuacion-repo-sftp-root}</url>
 		</repository>
 	</distributionManagement>
+
 	<build>
-		<extensions>
-			<!-- Enabling the use of SSH -->
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh</artifactId>
-				<version>${org.apache.maven.wagon.version}</version>
-			</extension>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh-external</artifactId>
-				<version>${org.apache.maven.wagon.version}</version>
-			</extension>
-		</extensions>
-		
 		<pluginManagement>
 			<plugins>
 
@@ -286,9 +277,22 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-		
-		<plugins>
+	
+		<extensions>
+			<!-- Enabling the use of SSH -->
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>${org.apache.maven.wagon.version}</version>
+			</extension>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>${org.apache.maven.wagon.version}</version>
+			</extension>
+		</extensions>
 
+		<plugins>
 			<!-- maven-enforcer-plugin (specify maven version) -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -309,9 +313,9 @@
 					</rules>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
+
 	<dependencyManagement>
 		<dependencies>
 
@@ -350,10 +354,17 @@
 		<module>ecuacion-lib-jpa</module>
 		<module>ecuacion-lib-validation</module>
 	</modules>
-
+		
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>ecuacion-repository</id>
+			<properties>
+				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>maven-central</id>
 			<build>
 				<plugins>
 

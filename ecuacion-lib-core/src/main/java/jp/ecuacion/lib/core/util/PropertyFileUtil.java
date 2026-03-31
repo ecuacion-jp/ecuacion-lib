@@ -15,15 +15,15 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.APPLICATION;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.ENUM_NAMES;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.ITEM_NAMES;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.MESSAGES;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.MESSAGES_WITH_ITEM_NAMES;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.STRINGS;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
-import static jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ENUM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES_WITH_ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.STRINGS;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
+import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -43,6 +43,7 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -509,17 +510,6 @@ public class PropertyFileUtil {
   // ■□■ item_names ■□■
 
   /**
-   * Returns the item name of default locale in item_names_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return the value of the property
-   */
-  @Nonnull
-  public static String getItemName(@RequireNonnull String key) {
-    return getterMap.get(ITEM_NAMES).getProp(null, key, null);
-  }
-
-  /**
    * Returns the localized item name in item_names_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
@@ -543,17 +533,6 @@ public class PropertyFileUtil {
   }
 
   // ■□■ enum_names ■□■
-
-  /**
-   * Returns the enum name of default locale in enum_names_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @return the value of the property
-   */
-  @Nonnull
-  public static String getEnumName(@RequireNonnull String key) {
-    return getterMap.get(ENUM_NAMES).getProp(null, key, null);
-  }
 
   /**
    * Returns the localized enum name in enum_names_xxx.properties.
@@ -581,23 +560,6 @@ public class PropertyFileUtil {
   // ■□■ ValidationMessages ■□■
 
   /**
-   * Returns the property value of default locale in ValidationMessages[_locale].properties.
-   * 
-   * <p>Usually {@code ValidationMessages[_locale].properties} file 
-   *     satisfies validation message's requirement.
-   *     But when you want to show error messages on the top message space and  
-   * 
-   * @param key the key of the property
-   * @param argMap argMap
-   * @return the value of the property
-   */
-  @Nonnull
-  public static String getValidationMessage(@RequireNonnull String key,
-      Map<String, Object> argMap) {
-    return getValidationMessage(null, key, argMap);
-  }
-
-  /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
    * 
    * @param locale locale, may be {@code null} 
@@ -613,32 +575,28 @@ public class PropertyFileUtil {
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
 
+  /**
+   * Returns true when the key exists in ValidationMessages[_xx].properties.
+   * 
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key
+   */
+  public static boolean hasValidationMessage(@Nullable Locale locale, @RequireNonnull String key) {
+    return getterMap.get(VALIDATION_MESSAGES).hasProp(locale, key);
+  }
+
   // ■□■ ValidationMessagesWithItemNames ■□■
 
   /**
    * Returns the property value of default locale in ValidationMessagesWithItemNames_xxx.properties.
    * 
-   * <p>Usually {@code ValidationMessages[_locale].properties} file 
-   *     satisfies validation message's requirement.
-   *     But when you want to show error messages on the top message space and  
-   * 
-   * @param key the key of the property
-   * @param argMap argMap
-   * @return the value of the property
-   */
-  @Nonnull
-  public static String getValidationMessageWithItemName(@RequireNonnull String key,
-      @Nullable Map<String, Object> argMap) {
-    return getValidationMessageWithItemName(null, key, argMap);
-  }
-
-  /**
-   * Returns the localized enum name in enum_names_xxx.properties.
+   * <p>ValidationMessagesWithItemNames[_xx].properties stores messages with {@code {0}},
+   *     which is a placeholder for item names.</p>
    * 
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
    * @param key the key of the property
-   * @return the value of the property
+   * @return the value of the property. Return the key string when the key does not exist.
    */
   @Nonnull
   public static String getValidationMessageWithItemName(@Nullable Locale locale,
@@ -647,6 +605,17 @@ public class PropertyFileUtil {
         getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
+  }
+
+  /**
+   * Returns true when the key exists in ValidationMessagesWithItemNames[_xx].properties.
+   * 
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key
+   */
+  public static boolean hasValidationMessageWithItemName(@Nullable Locale locale,
+      @RequireNonnull String key) {
+    return getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).hasProp(locale, key);
   }
 
   /**
@@ -1164,95 +1133,4 @@ public class PropertyFileUtil {
     STRING, FORMATTED_STRING, MESSAGE_ID
   }
 
-  /** 
-   * Holds kinds of property files.
-   * 
-   * <p>The first argument of the enum value (like "application", "messages", ...) 
-   *     is called {@code filePrefix},
-   *     which is the file literally the prefix of the property files.<br>
-   *     But in some reasons some properties file kind need to have multiple file prefixes
-   *     so the second argument {@code actualFilePrefixes} needed.</p>
-   *     
-   * <p>{@code actualFilePrefixes} is a data type of {@code String[][]}.
-   *     If you want to simply use multiple prefixes, it's realized by 
-   *     {@code new String[][] {new String[] {messages1, messages2}}}.
-   *     With this prefix setting {@code PropertyFileUtilValueGetter} searches the key
-   *     from files with these prefixes, and duplication of the key causes an error.
-   *     <br><br>
-   *     When you know {@code messages1} and {@code messages2} has duplication and 
-   *     if {@code messages1} contains the key you don't want to search from {@code messages2},
-   *     it can be realized by this setting.<br>
-   *     {@code new String[][] {new String[] {messages1}, new String[] {messages2}}}.<br>
-   *     Outside array manipulates the priority of the property files.</p>
-   */
-  public enum PropertyFileUtilFileKindEnum {
-
-    /** 
-     * application.properties. 
-     */
-    APPLICATION(new String[][] {new String[] {"application"}}, true),
-
-    /** 
-     * messages.properties. 
-     */
-    MESSAGES(new String[][] {new String[] {"messages"}}, false),
-
-    /** 
-     * messagesWithItemNames.properties. 
-     * 
-     * <p>Generally, messages.properties is supposed to be used for messages, 
-     *     and messagesWithItemNames is not very understandable for users.
-     *     Besides that, since the case that both messages.properties and 
-     *     messagesWithItemNames.properties 
-     *     are used is very rare, it's better for messages.properties to be used even when
-     *     you treat "messages with item names" without that rare case.
-     *     That's why messages.properties is also contained with this value.
-     */
-    MESSAGES_WITH_ITEM_NAMES(
-        new String[][] {new String[] {"messages_with_item_names"}, new String[] {"messages"}},
-        false),
-
-    /**
-     * strings.properties.
-     */
-    STRINGS(new String[][] {new String[] {"strings"}}, false),
-
-    /** item_names. */
-    ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}}, false),
-
-    /** enum_names. */
-    ENUM_NAMES(new String[][] {new String[] {"enum_names"}}, false),
-
-    /** ValidationMessags. */
-    VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}}, false),
-
-    /** ValidationMessagsWithField. */
-    VALIDATION_MESSAGES_WITH_ITEM_NAMES(
-        new String[][] {new String[] {"ValidationMessagesWithItemNames"}}, false),
-
-    VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
-        new String[][] {new String[] {"ValidationMessagesPatternDescriptions"},
-            new String[] {"ValidationMessages"}},
-        false);
-
-    private String[][] actualFilePrefixes;
-    private boolean throwsExceptionWhenKeyDoesNotExist;
-
-    private PropertyFileUtilFileKindEnum(String[][] actualFilePrefixes,
-        boolean throwsExceptionWhenKeyDoesNotExist) {
-      this.actualFilePrefixes = actualFilePrefixes;
-      this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;
-    }
-
-    public String[][] getActualFilePrefixes() {
-      return actualFilePrefixes;
-    }
-
-    /**
-     * Returns throwsExceptionWhenKeyDoesNotExist.
-     */
-    public boolean throwsExceptionWhenKeyDoesNotExist() {
-      return throwsExceptionWhenKeyDoesNotExist;
-    }
-  }
 }

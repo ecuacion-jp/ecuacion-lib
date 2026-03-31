@@ -38,8 +38,8 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
@@ -348,13 +348,22 @@ public class ExceptionUtil {
           // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
           // because it is specified for each validation,
           // and isValidationMessagesWithItemNames is assumed to be used as system default value.
-          Boolean bl = messageParameters.isMessageWithItemName() != null
+          Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
               ? messageParameters.isMessageWithItemName()
               : isValidationMessagesWithItemNamesAsDefault;
-          message = bl
-              ? PropertyFileUtil.getValidationMessageWithItemName(locale, bean.getMessageTemplate(),
-                  map)
-              : PropertyFileUtil.getValidationMessage(locale, bean.getMessageTemplate(), map);
+
+          String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
+          boolean isMessageDefined = isMessageWithItemName
+              ? PropertyFileUtil.hasValidationMessageWithItemName(locale, messageKey)
+              : PropertyFileUtil.hasValidationMessage(locale, messageKey);
+          if (isMessageDefined) {
+            message = isMessageWithItemName
+                ? PropertyFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
+                : PropertyFileUtil.getValidationMessage(locale, messageKey, map);
+
+          } else {
+            message = bean.getMessageTemplate();
+          }
 
           // Replace {0} to itemName.
           if (message.contains("{0}")) {

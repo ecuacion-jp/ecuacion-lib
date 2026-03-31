@@ -116,7 +116,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       String... propertyPaths) {
 
     putArgsToFields(validatorKind, rootBean, leafBean, validatorClassName,
-        PropertyFileUtil.getValidationMessage(Locale.ENGLISH, messageTemplate, new HashMap<>()),
+        PropertyFileUtil.getValidationMessage(Locale.ENGLISH,
+            messageTemplate.replace("{", "").replace("}", ""), new HashMap<>()),
         messageTemplate, constraintViolationPropertyPath, List.of(propertyPaths),
         invalidValue == null ? null : invalidValue.toString());
 
@@ -175,8 +176,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
     return new ConstraintViolationBean<>(validatorKind,
         cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getRootBean(),
-        cv.getLeafBean(), cv.getInvalidValue(),
-        cv.getMessageTemplate().replace("{", "").replace("}", ""), embeddedParamMap,
+        cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(), embeddedParamMap,
         cv.getPropertyPath().toString(), ppList.toArray(new String[ppList.size()]));
   }
 

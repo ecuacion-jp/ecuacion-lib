@@ -33,8 +33,8 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyFileUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.PropertyFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -317,6 +317,21 @@ public class PropertyFileUtilValueGetter {
 
     try {
       getRawValue(null, key);
+      return true;
+
+    } catch (NoKeyInPropertiesFileException ex) {
+      return false;
+    }
+  }
+
+  /*
+   * Checks if the properties file has the key.
+   */
+  public boolean hasProp(Locale locale, String key) {
+    Objects.requireNonNull(key);
+
+    try {
+      getRawValue(locale, key);
       return true;
 
     } catch (NoKeyInPropertiesFileException ex) {
