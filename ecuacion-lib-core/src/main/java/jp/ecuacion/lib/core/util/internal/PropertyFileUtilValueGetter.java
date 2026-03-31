@@ -325,6 +325,21 @@ public class PropertyFileUtilValueGetter {
   }
 
   /*
+   * Checks if the properties file has the key.
+   */
+  public boolean hasProp(Locale locale, String key) {
+    Objects.requireNonNull(key);
+
+    try {
+      getRawValue(locale, key);
+      return true;
+
+    } catch (NoKeyInPropertiesFileException ex) {
+      return false;
+    }
+  }
+
+  /*
    * Obtains value from a key. 
    */
   public String getProp(String key, Map<String, Object> elParameterMap) {

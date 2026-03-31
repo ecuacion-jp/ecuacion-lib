@@ -581,8 +581,8 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasValidationMessage(@RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES).hasProp(key);
+  public static boolean hasValidationMessage(@Nullable Locale locale, @RequireNonnull String key) {
+    return getterMap.get(VALIDATION_MESSAGES).hasProp(locale, key);
   }
 
   // ■□■ ValidationMessagesWithItemNames ■□■
@@ -613,8 +613,9 @@ public class PropertyFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasValidationMessageWithItemName(@RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).hasProp(key);
+  public static boolean hasValidationMessageWithItemName(@Nullable Locale locale,
+      @RequireNonnull String key) {
+    return getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).hasProp(locale, key);
   }
 
   /**
@@ -1131,5 +1132,5 @@ public class PropertyFileUtil {
   public static enum ArgKind {
     STRING, FORMATTED_STRING, MESSAGE_ID
   }
-  
+
 }

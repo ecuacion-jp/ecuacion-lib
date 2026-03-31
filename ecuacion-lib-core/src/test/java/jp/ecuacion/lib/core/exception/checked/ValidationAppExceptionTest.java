@@ -79,7 +79,7 @@ public class ValidationAppExceptionTest {
     ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
     assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
     assertEquals("must not be null", bean.getMessage());
-    assertEquals("jakarta.validation.constraints.NotNull.message", bean.getMessageTemplate());
+    assertEquals("{jakarta.validation.constraints.NotNull.message}", bean.getMessageTemplate());
     assertEquals(className, bean.getRootBean().getClass().getName());
     assertEquals(className, bean.getLeafBean().getClass().getName());
     String pp = bean.getFieldInfoBeans()[0].propertyPath();

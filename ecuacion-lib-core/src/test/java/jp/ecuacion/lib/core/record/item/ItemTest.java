@@ -66,10 +66,10 @@ public class ItemTest {
     checkWithClassName("itemPropertyPath", "rootRecordName", "rootRecordName.itemPropertyPath");
 
     // No itemNameKey settings / itemPropertyPath have 1 "."
-    checkWithClassName("itemProperty.Path", "rootRecordName", "rootRecordName.Path");
+    checkWithClassName("itemProperty.Path", "rootRecordName", "itemProperty.Path");
 
     // No itemNameKey settings / itemPropertyPath have 2 "."
-    checkWithClassName("item.Property.Path", "rootRecordName", "rootRecordName.Path");
+    checkWithClassName("item.Property.Path", "rootRecordName", "property.Path");
 
     // itemNameKeyField settings / itemPropertyPath does not have "."
     checkWithItemNameKey("itemPropertyPath", "itemNameKeyField", "rootRecordName",
@@ -77,11 +77,11 @@ public class ItemTest {
 
     // itemNameKeyField settings / itemPropertyPath has 1 "."
     checkWithItemNameKey("itemProperty.Path", "itemNameKeyField", "rootRecordName",
-        "rootRecordName.itemNameKeyField");
+        "itemProperty.itemNameKeyField");
 
     // itemNameKeyField settings / itemPropertyPath has 2 "."
     checkWithItemNameKey("item.Property.Path", "itemNameKeyField", "rootRecordName",
-        "rootRecordName.itemNameKeyField");
+        "property.itemNameKeyField");
 
     // full itemNameKey settings / itemPropertyPath does not have "."
     checkWithItemNameKey("itemPropertyPath", "itemNameKeyClass.itemNameKeyField", "rootRecordName",

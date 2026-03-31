@@ -116,7 +116,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       String... propertyPaths) {
 
     putArgsToFields(validatorKind, rootBean, leafBean, validatorClassName,
-        PropertyFileUtil.getValidationMessage(Locale.ENGLISH, messageTemplate, new HashMap<>()),
+        PropertyFileUtil.getValidationMessage(Locale.ENGLISH,
+            messageTemplate.replace("{", "").replace("}", ""), new HashMap<>()),
         messageTemplate, constraintViolationPropertyPath, List.of(propertyPaths),
         invalidValue == null ? null : invalidValue.toString());
 
