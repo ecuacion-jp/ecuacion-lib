@@ -85,17 +85,15 @@ public class MessageUtil {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
+    String propertyPathWithoutRightMostNode =
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
+
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
       tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
 
-    } else if (propertyPath.contains(".")) {
-      String propertyPathWithoutRightMostNode =
-          propertyPath.substring(0, propertyPath.lastIndexOf("."));
-
-      tmpItemNameKeyClass = propertyPathWithoutRightMostNode.contains(".")
-          ? propertyPathWithoutRightMostNode
-              .substring(propertyPathWithoutRightMostNode.lastIndexOf(".") + 1)
-          : propertyPathWithoutRightMostNode;
+    } else if (StringUtils.isNotEmpty(propertyPathWithoutRightMostNode)) {
+      tmpItemNameKeyClass =
+          PropertyPathUtil.getRightMostNode(propertyPathWithoutRightMostNode);
 
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
