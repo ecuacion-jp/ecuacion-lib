@@ -41,4 +41,16 @@ public abstract class AllAnyValidator<A extends Annotation, T> extends ClassVali
 
     return list.size();
   }
+
+  protected int numberOfNonNullValues(Object object) {
+    List<Object> list = new ArrayList<>();
+
+    for (Object fieldValue : valuesOfPropertyPaths) {
+      if (fieldValue != null) {
+        list.add(fieldValue);
+      }
+    }
+
+    return list.size();
+  }
 }

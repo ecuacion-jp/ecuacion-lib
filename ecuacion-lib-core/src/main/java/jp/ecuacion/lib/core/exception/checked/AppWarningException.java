@@ -47,36 +47,18 @@ public class AppWarningException extends Exception {
   protected String[] messageArgs;
 
   /**
-   * propertyPaths.
-   */
-  protected String[] itemPropertyPaths;
-
-  /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
-   *
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public AppWarningException(@RequireNonnull String messageId,
-      @RequireNonnull String... messageArgs) {
-    this(new String[] {}, messageId, messageArgs);
-  }
-
-  /**
    * Constructs a new instance 
    *     with {@code itemPropertyPaths}, {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public AppWarningException(@RequireNonnull String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
+  public AppWarningException(@RequireNonnull String messageId,
+      @RequireNonnull String... messageArgs) {
     super();
 
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = ObjectsUtil.requireNonNull(messageArgs);
-
-    this.itemPropertyPaths = ObjectsUtil.requireNonNull(itemPropertyPaths);
   }
 
   /**
@@ -95,26 +77,5 @@ public class AppWarningException extends Exception {
    */
   public @Nonnull String[] getMessageArgs() {
     return messageArgs.clone();
-  }
-
-  /**
-   * Returns itemPropertyPaths.
-  
-   * @return itemPropertyPaths
-   */
-  public @Nonnull String[] getItemPropertyPaths() {
-    return itemPropertyPaths;
-  }
-
-  /**
-   * Sets itemPropertyPaths and return this instance to realize the method chain.
-   *
-   * @return AppWarningException
-   */
-  public @Nonnull AppWarningException itemPropertyPaths(
-      @RequireNonnull String[] itemPropertyPaths) {
-    this.itemPropertyPaths = ObjectsUtil.requireNonNull(itemPropertyPaths);
-
-    return this;
   }
 }
