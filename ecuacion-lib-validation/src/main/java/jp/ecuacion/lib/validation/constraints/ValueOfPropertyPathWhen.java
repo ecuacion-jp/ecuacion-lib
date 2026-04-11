@@ -63,7 +63,7 @@ public @interface ValueOfPropertyPathWhen {
    *
    * @return property path
    */
-  String propertyValuePropertyPath();
+  String valuePropertyPath();
 
   /**
    * Specifies the display string of the property value.
@@ -74,7 +74,7 @@ public @interface ValueOfPropertyPathWhen {
    *
    * @return String
    */
-  String propertyValueDisplayStringPropertyPath() default "";
+  String valueDisplayStringPropertyPath() default "";
 
   /**
    * Is a field, whose value determines whether the validation is executed or not.

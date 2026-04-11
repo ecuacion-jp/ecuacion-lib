@@ -62,7 +62,7 @@ public @interface NotStringWhen {
    *
    * @return an array of string values
    */
-  String[] propertyValueString();
+  String[] string();
 
   /**
    * Is a field, whose value determines whether the validation is executed or not.

@@ -37,7 +37,7 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.patternWhenConditionNotSatisfied());
 
-    this.propertyValuePatternRegexp = annotation.propertyValuePatternRegexp();
+    this.propertyValuePatternRegexp = annotation.regexp();
   }
 
   @Override

@@ -59,12 +59,12 @@ public @interface NotPatternWhen {
    *
    * @return regular expression
    */
-  String propertyValuePatternRegexp();
+  String regexp();
 
   /**
    * Specifies description for the property value regular expression.
    */
-  String propertyValuePatternDescription() default "";
+  String description() default "";
 
   /**
    * Is a field, whose value determines whether the validation is executed or not.
