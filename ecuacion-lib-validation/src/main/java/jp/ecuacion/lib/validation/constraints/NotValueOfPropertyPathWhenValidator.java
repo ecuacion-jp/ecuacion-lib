@@ -21,22 +21,22 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 
 /**
- * Provides the validation logic for {@code ValueOfPropertyPathWhen}.
+ * Provides the validation logic for {@code NotValueOfPropertyPathWhen}.
  */
-public class ValueOfPropertyPathWhenValidator
-    extends ValidateWhenValidator<ValueOfPropertyPathWhen, Object> {
+public class NotValueOfPropertyPathWhenValidator
+    extends ValidateWhenValidator<NotValueOfPropertyPathWhen, Object> {
 
   private String propertyValuePropertyPath;
   private List<Object> propertyValues = new ArrayList<>();
 
   /** Initializes an instance. */
   @Override
-  public void initialize(ValueOfPropertyPathWhen annotation) {
+  public void initialize(NotValueOfPropertyPathWhen annotation) {
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
-        annotation.notValueOfPropertyPathWhenConditionNotSatisfied());
+        annotation.valueOfPropertyPathWhenConditionNotSatisfied());
 
     this.propertyValuePropertyPath = annotation.valuePropertyPath();
   }
@@ -62,9 +62,9 @@ public class ValueOfPropertyPathWhenValidator
 
   @Override
   protected boolean isValid(Object valueOfField) {
-    return (valueOfField == null
+    return !((valueOfField == null
         && propertyValues.contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL))
-        || (valueOfField != null && propertyValues.contains(valueOfField));
+        || (valueOfField != null && propertyValues.contains(valueOfField)));
   }
 
 }

@@ -117,7 +117,7 @@ public class ValidateWhenValidatorMessageTest {
     private boolean conditionField = true;
   }
 
-  @StringWhen(propertyPath = "field", propertyValueString = {"expected"},
+  @StringWhen(propertyPath = "field", string = {"expected"},
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class StringWhenTest {
@@ -125,7 +125,7 @@ public class ValidateWhenValidatorMessageTest {
     private boolean conditionField = true;
   }
 
-  @NotStringWhen(propertyPath = "field", propertyValueString = {"forbidden"},
+  @NotStringWhen(propertyPath = "field", string = {"forbidden"},
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class NotStringWhenTest {
@@ -133,7 +133,7 @@ public class ValidateWhenValidatorMessageTest {
     private boolean conditionField = true;
   }
 
-  @PatternWhen(propertyPath = "field", propertyValuePatternRegexp = "\\d+",
+  @PatternWhen(propertyPath = "field", regexp = "\\d+",
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class PatternWhenTest {
@@ -141,7 +141,7 @@ public class ValidateWhenValidatorMessageTest {
     private boolean conditionField = true;
   }
 
-  @NotPatternWhen(propertyPath = "field", propertyValuePatternRegexp = "\\d+",
+  @NotPatternWhen(propertyPath = "field", regexp = "\\d+",
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class NotPatternWhenTest {
@@ -149,7 +149,7 @@ public class ValidateWhenValidatorMessageTest {
     private boolean conditionField = true;
   }
 
-  @ValueOfPropertyPathWhen(propertyPath = "field", propertyValuePropertyPath = "otherField",
+  @ValueOfPropertyPathWhen(propertyPath = "field", valuePropertyPath = "otherField",
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class ValueOfPropertyPathWhenTest {

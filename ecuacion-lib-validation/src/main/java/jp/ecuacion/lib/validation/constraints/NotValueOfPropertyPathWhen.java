@@ -25,21 +25,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
-import jp.ecuacion.lib.validation.constraints.StringWhen.StringWhenList;
+import jp.ecuacion.lib.validation.constraints.NotValueOfPropertyPathWhen.NotValueOfPropertyPathWhenList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 
 /**
- * Checks if specified {@code propertyPath} matches one of the specified strings
- *     only when condition is satisfied.
+ * Checks if the value of specified {@code propertyPath} does not equal the value of
+ *     {@code propertyValuePropertyPath} only when condition is satisfied.
  */
 @PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(StringWhenList.class)
+@Repeatable(NotValueOfPropertyPathWhenList.class)
 @Documented
-@Constraint(validatedBy = {StringWhenValidator.class})
-public @interface StringWhen {
+@Constraint(validatedBy = {NotValueOfPropertyPathWhenValidator.class})
+public @interface NotValueOfPropertyPathWhen {
 
   /**
    * Is a validated field.
@@ -55,14 +55,26 @@ public @interface StringWhen {
   String[] propertyPath();
 
   /**
-   * Specifies the string value(s) that {@code propertyPath} must match.
+   * Specifies the property path whose value {@code propertyPath} must not equal.
    *
-   * <p>The validation passes when the value of {@code propertyPath} equals
-   *     one of the values specified here.</p>
+   * <p>The datatype of {@code valuePropertyPath} can be the same as
+   *     that of {@code propertyPath}, or its array.
+   *     ({@code Collection} not supported)</p>
    *
-   * @return an array of string values
+   * @return property path
    */
-  String[] string();
+  String valuePropertyPath();
+
+  /**
+   * Specifies the display string of the property value.
+   *
+   * <p>It can be an array datatype which has multiple values.<br>
+   *     When the value is new String[] {""}, the propertyValue specified is displayed
+   *     as a part of an error message.</p>
+   *
+   * @return String
+   */
+  String valueDisplayStringPropertyPath() default "";
 
   /**
    * Is a field, whose value determines whether the validation is executed or not.
@@ -175,14 +187,15 @@ public @interface StringWhen {
    *
    * @return boolean
    */
-  boolean notStringWhenConditionNotSatisfied() default false;
+  boolean valueOfPropertyPathWhenConditionNotSatisfied() default false;
 
   /**
    * Returns message ID.
    *
    * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.StringWhen.message}";
+  String message() default
+      "{jp.ecuacion.lib.validation.constraints.NotValueOfPropertyPathWhen.message}";
 
   /**
    * Returns groups.
@@ -199,18 +212,18 @@ public @interface StringWhen {
   Class<? extends Payload>[] payload() default {};
 
   /**
-   * Defines several {@link StringWhen} annotations on the same element.
+   * Defines several {@link NotValueOfPropertyPathWhen} annotations on the same element.
    */
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface StringWhenList {
+  public @interface NotValueOfPropertyPathWhenList {
 
     /**
-     * Returns an array of StringWhen.
+     * Returns an array of NotValueOfPropertyPathWhen.
      *
-     * @return an array of StringWhen
+     * @return an array of NotValueOfPropertyPathWhen
      */
-    StringWhen[] value();
+    NotValueOfPropertyPathWhen[] value();
   }
 }
