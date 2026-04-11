@@ -31,14 +31,17 @@ import java.util.List;
  *  <th>Parameter type</th>
  *  <th>Type</th>
  *  <th>propertyPath</th>
- *  <th>Type (double)</th>
- *  <th>propertyPath (double)</th>
  * </tr>
  * <tr>
- *     <td rowspan="2">List</td><td>String</td><td>{@code List<String>}</td>
- *     <td>{@code stringList[1].<list element>}</td>
- *     <td>{@code List<List<String>>}</td><td>{@code List<String>}</td>
- * </tr>
+ *     <td rowspan="4">List</td><td rowspan="2">String</td>
+ *     <td>{@code List<String>}</td><td>{@code stringList[1].<list element>}</td></tr>
+ * <tr><td>{@code List<List<String>>}</td>
+ *     <td>{@code stringList[1].<list element>[2].<list element>}</td></tr>
+ * <tr>
+ *     <td rowspan="2">Book</td>
+ *     <td>{@code List<Book>}</td><td>{@code bookList[1].title}</td></tr>
+ * <tr><td>{@code List<List<String>>}</td>
+ *     <td>{@code stringList[1].<list element>[2].<list element>}</td></tr>
  * <tr>
  *     <td>String</td><td>{@code List<String>}</td>
  *     <td>{@code stringList[1].<list element>}</td>
@@ -46,12 +49,6 @@ import java.util.List;
  * 
  * </table>
  */
-
-
-// // list : propertyPath=targetList[0].<list element>[0].field
-// // set : propertyPath=targetList[].<iterable element>[].field
-// // map key: propertyPath=targetList[].<map value><K>[TargetCls[field=null]].field
-// // map val: propertyPath=targetList[key1].<map value>[key2].field
 public class PropertyPathUtil {
 
   /**
@@ -81,12 +78,27 @@ public class PropertyPathUtil {
    * Returns right most node from propertyPath.
    * 
    * <p>Nodes contains collection parts.
-   *     For example, {@code strList[0].<list element>} 
+   *     For example, {@code strList[0].<list element>}
    *     (specifies {@code List<String> strList})
-   *     or {@code obj[0]} (specifies {@code List<Obje> objList})<br>
-   *     This method removes collection related part, which menas
-   *     it changes {@code strList[0].<list element>} to {@code strList}
-   *     and {@code obj[0]} to {@code obj}.</p>
+   *     or {@code beanList[0]} (specifies {@code List<Bean> beanList}).<br>
+   *     This method considers the collection parts as a part of a node.</p>
+   *     
+   * <table>
+   *    <tr><th>argument propertyPath</th><th>return</th><th>note</th></tr>
+   *    <tr><td>{@code bean.strList[0].<list element>}</td>
+   *        <td>{@code strList[0].<list element>}</td><td>{@code List<Strig> strList}</td></tr>
+   *    <tr><td>{@code bean.strList[0].<list element>[0].<list element>}</td>
+   *        <td>{@code strList[0].<list element>[0].<list element>}</td>
+   *        <td>{@code List<List<Strig>> strList}</td>
+   *    <tr><td>{@code bean.bookList[0]}</td>
+   *        <td>{@code bookList[0]}</td><td>{@code List<Book> bookList}</td></tr>
+   *    <tr><td>{@code bean.bookList[0].<list element>[0]}</td>
+   *        <td>{@code bookList[0].<list element>[0]}</td>
+   *        <td>{@code List<List<Book>> bookList}</td></tr>
+   * </table>
+   * 
+   * <p>When argument string is {@code value} or {@code strList[0].<list element>}
+   *     (no parent nodes exist), return the same as the argument value is returned.</p>
    */
   public static String getRightMostNode(String propertyPath) {
     String rightMostNode = "";
@@ -172,5 +184,98 @@ public class PropertyPathUtil {
     StringBuilder sb = new StringBuilder();
     nodeList.stream().forEach(node -> sb.append("." + node));
     return sb.toString().length() < 1 ? "" : sb.toString().substring(1);
+  }
+
+  /**
+   * Remove index from propertyPath with list and key string from propertyPath with Map.
+   * 
+   * <p>As an implementation, it removes string enclosed in "[" and "]", 
+   *     and also removes string expresses an element, like {@code <list element>}.</p>
+   * 
+   * <table border="1">
+   * <caption>Applying the method to list</caption>
+   * <tr>
+   *    <th>argument</th>
+   *    <th>return</th>
+   * </tr>
+   * <tr>
+   *    <td>{@code stringList[1].<list element>}</td>
+   *    <td>{@code stringList[]}</td>
+   * </tr>
+   * <tr>
+   *    <td>{@code stringList[1].<list element>[2].<list element>}</td>
+   *    <td>{@code stringList[][]}</td>
+   * </tr>
+   * <tr>
+   *    <td>{@code userList[1].name}</td>
+   *    <td>{@code userList[].name}</td>
+   * </tr>
+   * <tr>
+   *    <td>{@code userList[1].<list element>[2].name}</td>
+   *    <td>{@code userList[][].name}</td>
+   * </tr>
+   * </table>
+   * 
+   * <p>It can be used for collections other than List.</p>
+   * 
+   * <table border="1">
+   * <caption>Applying the method to list</caption>
+   * <tr>
+   *    <th>argument</th>
+   *    <th>return</th>
+   * </tr>
+   * <tr>
+   *    <td>{@code stringSet[].<iterable element>}</td>
+   *    <td>{@code stringSet[]}</td>
+   * </tr>
+   * <tr>
+   *    <td>{@code stringSet[].<iterable element>}</td>
+   *    <td>{@code stringSet[]}</td>
+   * </tr>
+   * <tr>
+   *    <td>{@code stringSet[].<iterable element>}</td>
+   *    <td>{@code stringSet[]}</td>
+   * </tr>
+   * </table>
+   */
+
+  //// list : propertyPath=targetList[0].<list element>[0].field
+  //// set : propertyPath=targetSet[].<iterable element>[].field
+  //// map key: propertyPath=targetList[].<map value><K>[TargetCls[field=null]].field
+  //// map val: propertyPath=targetList[key1].<map value>[key2].field
+  public static String removeIndex(String propertyPath) {
+    StringBuilder sb = new StringBuilder();
+    String tmpPropertyPath = propertyPath;
+
+    // Remove characters between "[" and "]".
+    while (true) {
+      if (tmpPropertyPath.equals("")) {
+        break;
+
+      } else if (!tmpPropertyPath.contains("]")) {
+        sb.append(tmpPropertyPath);
+        break;
+      }
+
+      sb.append(tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("[")) + "[]");
+      tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf("]") + 1);
+    }
+
+    // Remove element keywords.
+    tmpPropertyPath = sb.toString();
+    List<String> list =
+        Arrays.asList(new String[] {".<list element>", ".<iterable element>", ".<map value>"});
+    for (String keyword : list) {
+      while (true) {
+        if (tmpPropertyPath.contains(keyword)) {
+          tmpPropertyPath = tmpPropertyPath.replace(keyword, "");
+
+        } else {
+          break;
+        }
+      }     
+    }
+
+    return tmpPropertyPath;
   }
 }

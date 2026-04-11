@@ -73,7 +73,11 @@ public class MessageUtil {
    *         like "mobilePhoneNumber" and "homePhoneNumber" with PhoneNumber object.
    *         It's such an important information 
    *         that {@code @ItemNameKeyClass} should not be able to override.<br>
-   *         Only the explicit setting of itemNameKeyClass can override it.
+   *         Only the explicit setting of itemNameKeyClass can override it.<br>
+   *         This rule is not applied when itemNameKeyClass part of itemPropertyPath contains "[",
+   *         because when parent node of the field is a collection or an array, 
+   *         itemNameKeyClass obtained from propertyPath (like accountList[0]) 
+   *         is mostly inappropriate.
    *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
    *     4: uncapitalized className (always set by ItemContainer#getItem(String))
    * </p>
@@ -87,13 +91,16 @@ public class MessageUtil {
 
     String propertyPathWithoutRightMostNode =
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
+    String parentNode = StringUtils.isEmpty(propertyPathWithoutRightMostNode) ? ""
+        : PropertyPathUtil.getRightMostNode(propertyPathWithoutRightMostNode);
 
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
       tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
 
-    } else if (StringUtils.isNotEmpty(propertyPathWithoutRightMostNode)) {
-      tmpItemNameKeyClass =
-          PropertyPathUtil.getRightMostNode(propertyPathWithoutRightMostNode);
+    } else if (StringUtils.isNotEmpty(propertyPathWithoutRightMostNode)
+        && !parentNode.contains("[")) {
+      String tmp = PropertyPathUtil.removeIndex(propertyPathWithoutRightMostNode);
+      tmpItemNameKeyClass = PropertyPathUtil.getRightMostNode(tmp);
 
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
@@ -293,33 +300,22 @@ public class MessageUtil {
     String itemNameKey = null;
     boolean showsValue = true;
 
-    String collectionPartRemovedPropertyPath = propertyPath;
-    while (true) {
-      String rightMostNode = PropertyPathUtil.getRightMostNode(collectionPartRemovedPropertyPath);
-
-      if (rightMostNode.contains("[")) {
-        collectionPartRemovedPropertyPath = collectionPartRemovedPropertyPath.substring(0,
-            collectionPartRemovedPropertyPath.lastIndexOf("["));
-
-      } else if (rightMostNode.contains("<")) {
-        collectionPartRemovedPropertyPath = collectionPartRemovedPropertyPath.substring(0,
-            collectionPartRemovedPropertyPath.lastIndexOf("<"));
-
-      } else {
-        break;
-      }
-    }
-
     // Get item if exists.
+
+    // Remove collection part from rightmost node.
+    String rightMostRemoved = PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
+    String collectionPartRemovedPropertyPath =
+        (rightMostRemoved.equals("") ? "" : rightMostRemoved + ".") + PropertyPathUtil
+            .removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
     if (rootBean instanceof ItemContainer) {
       // the case that rootBean is an EclibRecord
-      item = ((ItemContainer) rootBean).getItem(propertyPath);
+      item = ((ItemContainer) rootBean).getItem(collectionPartRemovedPropertyPath);
 
     } else if (firstChild != null && firstChild instanceof ItemContainer) {
 
       // the case that EclibRecord is stored in form or something
-      item = ((ItemContainer) firstChild)
-          .getItem(propertyPath.substring(fullPropertyPath1stPart.length() + 1));
+      item = ((ItemContainer) firstChild).getItem(
+          collectionPartRemovedPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
     }
 
     if (item == null) {

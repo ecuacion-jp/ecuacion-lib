@@ -46,15 +46,15 @@ public interface ItemContainer {
    */
   @Nonnull
   public default Item getItem(@RequireNonempty String propertyPath) {
-    String collectionRemovedPropertyPath = PropertyPathUtil.removeCollectionPart(propertyPath);
+    String noIndexPropertyPath = PropertyPathUtil.removeIndex(propertyPath);
 
     Map<String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
             .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
-    Item item = map.get(ObjectsUtil.requireNonEmpty(collectionRemovedPropertyPath));
+    Item item = map.get(ObjectsUtil.requireNonEmpty(noIndexPropertyPath));
 
-    item = item == null ? getNewItem(collectionRemovedPropertyPath) : item;
+    item = item == null ? getNewItem(noIndexPropertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
     // Since what we want to know is class, instance is not needed.
