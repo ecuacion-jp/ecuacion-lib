@@ -84,6 +84,7 @@ public class PropertyPathUtil {
    *     This method considers the collection parts as a part of a node.</p>
    *     
    * <table>
+   * <caption>propertyPath for lists</caption>
    *    <tr><th>argument propertyPath</th><th>return</th><th>note</th></tr>
    *    <tr><td>{@code bean.strList[0].<list element>}</td>
    *        <td>{@code strList[0].<list element>}</td><td>{@code List<Strig> strList}</td></tr>
@@ -238,11 +239,6 @@ public class PropertyPathUtil {
    * </tr>
    * </table>
    */
-
-  //// list : propertyPath=targetList[0].<list element>[0].field
-  //// set : propertyPath=targetSet[].<iterable element>[].field
-  //// map key: propertyPath=targetList[].<map value><K>[TargetCls[field=null]].field
-  //// map val: propertyPath=targetList[key1].<map value>[key2].field
   public static String removeIndex(String propertyPath) {
     StringBuilder sb = new StringBuilder();
     String tmpPropertyPath = propertyPath;
@@ -273,7 +269,7 @@ public class PropertyPathUtil {
         } else {
           break;
         }
-      }     
+      }
     }
 
     return tmpPropertyPath;
