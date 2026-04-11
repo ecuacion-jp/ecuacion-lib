@@ -20,6 +20,10 @@ package jp.ecuacion.lib.validation.constraints.enums;
  */
 public enum ConditionValue {
 
+  // null (for any data type).
+  // no additional value selection is needed.
+  NULL, NOT_NULL,
+
   // null (for any data type) or String blank.
   // no additional value selection is needed.
   EMPTY, NOT_EMPTY,

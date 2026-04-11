@@ -20,6 +20,8 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_NULL;
+import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NULL;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
@@ -122,7 +124,9 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   boolean getSatisfiesCondition(Object instance) {
     Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
+    if (conditionPattern == NULL || conditionPattern == NOT_NULL) {
+      return checkNull(valueOfConditionPropertyPath);
+    } else if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
       return checkEmpty(valueOfConditionPropertyPath);
     } else if (conditionPattern == TRUE || conditionPattern == FALSE) {
       return checkBoolean(valueOfConditionPropertyPath);
@@ -135,6 +139,21 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     } else {
       throw new EclibRuntimeException("Unexpected.");
     }
+  }
+
+  private boolean checkNull(Object valueOfConditionPropertyPath) {
+    conditionValueStringMustNotSet();
+    conditionValueRegexpMustNotSet();
+    conditionValuePropertyPathMustNotSet();
+
+    boolean isNull = valueOfConditionPropertyPath == null;
+
+    // conditionPattern NULL means "null", NOT_NULL means "not null".
+    // conditionOperator then further modifies the direction.
+    boolean patternMatchesNull = conditionPattern == NULL;
+    boolean conditionSatisfied = patternMatchesNull ? isNull : !isNull;
+    return conditionSatisfied && conditionOperator == EQUAL_TO
+        || !conditionSatisfied && conditionOperator == NOT_EQUAL_TO;
   }
 
   private boolean checkEmpty(Object valueOfConditionPropertyPath) {

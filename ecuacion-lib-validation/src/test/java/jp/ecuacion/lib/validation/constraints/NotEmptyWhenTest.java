@@ -36,6 +36,45 @@ public class NotEmptyWhenTest {
     PropertyFileUtil.addResourceBundlePostfix("lib-validation-test");
   }
 
+  /**
+   * Tests validation logic for {@code conditionValue = NULL} and {@code NOT_NULL}.
+   *
+   * <p>Key difference from {@code EMPTY}/{@code NOT_EMPTY}: blank strings do NOT satisfy
+   *     the {@code NULL} condition.</p>
+   */
+  @Test
+  public void validationOnConditionIsNullNotNullTest() {
+    // NULL: condition satisfied only when condValue is strictly null (not blank)
+    // null condValue -> condition satisfied -> value=null -> fail
+    Assertions.assertEquals(1, validator.validate(new NullCondBean(null, null)).size());
+    // null condValue -> condition satisfied -> value="a" -> pass
+    Assertions.assertEquals(0, validator.validate(new NullCondBean("a", null)).size());
+    // blank condValue -> condition NOT satisfied (blank != null) -> pass
+    Assertions.assertEquals(0, validator.validate(new NullCondBean(null, "")).size());
+    // non-null condValue -> condition NOT satisfied -> pass
+    Assertions.assertEquals(0, validator.validate(new NullCondBean(null, "a")).size());
+
+    // NOT_NULL: condition satisfied when condValue is not null (including blank strings)
+    // non-null condValue -> condition satisfied -> value=null -> fail
+    Assertions.assertEquals(1, validator.validate(new NotNullCondBean(null, "a")).size());
+    // blank condValue -> condition satisfied (blank is not null) -> value=null -> fail
+    Assertions.assertEquals(1, validator.validate(new NotNullCondBean(null, "")).size());
+    // null condValue -> condition NOT satisfied -> pass
+    Assertions.assertEquals(0, validator.validate(new NotNullCondBean(null, null)).size());
+    // non-null condValue -> condition satisfied -> value="a" -> pass
+    Assertions.assertEquals(0, validator.validate(new NotNullCondBean("a", "x")).size());
+  }
+
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.NULL)
+  public static record NullCondBean(String value, String condValue) {
+  }
+
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.NOT_NULL)
+  public static record NotNullCondBean(String value, String condValue) {
+  }
+
   @Test
   public void validationOnConditionIsTrueTest() {
     // String
@@ -212,6 +251,19 @@ public class NotEmptyWhenTest {
         new PropertyPathNotEqualToWithDisplayStringMulBean(null, "xyz", new String[] {"abc", "def"},
             new String[] {"value.from.item_names.1", "value.from.item_names.2"}));
     Assertions.assertEquals(prefix2 + "is not one of 'some value 1', 'some value 2'", msg);
+
+    // NULL, EQUAL_TO
+    msg = getMessage(new NullEqualToBean(null, null));
+    Assertions.assertEquals(prefix2 + "is null", msg);
+    // NULL, NOT_EQUAL_TO
+    msg = getMessage(new NullNotEqualToBean(null, "a"));
+    Assertions.assertEquals(prefix2 + "is not null", msg);
+    // NOT_NULL, EQUAL_TO
+    msg = getMessage(new NotNullEqualToBean(null, "a"));
+    Assertions.assertEquals(prefix2 + "is not null", msg);
+    // NOT_NULL, NOT_EQUAL_TO
+    msg = getMessage(new NotNullNotEqualToBean(null, null));
+    Assertions.assertEquals(prefix2 + "is null", msg);
 
     // emptyWhenConditionNotSatisfied
     msg = getMessage(new EmptyWhenConditionNotSatisfiedBean(null, null));
@@ -449,5 +501,29 @@ public class NotEmptyWhenTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.EMPTY, emptyWhenConditionNotSatisfied = true)
   public static record EmptyWhenConditionNotSatisfiedBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.NULL)
+  public static record NullEqualToBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.NULL)
+  public static record NullNotEqualToBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.NOT_NULL)
+  public static record NotNullEqualToBean(String value, String condValue) {
+  }
+
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionOperator = ConditionOperator.NOT_EQUAL_TO, conditionValue = ConditionValue.NOT_NULL)
+  public static record NotNullNotEqualToBean(String value, String condValue) {
   }
 }
