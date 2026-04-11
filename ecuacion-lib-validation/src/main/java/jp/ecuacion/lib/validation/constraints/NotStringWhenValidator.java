@@ -36,7 +36,7 @@ public class NotStringWhenValidator extends ValidateWhenValidator<NotStringWhen,
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.stringWhenConditionNotSatisfied());
 
-    this.propertyValueString = annotation.propertyValueString();
+    this.propertyValueString = annotation.string();
   }
 
   @Override

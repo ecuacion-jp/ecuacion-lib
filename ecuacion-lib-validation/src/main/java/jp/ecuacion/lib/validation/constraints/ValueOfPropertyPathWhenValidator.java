@@ -38,7 +38,7 @@ public class ValueOfPropertyPathWhenValidator
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.notValueOfPropertyPathWhenConditionNotSatisfied());
 
-    this.propertyValuePropertyPath = annotation.propertyValuePropertyPath();
+    this.propertyValuePropertyPath = annotation.valuePropertyPath();
   }
 
   @Override
