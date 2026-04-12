@@ -36,7 +36,7 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
 
   @BeforeAll
   public static void before() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-core-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
   private String validateCollection(Object object, boolean isMsgWithItemName,

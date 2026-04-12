@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.test.spi.internal;
 
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 import jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCore2ndTestProvider;
 
-public class Test92DuplicateInMultipleFilesCoreProviderImpl extends AbstractPropertyFileProviderImpl
+public class Test92DuplicateInMultipleFilesCoreProviderImpl extends AbstractPropertiesFileProviderImpl
     implements Test92DuplicateInMultipleFilesLibCore2ndTestProvider {
 
 }

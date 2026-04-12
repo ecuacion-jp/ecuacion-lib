@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -45,12 +45,12 @@ import org.apache.commons.lang3.StringUtils;
  *     It also stores messages files in multiple modules.</li>
  * </ul>
  */
-public class PropertyFileUtilValueGetter {
+public class PropertiesFileUtilValueGetter {
 
   private boolean throwsExceptionWhenKeyDoesNotExist;
 
   /**
-   * Is used for test to use filePrefix which is not included in PropertyFileUtilPropFileKindEnum.
+   * Is used for test to use filePrefix which is not included in PropertiesFileUtilPropFileKindEnum.
    */
   private String[][] filePrefixes;
 
@@ -108,11 +108,12 @@ public class PropertyFileUtilValueGetter {
   public static final ThreadLocal<Locale> specifiedLocale = new ThreadLocal<>();
 
   /**
-   * Constructs a new instance with {@code PropertyFileUtilPropFileKindEnum}.
+   * Constructs a new instance with {@code PropertiesFileUtilPropFileKindEnum}.
    * 
    * @param fileKindEnum fileKindEnum
    */
-  public PropertyFileUtilValueGetter(@RequireNonnull PropertyFileUtilFileKindEnum fileKindEnum) {
+  public PropertiesFileUtilValueGetter(
+      @RequireNonnull PropertiesFileUtilFileKindEnum fileKindEnum) {
     this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
@@ -121,7 +122,7 @@ public class PropertyFileUtilValueGetter {
    * Is used for test. It can be accessed from the same package.
    * It is used to accept non-PropFileKindEnum file prefix.
    */
-  PropertyFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
+  PropertiesFileUtilValueGetter(@RequireNonnull String[][] filePrefixes) {
     this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
   }
@@ -166,7 +167,7 @@ public class PropertyFileUtilValueGetter {
 
     String str = getRawValue(locale, key);
 
-    return PropertyFileUtil.analyzedValueString(locale, str, elParameterMap);
+    return PropertiesFileUtil.analyzedValueString(locale, str, elParameterMap);
   }
 
   /**
@@ -269,7 +270,7 @@ public class PropertyFileUtilValueGetter {
     } catch (MissingResourceException ex) {
       // do nothing.
     }
-    
+
     // java 9 module system for test
     try {
       String bundle = "jp.ecuacion.lib.core.test."

@@ -22,9 +22,9 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -47,8 +47,8 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     }
 
     messageParameterSet.add(new LocalizedEmbeddedParameter("description",
-        new PropertyFileUtilFileKindEnum[] {
-            PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
+        new PropertiesFileUtilFileKindEnum[] {
+            PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
         (String) paramMap.get("description"), new Arg[] {}));
 
     return messageParameterSet;

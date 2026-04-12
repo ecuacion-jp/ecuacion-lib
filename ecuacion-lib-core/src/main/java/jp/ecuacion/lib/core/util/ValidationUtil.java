@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 
 /**
  * Provides validation-related utilities.

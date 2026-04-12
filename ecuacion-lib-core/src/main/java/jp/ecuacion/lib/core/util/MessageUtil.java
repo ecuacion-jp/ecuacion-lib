@@ -26,9 +26,9 @@ import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -128,9 +128,9 @@ public class MessageUtil {
   public static String getItemNames(Locale locale,
       @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath,
       Object rootBean) {
-    final String separator = PropertyFileUtil.getMessage(locale, ipf + "separator");
-    final String prependSymbol = PropertyFileUtil.getMessage(locale, ipf + "prependSymbol");
-    final String appendSymbol = PropertyFileUtil.getMessage(locale, ipf + "appendSymbol");
+    final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
+    final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
+    final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
     for (FieldInfoBean infoBean : fieldInfoBeanList) {
@@ -157,7 +157,7 @@ public class MessageUtil {
         extractCollectionLayers(PropertyPathUtil.getRightMostNode(infoBean.propertyPath()));
 
     String itemName =
-        prependSymbol + PropertyFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
+        prependSymbol + PropertiesFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
 
     if (collectionLayerList.isEmpty()) {
       return itemName;
@@ -170,13 +170,14 @@ public class MessageUtil {
       String index = tmp.substring(1, tmp.indexOf("]"));
 
       KeywordAndIndex ki = determineKeyword(itemNameKeyPart, index);
-      String itemNamePath = PropertyFileUtil.getMessage(locale, ipf + ki.keyword(), ki.index());
+      String itemNamePath = PropertiesFileUtil.getMessage(locale, ipf + ki.keyword(), ki.index());
 
       sb.append(
-          (i == 0 ? "" : PropertyFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
+          (i == 0 ? "" : PropertiesFileUtil.getMessage(locale, ppf + "separator")) + itemNamePath);
     }
 
-    return PropertyFileUtil.getMessage(locale, ipf + "collectionItemName", itemName, sb.toString());
+    return PropertiesFileUtil.getMessage(locale, ipf + "collectionItemName", itemName,
+        sb.toString());
   }
 
   private static List<String> extractCollectionLayers(String rightMostNode) {
@@ -236,8 +237,8 @@ public class MessageUtil {
   private static String addItemNamePath(Locale locale, Object rootBean, FieldInfoBean infoBean,
       String itemName, final String prependSymbol, final String appendSymbol) {
 
-    final String pstring = PropertyFileUtil.getMessage(locale, ppf + "string");
-    final String pseparator = PropertyFileUtil.getMessage(locale, ppf + "separator");
+    final String pstring = PropertiesFileUtil.getMessage(locale, ppf + "string");
+    final String pseparator = PropertiesFileUtil.getMessage(locale, ppf + "separator");
 
     // Cut each itemNamePath and put them into a list.
     String leafBeanPropertyPath =
@@ -263,7 +264,7 @@ public class MessageUtil {
     }
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
-    itemName = PropertyFileUtil.getMessage(pstring, itemName, pathString);
+    itemName = PropertiesFileUtil.getMessage(pstring, itemName, pathString);
 
     return itemName;
   }
@@ -359,9 +360,9 @@ public class MessageUtil {
   @Nonnull
   public static Arg getValuesArg(@RequireNonnull String[] values) {
     // Get a list of Args from values
-    String[] fileKinds = new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString(),
-        PropertyFileUtilFileKindEnum.ITEM_NAMES.toString(),
-        PropertyFileUtilFileKindEnum.ENUM_NAMES.toString()};
+    String[] fileKinds = new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString(),
+        PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString(),
+        PropertiesFileUtilFileKindEnum.ENUM_NAMES.toString()};
     List<Arg> argList = Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
 
     List<String> itemNameList = new ArrayList<>();

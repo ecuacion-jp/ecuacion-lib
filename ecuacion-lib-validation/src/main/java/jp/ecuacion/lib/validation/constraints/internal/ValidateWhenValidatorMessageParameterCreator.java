@@ -29,10 +29,10 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.Field
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.MessageUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +55,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-            new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
             bean.itemNameKey(), new Arg[] {}));
 
     // displayStringOfConditionValue
@@ -65,26 +65,24 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     // Each When-validator annotation must have exactly one parameter whose name ends with
     // "ConditionNotSatisfied". That convention allows automatic lookup without a switch statement.
     String conditionNotSatisfiedKey = paramMap.keySet().stream()
-        .filter(k -> k.endsWith("WhenConditionNotSatisfied"))
-        .findFirst().orElse(null);
-    boolean bl = conditionNotSatisfiedKey != null
-        ? (boolean) paramMap.get(conditionNotSatisfiedKey)
-        : false;
+        .filter(k -> k.endsWith("WhenConditionNotSatisfied")).findFirst().orElse(null);
+    boolean bl =
+        conditionNotSatisfiedKey != null ? (boolean) paramMap.get(conditionNotSatisfiedKey) : false;
 
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
       messageParameterSet
           .add(
               new LocalizedEmbeddedParameter(paramKey,
-                  new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES},
+                  new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
                   paramMap.get("annotation") + ".messagePart."
                       + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
                   new Arg[] {}));
 
     } else {
-      // Add blank ("") value by designating empty PropertyFileUtilFileKindEnum array.
+      // Add blank ("") value by designating empty PropertiesFileUtilFileKindEnum array.
       messageParameterSet.add(new LocalizedEmbeddedParameter(paramKey,
-          new PropertyFileUtilFileKindEnum[] {}, "", new Arg[] {}));
+          new PropertiesFileUtilFileKindEnum[] {}, "", new Arg[] {}));
     }
 
     return messageParameterSet;
@@ -119,8 +117,8 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
         displayStringOfConditionValueArg = Arg.string(regExp);
 
       } else {
-        displayStringOfConditionValueArg =
-            Arg.get(new String[] {PropertyFileUtilFileKindEnum.ITEM_NAMES.toString()}, description);
+        displayStringOfConditionValueArg = Arg
+            .get(new String[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString()}, description);
       }
     }
 
@@ -131,7 +129,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
             paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR).toString());
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
-            new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, propKey,
+            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, propKey,
             new Arg[] {displayStringOfConditionValueArg}));
   }
 

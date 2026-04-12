@@ -16,10 +16,10 @@
 package jp.ecuacion.lib.core.spi.impl.internal;
 
 import jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibValidationProvider;
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 
 public class ValidationMessagesWithItemNamesLibValidationProviderImpl
-    extends AbstractPropertyFileProviderImpl
+    extends AbstractPropertiesFileProviderImpl
     implements ValidationMessagesWithItemNamesLibValidationProvider {
 
 }

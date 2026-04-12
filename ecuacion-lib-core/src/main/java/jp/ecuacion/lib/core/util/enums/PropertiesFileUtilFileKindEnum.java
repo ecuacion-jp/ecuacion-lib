@@ -28,7 +28,7 @@ package jp.ecuacion.lib.core.util.enums;
  * <p>{@code actualFilePrefixes} is a data type of {@code String[][]}.
  *     If you want to simply use multiple prefixes, it's realized by 
  *     {@code new String[][] {new String[] {messages1, messages2}}}.
- *     With this prefix setting {@code PropertyFileUtilValueGetter} searches the key
+ *     With this prefix setting {@code PropertiesFileUtilValueGetter} searches the key
  *     from files with these prefixes, and duplication of the key causes an error.
  *     <br><br>
  *     When you know {@code messages1} and {@code messages2} has duplication and 
@@ -37,7 +37,7 @@ package jp.ecuacion.lib.core.util.enums;
  *     {@code new String[][] {new String[] {messages1}, new String[] {messages2}}}.<br>
  *     Outside array manipulates the priority of the property files.</p>
  */
-public enum PropertyFileUtilFileKindEnum {
+public enum PropertiesFileUtilFileKindEnum {
 
   /** 
    * application.properties. 
@@ -90,7 +90,7 @@ public enum PropertyFileUtilFileKindEnum {
   private String[][] actualFilePrefixes;
   private boolean throwsExceptionWhenKeyDoesNotExist;
 
-  private PropertyFileUtilFileKindEnum(String[][] actualFilePrefixes,
+  private PropertiesFileUtilFileKindEnum(String[][] actualFilePrefixes,
       boolean throwsExceptionWhenKeyDoesNotExist) {
     this.actualFilePrefixes = actualFilePrefixes;
     this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;

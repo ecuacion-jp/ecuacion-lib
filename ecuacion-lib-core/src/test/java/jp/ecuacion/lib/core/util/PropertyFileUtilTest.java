@@ -15,20 +15,20 @@
  */
 // package jp.ecuacion.lib.core.util;
 //
-// import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.APP;
-//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.ENUM_NAME;
-//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.FIELD_NAME;
-//import static jp.ecuacion.lib.core.util.internal.PropertyFileUtilPropFileKindEnum.MSG;
+// import static jp.ecuacion.lib.core.util.internal.PropertiesFileUtilPropFileKindEnum.APP;
+//import static jp.ecuacion.lib.core.util.internal.PropertiesFileUtilPropFileKindEnum.ENUM_NAME;
+//import static jp.ecuacion.lib.core.util.internal.PropertiesFileUtilPropFileKindEnum.FIELD_NAME;
+//import static jp.ecuacion.lib.core.util.internal.PropertiesFileUtilPropFileKindEnum.MSG;
 //import java.lang.reflect.Constructor;
 //import java.lang.reflect.InvocationTargetException;
 //import java.lang.reflect.Method;
 //import java.util.Locale;
 //import java.util.ResourceBundle;
 //import jp.ecuacion.lib.core.constant.ConstantsInLibCore;
-//import jp.ecuacion.lib.core.util.internal.PropertyFileUtilMultiLangPropStore;
+//import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilMultiLangPropStore;
 //import org.junit.jupiter.api.Test;
 //
-// public class Test21_01_util_PropertyFileUtil {
+// public class Test21_01_util_PropertiesFileUtil {
 //
 // @Before
 // public void before() {
@@ -43,13 +43,13 @@
 // * it is extracted as a method for readability.
 // */
 // @SuppressWarnings("rawtypes")
-// private PropertyFileUtilMultiLangPropStore newInstanceOfMultiLangPropStore(String filePrefix)
+// private PropertiesFileUtilMultiLangPropStore newInstanceOfMultiLangPropStore(String filePrefix)
 // throws Exception {
 // Class<?> clazz = Class.forName(
-// ConstantsInLibCore.STR_LIB_PKG + ".core.util.internal.PropertyFileUtilMultiLangPropStore");
+// ConstantsInLibCore.STR_LIB_PKG + ".core.util.internal.PropertiesFileUtilMultiLangPropStore");
 // Constructor con = clazz.getDeclaredConstructor(String.class);
 // con.setAccessible(true);
-// return (PropertyFileUtilMultiLangPropStore) con.newInstance(filePrefix);
+// return (PropertiesFileUtilMultiLangPropStore) con.newInstance(filePrefix);
 // }
 //
 // /**
@@ -58,8 +58,8 @@
 // */
 // private ResourceBundle invokeGetRbOfMultiLangPropStore(String filePrefix, Locale locale)
 // throws Exception {
-// PropertyFileUtilMultiLangPropStore obj = newInstanceOfMultiLangPropStore(filePrefix);
-// Method m = PropertyFileUtilMultiLangPropStore.class.getDeclaredMethod("getRb", String.class,
+// PropertiesFileUtilMultiLangPropStore obj = newInstanceOfMultiLangPropStore(filePrefix);
+// Method m = PropertiesFileUtilMultiLangPropStore.class.getDeclaredMethod("getRb", String.class,
 // Locale.class);
 // m.setAccessible(true);
 // ResourceBundle rb = (ResourceBundle) m.invoke(obj, filePrefix, locale);
@@ -71,10 +71,10 @@
 // * Unlike invokeGetRBOfMultiLangPropStore, this requires a MultiLangPropStore instance as an argument
 // * (because the test would not be meaningful without holding the obj on the test code side).<br>
 // */
-// private void invokeReadPropFileOfMultiLangPropStore(PropertyFileUtilMultiLangPropStore obj,
+// private void invokeReadPropFileOfMultiLangPropStore(PropertiesFileUtilMultiLangPropStore obj,
 // Locale locale) throws Exception {
 // Method m =
-// PropertyFileUtilMultiLangPropStore.class.getDeclaredMethod("readPropFile", Locale.class);
+// PropertiesFileUtilMultiLangPropStore.class.getDeclaredMethod("readPropFile", Locale.class);
 // m.setAccessible(true);
 // m.invoke(obj, locale);
 // }
@@ -174,7 +174,7 @@
 //
 // @Test
 // public void test31_MultiLangPropStore_readPropFile_keyByModule() throws Exception {
-// PropertyFileUtilMultiLangPropStore obj = newInstanceOfMultiLangPropStore("test21_01-d_mods");
+// PropertiesFileUtilMultiLangPropStore obj = newInstanceOfMultiLangPropStore("test21_01-d_mods");
 // invokeReadPropFileOfMultiLangPropStore(obj, Locale.ENGLISH);
 // assertThat(obj.getProp(Locale.ENGLISH, "key_none")).isEqualTo("value_none")));
 // assertThat(obj.getProp(Locale.ENGLISH, "key_for_all_profiles"),
@@ -190,7 +190,7 @@
 //
 // @Test
 // public void test33_MultiLangPropStore_readPropFile_duplicateKeyAcrossModules() throws Exception {
-// PropertyFileUtilMultiLangPropStore obj =
+// PropertiesFileUtilMultiLangPropStore obj =
 // newInstanceOfMultiLangPropStore("test21_01-e_duplicate_key");
 // try {
 // invokeReadPropFileOfMultiLangPropStore(obj, Locale.ENGLISH);

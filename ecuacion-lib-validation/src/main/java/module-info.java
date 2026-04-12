@@ -16,7 +16,7 @@
 /**
  * Provides custom jakarta validation validators and related utilities.
  * 
- * <p>It must be open module for PropertyFileUtil to read properties files at the root package.</p>
+ * <p>It must be open module for PropertiesFileUtil to read properties files at the root package.</p>
  */
 open module jp.ecuacion.lib.validation {
   exports jp.ecuacion.lib.validation.constant;

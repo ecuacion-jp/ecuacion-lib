@@ -33,7 +33,7 @@ public class ExceptionUtilTest {
 
   @BeforeAll
   public static void before() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-core-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
   @Test

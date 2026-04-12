@@ -44,7 +44,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
 
   @BeforeAll
   public static void before() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-core-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
   private String validateCollection(Object object, boolean isMsgWithItemName,
