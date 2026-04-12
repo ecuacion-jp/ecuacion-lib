@@ -81,13 +81,13 @@ public class MailUtil {
     ObjectsUtil.requireNonNull(throwable);
 
     List<String> errorMailAddressList = Arrays.asList(
-        PropertyFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
+        PropertiesFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
 
     if (errorMailAddressList == null || errorMailAddressList.size() == 0) {
       return;
     }
 
-    String mailTitle = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix")
+    String mailTitle = PropertiesFileUtil.getApplication(APP_PREFIX + "title-prefix")
         + "A system error has occurred.";
 
     try {
@@ -121,7 +121,7 @@ public class MailUtil {
     ObjectsUtil.requireNonNull(mailToList);
     ObjectsUtil.requireSizeNonZero(mailToList);
 
-    String envSpecStr = PropertyFileUtil.getApplication(APP_PREFIX + "title-prefix");
+    String envSpecStr = PropertiesFileUtil.getApplication(APP_PREFIX + "title-prefix");
 
     try {
       sendMailCommon(mailToList, (List<String>) null, false, envSpecStr + "Warn Message", content,
@@ -210,11 +210,11 @@ public class MailUtil {
   }
 
   private static String getApp(String postfix) {
-    return PropertyFileUtil.getApplication(APP_PREFIX + postfix);
+    return PropertiesFileUtil.getApplication(APP_PREFIX + postfix);
   }
 
   private static boolean hasApp(String postfix) {
-    return PropertyFileUtil.hasApplication(APP_PREFIX + postfix);
+    return PropertiesFileUtil.hasApplication(APP_PREFIX + postfix);
   }
 
   /**

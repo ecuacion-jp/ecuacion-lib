@@ -21,7 +21,7 @@ import jakarta.validation.Validator;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,7 +36,7 @@ public class ValidateWhenValidatorMessageTest {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-validation-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-validation-test");
   }
 
   private <T> void assertEqual(T object, String msg) {

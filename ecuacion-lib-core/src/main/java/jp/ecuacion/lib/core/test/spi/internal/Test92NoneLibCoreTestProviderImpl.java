@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.test.spi.internal;
 
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 import jp.ecuacion.lib.core.test.spi.Test92NoneLibCoreTestProvider;
 
-public class Test92NoneLibCoreTestProviderImpl extends AbstractPropertyFileProviderImpl
+public class Test92NoneLibCoreTestProviderImpl extends AbstractPropertiesFileProviderImpl
     implements Test92NoneLibCoreTestProvider {
 
 }

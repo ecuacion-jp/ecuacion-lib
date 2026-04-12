@@ -15,15 +15,15 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.APPLICATION;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ENUM_NAMES;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.ITEM_NAMES;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.MESSAGES_WITH_ITEM_NAMES;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.STRINGS;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
-import static jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.APPLICATION;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.ENUM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES_WITH_ITEM_NAMES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.STRINGS;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -43,8 +43,8 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -161,7 +161,7 @@ import org.apache.commons.lang3.tuple.Pair;
  *     {@code sample-app-web  : messages.properties}<br>
  *     {@code sample-app-batch: messages.properties}<br><br>
  *     
- *     {@code PropertyFileUtil.getMessage(...)} will read all the properties above.<br>
+ *     {@code PropertiesFileUtil.getMessage(...)} will read all the properties above.<br>
  *     Duplicated definition detectable. (causes exception)<br><br>
  *     And of course you can use localized files like {@code messages_core_ja.properties}
  *     for localized files (see the table above) 
@@ -214,13 +214,13 @@ import org.apache.commons.lang3.tuple.Pair;
  * <p><b>7. To resolve property keys in the obtained value</b><br><br>
  *     You can put a property key into a property value.<br>
  *     For example, you can define keys and values like this in {@code messages.properties}. 
- *     By executing {@code PropertyFileUtil.getMessage("message")} you'll get {@code "a-b-c"}.</p>
+ *     By executing {@code PropertiesFileUtil.getMessage("message")} you'll get {@code "a-b-c"}.</p>
  * <pre>
  *     message=a-${+messages:message_test1}-c
  *     message_test1=b</pre>
  * 
  * <p>Recursive resolution is also supported so you can even define like the one below. <br>
- * By executing {@code PropertyFileUtil.getMessage("message")} 
+ * By executing {@code PropertiesFileUtil.getMessage("message")} 
  * you'll get {@code "a-b-c-d-e-f-g"}.</p>
  * 
  * <pre>
@@ -264,21 +264,21 @@ import org.apache.commons.lang3.tuple.Pair;
  * </li>
  * </ul>
  */
-public class PropertyFileUtil {
+public class PropertiesFileUtil {
 
-  private static Map<PropertyFileUtilFileKindEnum, PropertyFileUtilValueGetter> getterMap =
+  private static Map<PropertiesFileUtilFileKindEnum, PropertiesFileUtilValueGetter> getterMap =
       new HashMap<>();
 
   static {
-    for (PropertyFileUtilFileKindEnum anEnum : PropertyFileUtilFileKindEnum.values()) {
-      getterMap.put(anEnum, new PropertyFileUtilValueGetter(anEnum));
+    for (PropertiesFileUtilFileKindEnum anEnum : PropertiesFileUtilFileKindEnum.values()) {
+      getterMap.put(anEnum, new PropertiesFileUtilValueGetter(anEnum));
     }
   }
 
   /**
    * Prevents other classes from instantiating it.
    */
-  private PropertyFileUtil() {}
+  private PropertiesFileUtil() {}
 
   // ■□■ application ■□■
 
@@ -640,7 +640,7 @@ public class PropertyFileUtil {
 
       // itemName
       List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
-          .map(bean -> PropertyFileUtil.getItemName(locale, bean.itemNameKey())).toList();
+          .map(bean -> PropertiesFileUtil.getItemName(locale, bean.itemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }
 
@@ -699,7 +699,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String get(@RequireNonnull String propertyUtilFileKind,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
+    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .getProp(null, key, null);
   }
 
@@ -716,7 +716,7 @@ public class PropertyFileUtil {
   @Nonnull
   public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
+    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .getProp(locale, key, null);
   }
 
@@ -762,7 +762,7 @@ public class PropertyFileUtil {
    */
   public static boolean has(@RequireNonnull String propertyUtilFileKind,
       @RequireNonnull String key) {
-    return getterMap.get(PropertyFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
+    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
         .hasProp(key);
   }
 
@@ -780,7 +780,7 @@ public class PropertyFileUtil {
    * @param postfix postfix
    */
   public static void addResourceBundlePostfix(@RequireNonnull String postfix) {
-    PropertyFileUtilValueGetter.addToDynamicPostfixList(postfix);
+    PropertiesFileUtilValueGetter.addToDynamicPostfixList(postfix);
   }
 
   private static String formatMessage(String msgStr, String... args) {
@@ -803,9 +803,9 @@ public class PropertyFileUtil {
       for (String fileKind : arg.getFileKinds()) {
         arg.messageArgs = arg.messageArgs == null ? new Arg[] {} : arg.messageArgs;
         // Obtain the return value even if key does not exist because it returns the key string.
-        msgIdStr = PropertyFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
+        msgIdStr = PropertiesFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
 
-        if (PropertyFileUtil.has(fileKind, arg.getArgString())) {
+        if (PropertiesFileUtil.has(fileKind, arg.getArgString())) {
           break;
         }
       }
@@ -816,7 +816,7 @@ public class PropertyFileUtil {
       List<String> argStrList = new ArrayList<>();
 
 
-      String argString = PropertyFileUtil.analyzedValueString(locale, arg.getArgString(), null);
+      String argString = PropertiesFileUtil.analyzedValueString(locale, arg.getArgString(), null);
 
       Arg[] messageArgs = arg.getMessageArgs() == null ? new Arg[] {} : arg.getMessageArgs();
       for (Arg tmpArg : messageArgs) {
@@ -864,7 +864,7 @@ public class PropertyFileUtil {
           sb.append(tuple.getRight());
 
         } else {
-          sb.append(PropertyFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
+          sb.append(PropertiesFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
         }
       }
     }
@@ -905,20 +905,22 @@ public class PropertyFileUtil {
    *     that the message doesn't have a message ID in it.</p>
    * 
    * <p>.When one message ID is included in a message return will be 
-   *     {(null, {@code prefixOfMessage}),  ({@code PropertyFileUtilFileKindEnum.MSG, message ID}), 
+   *     {(null, {@code prefixOfMessage}),  
+   *     ({@code PropertiesFileUtilFileKindEnum.MSG, message ID}), 
    *     (null, {@code postfixOfMessage})}.<br>
    *     3 parts of a message will be concatenated into a single string, 
    *     and the middle part will be translated into a message.<br><br>
    *     For example, when the message is {@code Hello, ${+messages:human}!}, 
    *     the analyzed result is: <br>
-   *     ({@code (null, "Hello, "), (PropertyFileUtilFileKindEnum.MSG, "human"), (null, "!")}}.</p>
+   *     ({@code (null, "Hello, "), (PropertiesFileUtilFileKindEnum.MSG, "human"),
+   *      (null, "!")}}.</p>
    * 
    * @param string string
-   * @return {@code List<Pair<PropertyFileUtilFileKindEnum, String>>}
+   * @return {@code List<Pair<PropertiesFileUtilFileKindEnum, String>>}
    */
   private static List<Pair<String, String>> analyze(String string) {
     String prefix = "${+";
-    List<String> startSymbols = Arrays.asList(PropertyFileUtilFileKindEnum.values()).stream()
+    List<String> startSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
         .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
     // properties files are not managed by users
@@ -949,13 +951,13 @@ public class PropertyFileUtil {
 
   /**
    * Is considered as an argument string, but you can set message ID replaced to message string 
-   * with {@code PropertyFileUtil.getMessage(String)}.
+   * with {@code PropertiesFileUtil.getMessage(String)}.
    * 
    * <p>In UI application like web, 
    *     usually {@code "throw new AppException"} part does not care about the {@code locale}.
    *     It's taken care at {@code ExceptionHandler}.<br>
    *     So you also don't want obtain an appropriate locale 
-   *     when you put message obtained from {@code PropertyFileUtil.getMsg(...)} 
+   *     when you put message obtained from {@code PropertiesFileUtil.getMsg(...)} 
    *     into the argument of {@code AppException}.<br><br>
    *     That's why this is needed.</p>
    * 
@@ -1043,7 +1045,7 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId) {
-      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+      return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
           new Arg[] {});
     }
 
@@ -1058,7 +1060,7 @@ public class PropertyFileUtil {
       List<String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
-      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+      return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
           args);
     }
 
@@ -1070,7 +1072,7 @@ public class PropertyFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId, Arg... messageArgs) {
-      return new Arg(new String[] {PropertyFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
+      return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
           messageArgs);
     }
 

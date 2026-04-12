@@ -36,7 +36,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
   @BeforeAll
   public static void before() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-core-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
   private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemManeMapth) {

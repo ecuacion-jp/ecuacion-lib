@@ -29,7 +29,7 @@ import java.util.Map;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -116,7 +116,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       String... propertyPaths) {
 
     putArgsToFields(validatorKind, rootBean, leafBean, validatorClassName,
-        PropertyFileUtil.getValidationMessage(Locale.ENGLISH,
+        PropertiesFileUtil.getValidationMessage(Locale.ENGLISH,
             messageTemplate.replace("{", "").replace("}", ""), new HashMap<>()),
         messageTemplate, constraintViolationPropertyPath, List.of(propertyPaths),
         invalidValue == null ? null : invalidValue.toString());

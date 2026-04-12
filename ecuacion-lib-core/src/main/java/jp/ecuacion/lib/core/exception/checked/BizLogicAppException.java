@@ -20,8 +20,8 @@ import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 
 /**
  * Is used for buziness logic exceptions.
@@ -93,7 +93,7 @@ public class BizLogicAppException extends SingleAppException {
 
   @Override
   public String getMessage() {
-    return PropertyFileUtil.getMessage(messageId, messageArgs);
+    return PropertiesFileUtil.getMessage(messageId, messageArgs);
   }
 
   @Override
