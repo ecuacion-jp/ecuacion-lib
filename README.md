@@ -17,19 +17,7 @@ It also provides some utilities used by other ecuacion modules and apps.
 
 ## Installation
 
-1. Add the following to your `pom.xml` (place the `<repositories>` element as a direct child of the `<project>` element).
-
-    ```xml
-    <repositories>
-        <repository>
-            <id>ecuacion-repo-http</id>
-            <name>ecuacion-repo-http</name>
-            <url>https://maven-repo.ecuacion.jp/public</url>
-        </repository>
-    </repositories>
-    ```
-
-2. Add the required `ecuacion` modules to your `pom.xml`.
+1. Add the required `ecuacion` modules to your `pom.xml`.
    (The following is an example for the `ecuacion-lib-core` module. Check the `Installation` section of the `README` in the module you want to add to your project.)
 
     ```xml
@@ -41,5 +29,5 @@ It also provides some utilities used by other ecuacion modules and apps.
     </dependency>
     ```
 
-3. Add the required external modules to your `pom.xml`.
+2. Add the required external modules to your `pom.xml`.
    (Check the `Dependent External Libraries > Manual Load Needed Libraries` section of the `README` in the module you want to add to your project.)
