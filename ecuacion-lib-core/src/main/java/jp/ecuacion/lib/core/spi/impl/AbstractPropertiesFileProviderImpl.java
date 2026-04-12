@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.spi.AbstractResourceBundleProvider;
-import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 
 /**
  * Provides an implementation of {@code ResourceBundleProvider}.
@@ -31,14 +31,14 @@ import jp.ecuacion.lib.core.util.internal.PropertyFileUtilValueGetter;
  * <p>This removes the default locale, which is the locale of OS,
  *     to avoid the result depends on the execution environment.</p>
  */
-public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceBundleProvider {
+public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourceBundleProvider {
 
   /**
    * Provides {@code ResourceBundle}.
    */
   @Override
   public ResourceBundle getBundle(String baseName, Locale locale) {
-    Locale specifiedLocale = PropertyFileUtilValueGetter.specifiedLocale.get();
+    Locale specifiedLocale = PropertiesFileUtilValueGetter.specifiedLocale.get();
 
     // remove default locale if not specified.
     if (!locale.getLanguage().equals("")
@@ -48,7 +48,7 @@ public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceB
     }
 
     // Obtain resource from module.
-    String baseFilename = PropertyFileUtilValueGetter.bundleNameForModule.get();
+    String baseFilename = PropertiesFileUtilValueGetter.bundleNameForModule.get();
     String moduleName = getModuleName(baseFilename);
     Module module = ModuleLayer.boot().findModule(moduleName).orElse(null);
     if (module != null) {
@@ -66,7 +66,7 @@ public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceB
       }
     }
 
-    return super.getBundle(PropertyFileUtilValueGetter.bundleNameForModule.get(), locale);
+    return super.getBundle(PropertiesFileUtilValueGetter.bundleNameForModule.get(), locale);
   }
 
   private String getModuleName(String filename) {
@@ -77,7 +77,8 @@ public abstract class AbstractPropertyFileProviderImpl extends AbstractResourceB
     // for test
     if (filename.endsWith("test")) {
       // Filenames like messages_lib-core-test[_xx].properties are used in test.
-      // ('lib-core-test' is needed to add in advance by PropertyFileUtil.addResourceBundlePostfix)
+      // ('lib-core-test' is needed to add in advance by
+      // PropertiesFileUtil.addResourceBundlePostfix)
       // and you can see the module name from the 'lib-core' part.
       // If you want more postfixes, you can use 'lib-core-xxxtest'
       String[] moduleNameParts = parts[len - 1].split("-");

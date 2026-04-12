@@ -20,7 +20,7 @@ import jakarta.validation.Validator;
 import java.util.Locale;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
-import jp.ecuacion.lib.core.util.PropertyFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +33,7 @@ public class NotEmptyWhenTest {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertyFileUtil.addResourceBundlePostfix("lib-validation-test");
+    PropertiesFileUtil.addResourceBundlePostfix("lib-validation-test");
   }
 
   /**

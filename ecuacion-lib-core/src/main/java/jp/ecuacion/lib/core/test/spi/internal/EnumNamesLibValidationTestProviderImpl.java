@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.test.spi.internal;
 
-import jp.ecuacion.lib.core.spi.impl.AbstractPropertyFileProviderImpl;
+import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
 import jp.ecuacion.lib.core.test.spi.EnumNamesLibValidationTestProvider;
 
-public class EnumNamesLibValidationTestProviderImpl extends AbstractPropertyFileProviderImpl
+public class EnumNamesLibValidationTestProviderImpl extends AbstractPropertiesFileProviderImpl
     implements EnumNamesLibValidationTestProvider {
 
 }

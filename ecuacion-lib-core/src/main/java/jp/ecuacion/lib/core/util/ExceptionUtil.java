@@ -37,9 +37,9 @@ import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.PropertyFileUtil.Arg;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
-import jp.ecuacion.lib.core.util.enums.PropertyFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.
@@ -291,9 +291,9 @@ public class ExceptionUtil {
       } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
         String message = isMessagesWithItemNamesAsDefault
-            ? PropertyFileUtil.getMessageWithItemName(locale, ex.getMessageId(),
+            ? PropertiesFileUtil.getMessageWithItemName(locale, ex.getMessageId(),
                 ex.getMessageArgs())
-            : PropertyFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs());
+            : PropertiesFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs());
         rtnList.add(message);
 
       } else if (th instanceof ValidationAppException) {
@@ -317,12 +317,12 @@ public class ExceptionUtil {
             }
 
             String value = "";
-            for (PropertyFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
-              // Put return value of PropertyFileUtil.get() even when key does not exist.
-              value = PropertyFileUtil.get(fileKind.toString(), locale, paramBean.propertyFileKey(),
-                  paramBean.args());
+            for (PropertiesFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
+              // Put return value of PropertiesFileUtil.get() even when key does not exist.
+              value = PropertiesFileUtil.get(fileKind.toString(), locale,
+                  paramBean.propertyFileKey(), paramBean.args());
 
-              if (PropertyFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
+              if (PropertiesFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
                 break;
               }
             }
@@ -344,12 +344,12 @@ public class ExceptionUtil {
 
           String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
           boolean isMessageDefined = isMessageWithItemName
-              ? PropertyFileUtil.hasValidationMessageWithItemName(locale, messageKey)
-              : PropertyFileUtil.hasValidationMessage(locale, messageKey);
+              ? PropertiesFileUtil.hasValidationMessageWithItemName(locale, messageKey)
+              : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
           if (isMessageDefined) {
             message = isMessageWithItemName
-                ? PropertyFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
-                : PropertyFileUtil.getValidationMessage(locale, messageKey, map);
+                ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
+                : PropertiesFileUtil.getValidationMessage(locale, messageKey, map);
 
           } else {
             message = bean.getMessageTemplate();
@@ -365,13 +365,13 @@ public class ExceptionUtil {
           // add prefix and postfix messages.
           if (messageParameters.getMessagePrefix() != null) {
             message =
-                PropertyFileUtil.getStringFromArg(locale, messageParameters.getMessagePrefix())
+                PropertiesFileUtil.getStringFromArg(locale, messageParameters.getMessagePrefix())
                     + message;
           }
 
           if (messageParameters.getMessagePostfix() != null) {
-            message = message
-                + PropertyFileUtil.getStringFromArg(locale, messageParameters.getMessagePostfix());
+            message = message + PropertiesFileUtil.getStringFromArg(locale,
+                messageParameters.getMessagePostfix());
           }
 
         } catch (MissingResourceException mre) {
@@ -398,8 +398,8 @@ public class ExceptionUtil {
     if (!beanList.get(0).showsValue()) {
       String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
       rtnSet.add(new LocalizedEmbeddedParameter("invalidValue",
-          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.MESSAGES}, key));
-      // argMap.put(, PropertyFileUtil.getMessage(locale, key));
+          new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, key));
+      // argMap.put(, PropertiesFileUtil.getMessage(locale, key));
     }
 
     // Comparison validators
@@ -409,7 +409,7 @@ public class ExceptionUtil {
           MessageUtil.getFieldInfoBean(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
               .itemNameKey();
       rtnSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
-          new PropertyFileUtilFileKindEnum[] {PropertyFileUtilFileKindEnum.ITEM_NAMES},
+          new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
           itemNameKey));
     }
 
@@ -429,10 +429,10 @@ public class ExceptionUtil {
    * <p>It is resolved to message value at ExceptionHandler
    *     Because there is a locale there.</p>
    *     
-   * <p>When you designate fileKinds = new PropertyFileUtilFileKindEnum[] {} (length is zero),
+   * <p>When you designate fileKinds = new PropertiesFileUtilFileKindEnum[] {} (length is zero),
    *     propertyPathKey is set as the value.</p>
    */
   public static record LocalizedEmbeddedParameter(String parameterKey,
-      PropertyFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
+      PropertiesFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
   }
 }
