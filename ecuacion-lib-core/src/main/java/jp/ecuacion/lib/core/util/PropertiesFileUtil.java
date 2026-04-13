@@ -576,14 +576,14 @@ public class PropertiesFileUtil {
     argMap = argMap == null ? new HashMap<>() : argMap;
 
     final String argAnnotationValue = (String) argMap.get("annotation");
-    final Item[] fieldInfoBean = (Item[]) argMap.get("itemAttributes");
+    final Item[] item = (Item[]) argMap.get("itemAttributes");
 
     // for @ConditionalXxx
     String annotationPrefix = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
 
       // itemName
-      List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
+      List<String> itemNameList = Arrays.asList(item).stream()
           .map(bean -> PropertiesFileUtil.getItemName(locale, bean.getItemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }

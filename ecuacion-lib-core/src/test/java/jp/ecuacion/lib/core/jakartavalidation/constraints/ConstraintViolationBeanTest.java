@@ -118,13 +118,13 @@ public class ConstraintViolationBeanTest {
 
   private void checkForForm(ConstraintViolationBean<?> bean, String itemPropertyPath,
       String itemNameKey) {
-    String pp = bean.getFieldInfoBeans()[0].getPropertyPath();
+    String pp = bean.getItems()[0].getPropertyPath();
     Assertions.assertEquals(itemPropertyPath, pp.substring(pp.indexOf(".") + 1));
     check(bean, itemNameKey);
   }
 
   private void check(ConstraintViolationBean<?> bean, String itemNameKey) {
-    Assertions.assertEquals(itemNameKey, bean.getFieldInfoBeans()[0].getItemNameKey());
+    Assertions.assertEquals(itemNameKey, bean.getItems()[0].getItemNameKey());
   }
 
   public static class dataPatternTest {
@@ -235,13 +235,13 @@ public class ConstraintViolationBeanTest {
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("root.field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("root.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("rootRecord", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("root.child.field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("root.child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
           assertEqualsItemNameKeyClass("childRecord", bean);
@@ -260,13 +260,13 @@ public class ConstraintViolationBeanTest {
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("rootRecord", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("child.field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
           assertEqualsItemNameKeyClass("childRecord", bean);
@@ -413,7 +413,7 @@ public class ConstraintViolationBeanTest {
   }
 
   private <T> void assertEqualsItemNameKeyClass(String expected, ConstraintViolationBean<T> bean) {
-    Assertions.assertEquals(expected, bean.getFieldInfoBeans()[0].getItemNameKey().split("\\.")[0]);
+    Assertions.assertEquals(expected, bean.getItems()[0].getItemNameKey().split("\\.")[0]);
   }
 
   static class itemNameKeyClassAnnotationReadTest {
@@ -599,13 +599,13 @@ public class ConstraintViolationBeanTest {
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("root.field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("root.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("root.child.field1")) {
+        if (bean.getItems()[0].getPropertyPath().equals("root.child.field1")) {
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
 
         } else {
@@ -626,13 +626,13 @@ public class ConstraintViolationBeanTest {
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
       String leafClassName = bean.getLeafBean().getClass().getSimpleName();
       if (leafClassName.equals("RootRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Root", bean);
         else
           assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
 
       } else if (leafClassName.equals("ChildRecord")) {
-        if (bean.getFieldInfoBeans()[0].getPropertyPath().equals("child.field1"))
+        if (bean.getItems()[0].getPropertyPath().equals("child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
           assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);

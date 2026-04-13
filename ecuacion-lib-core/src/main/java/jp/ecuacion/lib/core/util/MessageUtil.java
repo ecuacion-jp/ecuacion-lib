@@ -114,15 +114,14 @@ public class MessageUtil {
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
    */
   @Nonnull
-  public static String getItemNames(Locale locale,
-      @RequireNonnull List<Item> fieldInfoBeanList, boolean showsItemNamePath,
-      Object rootBean) {
+  public static String getItemNames(Locale locale, @RequireNonnull List<Item> itemList,
+      boolean showsItemNamePath, Object rootBean) {
     final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
     final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
-    for (Item infoBean : fieldInfoBeanList) {
+    for (Item infoBean : itemList) {
       String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
 
       if (showsItemNamePath) {
@@ -138,8 +137,8 @@ public class MessageUtil {
     return StringUtils.capitalize(rtn);
   }
 
-  private static String getItemName(Locale locale, Item item,
-      final String prependSymbol, final String appendSymbol) {
+  private static String getItemName(Locale locale, Item item, final String prependSymbol,
+      final String appendSymbol) {
 
     String itemNameKey = item.getItemNameKey();
     List<String> collectionLayerList =
@@ -223,8 +222,8 @@ public class MessageUtil {
     }
   }
 
-  private static String addItemNamePath(Locale locale, Object rootBean, Item item,
-      String itemName, final String prependSymbol, final String appendSymbol) {
+  private static String addItemNamePath(Locale locale, Object rootBean, Item item, String itemName,
+      final String prependSymbol, final String appendSymbol) {
 
     final String pstring = PropertiesFileUtil.getMessage(locale, ppf + "string");
     final String pseparator = PropertiesFileUtil.getMessage(locale, ppf + "separator");
@@ -248,7 +247,7 @@ public class MessageUtil {
 
     List<String> modifiedPathItemNameList = new ArrayList<>();
     for (String path : itemNamePathList) {
-      Item tmpItem = getFieldInfoBean(path, rootBean, rootBean);
+      Item tmpItem = getItem(path, rootBean, rootBean);
       modifiedPathItemNameList.add(getItemName(locale, tmpItem, prependSymbol, appendSymbol));
     }
 
@@ -268,8 +267,7 @@ public class MessageUtil {
    * @param propertyPath itemPropertyPath
    * @return itemNameKey
    */
-  public static Item getFieldInfoBean(String propertyPath, Object rootBean,
-      Object leafBean) {
+  public static Item getItem(String propertyPath, Object rootBean, Object leafBean) {
 
     String fullPropertyPath1stPart =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.indexOf(".")) : null;

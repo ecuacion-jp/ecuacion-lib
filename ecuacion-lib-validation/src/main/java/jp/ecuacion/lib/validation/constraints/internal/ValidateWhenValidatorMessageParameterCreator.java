@@ -51,7 +51,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    Item item = MessageUtil.getFieldInfoBean(conditionPropertyPath, cv.getRootBean(),
+    Item item = MessageUtil.getItem(conditionPropertyPath, cv.getRootBean(),
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
