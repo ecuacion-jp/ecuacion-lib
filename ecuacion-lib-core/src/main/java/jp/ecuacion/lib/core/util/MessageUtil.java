@@ -25,7 +25,6 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -116,14 +115,14 @@ public class MessageUtil {
    */
   @Nonnull
   public static String getItemNames(Locale locale,
-      @RequireNonnull List<FieldInfoBean> fieldInfoBeanList, boolean showsItemNamePath,
+      @RequireNonnull List<Item> fieldInfoBeanList, boolean showsItemNamePath,
       Object rootBean) {
     final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
     final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
-    for (FieldInfoBean infoBean : fieldInfoBeanList) {
+    for (Item infoBean : fieldInfoBeanList) {
       String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
 
       if (showsItemNamePath) {
@@ -139,12 +138,12 @@ public class MessageUtil {
     return StringUtils.capitalize(rtn);
   }
 
-  private static String getItemName(Locale locale, FieldInfoBean infoBean,
+  private static String getItemName(Locale locale, Item item,
       final String prependSymbol, final String appendSymbol) {
 
-    String itemNameKey = infoBean.itemNameKey();
+    String itemNameKey = item.getItemNameKey();
     List<String> collectionLayerList =
-        extractCollectionLayers(PropertyPathUtil.getRightMostNode(infoBean.propertyPath()));
+        extractCollectionLayers(PropertyPathUtil.getRightMostNode(item.getPropertyPath()));
 
     String itemName =
         prependSymbol + PropertiesFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
@@ -224,7 +223,7 @@ public class MessageUtil {
     }
   }
 
-  private static String addItemNamePath(Locale locale, Object rootBean, FieldInfoBean infoBean,
+  private static String addItemNamePath(Locale locale, Object rootBean, Item item,
       String itemName, final String prependSymbol, final String appendSymbol) {
 
     final String pstring = PropertiesFileUtil.getMessage(locale, ppf + "string");
@@ -232,7 +231,7 @@ public class MessageUtil {
 
     // Cut each itemNamePath and put them into a list.
     String leafBeanPropertyPath =
-        PropertyPathUtil.getPropertyPathWithoutRightMostNode(infoBean.propertyPath());
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(item.getPropertyPath());
     List<String> itemNamePathList = new ArrayList<>();
     String prefix = "";
     for (String node : PropertyPathUtil.getNodeList(leafBeanPropertyPath)) {
@@ -249,8 +248,8 @@ public class MessageUtil {
 
     List<String> modifiedPathItemNameList = new ArrayList<>();
     for (String path : itemNamePathList) {
-      FieldInfoBean bean = getFieldInfoBean(path, rootBean, rootBean);
-      modifiedPathItemNameList.add(getItemName(locale, bean, prependSymbol, appendSymbol));
+      Item tmpItem = getFieldInfoBean(path, rootBean, rootBean);
+      modifiedPathItemNameList.add(getItemName(locale, tmpItem, prependSymbol, appendSymbol));
     }
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
@@ -269,7 +268,7 @@ public class MessageUtil {
    * @param propertyPath itemPropertyPath
    * @return itemNameKey
    */
-  public static FieldInfoBean getFieldInfoBean(String propertyPath, Object rootBean,
+  public static Item getFieldInfoBean(String propertyPath, Object rootBean,
       Object leafBean) {
 
     String fullPropertyPath1stPart =
@@ -317,9 +316,7 @@ public class MessageUtil {
       showsValue = item.getShowsValue();
     }
 
-    FieldInfoBean bean = new FieldInfoBean(propertyPath, itemNameKey, showsValue);
-
-    return bean;
+    return new Item(propertyPath).itemNameKey(itemNameKey).showsValue(showsValue);
   }
 
   /**
