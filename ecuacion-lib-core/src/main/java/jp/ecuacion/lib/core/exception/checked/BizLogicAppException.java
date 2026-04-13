@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
@@ -93,7 +94,7 @@ public class BizLogicAppException extends SingleAppException {
 
   @Override
   public String getMessage() {
-    return PropertiesFileUtil.getMessage(messageId, messageArgs);
+    return PropertiesFileUtil.getMessage(Locale.ENGLISH, messageId, messageArgs);
   }
 
   @Override

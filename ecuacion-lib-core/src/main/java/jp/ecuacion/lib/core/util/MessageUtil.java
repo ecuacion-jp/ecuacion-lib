@@ -89,18 +89,8 @@ public class MessageUtil {
     String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
-    String propertyPathWithoutRightMostNode =
-        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
-    String parentNode = StringUtils.isEmpty(propertyPathWithoutRightMostNode) ? ""
-        : PropertyPathUtil.getRightMostNode(propertyPathWithoutRightMostNode);
-
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
       tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
-
-    } else if (StringUtils.isNotEmpty(propertyPathWithoutRightMostNode)
-        && !parentNode.contains("[")) {
-      String tmp = PropertyPathUtil.removeIndex(propertyPathWithoutRightMostNode);
-      tmpItemNameKeyClass = PropertyPathUtil.getRightMostNode(tmp);
 
     } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
       tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
@@ -264,7 +254,7 @@ public class MessageUtil {
     }
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
-    itemName = PropertiesFileUtil.getMessage(pstring, itemName, pathString);
+    itemName = PropertiesFileUtil.getMessage(locale, pstring, itemName, pathString);
 
     return itemName;
   }
