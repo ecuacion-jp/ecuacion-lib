@@ -325,18 +325,6 @@ public class PropertiesFileUtil {
   // ■□■ message ■□■
 
   /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  public static String getMessage(@RequireNonnull String key, @RequireNonnull String... args) {
-    return getMessage(null, key, args);
-  }
-
-  /**
    * Returns the localized value in messages_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
@@ -349,21 +337,6 @@ public class PropertiesFileUtil {
   public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
     return formatMessage(getterMap.get(MESSAGES).getProp(locale, key, null), args);
-  }
-
-  /**
-   * Returns the value of default locale in messages_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  public static String getMessage(@RequireNonnull String key, @RequireNonnull Arg[] args) {
-    return getMessage(null, key, args);
   }
 
   /**
@@ -397,19 +370,6 @@ public class PropertiesFileUtil {
   // ■□■ messageWithItemName ■□■
 
   /**
-   * Returns the value of default locale in messagesWithItemNames_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  public static String getMessageWithItemName(@RequireNonnull String key,
-      @RequireNonnull String... args) {
-    return getMessageWithItemName(null, key, args);
-  }
-
-  /**
    * Returns the localized value in messagesWithItemNames_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
@@ -422,22 +382,6 @@ public class PropertiesFileUtil {
   public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
       @RequireNonnull String... args) {
     return formatMessage(getterMap.get(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, null), args);
-  }
-
-  /**
-   * Returns the value of default locale in messagesWithItemNames_xxx.properties.
-   * 
-   * @param key the key of the property
-   * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
-   *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
-   *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
-   * @return the value (message) of the property key (message ID)
-   */
-  @Nonnull
-  public static String getMessageWithItemName(@RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
-    return getMessageWithItemName(null, key, args);
   }
 
   /**
@@ -656,21 +600,6 @@ public class PropertiesFileUtil {
   }
 
   // ■□■ ValidationMessagesPatternDescriptions ■□■
-
-  /**
-   * Returns the property value of default locale in ValidationMessages[_locale].properties.
-   * 
-   * <p>Usually {@code ValidationMessages[_locale].properties} file 
-   *     satisfies validation message's requirement.
-   *     But when you want to show error messages on the top message space and  
-   * 
-   * @param key the key of the property
-   * @return the value of the property
-   */
-  @Nonnull
-  public static String getValidationMessagePatternDescription(@RequireNonnull String key) {
-    return getValidationMessagePatternDescription(null, key);
-  }
 
   /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
@@ -1134,5 +1063,4 @@ public class PropertiesFileUtil {
   public static enum ArgKind {
     STRING, FORMATTED_STRING, MESSAGE_ID
   }
-
 }
