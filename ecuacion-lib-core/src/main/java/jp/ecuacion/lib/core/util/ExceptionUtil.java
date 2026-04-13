@@ -358,7 +358,7 @@ public class ExceptionUtil {
           // Replace {0} to itemName.
           if (message.contains("{0}")) {
             message = MessageFormat.format(message,
-                MessageUtil.getItemNames(locale, bean.getFieldInfoBeanList(),
+                MessageUtil.getItemNames(locale, bean.getItemList(),
                     messageParameters.showsItemNamePath(), bean.getRootBean()));
           }
 
@@ -392,7 +392,7 @@ public class ExceptionUtil {
   private static Set<LocalizedEmbeddedParameter> getMessageParameterSet(
       ConstraintViolationBean<?> cvBean) {
     Set<LocalizedEmbeddedParameter> rtnSet = new HashSet<>();
-    List<Item> beanList = cvBean.getFieldInfoBeanList();
+    List<Item> beanList = cvBean.getItemList();
 
     // invalidValue
     if (!beanList.get(0).getShowsValue()) {
@@ -406,7 +406,7 @@ public class ExceptionUtil {
     if (cvBean.getEmbeddedParamMap().containsKey("baselinePropertyPath")) {
       String bpp = (String) cvBean.getEmbeddedParamMap().get("baselinePropertyPath");
       String itemNameKey =
-          MessageUtil.getFieldInfoBean(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
+          MessageUtil.getItem(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
               .getItemNameKey();
       rtnSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
           new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},

@@ -51,7 +51,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   private String validatorClass;
   /** 
    * The propertyPath ConstraintViolation stores.<br>
-   * It is different from fieldInfoBean.propertyPath 
+   * It is different from item.propertyPath 
    * when classValidators or methodValidators are used.
    */
   private String constraintViolationPropertyPath;
@@ -62,7 +62,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   // values needed for all the patterns
 
   private ValidatorKindEnum validatorKind;
-  private List<Item> fieldInfoBeanList = new ArrayList<>();
+  private List<Item> itemList = new ArrayList<>();
   @Nonnull
   private Map<String, Object> embeddedParamMap = new HashMap<>();
 
@@ -80,7 +80,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
     for (int i = 0; i < propertyPathList.size(); i++) {
       String fullPropertyPath = propertyPathList.get(i);
-      fieldInfoBeanList.add(MessageUtil.getFieldInfoBean(fullPropertyPath, rootBean, leafBean));
+      itemList.add(MessageUtil.getItem(fullPropertyPath, rootBean, leafBean));
     }
 
     embeddedParamMap.put("invalidValue", invalidValue);
@@ -88,7 +88,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     // Put field in this instance to paramMap
     embeddedParamMap.put("annotation", validatorClass);
     embeddedParamMap.put("itemAttributes",
-        fieldInfoBeanList.toArray(new Item[fieldInfoBeanList.size()]));
+        itemList.toArray(new Item[itemList.size()]));
   }
 
   /**
@@ -191,7 +191,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
         + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getFieldInfoBeanList().stream().map(b -> b.getPropertyPath()).toList())
+        + StringUtil.getCsv(getItemList().stream().map(b -> b.getPropertyPath()).toList())
         + "\n" + "invalidValue:" + getInvalidValue();
   }
 
@@ -246,12 +246,12 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return validatorKind;
   }
 
-  public List<Item> getFieldInfoBeanList() {
-    return fieldInfoBeanList;
+  public List<Item> getItemList() {
+    return itemList;
   }
 
-  public Item[] getFieldInfoBeans() {
-    return fieldInfoBeanList.toArray(new Item[fieldInfoBeanList.size()]);
+  public Item[] getItems() {
+    return itemList.toArray(new Item[itemList.size()]);
   }
 
   @Nonnull
