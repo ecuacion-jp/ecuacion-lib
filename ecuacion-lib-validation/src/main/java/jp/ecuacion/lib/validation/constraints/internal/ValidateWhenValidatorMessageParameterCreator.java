@@ -55,8 +55,8 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
-            item.getItemNameKey(), new Arg[] {}));
+            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES}, true,
+            new Item[] {item}, cv.getRootBean(), item.getItemNameKey(), new Arg[] {}));
 
     // displayStringOfConditionValue
     displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, messageParameterSet);
