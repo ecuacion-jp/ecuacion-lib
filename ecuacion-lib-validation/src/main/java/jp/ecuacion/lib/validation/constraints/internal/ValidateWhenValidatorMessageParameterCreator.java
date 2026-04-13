@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.MessageUtil;
@@ -51,12 +51,12 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
         : cv.getPropertyPath().toString() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    FieldInfoBean bean = MessageUtil.getFieldInfoBean(conditionPropertyPath, cv.getRootBean(),
+    Item item = MessageUtil.getFieldInfoBean(conditionPropertyPath, cv.getRootBean(),
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
-            bean.itemNameKey(), new Arg[] {}));
+            item.getItemNameKey(), new Arg[] {}));
 
     // displayStringOfConditionValue
     displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, messageParameterSet);

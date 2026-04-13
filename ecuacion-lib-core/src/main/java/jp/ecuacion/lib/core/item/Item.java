@@ -164,6 +164,15 @@ public class Item {
     return this;
   }
 
+  /**
+   * Shows value.
+   */
+  public Item showsValue(boolean showsValue) {
+    this.showsValue = showsValue;
+
+    return this;
+  }
+
   public boolean getShowsValue() {
     return showsValue;
   }

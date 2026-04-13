@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
@@ -61,7 +62,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   // values needed for all the patterns
 
   private ValidatorKindEnum validatorKind;
-  private List<FieldInfoBean> fieldInfoBeanList = new ArrayList<>();
+  private List<Item> fieldInfoBeanList = new ArrayList<>();
   @Nonnull
   private Map<String, Object> embeddedParamMap = new HashMap<>();
 
@@ -87,7 +88,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     // Put field in this instance to paramMap
     embeddedParamMap.put("annotation", validatorClass);
     embeddedParamMap.put("itemAttributes",
-        fieldInfoBeanList.toArray(new FieldInfoBean[fieldInfoBeanList.size()]));
+        fieldInfoBeanList.toArray(new Item[fieldInfoBeanList.size()]));
   }
 
   /**
@@ -190,7 +191,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
         + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getFieldInfoBeanList().stream().map(b -> b.propertyPath).toList())
+        + StringUtil.getCsv(getFieldInfoBeanList().stream().map(b -> b.getPropertyPath()).toList())
         + "\n" + "invalidValue:" + getInvalidValue();
   }
 
@@ -245,12 +246,12 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return validatorKind;
   }
 
-  public List<FieldInfoBean> getFieldInfoBeanList() {
+  public List<Item> getFieldInfoBeanList() {
     return fieldInfoBeanList;
   }
 
-  public FieldInfoBean[] getFieldInfoBeans() {
-    return fieldInfoBeanList.toArray(new FieldInfoBean[fieldInfoBeanList.size()]);
+  public Item[] getFieldInfoBeans() {
+    return fieldInfoBeanList.toArray(new Item[fieldInfoBeanList.size()]);
   }
 
   @Nonnull
@@ -276,16 +277,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   @Override
   public <U> U unwrap(Class<U> type) {
     throw new RuntimeException("Not assumed to call.");
-  }
-
-  /**
-   * Stores field-unit parameters.
-   * 
-   * @param propertyPath The key of the bean.
-   *     It's a propertyPath which designate from rootBean to the violation-occurring field.
-   */
-  public static record FieldInfoBean(String propertyPath, String itemNameKey, boolean showsValue) {
-
   }
 
   /**
