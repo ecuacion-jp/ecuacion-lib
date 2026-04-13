@@ -34,8 +34,8 @@ import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithPa
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
@@ -358,7 +358,7 @@ public class ExceptionUtil {
           // Replace {0} to itemName.
           if (message.contains("{0}")) {
             message = MessageFormat.format(message,
-                MessageUtil.getItemNames(locale, bean.getFieldInfoBeanList(),
+                MessageUtil.getItemNames(locale, bean.getItemList(),
                     messageParameters.showsItemNamePath(), bean.getRootBean()));
           }
 
@@ -392,10 +392,10 @@ public class ExceptionUtil {
   private static Set<LocalizedEmbeddedParameter> getMessageParameterSet(
       ConstraintViolationBean<?> cvBean) {
     Set<LocalizedEmbeddedParameter> rtnSet = new HashSet<>();
-    List<FieldInfoBean> beanList = cvBean.getFieldInfoBeanList();
+    List<Item> beanList = cvBean.getItemList();
 
     // invalidValue
-    if (!beanList.get(0).showsValue()) {
+    if (!beanList.get(0).getShowsValue()) {
       String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
       rtnSet.add(new LocalizedEmbeddedParameter("invalidValue",
           new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, key));
@@ -406,8 +406,8 @@ public class ExceptionUtil {
     if (cvBean.getEmbeddedParamMap().containsKey("baselinePropertyPath")) {
       String bpp = (String) cvBean.getEmbeddedParamMap().get("baselinePropertyPath");
       String itemNameKey =
-          MessageUtil.getFieldInfoBean(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
-              .itemNameKey();
+          MessageUtil.getItem(bpp, cvBean.getRootBean(), cvBean.getLeafBean().getClass())
+              .getItemNameKey();
       rtnSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
           new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
           itemNameKey));

@@ -40,7 +40,7 @@ import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean.FieldInfoBean;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -576,15 +576,15 @@ public class PropertiesFileUtil {
     argMap = argMap == null ? new HashMap<>() : argMap;
 
     final String argAnnotationValue = (String) argMap.get("annotation");
-    final FieldInfoBean[] fieldInfoBean = (FieldInfoBean[]) argMap.get("itemAttributes");
+    final Item[] item = (Item[]) argMap.get("itemAttributes");
 
     // for @ConditionalXxx
     String annotationPrefix = "jp.ecuacion.lib.core.jakartavalidation.validator.Conditional";
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
 
       // itemName
-      List<String> itemNameList = Arrays.asList(fieldInfoBean).stream()
-          .map(bean -> PropertiesFileUtil.getItemName(locale, bean.itemNameKey())).toList();
+      List<String> itemNameList = Arrays.asList(item).stream()
+          .map(bean -> PropertiesFileUtil.getItemName(locale, bean.getItemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }
 
