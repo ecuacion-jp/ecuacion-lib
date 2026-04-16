@@ -16,5 +16,7 @@
 
 /**
  * Provides annotations.
+ * 
+ * <p>Annotations does not need {@code @NullMarked}.</p>
  */
 package jp.ecuacion.lib.core.annotation;

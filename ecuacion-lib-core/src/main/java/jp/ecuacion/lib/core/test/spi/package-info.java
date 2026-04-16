@@ -15,6 +15,9 @@
  */
 
 /**
- * Provides Service Provider Interfaces.
+ * Provides Service Provider Interfaces for tests.
+ * 
+ * <p>Since spi needs to be defined in {@code module-info.java}, 
+ *     Classes used for test also have to defined here.</p>
  */
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.test.spi;

@@ -15,6 +15,6 @@
  */
 
 /**
- * Provides Service Provider Interfaces.
+ * Provides enums for utilities.
  */
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.util.enums;
