@@ -28,6 +28,8 @@ import jp.ecuacion.lib.core.annotation.RequireSizeNonzero;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods for {@code Objects.requireNonnull} and other checks.
@@ -54,7 +56,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T requireNonNull(@RequireNonnull T object) {
+  public static <T> @NonNull T requireNonNull(@Nullable T object) {
     if (object == null) {
       throw new RequireNonNullException();
     }
@@ -73,8 +75,8 @@ public class ObjectsUtil {
    * @param objects Any objects
    */
   @Nonnull
-  public static void requireNonNull(@RequireNonnull Object object1, @RequireNonnull Object object2,
-      @RequireNonnull Object... objects) {
+  public static void requireNonNull(@Nullable Object object1, @Nullable Object object2,
+      @Nullable Object... objects) {
 
     Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
 
@@ -163,7 +165,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] requireElementNonNull(@RequireElementNonnull T[] objects) {
+  public static <T> T[] requireElementNonNull(T[] objects) {
     requireElementNonNull(Arrays.asList(objects));
 
     return objects;
@@ -179,7 +181,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> Collection<T> requireElementNonNull(
-      @RequireElementNonnull Collection<T> collection) {
+      Collection<T> collection) {
 
     if (collection != null) {
       for (T object : collection) {

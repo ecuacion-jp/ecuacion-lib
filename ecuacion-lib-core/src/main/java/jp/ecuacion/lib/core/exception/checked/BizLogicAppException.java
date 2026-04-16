@@ -18,10 +18,10 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Is used for buziness logic exceptions.
@@ -31,14 +31,11 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 public class BizLogicAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  @Nonnull
-  private String messageId;
+  private @NonNull String messageId;
 
-  @Nonnull
-  private Arg[] messageArgs;
+  private @NonNull Arg[] messageArgs;
 
-  @Nonnull
-  private String[] itemPropertyPaths;
+  private @Nonnull String[] itemPropertyPaths;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
@@ -46,8 +43,8 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@RequireNonnull String messageId,
-      String... messageArgs) {
+  public BizLogicAppException(@NonNull String messageId,
+      @NonNull String... messageArgs) {
     this(null, messageId, messageArgs);
   }
 
@@ -60,11 +57,11 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageArgs message Arguments
    */
   public BizLogicAppException(String[] itemPropertyPaths,
-      @RequireNonnull String messageId, String... messageArgs) {
+      @NonNull String messageId, @NonNull String... messageArgs) {
 
     this(itemPropertyPaths, messageId, Arrays.asList(ObjectsUtil.requireNonNull(messageArgs))
         .stream().map(arg -> Arg.string(arg))
-        .toList().toArray(new Arg[messageArgs.length]));
+        .toList().toArray(new @NonNull Arg[messageArgs.length]));
   }
 
   /**
@@ -73,7 +70,7 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
+  public BizLogicAppException(@NonNull String messageId, @NonNull Arg[] messageArgs) {
     this(null, messageId, messageArgs);
   }
 
@@ -86,10 +83,10 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageArgs message Arguments
    */
   public BizLogicAppException(String[] itemPropertyPaths,
-      @RequireNonnull String messageId, Arg[] messageArgs) {
+      @NonNull String messageId, @NonNull Arg[] messageArgs) {
     this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
-    this.messageArgs = messageArgs == null ? new Arg[] {} : messageArgs;
+    this.messageArgs = messageArgs == null ? new @NonNull Arg[] {} : messageArgs;
   }
 
   @Override
@@ -107,7 +104,7 @@ public class BizLogicAppException extends SingleAppException {
    * 
    * @return messageId
    */
-  public @Nonnull String getMessageId() {
+  public @NonNull String getMessageId() {
     return messageId;
   }
 

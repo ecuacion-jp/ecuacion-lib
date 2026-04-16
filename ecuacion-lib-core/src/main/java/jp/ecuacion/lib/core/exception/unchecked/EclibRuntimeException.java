@@ -16,9 +16,9 @@
 package jp.ecuacion.lib.core.exception.unchecked;
 
 import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.constant.EclibCoreConstants;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.NonNull;
 
 /** 
  * Is thrown just like {@code RuntimeException} whose message contains "ecuacion" 
@@ -33,7 +33,7 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param message message. May be null, which means it has no messages.
    */
-  public EclibRuntimeException(@RequireNonnull String message) {
+  public EclibRuntimeException(@NonNull String message) {
     super(message);
 
     ObjectsUtil.requireNonNull(message);
@@ -44,7 +44,7 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param cause cause
    */
-  public EclibRuntimeException(@RequireNonnull Throwable cause) {
+  public EclibRuntimeException(@NonNull Throwable cause) {
     super(cause);
 
     ObjectsUtil.requireNonNull(cause);
@@ -56,7 +56,7 @@ public class EclibRuntimeException extends RuntimeException {
    * @param message message
    * @param cause cause
    */
-  public EclibRuntimeException(@RequireNonnull String message, @Nonnull Throwable cause) {
+  public EclibRuntimeException(@NonNull String message, @Nonnull Throwable cause) {
     super(message, cause);
 
     ObjectsUtil.requireNonNull(message);

@@ -36,6 +36,7 @@ import java.lang.annotation.Retention;
  * @see jakarta.annotation.Nonnull
  * @see java.util.Objects
  */
+@Deprecated
 @Documented
 @Retention(RUNTIME)
 public @interface RequireNonnull {

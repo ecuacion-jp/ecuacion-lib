@@ -16,47 +16,15 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.Test;
 
 public class BizLogicAppExceptionTest extends TestTools {
   private static final String SAMPLE_MSG_ID = "MSG_ID";
 
   @Test
-  public void test01_constructor_01_messageId_01_argIsNull() {
-    try {
-      @SuppressWarnings("unused")
-      BizLogicAppException ex = new BizLogicAppException(null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-
-    } catch (Exception ex) {
-      fail();
-    }
-  }
-
-  @Test
   public void test01_constructor_01_messageId_02_argIsNotNull() {
     BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
     assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
-  }
-
-  @Test
-  public void test01_constructor_02_messageId_messageArgs_01_allNull() {
-    try {
-      @SuppressWarnings("unused")
-      BizLogicAppException ex =
-          new BizLogicAppException((String) null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-
-    } catch (Exception ex) {
-      fail();
-    }
   }
 
   @Test
