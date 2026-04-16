@@ -15,6 +15,6 @@
  */
 
 /**
- * Provides Service Provider Interfaces.
+ * Provides constraints for {@code jakarta validation} validators.
  */
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.jakartavalidation.constraints;
