@@ -140,7 +140,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
         new StringMulListListInkc(new StringMulListListInkc.Child(
             new StringMulListListInkc.GrandChild(List.of(List.of("1", "a")))));
     expected = "Element 1 > element 2 contained by "
-        + "'grand child string list list' at 'child field' > 'grand child field'" + MSG;
+        + "'ItemNameKeyClass considered string list list' at 'child field' > 'grand child field'" + MSG;
     msg = validateCollection(strMulListListInkc, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + ItemContiner(root)

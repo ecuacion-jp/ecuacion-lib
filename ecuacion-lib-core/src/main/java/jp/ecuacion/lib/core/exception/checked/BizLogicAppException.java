@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
@@ -48,7 +47,7 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageArgs message Arguments
    */
   public BizLogicAppException(@RequireNonnull String messageId,
-      @RequireNonnull String... messageArgs) {
+      String... messageArgs) {
     this(null, messageId, messageArgs);
   }
 
@@ -60,11 +59,12 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
+  public BizLogicAppException(String[] itemPropertyPaths,
+      @RequireNonnull String messageId, String... messageArgs) {
 
     this(itemPropertyPaths, messageId, Arrays.asList(ObjectsUtil.requireNonNull(messageArgs))
-        .stream().map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+        .stream().map(arg -> Arg.string(arg))
+        .toList().toArray(new Arg[messageArgs.length]));
   }
 
   /**
@@ -85,8 +85,8 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @Nullable Arg[] messageArgs) {
+  public BizLogicAppException(String[] itemPropertyPaths,
+      @RequireNonnull String messageId, Arg[] messageArgs) {
     this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = messageArgs == null ? new Arg[] {} : messageArgs;

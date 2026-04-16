@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -75,8 +76,8 @@ public class ReflectionUtil {
             // Collection or Map: use type argument
             Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
             // Map value access (no <K> in node): use 2nd type arg; others use 1st
-            boolean isMapValueAccess = !node.contains("<K>") && Map.class
-                .isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType());
+            boolean isMapValueAccess = !node.contains("<K>")
+                && Map.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType());
             type = typeArgs[isMapValueAccess ? 1 : 0];
           }
         }
@@ -119,8 +120,9 @@ public class ReflectionUtil {
    *     Even if there is another annotation of the same class,
    *     it ignores it and returns the first found annotation.</p>
    */
-  public static <A extends Annotation> Optional<A> searchAnnotationPlacedAtClass(
-      Class<?> classOfTargetInstance, Class<A> annotation) {
+  @SuppressWarnings("null")
+  public static <A extends Annotation> @NonNull Optional<@NonNull A> searchAnnotationPlacedAtClass(
+      Class<?> classOfTargetInstance, Class<A> annotationClass) {
     while (true) {
       // No more ancestors
       // Equals to null when it's an anonymous class created directly from Interface.
@@ -128,7 +130,7 @@ public class ReflectionUtil {
         return Optional.empty();
       }
 
-      A an = (A) classOfTargetInstance.getAnnotation(annotation);
+      A an = (A) classOfTargetInstance.getAnnotation(annotationClass);
       if (an != null) {
         return Optional.of(an);
       }

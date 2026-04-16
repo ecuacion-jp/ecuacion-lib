@@ -36,6 +36,7 @@ public class ExceptionUtilTest {
     PropertiesFileUtil.addResourceBundlePostfix("lib-core-test");
   }
 
+  @SuppressWarnings("null")
   @Test
   public void getMessageList_propertyPathLabelNameDisplayWithVariousParenthesisTest() {
     // field validator
@@ -86,6 +87,7 @@ public class ExceptionUtilTest {
     return ExceptionUtil.getMessageList(validator.validate(obj), Locale.ENGLISH, true).get(0);
   }
 
+  @SuppressWarnings("null")
   @Test
   public void getMessageList_variousPlacesTest() {
     String message = null;

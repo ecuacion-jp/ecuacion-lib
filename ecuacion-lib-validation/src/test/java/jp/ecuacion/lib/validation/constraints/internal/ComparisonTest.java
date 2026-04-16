@@ -79,6 +79,7 @@ public class ComparisonTest {
     }
   }
 
+  @SuppressWarnings("null")
   @Test
   public void validCheck() {
     // all valid

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
@@ -87,8 +88,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
     // Put field in this instance to paramMap
     embeddedParamMap.put("annotation", validatorClass);
-    embeddedParamMap.put("itemAttributes",
-        itemList.toArray(new Item[itemList.size()]));
+    embeddedParamMap.put("itemAttributes", itemList.toArray(new Item[itemList.size()]));
   }
 
   /**
@@ -115,6 +115,9 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       T rootBean, Object leafBean, Object invalidValue, String messageTemplate,
       Map<String, Object> embeddedParameterMap, String constraintViolationPropertyPath,
       String... propertyPaths) {
+
+    // Needs to avoid static analysis warning.
+    this.rootBean = rootBean;
 
     putArgsToFields(validatorKind, rootBean, leafBean, validatorClassName,
         PropertiesFileUtil.getValidationMessage(Locale.ENGLISH,
@@ -176,9 +179,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     }
 
     return new ConstraintViolationBean<>(validatorKind,
-        cv.getConstraintDescriptor().getAnnotation().annotationType().getName(), cv.getRootBean(),
-        cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(), embeddedParamMap,
-        cv.getPropertyPath().toString(), ppList.toArray(new String[ppList.size()]));
+        Objects.requireNonNull(Objects.requireNonNull(cv.getConstraintDescriptor()).getAnnotation())
+            .annotationType().getName(),
+        cv.getRootBean(), cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(),
+        embeddedParamMap, cv.getPropertyPath().toString(),
+        ppList.toArray(new String[ppList.size()]));
   }
 
   /** 
@@ -189,10 +194,10 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   @Override
   public @Nonnull String toString() {
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
-        + "rootClassName:" + getRootBean().getClass().getName() + "\n" + "leafClassName:"
-        + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getItemList().stream().map(b -> b.getPropertyPath()).toList())
-        + "\n" + "invalidValue:" + getInvalidValue();
+        + "rootClassName:" + Objects.requireNonNull(getRootBean()).getClass().getName() + "\n"
+        + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
+        + StringUtil.getCsv(getItemList().stream().map(b -> b.getPropertyPath()).toList()) + "\n"
+        + "invalidValue:" + getInvalidValue();
   }
 
   public T getRootBean() {
@@ -202,7 +207,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   @SuppressWarnings("unchecked")
   @Override
   public Class<T> getRootBeanClass() {
-    return (Class<T>) rootBean.getClass();
+    return (Class<T>) Objects.requireNonNull(rootBean).getClass();
   }
 
   public Object getLeafBean() {

@@ -16,16 +16,18 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides validation-related utilities.
@@ -90,11 +92,11 @@ public class ValidationUtil {
       @Nullable MessageParameters messageParameters, Class<?>... groups)
       throws ConstraintViolationException {
 
-    Optional<ConstraintViolationException> opt =
+    @NonNull Optional<@NonNull ConstraintViolationException> opt =
         validateThenReturn(object, messageParameters, groups);
 
     if (opt.isPresent()) {
-      throw opt.get();
+      throw Objects.requireNonNull(opt.get());
     }
   }
 
@@ -106,7 +108,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
       @RequireNonnull T object) {
     return validateThenReturn(object, (Class<?>[]) null);
   }
@@ -119,7 +121,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
       @RequireNonnull T object, Class<?>... groups) {
     return validateThenReturn(object, null, groups);
   }
@@ -132,7 +134,7 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
       @RequireNonnull T object, MessageParameters messageParameters) {
     return validateThenReturn(object, messageParameters, (Class<?>[]) null);
   }
@@ -145,14 +147,16 @@ public class ValidationUtil {
    * @return MultipleAppException, may be null when no validation errors exist.
    */
   @Nonnull
-  public static <T> Optional<ConstraintViolationException> validateThenReturn(
+  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
       @RequireNonnull T object, MessageParameters messageParameters, Class<?>... groups) {
     Set<ConstraintViolation<T>> set =
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
 
-    return set.size() == 0 ? Optional.empty()
+    Optional<@NonNull ConstraintViolationException> rtn = set.size() == 0 ? Optional.empty()
         : Optional.of(new ConstraintViolationExceptionWithParameters(set, messageParameters));
+    
+    return Objects.requireNonNull(rtn);
   }
 
   /**

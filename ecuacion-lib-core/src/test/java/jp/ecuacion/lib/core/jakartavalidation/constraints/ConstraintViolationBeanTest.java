@@ -60,6 +60,7 @@ public class ConstraintViolationBeanTest {
   /// 1. container structure pattern: `other` / (`root`, `child`, `grandChild`) = (`class validator`, `field validator`, `class validator`)
   ///
   //@formatter:on
+  @SuppressWarnings("null")
   @Test
   public void dataPatternTest() {
     ConstraintViolationBean<dataPatternTest.No1.Form> cvBean;
@@ -224,6 +225,7 @@ public class ConstraintViolationBeanTest {
   /// EclibItem#itemNameKey tests.
   ///
   //@formatter:on
+  @SuppressWarnings("null")
   @Test
   public void item_itemNameKeyTest() {
     // Record in Form
@@ -344,6 +346,7 @@ public class ConstraintViolationBeanTest {
   /// with self or the nearest ancestor is adopted and others are ignored.
   ///
   //@formatter:on
+  @SuppressWarnings("null")
   @Test
   public void itemNameKeyClassAnnotationReadTest() {
     String msgId = "a";
@@ -587,6 +590,7 @@ public class ConstraintViolationBeanTest {
   /// when explicit itemNameKeyClass is set to `EclibItem`.
   ///
   //@formatter:on
+  @SuppressWarnings("null")
   @Test
   public void itemNameKeyClassAnnotationOverrideTest() {
 

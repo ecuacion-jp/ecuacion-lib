@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.item;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +28,8 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Accepts and stores data from user input, external system, and so on.
@@ -54,18 +55,18 @@ public interface ItemContainer {
 
     Item item = map.get(ObjectsUtil.requireNonEmpty(noIndexPropertyPath));
 
-    item = item == null ? getNewItem(noIndexPropertyPath) : item;
+    final Item finalItem = item == null ? getNewItem(noIndexPropertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
     // Since what we want to know is class, instance is not needed.
-    Optional<ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
+    @NonNull
+    Optional<@NonNull ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
         ReflectionUtil.getClass(this.getClass(),
             PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath)),
         ItemNameKeyClass.class);
 
-    if (optAn.isPresent()) {
-      item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
-    }
+    optAn.ifPresent(
+        an -> finalItem.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(an.value())));
 
     // Get leafBeanClass.
     Class<?> leafBeanClass = this.getClass();
@@ -79,9 +80,10 @@ public interface ItemContainer {
           PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
     }
 
-    item.setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
+    finalItem
+        .setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
 
-    return item;
+    return finalItem;
   }
 
   /**
@@ -90,8 +92,7 @@ public interface ItemContainer {
    * <p>It is NOT meant for use from outside.
    *     It's supposed to be used by concrete classes.<br>
    */
-  @Nullable
-  abstract Item[] customizedItems();
+  abstract Item @Nullable [] customizedItems();
 
   /**
    * Creates new item.
@@ -113,18 +114,18 @@ public interface ItemContainer {
    *     so let it be defined here.</p>
    */
   @Nonnull
-  default Item[] mergeItems(@Nullable Item[] items1, @Nullable Item[] items2) {
+  default Item[] mergeItems(Item[] items1, Item[] items2) {
     // Replace null to empty arrays.
-    items1 = items1 == null ? new Item[] {} : items1;
-    items2 = items2 == null ? new Item[] {} : items2;
+    Item[] nonNullItems1 = items1 == null ? new Item[] {} : items1;
+    Item[] nonNullItems2 = items2 == null ? new Item[] {} : items2;
 
-    List<Item> list = new ArrayList<>(Arrays.asList(items1));
+    List<Item> list = new ArrayList<>(Arrays.asList(nonNullItems1));
 
     // Throw an exception if item is duplicated.
     List<String> propertyPath1List =
-        Arrays.asList(items1).stream().map(e -> e.getPropertyPath()).toList();
+        Arrays.asList(nonNullItems1).stream().map(e -> e.getPropertyPath()).toList();
 
-    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getPropertyPath())
+    for (String propertyPath2 : Arrays.asList(nonNullItems2).stream().map(e -> e.getPropertyPath())
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
@@ -132,7 +133,7 @@ public interface ItemContainer {
       }
     }
 
-    list.addAll(Arrays.asList(items2));
+    list.addAll(Arrays.asList(nonNullItems2));
 
     return list.toArray(new Item[list.size()]);
   }

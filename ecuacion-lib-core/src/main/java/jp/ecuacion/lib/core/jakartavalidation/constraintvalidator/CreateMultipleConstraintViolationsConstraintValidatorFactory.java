@@ -28,7 +28,7 @@ public class CreateMultipleConstraintViolationsConstraintValidatorFactory
 
   @Override
   public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
-    T validator = null;
+    T validator;
     try {
       validator = key.getDeclaredConstructor().newInstance();
 

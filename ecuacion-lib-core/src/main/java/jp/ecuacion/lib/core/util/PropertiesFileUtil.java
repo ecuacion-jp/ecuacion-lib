@@ -26,7 +26,6 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VAL
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.el.ELProcessor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -46,6 +45,7 @@ import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectExcep
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods to read {@code *.properties} files.

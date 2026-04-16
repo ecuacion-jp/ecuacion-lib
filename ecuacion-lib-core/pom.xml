@@ -106,6 +106,12 @@
 
 		<!-- other -->
 
+		<!-- jspecify -->
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+		</dependency>
+
 		<!-- apache commons -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>

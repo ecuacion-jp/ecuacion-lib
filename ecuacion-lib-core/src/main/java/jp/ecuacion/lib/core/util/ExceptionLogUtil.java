@@ -16,10 +16,10 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Handles Exception log strings.

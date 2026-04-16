@@ -48,7 +48,7 @@ public class BizLogicAppExceptionTest extends TestTools {
     try {
       @SuppressWarnings("unused")
       BizLogicAppException ex =
-          new BizLogicAppException((String) null, (String[]) null);
+          new BizLogicAppException((String) null);
       fail();
 
     } catch (RequireNonNullException npe) {

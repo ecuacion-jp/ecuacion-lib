@@ -16,12 +16,12 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides Utility methods related to {@code dateTime Api}.

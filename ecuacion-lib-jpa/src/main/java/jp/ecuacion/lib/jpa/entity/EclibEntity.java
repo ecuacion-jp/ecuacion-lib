@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.jpa.entity;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -32,6 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the customized jpa entity.

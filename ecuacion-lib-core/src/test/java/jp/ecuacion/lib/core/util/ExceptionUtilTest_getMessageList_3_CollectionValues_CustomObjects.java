@@ -55,6 +55,7 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
    *     whether the validator is {@code @NotNull} or other validators,
    *     but SingleLayer test is executed just in case.
    */
+  @SuppressWarnings("null")
   @Test
   public void itemNameAndItemNamePathTest_List() {
     String msg = null;
