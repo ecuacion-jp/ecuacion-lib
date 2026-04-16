@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -29,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods for ecuacion library enums.
@@ -66,7 +67,7 @@ public class EnumUtil {
   * @return the enum value
   */
   @Nonnull
-  public static <T> T getEnumFromCode(@RequireNonnull Class<T> enumClass,
+  public static <T> T getEnumFromCode(@RequireNonnull Class<@NonNull T> enumClass,
       @RequireNonnull String code) {
     ObjectsUtil.requireNonNull(enumClass, code);
 
@@ -93,7 +94,7 @@ public class EnumUtil {
    * @param code code
    * @return enum value
    */
-  public static <T> boolean hasEnumFromCode(@RequireNonnull Class<T> enumClass,
+  public static <T> boolean hasEnumFromCode(@RequireNonnull Class<@NonNull T> enumClass,
       @RequireNonnull String code) {
 
     try {
@@ -137,7 +138,7 @@ public class EnumUtil {
    *     "|" is the separator of values.</p>
    */
   @Nonnull
-  public static <T> List<String[]> getListForHtmlSelect(@RequireNonnull Class<T> enumClass,
+  public static <T> List<String[]> getListForHtmlSelect(Class<@NonNull T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
     String[] options = optionsString.split(",");
@@ -210,7 +211,7 @@ public class EnumUtil {
    * @return EnumClassInfo
    */
   @Nonnull
-  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(@RequireNonnull Class<T> enumClass) {
+  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass) {
     return getEnumInfo(enumClass, null);
   }
 
@@ -223,7 +224,8 @@ public class EnumUtil {
    * @return EnumClassInfo 
    */
   @Nonnull
-  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(@RequireNonnull Class<T> enumClass,
+  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(
+      @RequireNonnull Class<@NonNull T> enumClass,
       @Nullable Locale locale) {
     ObjectsUtil.requireNonNull(enumClass);
     locale = locale == null ? Locale.getDefault() : locale;

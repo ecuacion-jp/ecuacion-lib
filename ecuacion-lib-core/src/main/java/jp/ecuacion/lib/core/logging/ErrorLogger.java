@@ -15,13 +15,13 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.annotation.Nullable;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 /**

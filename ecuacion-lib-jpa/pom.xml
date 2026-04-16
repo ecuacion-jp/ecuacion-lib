@@ -103,7 +103,13 @@
 		</dependency>
 		
 		<!-- other -->
-		
+
+		<!-- jspecify -->
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+		</dependency>
+
 		<!-- unit test -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>

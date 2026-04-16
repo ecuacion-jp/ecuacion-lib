@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
@@ -41,6 +40,7 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCrea
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides available utilities for Exceptions including AppExceptions.

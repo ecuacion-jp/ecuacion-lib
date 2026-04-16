@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
@@ -53,9 +52,10 @@ public class MessageUtil {
     Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
     // Set finalDefaultItemNameKeyClass.
-    Optional<ItemNameKeyClass> optAn =
-        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class);
-    String itemNameKeyClassFromAnnotation = optAn.isEmpty() ? null : optAn.get().value();
+
+    String itemNameKeyClassFromAnnotation =
+        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
+            .map(opt -> opt.value()).orElse(null);
 
     return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
         leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
@@ -299,7 +299,8 @@ public class MessageUtil {
       // the case that rootBean is an EclibRecord
       item = ((ItemContainer) rootBean).getItem(collectionPartRemovedPropertyPath);
 
-    } else if (firstChild != null && firstChild instanceof ItemContainer) {
+    } else if (fullPropertyPath1stPart != null && firstChild != null
+        && firstChild instanceof ItemContainer) {
 
       // the case that EclibRecord is stored in form or something
       item = ((ItemContainer) firstChild).getItem(

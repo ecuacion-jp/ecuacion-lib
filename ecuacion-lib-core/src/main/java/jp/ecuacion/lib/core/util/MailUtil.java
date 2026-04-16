@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -40,6 +39,7 @@ import jp.ecuacion.lib.core.util.internal.MailUtilEmailContent;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailServer;
 import jp.ecuacion.lib.core.util.internal.MailUtilEmailSettings;
 import jp.ecuacion.lib.core.util.internal.MailUtilLogOutputStream;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides mail-related utility methods.

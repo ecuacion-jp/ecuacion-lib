@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nullable;
 import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.logging.ErrorLogger;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides multiple-logger-used fixed procedures.

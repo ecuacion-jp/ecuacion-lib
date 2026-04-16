@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util.internal;
 
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.APPLICATION;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES;
-
 import java.util.Locale;
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
@@ -36,6 +35,7 @@ public class PropertiesFileUtilValueGetterTest extends TestTools {
       new PropertiesFileUtilValueGetter(APPLICATION);
   private static final PropertiesFileUtilValueGetter OBJ_MSG =
       new PropertiesFileUtilValueGetter(MESSAGES);
+  @SuppressWarnings("null")
   private static final Class<NoKeyInPropertiesFileException> NO_KEY_EX =
       NoKeyInPropertiesFileException.class;
 

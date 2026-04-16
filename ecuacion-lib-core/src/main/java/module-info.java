@@ -44,6 +44,7 @@ module jp.ecuacion.lib.core {
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
   requires jakarta.el;
+  requires transitive org.jspecify;
 
   opens jp.ecuacion.lib.core.jakartavalidation.constraints to org.hibernate.validator;
 
