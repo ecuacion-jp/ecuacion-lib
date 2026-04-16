@@ -16,10 +16,10 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.validation.ConstraintViolation;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Holds a Jakarta Validations violation.
@@ -42,7 +42,7 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
-  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation) {
+  public <T> ValidationAppException(@NonNull ConstraintViolation<T> violation) {
     this(violation, new MessageParameters());
   }
 
@@ -51,7 +51,7 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
-  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation,
+  public <T> ValidationAppException(@NonNull ConstraintViolation<T> violation,
       MessageParameters messageParameters) {
     super(violation.getMessage());
     this.bean =

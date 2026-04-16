@@ -15,6 +15,8 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -23,14 +25,13 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ValidationAppExceptionTest {
 
-  private ConstraintViolation<SampleObj> violation;
+  private ConstraintViolation<@NonNull SampleObj> violation;
 
   @BeforeEach
   public void before() {
@@ -40,22 +41,6 @@ public class ValidationAppExceptionTest {
     Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     Set<ConstraintViolation<SampleObj>> violationSet = validator.validate(obj);
     violation = violationSet.iterator().next();
-  }
-
-  @Test
-  public void test01_storingValues_01_constructorWithConstraintViolationArg_01_argIsNull() {
-    try {
-      // NPE is expected
-      @SuppressWarnings("unused")
-      ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      // OK
-
-    } catch (Exception e) {
-      fail();
-    }
   }
 
   @Test

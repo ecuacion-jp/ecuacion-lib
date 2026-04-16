@@ -16,8 +16,8 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides an exception that indicates a warning.
@@ -53,8 +53,8 @@ public class AppWarningException extends Exception {
    * @param messageId message ID
    * @param messageArgs message Arguments
    */
-  public AppWarningException(@RequireNonnull String messageId,
-      @RequireNonnull String... messageArgs) {
+  public AppWarningException(@NonNull String messageId,
+      @NonNull String... messageArgs) {
     super();
 
     this.messageId = ObjectsUtil.requireNonNull(messageId);

@@ -16,11 +16,11 @@
 package jp.ecuacion.lib.core.logging;
 
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
@@ -55,7 +55,7 @@ public class ErrorLogger extends EclibLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void info(@RequireNonnull String message) {
+  public void info(@NonNull String message) {
     log(Level.INFO, message);
   }
 
@@ -64,7 +64,7 @@ public class ErrorLogger extends EclibLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void warn(@RequireNonnull String message) {
+  public void warn(@NonNull String message) {
     log(Level.WARN, message);
   }
 
@@ -74,7 +74,7 @@ public class ErrorLogger extends EclibLogger {
    *
    * @param message message to log. Cannot be {@code null}.
    */
-  public void error(@RequireNonnull String message) {
+  public void error(@NonNull String message) {
     log(Level.ERROR, message);
   }
 
@@ -83,7 +83,7 @@ public class ErrorLogger extends EclibLogger {
    * 
    * @param throwable throwable
    */
-  public void logSystemError(@RequireNonnull Throwable throwable) {
+  public void logSystemError(@NonNull Throwable throwable) {
     logSystemError(throwable, null);
   }
 
@@ -93,7 +93,7 @@ public class ErrorLogger extends EclibLogger {
    * @param throwable throwable
    * @param additionalMessage additionalMessage
    */
-  public void logSystemError(@RequireNonnull Throwable throwable,
+  public void logSystemError(@NonNull Throwable throwable,
       @Nullable String additionalMessage) {
 
     ObjectsUtil.requireNonNull(throwable);
