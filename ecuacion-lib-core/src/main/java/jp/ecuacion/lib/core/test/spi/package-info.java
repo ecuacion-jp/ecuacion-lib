@@ -20,4 +20,7 @@
  * <p>Since spi needs to be defined in {@code module-info.java}, 
  *     Classes used for test also have to defined here.</p>
  */
+@NullMarked
 package jp.ecuacion.lib.core.test.spi;
+
+import org.jspecify.annotations.NullMarked;

@@ -15,9 +15,9 @@
  */
 
 /**
- * Provides Service Provider Interfaces.
+ * Provides Abstract Service Provider Implementations. Internal package.
  */
 @NullMarked
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.spi.impl.internal;
 
 import org.jspecify.annotations.NullMarked;

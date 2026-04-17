@@ -15,11 +15,10 @@
  */
 package jp.ecuacion.lib.core.item;
 
-import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Stores item attributes.
@@ -30,40 +29,56 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
 public class Item {
 
   /**
-   * Is the ID string of an item.
+   * ID string of an item.
    * 
-   * <p>When you want a item corresponding to the field 'name', just set 'name' to it.<br>
-   *     It can be 'dept.name' when the field is 'dept' object.</p>
+   * <p>When you want a item corresponding to the field {@code name}, 
+   *     just set {@code name} to it.<br>
+   *     It can be 'dept.name' when the field is in {@code dept} object.</p>
    */
-  @Nonnull
   protected String propertyPath;
 
   /**
-   * Is a class part (= left part) of itemNameKey. (like "acc" from itemNameKey: "acc.name")
+   * A class part (= left part) of {@code itemNameKey}. 
+   * (like "acc" from itemNameKey: "acc.name")
    * 
    * <p>It is set by itemNameKey(String) and only when its argument contains ".".</p>
    * 
    * <p>The itemNameKeyClass obtained from {@code @ItemNameKeyClass} is not stored in it
    *     because the value from {@code @ItemNameKeyClass} is a default value 
    *     when this field is null.</p>
+   * 
+   * <p>It is nullable since {@code itemNameKey(String)} is not mandatory required to be called.</p>
    */
-  protected String itemNameKeyClass;
+  protected @Nullable String itemNameKeyClassSetExplicitly;
 
   /**
-   * Is a field part (= right part) of itemNameKey. (like "name" from itemNameKey: "acc.name")
+   * An {@code itemNameKeyClass} obtained from {@code @ItemNameKeyClass}.
+   * 
+   * <p>It is nullable since {@code @ItemNameKeyClass} is not mandatory required to be called.</p>
    */
-  protected String itemNameKeyField;
+  private @Nullable String itemNameKeyClassFromAnnotation;
 
   /**
-   * Is false when the value should not be open to public (like password).
+   * The class name the field belongs.
+   * 
+   * <p>It is actually nonNull since className always exists,
+   *     but {@code @Nullable} is set because this cannot always be set at constructor.</p>
+   */
+  private @Nullable String itemNameKeyClassFromClassName;
+
+  /**
+   * A field part (= right part) of {@code itemNameKey}. (like "name" from itemNameKey: "acc.name")
+   * 
+   * <p>It is nullable since {@code itemNameKey(String)} is not mandatory required to be called.</p>
+   */
+  protected @Nullable String itemNameKeyField;
+
+  /**
+   * False when the value should not be open to public (like password).
    * 
    * <p>Default value is {@code true}.</p>
    */
   protected boolean showsValue = true;
-
-  private String itemNameKeyClassFromAnnotation;
-
-  private String itemNameKeyClassFromClassName;
 
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
@@ -73,9 +88,8 @@ public class Item {
    * 
    * @param propertyPath itemPropertyPath
    */
-  public Item(@RequireNonEmpty String propertyPath) {
-
-    this.propertyPath = ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(propertyPath));
+  public Item(String propertyPath) {
+    this.propertyPath = propertyPath;
   }
 
   /**
@@ -90,10 +104,10 @@ public class Item {
    * @param itemNameKey itemNameKey
    * @return Item
    */
-  public Item itemNameKey(@RequireNonEmpty String itemNameKey) {
+  public Item itemNameKey(String itemNameKey) {
     ObjectsUtil.requireNonEmpty(itemNameKey);
 
-    this.itemNameKeyClass =
+    this.itemNameKeyClassSetExplicitly =
         itemNameKey.contains(".") ? itemNameKey.substring(0, itemNameKey.lastIndexOf(".")) : null;
     this.itemNameKeyField =
         itemNameKey.contains(".") ? itemNameKey.substring(itemNameKey.lastIndexOf(".") + 1)
@@ -112,7 +126,7 @@ public class Item {
    * @return boolean
    */
   public boolean setsItemNameKeyClassExplicitly() {
-    return itemNameKeyClass != null;
+    return itemNameKeyClassSetExplicitly != null;
   }
 
   /**
@@ -121,9 +135,8 @@ public class Item {
    * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
    *     with {@code defaultItemNameKeyClass = null}.</p>
    */
-  @Nonnull
   public String getItemNameKey() {
-    return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
+    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
         itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
@@ -133,27 +146,14 @@ public class Item {
    * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
    *     with {@code defaultItemNameKeyClass = null}.</p>
    */
-  @Nonnull
   public String getItemNameKey(Object rootBean) {
     String leafBeanPropertyPath =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
     Object leafBean = ReflectionUtil.getLeafBean(rootBean, leafBeanPropertyPath);
 
-    return MessageUtil.getItemNameKey(itemNameKeyClass, rootBean, leafBean.getClass(),
+    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
         leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
   }
-
-  // /**
-  // * Returns {@code itemNameKey} value.
-  // *
-  // * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)}.</p>
-  // */
-  // @Deprecated
-  // @Nonnull
-  // public String getItemNameKey(String defaultItemNameKeyClass) {
-  // return MessageUtil.getItemNameKey(itemNameKeyClass, itemNameKeyClassFromAnnotation,
-  // defaultItemNameKeyClass, itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
-  // }
 
   /**
    * Hides value from error messages and so on.
@@ -177,8 +177,15 @@ public class Item {
     return showsValue;
   }
 
-  public void setItemNameKeyClassFromAnnotation(String itemNameKeyClas) {
-    this.itemNameKeyClassFromAnnotation = itemNameKeyClas;
+  /**
+   * Sets itemNameKeyClass from {@coe @ItemameKeyClass} annotation.
+   * 
+   * @param itemNameKeyClass argument {@code itemNameKeyClass} is @{code @NonNull} 
+   *     but property {@code itemNameKeyClass} is {@code @Nullable} 
+   *     because the method is not always called.
+   */
+  public void setItemNameKeyClassFromAnnotation(String itemNameKeyClass) {
+    this.itemNameKeyClassFromAnnotation = itemNameKeyClass;
   }
 
   public void setItemNameKeyClassFromClassName(String itemNameKeyClassFromClassName) {

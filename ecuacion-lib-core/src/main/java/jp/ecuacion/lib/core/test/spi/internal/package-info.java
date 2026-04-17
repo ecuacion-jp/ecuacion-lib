@@ -15,9 +15,12 @@
  */
 
 /**
- * Provides Service Provider Interfaces.
+ * Provides Service Provider Interfaces for tests. Internal package.
+ * 
+ * <p>Since spi needs to be defined in {@code module-info.java}, 
+ *     Classes used for test also have to defined here.</p>
  */
 @NullMarked
-package jp.ecuacion.lib.core.spi;
+package jp.ecuacion.lib.core.test.spi.internal;
 
 import org.jspecify.annotations.NullMarked;
