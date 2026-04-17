@@ -17,4 +17,7 @@
 /**
  * Provides several kinds of loggers.
  */
+@NullMarked
 package jp.ecuacion.lib.core.logging;
+
+import org.jspecify.annotations.NullMarked;

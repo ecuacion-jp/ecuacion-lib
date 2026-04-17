@@ -47,7 +47,9 @@ public class SummaryLogger extends EclibLogger {
   /** 
    * Logs message with "info" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. 
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
   public void info(String message) {
     log(Level.INFO, message);
@@ -56,7 +58,9 @@ public class SummaryLogger extends EclibLogger {
   /** 
    * Logs message with "warn" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. 
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
   public void warn(String message) {
     log(Level.WARN, message);
@@ -65,7 +69,9 @@ public class SummaryLogger extends EclibLogger {
   /** 
    * Logs message with "error" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
   public void error(String message) {
     log(Level.ERROR, message);

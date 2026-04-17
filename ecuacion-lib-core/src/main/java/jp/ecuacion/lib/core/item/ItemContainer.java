@@ -22,34 +22,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Accepts and stores data from user input, external system, and so on.
  * 
- * <p>It is mainly used when you want to customize an item name and its value 
+ * <p>It is mainly used when you want to customize an item name and its attributes 
  *     in validation messages.</p>
  */
 public interface ItemContainer {
 
   /**
-   * Returns {@code Item} from {@code items[]}. 
+   * Returns {@code Item} from {@code customizedItems[]} or newly created one if not exists. 
    * 
-   * @param propertyPath propertyPath
+   * @param itemPropertyPath itemPropertyPath
    * @return HtmlItem
    */
+  @SuppressWarnings("null")
   @Nonnull
-  public default Item getItem(@RequireNonEmpty String propertyPath) {
-    String noIndexPropertyPath = PropertyPathUtil.removeIndex(propertyPath);
+  public default Item getItem(String itemPropertyPath) {
+    @NonNull
+    String noIndexPropertyPath = PropertyPathUtil.removeIndex(itemPropertyPath);
 
-    Map<String, Item> map =
+    Map<@NonNull String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
             .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
@@ -62,7 +62,7 @@ public interface ItemContainer {
     @NonNull
     Optional<@NonNull ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
         ReflectionUtil.getClass(this.getClass(),
-            PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath)),
+            PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath)),
         ItemNameKeyClass.class);
 
     optAn.ifPresent(
@@ -70,14 +70,14 @@ public interface ItemContainer {
 
     // Get leafBeanClass.
     Class<?> leafBeanClass = this.getClass();
-    if (propertyPath.contains(".")) {
+    if (itemPropertyPath.contains(".")) {
       // Handle collections and arrays
-      if (propertyPath.endsWith("<list element>")) {
-        propertyPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+      if (itemPropertyPath.endsWith("<list element>")) {
+        itemPropertyPath = itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
       }
 
       leafBeanClass = ReflectionUtil.getClass(this.getClass(),
-          PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
+          PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath));
     }
 
     finalItem
@@ -92,7 +92,7 @@ public interface ItemContainer {
    * <p>It is NOT meant for use from outside.
    *     It's supposed to be used by concrete classes.<br>
    */
-  abstract Item @Nullable [] customizedItems();
+  abstract @NonNull Item[] customizedItems();
 
   /**
    * Creates new item.
@@ -113,19 +113,16 @@ public interface ItemContainer {
    *     but it's frequently used in extended classes and not used outside 
    *     so let it be defined here.</p>
    */
-  @Nonnull
+  @SuppressWarnings("null")
   default Item[] mergeItems(Item[] items1, Item[] items2) {
-    // Replace null to empty arrays.
-    Item[] nonNullItems1 = items1 == null ? new Item[] {} : items1;
-    Item[] nonNullItems2 = items2 == null ? new Item[] {} : items2;
 
-    List<Item> list = new ArrayList<>(Arrays.asList(nonNullItems1));
+    List<Item> list = new ArrayList<>(Arrays.asList(items1));
 
     // Throw an exception if item is duplicated.
-    List<String> propertyPath1List =
-        Arrays.asList(nonNullItems1).stream().map(e -> e.getPropertyPath()).toList();
+    List<@NonNull String> propertyPath1List =
+        Arrays.asList(items1).stream().map(e -> e.getPropertyPath()).toList();
 
-    for (String propertyPath2 : Arrays.asList(nonNullItems2).stream().map(e -> e.getPropertyPath())
+    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getPropertyPath())
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
@@ -133,7 +130,7 @@ public interface ItemContainer {
       }
     }
 
-    list.addAll(Arrays.asList(nonNullItems2));
+    list.addAll(Arrays.asList(items2));
 
     return list.toArray(new Item[list.size()]);
   }

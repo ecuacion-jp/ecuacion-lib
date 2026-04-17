@@ -20,7 +20,7 @@ import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 /**
@@ -38,8 +38,8 @@ public class DetailLogger extends EclibLogger {
    *
    * @param object caller object
    */
-  public DetailLogger(@NonNull Object object) {
-    this(ObjectsUtil.requireNonNull(object).getClass());
+  public DetailLogger(Object object) {
+    this(object.getClass());
   }
 
   /** 
@@ -48,7 +48,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param cls caller class.
    */
-  public DetailLogger(@NonNull Class<?> cls) {
+  public DetailLogger(Class<?> cls) {
     super(ObjectsUtil.requireNonNull(cls));
   }
 
@@ -57,7 +57,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param message message to log
    */
-  public void trace(@NonNull String message) {
+  public void trace(@Nullable String message) {
     log(Level.TRACE, message);
   }
 
@@ -66,7 +66,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param message message to log
    */
-  public void debug(@NonNull String message) {
+  public void debug(@Nullable String message) {
     log(Level.DEBUG, message);
   }
 
@@ -75,7 +75,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param message message to log
    */
-  public void info(@NonNull String message) {
+  public void info(@Nullable String message) {
     log(Level.INFO, message);
   }
 
@@ -84,7 +84,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param message message to log
    */
-  public void warn(@NonNull String message) {
+  public void warn(@Nullable String message) {
     log(Level.WARN, message);
   }
 
@@ -93,7 +93,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param th exception to log
    */
-  public void warn(@NonNull Throwable th) {
+  public void warn(@Nullable Throwable th) {
     ObjectsUtil.requireNonNull(th);
     log(Level.WARN, th);
   }
@@ -103,7 +103,7 @@ public class DetailLogger extends EclibLogger {
    *
    * @param message message to log
    */
-  public void error(@NonNull String message) {
+  public void error(@Nullable String message) {
     log(Level.ERROR, message);
   }
 
@@ -112,7 +112,7 @@ public class DetailLogger extends EclibLogger {
    * 
    * @param throwable throwable
    */
-  public void error(@NonNull Throwable throwable) {
+  public void error(@Nullable Throwable throwable) {
     error(throwable, ExceptionUtil.SYSTEM_ERROR_OCCURED_SIGN);
   }
 
@@ -122,7 +122,7 @@ public class DetailLogger extends EclibLogger {
    * @param throwable throwable
    * @param additionalMessage additionalMessage
    */
-  public void error(@NonNull Throwable throwable, String additionalMessage) {
+  public void error(@Nullable Throwable throwable, @Nullable String additionalMessage) {
     // Output to detailLog
     log(Level.ERROR, throwable, ExceptionUtil.SYSTEM_ERROR_OCCURED_SIGN, additionalMessage);
   }
@@ -133,29 +133,38 @@ public class DetailLogger extends EclibLogger {
    * @param logLevel logLevel
    * @param throwable throwable
    */
-  private void log(@NonNull Level logLevel, @NonNull Throwable throwable) {
-    log(logLevel, throwable, new @NonNull String[] {});
+  private void log(Level logLevel, @Nullable Throwable throwable) {
+    log(logLevel, throwable, new @Nullable String[] {});
   }
 
   /** 
    * Logs message and throwable with logLevel.
    * 
-   * @param additionalMessage message. Cannot be {@code null}.
    * @param logLevel logLevel. Cannot be {@code null}.
-   * @param additionalMessage additionalMessage
+   * @param throwable throwable. It can be {@code null}. 
+   *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
+   * @param additionalMessage message. Elements can be {@code null}. 
+   *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
    */
-  private void log(@NonNull Level logLevel, @NonNull Throwable throwable,
-      String... additionalMessages) {
-    ObjectsUtil.requireNonNull(logLevel, throwable);
+  private void log(Level logLevel, @Nullable Throwable throwable,
+      @Nullable String... additionalMessages) {
+
+    String throwableMessage = null;
+    if (throwable == null) {
+      throwableMessage = NULL_THROWABLE_MESSAGE;
+
+    } else {
+      StringBuilder sb = new StringBuilder();
+      ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null, null);
+      throwableMessage = sb.toString();
+    }
+
+    log(logLevel, throwableMessage);
 
     for (String additionalMessage : additionalMessages) {
       if (!StringUtils.isEmpty(additionalMessage)) {
         log(logLevel, additionalMessage);
       }
     }
-
-    StringBuilder sb = new StringBuilder();
-    ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null, null);
-    log(logLevel, sb.toString());
   }
 }

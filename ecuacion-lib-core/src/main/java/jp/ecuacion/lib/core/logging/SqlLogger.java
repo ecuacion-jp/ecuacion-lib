@@ -40,7 +40,9 @@ public class SqlLogger extends EclibLogger {
   /** 
    * Logs message with "trace" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
   public void trace(String message) {
     log(Level.TRACE, message);
@@ -49,7 +51,9 @@ public class SqlLogger extends EclibLogger {
   /** 
    * Logs message with "debug" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
   public void debug(String message) {
     log(Level.DEBUG, message);
