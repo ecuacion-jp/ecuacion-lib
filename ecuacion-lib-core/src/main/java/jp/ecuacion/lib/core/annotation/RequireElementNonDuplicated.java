@@ -21,14 +21,17 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws {@code RequireElementNonEmptyException}
- *     when each element of annotated arrays or collections is empty. (= {@code null or blank("")})
+ * Designates that the method throws RequireElementsNonDuplicatedException 
+ *     when elements in an annotated array or collection are duplicated. (= null or blank(""))
  * 
- * <p>This annnotation does nothing. 
+ * <p>This annotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
+ *
+ * @see jakarta.annotation.Nonnull
+ * @see java.util.Objects
  */
 @Documented
 @Retention(RUNTIME)
-public @interface RequireElementNonempty {
+public @interface RequireElementNonDuplicated {
 
 }

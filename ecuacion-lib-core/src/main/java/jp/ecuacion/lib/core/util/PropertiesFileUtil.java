@@ -45,6 +45,7 @@ import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectExcep
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -352,8 +353,8 @@ public class PropertiesFileUtil {
    * @return the message corresponding to the message ID
    */
   @Nonnull
-  public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
+  public static @NonNull String getMessage(@Nullable Locale locale, @NonNull String key,
+      @NonNull Arg @NonNull [] args) {
     return getMessage(locale, key, getStringsFromArgs(locale, args));
   }
 
@@ -932,7 +933,7 @@ public class PropertiesFileUtil {
      * @param argString normal string
      * @return Arg
      */
-    public static Arg string(String argString) {
+    public static @NonNull Arg string(String argString) {
       return new Arg(ArgKind.STRING, argString);
     }
 

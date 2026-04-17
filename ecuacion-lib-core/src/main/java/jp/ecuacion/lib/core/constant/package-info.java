@@ -17,4 +17,7 @@
 /**
  * Provides constants.
  */
+@NullMarked
 package jp.ecuacion.lib.core.constant;
+
+import org.jspecify.annotations.NullMarked;

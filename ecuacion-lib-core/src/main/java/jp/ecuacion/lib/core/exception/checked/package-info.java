@@ -16,5 +16,10 @@
 
 /**
  * Provides Exceptions.
+ * 
+ * <p></p>
  */
+@NullMarked
 package jp.ecuacion.lib.core.exception.checked;
+
+import org.jspecify.annotations.NullMarked;

@@ -15,63 +15,59 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Is used for buziness logic exceptions.
- * 
+ * Is used for business logic exceptions.
+ *
  * <p>Messages are designated by messageId, which is defined in messages[_xxx].properties.<br>
  */
 public class BizLogicAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  private @NonNull String messageId;
+  /**
+   * message ID.
+   *
+   * <p>It cannot be {@code null} because business logic exceptions with no message ID
+   *     cannot display error messages to users.</p>
+   */
+  private String messageId;
 
+  /**
+   * message Arguments.
+   *
+   * <p>{@code null} is not allowed for the value of each element
+   *     because if you want to hold {@code null}, put it in {@code Arg}, 
+   *     {@code Arg} doesn't have to be {@code null}.
+   *     And an array itself cannot be {@code null}.</p>
+   */
   private @NonNull Arg[] messageArgs;
 
-  private @Nonnull String[] itemPropertyPaths;
-
   /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   * An array of item propertyPath.
    * 
-   * @param messageId message ID
-   * @param messageArgs message Arguments
+   * <p>Elements of the array cannot be {@code null} because they are usually
+   *     set with direct string value (like "name") and accepting {@code null}
+   *     means nothing.<br>
+   *     The array itself also cannot be {@code null} because if you want to 
+   *     express there's no {@code itemPropertyPath}, just put {@code new String[] {}}.</p>
    */
-  public BizLogicAppException(@NonNull String messageId,
-      @NonNull String... messageArgs) {
-    this(null, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPath}s,
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param itemPropertyPaths the itemPropertyPaths related to the exception
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public BizLogicAppException(String[] itemPropertyPaths,
-      @NonNull String messageId, @NonNull String... messageArgs) {
-
-    this(itemPropertyPaths, messageId, Arrays.asList(ObjectsUtil.requireNonNull(messageArgs))
-        .stream().map(arg -> Arg.string(arg))
-        .toList().toArray(new @NonNull Arg[messageArgs.length]));
-  }
+  private @NonNull String[] itemPropertyPaths;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
-   * @param messageArgs message Arguments
+   * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  public BizLogicAppException(@NonNull String messageId, @NonNull Arg[] messageArgs) {
-    this(null, messageId, messageArgs);
+  public BizLogicAppException(String messageId, @Nullable String... messageArgs) {
+    this(new String[] {}, messageId, messageArgs);
   }
 
   /**
@@ -80,13 +76,39 @@ public class BizLogicAppException extends SingleAppException {
    *
    * @param itemPropertyPaths the itemPropertyPaths related to the exception
    * @param messageId message ID
-   * @param messageArgs message Arguments
+   * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  public BizLogicAppException(String[] itemPropertyPaths,
-      @NonNull String messageId, @NonNull Arg[] messageArgs) {
-    this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
+  @SuppressWarnings("null")
+  public BizLogicAppException(String[] itemPropertyPaths, String messageId,
+      @Nullable String... messageArgs) {
+
+    this(itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
+        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+  }
+
+  /**
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   *
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public BizLogicAppException(String messageId, @NonNull Arg[] messageArgs) {
+    this(new @NonNull String[] {}, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param itemPropertyPaths the itemPropertyPaths related to the exception
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public BizLogicAppException(@NonNull String[] itemPropertyPaths, String messageId,
+      @NonNull Arg[] messageArgs) {
+    this.itemPropertyPaths = itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
-    this.messageArgs = messageArgs == null ? new @NonNull Arg[] {} : messageArgs;
+    this.messageArgs = messageArgs;
   }
 
   @Override
@@ -95,32 +117,31 @@ public class BizLogicAppException extends SingleAppException {
   }
 
   @Override
-  public @Nonnull String[] getItemPropertyPaths() {
+  public @NonNull String[] getItemPropertyPaths() {
     return itemPropertyPaths;
   }
 
   /**
-   * Gets messageId. 
-   * 
+   * Gets messageId.
+   *
    * @return messageId
    */
-  public @NonNull String getMessageId() {
+  public String getMessageId() {
     return messageId;
   }
 
   /**
-   * Gets messageArgs. 
-   * 
+   * Gets messageArgs.
+   *
    * @return messageArgs
    */
-  @Nonnull
-  public Arg[] getMessageArgs() {
-    return messageArgs == null ? new Arg[] {} : messageArgs;
+  public @NonNull Arg[] getMessageArgs() {
+    return messageArgs;
   }
 
   /**
    * Provides {@link Exception#initCause(Throwable)} with method chain.
-   * 
+   *
    * @param th throwable
    * @return BizLogicAppException for method chain
    */

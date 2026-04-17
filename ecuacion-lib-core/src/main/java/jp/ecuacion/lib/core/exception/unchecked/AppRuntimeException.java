@@ -15,8 +15,6 @@
  */
 package jp.ecuacion.lib.core.exception.unchecked;
 
-import jakarta.annotation.Nonnull;
-import java.util.Objects;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 
 /**
@@ -24,9 +22,9 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
  *  in overridden and no "throws AppException" signature method.
  *  
  *  <p>After thrown, 
- *  caught and processed in library is exactly the same as {@code SingleAppException}.</p>
+ *  caught and processed in library is exactly the same as {@code AppException}.</p>
  */
-public class UncheckedAppException extends RuntimeException {
+public class AppRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   /**
@@ -34,8 +32,7 @@ public class UncheckedAppException extends RuntimeException {
    * 
    * @param ex appException
    */
-  public UncheckedAppException(@Nonnull AppException ex) {
+  public AppRuntimeException(AppException ex) {
     super(ex);
-    Objects.requireNonNull(ex);
   }
 }

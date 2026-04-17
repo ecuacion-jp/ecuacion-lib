@@ -20,11 +20,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import jp.ecuacion.lib.core.annotation.RequireElementNonempty;
-import jp.ecuacion.lib.core.annotation.RequireElementNonnull;
-import jp.ecuacion.lib.core.annotation.RequireNonempty;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.annotation.RequireSizeNonzero;
+import jp.ecuacion.lib.core.annotation.RequireElementNonEmpty;
+import jp.ecuacion.lib.core.annotation.RequireElementNonNull;
+import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
+import jp.ecuacion.lib.core.annotation.RequireSizeNonZero;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +92,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static String requireNonEmpty(@RequireNonempty String string) {
+  public static String requireNonEmpty(@RequireNonEmpty String string) {
 
     if (string == null || string.equals("")) {
       throw new RequireNonEmptyException();
@@ -111,8 +110,8 @@ public class ObjectsUtil {
    * @param strings Any strings
    */
   @Nonnull
-  public static void requireNonEmpty(@RequireNonempty String string1,
-      @RequireNonempty String string2, @RequireNonempty String... strings) {
+  public static void requireNonEmpty(@RequireNonEmpty String string1,
+      @RequireNonEmpty String string2, @RequireNonEmpty String... strings) {
 
     String[] allStrings = ArrayUtils.addAll(strings, string1, string2);
 
@@ -131,7 +130,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] requireSizeNonZero(@RequireSizeNonzero T[] objects) {
+  public static <T> T[] requireSizeNonZero(@RequireSizeNonZero T[] objects) {
     requireSizeNonZero(Arrays.asList(objects));
 
     return objects;
@@ -147,7 +146,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> Collection<T> requireSizeNonZero(@RequireSizeNonzero Collection<T> collection) {
+  public static <T> Collection<T> requireSizeNonZero(@RequireSizeNonZero Collection<T> collection) {
 
     if (collection != null && collection.size() == 0) {
       throw new RequireSizeNonZeroException();
@@ -202,7 +201,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static String[] requireElementNonEmpty(@RequireElementNonempty String[] strings) {
+  public static String[] requireElementNonEmpty(@RequireElementNonEmpty String[] strings) {
 
     if (strings != null) {
       for (String string : strings) {
@@ -224,7 +223,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static Collection<String> requireElementNonEmpty(
-      @RequireElementNonempty Collection<String> collection) {
+      @RequireElementNonEmpty Collection<String> collection) {
     requireElementNonEmpty(collection.toArray(new String[collection.size()]));
 
     return collection;
@@ -239,7 +238,7 @@ public class ObjectsUtil {
    * @return the argument
    */
   @Nonnull
-  public static <T> T[] requireElementsNonDuplicated(@RequireElementNonnull T[] objects) {
+  public static <T> T[] requireElementsNonDuplicated(@RequireElementNonNull T[] objects) {
     requireElementsNonDuplicated(Arrays.asList(objects));
 
     return objects;
@@ -255,7 +254,7 @@ public class ObjectsUtil {
    */
   @Nonnull
   public static <T> Collection<T> requireElementsNonDuplicated(
-      @RequireElementNonnull Collection<T> collection) {
+      @RequireElementNonNull Collection<T> collection) {
 
     Set<T> set = new HashSet<>();
     if (collection != null) {
@@ -279,7 +278,7 @@ public class ObjectsUtil {
     /**
      * Construct a new instance.
      */
-    public ObjectsUtilException(String message) {
+    public ObjectsUtilException(@NonNull String message) {
       super(message);
     }
   }

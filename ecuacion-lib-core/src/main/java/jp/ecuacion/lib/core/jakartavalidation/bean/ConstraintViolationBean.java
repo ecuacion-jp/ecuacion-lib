@@ -35,6 +35,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 /** 
  * Stores {@code ConstraintViolation} info.
@@ -137,7 +138,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
    * 
    * @param cv ConstraintViolation
    */
-  public static <U> ConstraintViolationBean<U> createConstraintViolationBean(
+  public static <U> @NonNull ConstraintViolationBean<U> createConstraintViolationBean(
       ConstraintViolation<U> cv) {
 
     boolean isParamNull = cv.getConstraintDescriptor().getAttributes() == null;

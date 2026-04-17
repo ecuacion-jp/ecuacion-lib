@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.item;
 
 import jakarta.annotation.Nonnull;
-import jp.ecuacion.lib.core.annotation.RequireNonempty;
+import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -73,7 +73,7 @@ public class Item {
    * 
    * @param propertyPath itemPropertyPath
    */
-  public Item(@RequireNonempty String propertyPath) {
+  public Item(@RequireNonEmpty String propertyPath) {
 
     this.propertyPath = ObjectsUtil.requireNonEmpty(ObjectsUtil.requireNonEmpty(propertyPath));
   }
@@ -90,7 +90,7 @@ public class Item {
    * @param itemNameKey itemNameKey
    * @return Item
    */
-  public Item itemNameKey(@RequireNonempty String itemNameKey) {
+  public Item itemNameKey(@RequireNonEmpty String itemNameKey) {
     ObjectsUtil.requireNonEmpty(itemNameKey);
 
     this.itemNameKeyClass =

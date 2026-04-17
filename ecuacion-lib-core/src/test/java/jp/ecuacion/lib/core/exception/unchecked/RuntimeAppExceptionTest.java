@@ -26,7 +26,7 @@ public class RuntimeAppExceptionTest extends TestTools {
   public void test01_constructor_01_argIsNull() {
     try {
       @SuppressWarnings("unused")
-      UncheckedAppException ex = new UncheckedAppException(null);
+      AppRuntimeException ex = new AppRuntimeException(null);
       fail();
 
     } catch (NullPointerException npe) {
@@ -37,7 +37,7 @@ public class RuntimeAppExceptionTest extends TestTools {
   @Test
   public void test01_constructor_02_argIsNotNull() {
     AppException appEx = new BizLogicAppException("MSG1");
-    UncheckedAppException ex = new UncheckedAppException(appEx);
+    AppRuntimeException ex = new AppRuntimeException(appEx);
 
     assertEquals(ex.getCause(), appEx);
   }

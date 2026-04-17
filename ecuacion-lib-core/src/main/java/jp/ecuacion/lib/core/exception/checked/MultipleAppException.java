@@ -18,37 +18,55 @@ package jp.ecuacion.lib.core.exception.checked;
 import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import jp.ecuacion.lib.core.annotation.RequireSizeNonZero;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Conveys multiple SingleAppExceptions at once.
  * 
  * <p>This has a list of {@code SingleAppException} inside 
  * and by throwing {@code MultipleAppException} multiple
- * error messages can be shown on screen in web apps.</p>
+ * error messages can be shown on screen in web apps at once.</p>
  */
 public class MultipleAppException extends AppException {
   private static final long serialVersionUID = 1L;
 
-  private List<SingleAppException> exceptionList;
+  /**
+   * List of {@code SingleAppException}.
+   * 
+   * <p>Each element is {@code @NonNull} 
+   *     because all the elements are {@code null} there's no need to throw an exception.</p>
+   */
+  private List<@NonNull SingleAppException> exceptionList;
 
   /**
    * Constructs a new instance with a list of {@code AppException}.
    * 
    * @param list a list of {@code AppException}. {@code size()} cannot be zero. 
    */
-  public MultipleAppException(@Nonnull List<? extends SingleAppException> list) {
+  public MultipleAppException(@RequireSizeNonZero List<@NonNull ? extends AppException> list) {
     super();
 
-    ObjectsUtil.requireNonNull(list);
     ObjectsUtil.requireSizeNonZero(list);
 
-    // Although this method's parameter type is AppException (which allows MultipleAppException),
-    // MultipleAppException is decomposed because it is stored internally as a List of
-    // SingleAppException.
-    List<SingleAppException> internalList = new ArrayList<>();
-    for (SingleAppException ae : list) {
-      internalList.add((SingleAppException) ae);
+    // Although this method's parameter type is {@code AppException}
+    // (which allows {@code MultipleAppException}), {@code MultipleAppException} is decomposed
+    // into a list of {@code SingleAppException}.
+    List<@NonNull SingleAppException> internalList = new ArrayList<>();
+
+    for (@NonNull AppException ae : list) {
+      if (ae instanceof SingleAppException) {
+        internalList.add((@NonNull SingleAppException) ae);
+
+      } else if (ae instanceof MultipleAppException) {
+        internalList.addAll(((MultipleAppException) ae).getList());
+
+      } else {
+        // In the case that {@code AppException} itself is passed as an element of the list.
+        throw new RuntimeException(
+            "An unassumed exception is thrown. Exception: " + ae.getClass().getCanonicalName());
+      }
     }
 
     this.exceptionList = internalList;
@@ -59,8 +77,8 @@ public class MultipleAppException extends AppException {
    * 
    * @param ex {@code NultipleAppException}
    */
-  public MultipleAppException(@Nonnull MultipleAppException ex) {
-    List<SingleAppException> internalList = new ArrayList<>();
+  public MultipleAppException(MultipleAppException ex) {
+    List<@NonNull SingleAppException> internalList = new ArrayList<>();
     internalList.addAll(ex.getList());
 
     this.exceptionList = internalList;
@@ -69,6 +87,7 @@ public class MultipleAppException extends AppException {
   /**
    * Returns list of messages holding exceptions have with default locale.
    */
+  @SuppressWarnings("null")
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();
@@ -85,7 +104,7 @@ public class MultipleAppException extends AppException {
    * @return exceptionList
    */
   @Nonnull
-  public List<SingleAppException> getList() {
+  public List<@NonNull SingleAppException> getList() {
     return new ArrayList<>(exceptionList);
   }
 }
