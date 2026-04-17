@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.annotation.RequireNonempty;
+import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
@@ -46,7 +46,7 @@ public interface ItemContainer {
    * @return HtmlItem
    */
   @Nonnull
-  public default Item getItem(@RequireNonempty String propertyPath) {
+  public default Item getItem(@RequireNonEmpty String propertyPath) {
     String noIndexPropertyPath = PropertyPathUtil.removeIndex(propertyPath);
 
     Map<String, Item> map =

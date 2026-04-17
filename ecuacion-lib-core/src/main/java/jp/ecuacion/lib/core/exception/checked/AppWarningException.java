@@ -15,9 +15,8 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides an exception that indicates a warning.
@@ -29,7 +28,7 @@ import org.jspecify.annotations.NonNull;
  *     because {@code AppException} means an error occurred in a business logic 
  *     but {@code AppWarningException} doesn't mean it.<br>
  *     Localized message is needed for this, 
- *     so the class is the same constructure as {@code BizLogicAppException}.</p>
+ *     so the class is the same structure as {@code BizLogicAppException}.</p>
  * 
  * <p>{@code MultipleAppException} for warning does not seem to be needed so it does not exist.</p>
  */
@@ -38,23 +37,29 @@ public class AppWarningException extends Exception {
 
   /**
    * message ID.
+   * 
+   * <p>It cannot be {@code null} because warning popup windows with no message means 
+   *     nothing.</p>
    */
   protected String messageId;
 
   /**
    * message Arguments.
+   * 
+   * <p>{@code null} is allowed for the value of each element 
+   *     because messageArgs can be the user-input value and can be {@code null}.<br>
+   *     But an array itself cannot be {@code null}.</p>
    */
-  protected String[] messageArgs;
+  protected @Nullable String [] messageArgs;
 
   /**
    * Constructs a new instance 
-   *     with {@code itemPropertyPaths}, {@code messageId} and {@code messageArgs}.
+   *     with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
-   * @param messageArgs message Arguments
+   * @param messageArgs message Arguments. It's {code @Nullable}. See {@code messageArgs}.
    */
-  public AppWarningException(@NonNull String messageId,
-      @NonNull String... messageArgs) {
+  public AppWarningException(String messageId, @Nullable String... messageArgs) {
     super();
 
     this.messageId = ObjectsUtil.requireNonNull(messageId);
@@ -66,7 +71,7 @@ public class AppWarningException extends Exception {
    * 
    * @return message ID
    */
-  public @Nonnull String getMessageId() {
+  public String getMessageId() {
     return messageId;
   }
 
@@ -75,7 +80,7 @@ public class AppWarningException extends Exception {
    * 
    * @return message arguments
    */
-  public @Nonnull String[] getMessageArgs() {
+  public @Nullable String[] getMessageArgs() {
     return messageArgs.clone();
   }
 }

@@ -17,4 +17,7 @@
 /**
  * Provides several RuntimeExceptions.
  */
+@NullMarked
 package jp.ecuacion.lib.core.exception.unchecked;
+
+import org.jspecify.annotations.NullMarked;

@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides {@code ConstraintViolationException} with meta data.
@@ -35,9 +36,12 @@ public class ConstraintViolationExceptionWithParameters extends ConstraintViolat
 
   /**
    * Construct a new instance.
+   * 
+   * @param constraintViolations can be {@code null} and its elements also can be {@code null}
+   *     because the variable is stored in the parent class, the standard jakarta EE class.
    */
   public ConstraintViolationExceptionWithParameters(
-      Set<? extends ConstraintViolation<?>> constraintViolations,
+      @Nullable Set<? extends ConstraintViolation<?>> constraintViolations,
       MessageParameters messageParameters) {
     super(constraintViolations);
 

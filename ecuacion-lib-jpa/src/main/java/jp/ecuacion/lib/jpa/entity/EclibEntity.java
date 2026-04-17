@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -46,7 +46,7 @@ public abstract class EclibEntity {
    * @return value. May be null when the value is null.
    */
   @Nullable
-  public Object getValue(@RequireNonnull String fieldName) {
+  public Object getValue(@NonNull String fieldName) {
     try {
       Method m = this.getClass().getMethod("get" + StringUtils.capitalize(fieldName));
       Object value = m.invoke(this);
@@ -69,6 +69,7 @@ public abstract class EclibEntity {
     Field[] fields = this.getClass().getDeclaredFields();
 
     for (Field field : fields) {
+      @SuppressWarnings("null")
       Annotation annotation = field.getAnnotation(Id.class);
       if (annotation != null) {
         return Objects.requireNonNull(field.getName());
@@ -91,6 +92,7 @@ public abstract class EclibEntity {
     Set<String> rtnSet = new HashSet<>();
 
     for (Field field : fields) {
+      @SuppressWarnings("null")
       Annotation annotation = field.getAnnotation(GeneratedValue.class);
       if (annotation != null) {
         rtnSet.add(field.getName());
@@ -106,7 +108,7 @@ public abstract class EclibEntity {
    * @param fieldName fieldName.
    * @return field is auto-increment
    */
-  public boolean isAutoIncrement(@RequireNonnull String fieldName) {
+  public boolean isAutoIncrement(@NonNull String fieldName) {
     return getAutoIncrementFieldNameSet().contains(fieldName);
   }
 
@@ -120,6 +122,7 @@ public abstract class EclibEntity {
   public Set<List<String>> getSetOfUniqueConstraintFieldList() {
     Set<List<String>> rtnSet = new HashSet<>();
 
+    @SuppressWarnings("null")
     Table table = this.getClass().getAnnotation(Table.class);
     UniqueConstraint[] ucs = table.uniqueConstraints();
 
