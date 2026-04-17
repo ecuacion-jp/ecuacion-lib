@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.annotation.RequireSizeNonZero;
@@ -103,7 +102,6 @@ public class MultipleAppException extends AppException {
    * 
    * @return exceptionList
    */
-  @Nonnull
   public List<@NonNull SingleAppException> getList() {
     return new ArrayList<>(exceptionList);
   }

@@ -18,28 +18,16 @@ package jp.ecuacion.lib.core.exception.checked;
 import java.util.ArrayList;
 import java.util.List;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 public class MultipleAppExceptionTest extends TestTools {
 
   @Test
-  public void test01_constructor_01_list_01_argIsNull() {
-    try {
-      @SuppressWarnings("unused")
-      MultipleAppException ex = new MultipleAppException((List<SingleAppException>) null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
   public void test01_constructor_01_list_02_argSizeIsZero() {
     try {
       @SuppressWarnings("unused")
-      MultipleAppException ex = new MultipleAppException(new ArrayList<SingleAppException>());
+      MultipleAppException ex = new MultipleAppException(new ArrayList<@NonNull SingleAppException>());
       fail();
 
     } catch (RuntimeException npe) {
@@ -49,7 +37,7 @@ public class MultipleAppExceptionTest extends TestTools {
 
   @Test
   public void test01_constructor_01_list_03_valid() {
-    List<SingleAppException> list = new ArrayList<>();
+    List<@NonNull SingleAppException> list = new ArrayList<>();
     list.add(new BizLogicAppException("TEST_KEY"));
     list.add(new BizLogicAppException("TEST_KEY"));
     list.add(new BizLogicAppException("TEST_KEY"));

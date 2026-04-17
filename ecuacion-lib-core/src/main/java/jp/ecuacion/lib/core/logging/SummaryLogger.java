@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.event.Level;
 
 /**
