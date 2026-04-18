@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.annotation;
+package jp.ecuacion.lib.core.annotation;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -23,8 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * THIS IS NOT A VALIDTOR. 
- *     This specifies {@code ItemNameKeyClass} on validated by {@code ValidationUtil}.
+ * Specifies {@code ItemNameKeyClass} on validated by {@code ValidationUtil}.
  * 
  * <p>When {@code ValidationUtil} validates some object, some itemNameKey is set by default.
  *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
@@ -37,7 +36,7 @@ import java.lang.annotation.Target;
 public @interface ItemNameKeyClass {
 
   /**
-   * Specifies ItemNameKeyClass.
+   * Specifies {@code ItemNameKeyClass}.
    */
   String value();
 }

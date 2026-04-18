@@ -23,7 +23,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constraints.LessThanOrEqualTo.LessThanOrEqualToList;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 
@@ -34,7 +33,6 @@ import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
  * <p>It returns valid when the value of {@code propertyPath} 
  *     or {@code basisPropertyPath} is {@code null} or blank string.</p>
  */
-@PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(LessThanOrEqualToList.class)

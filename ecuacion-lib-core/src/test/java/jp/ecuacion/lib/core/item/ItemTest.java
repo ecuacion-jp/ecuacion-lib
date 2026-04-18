@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.record.item;
+package jp.ecuacion.lib.core.item;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,13 +26,6 @@ public class ItemTest {
   public void constructorTest() {
 
     // itemPropertyPath is empty
-    try {
-      new Item(null);
-      assertFalse(true);
-    } catch (RequireNonEmptyException ex) {
-      // okay
-    }
-
     try {
       new Item("");
       assertFalse(true);

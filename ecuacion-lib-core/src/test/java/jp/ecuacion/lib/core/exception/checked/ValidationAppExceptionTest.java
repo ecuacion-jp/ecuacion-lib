@@ -25,14 +25,19 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+@NullUnmarked
 public class ValidationAppExceptionTest {
 
-  private ConstraintViolation<@NonNull SampleObj> violation;
+  // Initialization to fix @NonNull warnings
+  private ConstraintViolation<SampleObj> violation =
+      new ConstraintViolationBean<>("", new SampleObj(), null, "", "");
 
+  @SuppressWarnings("null")
   @BeforeEach
   public void before() {
     Locale.setDefault(Locale.JAPANESE);
@@ -81,18 +86,20 @@ public class ValidationAppExceptionTest {
 
   @Test
   public void test12_obtainingToString() {
-    String str = "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
-        + "rootClassName:jp.ecuacion.lib.core.exception.checked."
-        + "ValidationAppExceptionTest$SampleObj\n"
-        + "leafClassName:jp.ecuacion.lib.core.exception.checked."
-        + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
+    String str =
+        "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
+            + "rootClassName:jp.ecuacion.lib.core.exception.checked."
+            + "ValidationAppExceptionTest$SampleObj\n"
+            + "leafClassName:jp.ecuacion.lib.core.exception.checked."
+            + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
     ValidationAppException ex = new ValidationAppException(violation);
     assertEquals(str, ex.getConstraintViolationBean().toString());
   }
 
+  @NullUnmarked
   public static class SampleObj {
     @NotNull
-    public String str1;
+    public @Nullable String str1;
   }
 
   class SampleWithParamObj {

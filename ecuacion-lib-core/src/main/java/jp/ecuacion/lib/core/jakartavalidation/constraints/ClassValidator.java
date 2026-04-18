@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -38,19 +39,25 @@ import java.util.List;
 public abstract class ClassValidator<A extends Annotation, T>
     extends MultiplePropertyPathsValidator<A, T> implements ConstraintValidator<A, T> {
 
-  protected Object[] valuesOfPropertyPaths;
+  /**
+   * It's {@code @NonNull} 
+   *     but it cannot be initialized at Constructor so initial value is substituted.
+   */
+  protected Object[] valuesOfPropertyPaths = new Object[] {};
 
   @Override
-  public boolean isValid(T value, ConstraintValidatorContext context) {
+  public boolean isValid(T value, @Nullable ConstraintValidatorContext context) {
     valuesOfPropertyPaths = setValuesOfPropertyPaths(value);
 
     return isValidCommon(value, context);
   }
   
+  @SuppressWarnings("null")
   private Object[] setValuesOfPropertyPaths(T object) {
     List<Object> list =
         Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();
 
-    return list.toArray(new Object[list.size()]);
+    Object[] rtn = list.toArray(new Object[list.size()]);
+    return rtn;
   }
 }

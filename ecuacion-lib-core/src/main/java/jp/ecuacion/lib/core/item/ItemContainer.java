@@ -90,9 +90,14 @@ public interface ItemContainer {
    * Returns an array of items.
    * 
    * <p>It is NOT meant for use from outside.
-   *     It's supposed to be used by concrete classes.<br>
+   *     It's supposed to be used by concrete classes.</p>
+   *     
+   * <p>Elements of the array are effectively {@code @NonNull},
+   *     but the annotation is not added because you don't want to add it 
+   *     every time you define new {@code Item[]}. 
+   *     (in eclipse you need to do it to avoid a warning on it)</p>
    */
-  abstract @NonNull Item[] customizedItems();
+  abstract Item[] customizedItems();
 
   /**
    * Creates new item.
