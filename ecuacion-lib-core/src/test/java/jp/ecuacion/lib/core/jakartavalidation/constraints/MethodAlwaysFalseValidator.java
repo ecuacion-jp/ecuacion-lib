@@ -16,6 +16,8 @@
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AlwaysFalse}.
@@ -23,13 +25,16 @@ import jakarta.validation.ConstraintValidatorContext;
 public class MethodAlwaysFalseValidator
     extends MultiplePropertyPathsValidator<MethodAlwaysFalse, Object> {
 
+  @SuppressWarnings("null")
   @Override
-  public void initialize(MethodAlwaysFalse annotation) {
+  public void initialize(@Nullable MethodAlwaysFalse annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override
-  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
+  protected boolean internalIsValid(@Nullable Object value,
+      @Nullable ConstraintValidatorContext context) {
     return false;
   }
 }

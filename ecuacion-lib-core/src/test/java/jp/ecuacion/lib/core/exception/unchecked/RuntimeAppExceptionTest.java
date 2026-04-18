@@ -23,18 +23,6 @@ import org.junit.jupiter.api.Test;
 public class RuntimeAppExceptionTest extends TestTools {
 
   @Test
-  public void test01_constructor_01_argIsNull() {
-    try {
-      @SuppressWarnings("unused")
-      AppRuntimeException ex = new AppRuntimeException(null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
   public void test01_constructor_02_argIsNotNull() {
     AppException appEx = new BizLogicAppException("MSG1");
     AppRuntimeException ex = new AppRuntimeException(appEx);

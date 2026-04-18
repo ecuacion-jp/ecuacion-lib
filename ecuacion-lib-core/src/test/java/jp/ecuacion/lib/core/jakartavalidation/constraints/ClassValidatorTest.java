@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ public class ClassValidatorTest {
   @BeforeAll
   public static void beforeAll() {}
 
+  @SuppressWarnings("null")
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   /**
@@ -82,22 +84,22 @@ public class ClassValidatorTest {
   }
 
   @ClassAlwaysFalse(propertyPath = "")
-  public static record PropertyPathNotSet(String propertyPath) {
+  public static record PropertyPathNotSet(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {"propertyPath", ""})
-  public static record PropertyPathContainsEmpty(String propertyPath) {
+  public static record PropertyPathContainsEmpty(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {})
-  public static record PropertyPathLengthZero(String propertyPath) {
+  public static record PropertyPathLengthZero(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {"a"})
-  public static record PropertyPathNotFound(String propertyPath) {
+  public static record PropertyPathNotFound(@Nullable String propertyPath) {
 
   }
 }

@@ -19,7 +19,10 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ValidationException;
 import java.lang.annotation.Annotation;
+import java.util.Objects;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -38,43 +41,53 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
 public abstract class MultiplePropertyPathsValidator<A extends Annotation, T> extends ReflectionUtil
     implements ConstraintValidator<A, T> {
 
-  protected String message;
-  protected String[] propertyPaths;
+  /**
+   * It's {@code @NonNull} 
+   *     but it cannot be initialized at Constructor so initial value is substituted.
+   */
+  protected String message = "";
+
+  /**
+   * It's {@code @NonNull} 
+   *     but it cannot be initialized at Constructor so initial value is substituted.
+   */
+  protected @NonNull String[] propertyPaths = new @NonNull String[] {};
 
   private boolean createsMultipleConstraintViolations = false;
 
   /**
    * is {@code isValid} method for each class-level validators.
    */
-  protected abstract boolean internalIsValid(T value, ConstraintValidatorContext context);
+  protected abstract boolean internalIsValid(T value, @Nullable ConstraintValidatorContext context);
 
   /**
    * Constructs a new instance.
    */
-  public void initialize(String message, String[] propertyPath) {
+  public void initialize(String message, @NonNull String[] propertyPath) {
     this.message = message;
-    this.propertyPaths = propertyPath;
+    this.propertyPaths = propertyPath == null ? new @NonNull String[] {} : propertyPath;
 
-    if (propertyPaths.length == 0) {
+    if (Objects.requireNonNull(propertyPaths).length == 0) {
       throw new ValidationException("Length of propertyPath is zero.");
     }
   }
 
   @Override
-  public boolean isValid(T value, ConstraintValidatorContext context) {
+  public boolean isValid(T value, @Nullable ConstraintValidatorContext context) {
     return isValidCommon(value, context);
   }
 
   /**
    * Is a common procedure of {@code isValid}.
    */
-  protected boolean isValidCommon(T value, ConstraintValidatorContext context) {
+  protected boolean isValidCommon(T value, @Nullable ConstraintValidatorContext context) {
     boolean result = internalIsValid(value, context);
+    Objects.requireNonNull(context);
 
     if (createsMultipleConstraintViolations) {
       context.disableDefaultConstraintViolation();
 
-      for (String propertyPath : propertyPaths) {
+      for (String propertyPath : Objects.requireNonNull(propertyPaths)) {
         context.buildConstraintViolationWithTemplate(message).addPropertyNode(propertyPath)
             .addConstraintViolation();
       }

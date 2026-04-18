@@ -18,7 +18,7 @@ package jp.ecuacion.lib.validation.constraints;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Locale;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;

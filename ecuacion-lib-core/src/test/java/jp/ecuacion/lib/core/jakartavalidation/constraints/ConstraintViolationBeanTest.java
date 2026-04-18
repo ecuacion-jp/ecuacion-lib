@@ -22,16 +22,18 @@ import jakarta.validation.Validator;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ConstraintViolationBeanTest {
 
   private static final String NOT_EMPTY = "jakarta.validation.constraints.NotEmpty";
+  @SuppressWarnings("null")
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   //@formatter:off
@@ -142,7 +144,7 @@ public class ConstraintViolationBeanTest {
           return new Item[] {};
         }
 
-        public String field;
+        public @Nullable String field;
 
         @Valid
         public Child child = new Child();
@@ -150,14 +152,14 @@ public class ConstraintViolationBeanTest {
       }
 
       public static class Child {
-        public String field;
+        public @Nullable String field;
 
         @Valid
         public GrandChild grandChild = new GrandChild();
       }
 
       public static class GrandChild {
-        public String field;
+        public @Nullable String field;
       }
     }
 
@@ -178,8 +180,8 @@ public class ConstraintViolationBeanTest {
 
       @ClassAlwaysFalse(propertyPath = "field")
       public static class Child {
-        public String field;
-        public String conditionField;
+        public @Nullable String field;
+        public @Nullable String conditionField;
 
         @Valid
         public GrandChild grandChild = new GrandChild();
@@ -196,8 +198,8 @@ public class ConstraintViolationBeanTest {
       @ClassAlwaysFalse(propertyPath = "field")
       public static class Root {
 
-        public String field;
-        public String conditionField;
+        public @Nullable String field;
+        public @Nullable String conditionField;
 
         @Valid
         public Child child = new Child();
@@ -214,8 +216,8 @@ public class ConstraintViolationBeanTest {
 
       @ClassAlwaysFalse(propertyPath = "field")
       public static class GrandChild {
-        public String field;
-        public String conditionField;
+        public @Nullable String field;
+        public @Nullable String conditionField;
       }
     }
   }
@@ -296,10 +298,10 @@ public class ConstraintViolationBeanTest {
       }
 
       @NotEmpty
-      private String field1;
+      private @Nullable String field1;
 
       @NotEmpty
-      private String field2;
+      private @Nullable String field2;
 
       @Valid
       ChildRecord child = new ChildRecord();
@@ -308,10 +310,10 @@ public class ConstraintViolationBeanTest {
     public static class ChildRecord {
 
       @NotEmpty
-      private String field1;
+      private @Nullable String field1;
 
       @NotEmpty
-      private String field2;
+      private @Nullable String field2;
     }
   }
 
@@ -438,8 +440,8 @@ public class ConstraintViolationBeanTest {
       @ClassAlwaysFalse(propertyPath = "field")
       @ItemNameKeyClass("ItemNameKeyClass_Child")
       public static class Child extends ChildParent {
-        public Integer field = null;
-        public String conditionField = null;
+        public @Nullable Integer field = null;
+        public @Nullable String conditionField = null;
 
         @SuppressWarnings("exports")
         @Valid
@@ -477,8 +479,8 @@ public class ConstraintViolationBeanTest {
 
       @ClassAlwaysFalse(propertyPath = "field")
       public static class Child extends ChildParent {
-        public Integer field = null;
-        public String conditionField = null;
+        public @Nullable Integer field = null;
+        public @Nullable String conditionField = null;
 
         @SuppressWarnings("exports")
         @Valid
@@ -508,7 +510,7 @@ public class ConstraintViolationBeanTest {
 
       @ItemNameKeyClass("ItemNameKeyClass_Root")
       public static class Root {
-        public String field;
+        public @Nullable String field;
 
         @SuppressWarnings("exports")
         @Valid
@@ -517,7 +519,7 @@ public class ConstraintViolationBeanTest {
 
       @ItemNameKeyClass("ItemNameKeyClass_Child")
       public static class Child {
-        public String field;
+        public @Nullable String field;
 
         @SuppressWarnings("exports")
         @Valid
@@ -526,7 +528,7 @@ public class ConstraintViolationBeanTest {
 
       @ItemNameKeyClass("ItemNameKeyClass_GrandChild")
       public static class GrandChild {
-        public String field;
+        public @Nullable String field;
       }
     }
 
@@ -538,7 +540,7 @@ public class ConstraintViolationBeanTest {
       }
 
       public static class Root extends RootParent {
-        public String field;
+        public @Nullable String field;
 
         @SuppressWarnings("exports")
         @Valid
@@ -554,7 +556,7 @@ public class ConstraintViolationBeanTest {
       }
 
       public static class Child extends ChildParent {
-        public String field;
+        public @Nullable String field;
 
         @SuppressWarnings("exports")
         @Valid
@@ -570,7 +572,7 @@ public class ConstraintViolationBeanTest {
       }
 
       public static class GrandChild extends GrandChildParent {
-        public String field;
+        public @Nullable String field;
       }
 
       @ItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent")
@@ -665,10 +667,10 @@ public class ConstraintViolationBeanTest {
       }
 
       @NotEmpty
-      private String field1;
+      private @Nullable String field1;
 
       @NotEmpty
-      private String field2;
+      private @Nullable String field2;
 
       @Valid
       ChildRecord child = new ChildRecord();
@@ -678,10 +680,10 @@ public class ConstraintViolationBeanTest {
     public static class ChildRecord {
 
       @NotEmpty
-      private String field1;
+      private @Nullable String field1;
 
       @NotEmpty
-      private String field2;
+      private @Nullable String field2;
     }
   }
 }
