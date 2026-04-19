@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Checks if a string matches specified regular expression.
@@ -28,12 +29,13 @@ import org.apache.commons.lang3.StringUtils;
 public class PatternWithDescriptionValidator
     implements ConstraintValidator<PatternWithDescription, String> {
 
-  private String regExp;
-  
+  private String regExp = "";
+
   /** Initializes an instance. */
   @Override
-  public void initialize(PatternWithDescription constraintAnnotation) {
-    regExp = constraintAnnotation.regexp();
+  public void initialize(@Nullable PatternWithDescription annotation) {
+    Objects.requireNonNull(annotation);
+    regExp = annotation.regexp();
   }
 
   /**
@@ -43,7 +45,7 @@ public class PatternWithDescriptionValidator
    * {@code empty ("")} is invalid if it doesn't match the standard expression.</p>
    */
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
 
     // true if value is null or blank
     if (StringUtils.isEmpty(value)) {

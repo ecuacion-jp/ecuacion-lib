@@ -47,6 +47,9 @@
 		<!-- module versions (test scope) -->
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 
+		<!-- eclipse null analysis -->
+		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
+
 	</properties>
 	
 	<build>
@@ -120,6 +123,11 @@
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
 				<version>${org.junit.jupiter.junit-jupiter-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.lastnpe.eea</groupId>
+				<artifactId>jdk-eea</artifactId>
+				<version>${org.lastnpe.eea.jdk-eea.version}</version>
 			</dependency>
 			</dependencies>
 	</dependencyManagement>

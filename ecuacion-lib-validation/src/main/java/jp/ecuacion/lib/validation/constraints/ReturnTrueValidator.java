@@ -17,29 +17,32 @@ package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AnyNull}.
  */
 public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
-  
-  private String methodName;
+
+  private String methodName = "";
 
   /** Initializes an instance. */
   @Override
-  public void initialize(ReturnTrue annotation) {
+  public void initialize(@Nullable ReturnTrue annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
-    
+
     this.methodName = annotation.methodName();
   }
 
   @Override
-  public boolean internalIsValid(Object object, ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
     try {
       Method method = object.getClass().getMethod(methodName);
       return (boolean) method.invoke(object);
-      
+
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }

@@ -15,7 +15,9 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code GreaterThan}.
@@ -25,7 +27,8 @@ public class GreaterThanOrEqualToValidator
 
   /** Initializes an instance. */
   @Override
-  public void initialize(GreaterThanOrEqualTo annotation) {
+  public void initialize(@Nullable GreaterThanOrEqualTo annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.baselinePropertyPath(), false, true, annotation.typeConversionFromString(),
         annotation.typeConversionDateFormat());

@@ -17,19 +17,23 @@ package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
  */
 public class EnumElementValidator implements ConstraintValidator<EnumElement, String> {
 
-  private Class<?> enumClass;
+  // Put anything to avoid null error.
+  private Class<?> enumClass = EnumElementValidator.class;
 
   /** Initializes an instance. */
   @Override
-  public void initialize(EnumElement constraintAnnotation) {
-    enumClass = constraintAnnotation.enumClass();
+  public void initialize(@Nullable EnumElement annotation) {
+    Objects.requireNonNull(annotation);
+    enumClass = annotation.enumClass();
   }
 
   /**
@@ -39,7 +43,7 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
    * {@code Empty ("")} is invalid.</p>
    */
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
     
     // true if value is null or blank
     if (StringUtils.isEmpty(value)) {
@@ -55,7 +59,7 @@ public class EnumElementValidator implements ConstraintValidator<EnumElement, St
 
       // Check if designated enum class has hasEnumFromName method.
       Object[] objs = enumClass.getEnumConstants();
-      for (Object obj : objs) {
+      for (Object obj : Objects.requireNonNull(objs)) {
         if (obj.toString().equals(value)) {
           return true;
         }

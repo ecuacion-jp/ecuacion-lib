@@ -16,7 +16,9 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AnyNotEmpty}.
@@ -26,12 +28,13 @@ public class AssertTrueWithPropertyPathValidator
 
   /** Initializes an instance. */
   @Override
-  public void initialize(AssertTrueWithPropertyPath annotation) {
+  public void initialize(@Nullable AssertTrueWithPropertyPath annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override
-  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, @Nullable ConstraintValidatorContext context) {
     Boolean bl = (Boolean) value;
     return bl != null && bl;
   }

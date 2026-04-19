@@ -16,7 +16,9 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constraints.internal.AllAnyValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AnyNotNull}.
@@ -25,12 +27,13 @@ public class AnyNotNullValidator extends AllAnyValidator<AnyNotNull, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(AnyNotNull annotation) {
+  public void initialize(@Nullable AnyNotNull annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override
-  public boolean internalIsValid(Object object, ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
     return numberOfNonNullValues(object) > 0;
   }
 }

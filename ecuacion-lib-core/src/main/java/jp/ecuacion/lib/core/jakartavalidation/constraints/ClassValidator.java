@@ -51,8 +51,7 @@ public abstract class ClassValidator<A extends Annotation, T>
 
     return isValidCommon(value, context);
   }
-  
-  @SuppressWarnings("null")
+
   private Object[] setValuesOfPropertyPaths(T object) {
     List<Object> list =
         Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();

@@ -365,20 +365,20 @@ public class ValidateWhenValidatorTest {
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsEmpty.String(null)));
+        new ValidateWhenTestBean.ConditionValueIsEmpty.xString(null)));
 
     Assertions.assertEquals(true, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.String("")));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.xString("")));
 
     Assertions.assertEquals(false, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.String("a")));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.xString("a")));
 
     // dataType of conditionField = Integer
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsEmpty.Integer(null)));
+        new ValidateWhenTestBean.ConditionValueIsEmpty.xInteger(null)));
 
     Assertions.assertEquals(false, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.Integer(1)));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueIsEmpty.xInteger(1)));
 
     // dataType of conditionField = TestEnum
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
@@ -396,20 +396,20 @@ public class ValidateWhenValidatorTest {
         new String[] {EclibValidationConstants.VALIDATOR_PARAMETER_NULL}, "", "", false);
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsNotEmpty.String(null)));
+        new ValidateWhenTestBean.ConditionValueIsNotEmpty.xString(null)));
 
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsNotEmpty.String("")));
+        new ValidateWhenTestBean.ConditionValueIsNotEmpty.xString("")));
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsNotEmpty.String("a")));
+        new ValidateWhenTestBean.ConditionValueIsNotEmpty.xString("a")));
 
     // dataType of conditionField = Integer
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsNotEmpty.Integer(null)));
+        new ValidateWhenTestBean.ConditionValueIsNotEmpty.xInteger(null)));
 
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueIsNotEmpty.Integer(1)));
+        new ValidateWhenTestBean.ConditionValueIsNotEmpty.xInteger(1)));
 
     // dataType of conditionField = TestEnum
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
@@ -510,41 +510,41 @@ public class ValidateWhenValidatorTest {
 
     // String - null
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, null)));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, "")));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, "")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, "a")));
 
     // String - blank
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", null)));
+        new ValidateWhenTestBean.ConditionValueField.xString("", null)));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", "")));
+        new ValidateWhenTestBean.ConditionValueField.xString("", "")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString("", "a")));
 
     // String - not empty
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", null)));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "")));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "a")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "b")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "b")));
 
     // Integer
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(null, null)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(null, null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(null, 1)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(null, 1)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(1, null)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(1, null)));
     Assertions.assertEquals(true, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.Integer(1, 1)));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.xInteger(1, 1)));
     Assertions.assertEquals(false, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.Integer(1, 2)));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.xInteger(1, 2)));
 
     // enum
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
@@ -714,41 +714,41 @@ public class ValidateWhenValidatorTest {
 
     // String - null
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, null)));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, null)));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, "")));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, "")));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String(null, "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString(null, "a")));
 
     // String - blank
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", null)));
+        new ValidateWhenTestBean.ConditionValueField.xString("", null)));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", "")));
+        new ValidateWhenTestBean.ConditionValueField.xString("", "")));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("", "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString("", "a")));
 
     // String - not empty
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", null)));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", null)));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "")));
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "a")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "a")));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.String("a", "b")));
+        new ValidateWhenTestBean.ConditionValueField.xString("a", "b")));
 
     // Integer
     Assertions.assertEquals(false, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(null, null)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(null, null)));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(null, 1)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(null, 1)));
     Assertions.assertEquals(true, obj.getSatisfiesCondition(
-        new ValidateWhenTestBean.ConditionValueField.Integer(1, null)));
+        new ValidateWhenTestBean.ConditionValueField.xInteger(1, null)));
     Assertions.assertEquals(false, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.Integer(1, 1)));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.xInteger(1, 1)));
     Assertions.assertEquals(true, obj
-        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.Integer(1, 2)));
+        .getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueField.xInteger(1, 2)));
 
     // enum
     Assertions.assertEquals(false, obj.getSatisfiesCondition(

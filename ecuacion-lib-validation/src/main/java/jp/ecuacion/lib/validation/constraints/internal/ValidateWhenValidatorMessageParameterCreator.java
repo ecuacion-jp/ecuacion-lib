@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -36,6 +37,7 @@ import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
@@ -44,7 +46,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<String, Object> paramMap) {
+      Map<@NonNull String, Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
     // conditionFieldItemNameKey
@@ -64,10 +66,9 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     // validatesWhenConditionNotSatisfied
     // Each When-validator annotation must have exactly one parameter whose name ends with
     // "ConditionNotSatisfied". That convention allows automatic lookup without a switch statement.
-    String conditionNotSatisfiedKey = paramMap.keySet().stream()
-        .filter(k -> k.endsWith("WhenConditionNotSatisfied")).findFirst().orElse(null);
-    boolean bl =
-        conditionNotSatisfiedKey != null ? (boolean) paramMap.get(conditionNotSatisfiedKey) : false;
+    String conditionNotSatisfiedKey = Objects.requireNonNull(paramMap.keySet().stream()
+        .filter(k -> k.endsWith("WhenConditionNotSatisfied")).toList().get(0));
+    boolean bl = (boolean) Objects.requireNonNull(paramMap.get(conditionNotSatisfiedKey));
 
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
@@ -89,28 +90,29 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   }
 
   private void displayStringOfConditionValue(ConstraintViolation<?> cv,
-      Map<String, Object> paramMap, final String commonMessagePrefix,
+      Map<@NonNull String, Object> paramMap, final String commonMessagePrefix,
       Set<LocalizedEmbeddedParameter> messageParameterSet) {
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
     Arg displayStringOfConditionValueArg = Arg.string("");
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
-      Object values = getValue(cv.getLeafBean(),
-          (String) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH));
+      Object values = getValue(cv.getLeafBean(), (String) Objects
+          .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH)));
 
       displayStringOfConditionValueArg =
-          displayStringCommon(commonMessagePrefix, cv, paramMap, values);
+          displayStringCommon(commonMessagePrefix, cv, paramMap, Objects.requireNonNull(values));
 
     } else if (conditionPtn == STRING) {
       // conditionValue is used
       String[] values = (String[]) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_STRING);
 
       displayStringOfConditionValueArg =
-          displayStringCommon(commonMessagePrefix, cv, paramMap, values);
+          displayStringCommon(commonMessagePrefix, cv, paramMap, Objects.requireNonNull(values));
 
     } else if (conditionPtn == ConditionValue.PATTERN) {
-      String description = (String) paramMap.get("conditionValuePatternDescription");
+      String description =
+          Objects.requireNonNull((String) paramMap.get("conditionValuePatternDescription"));
       String regExp = (String) paramMap.get("conditionValuePatternRegexp");
 
       if (description.equals(NULL) || description.equals("")) {
@@ -123,10 +125,10 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     }
 
     String propKey = commonMessagePrefix + ".messagePart."
-        + StringUtil
-            .getLowerCamelFromSnake(paramMap.get(ValidateWhenValidator.CONDITION_VALUE).toString())
-        + "." + StringUtil.getLowerCamelFromSnake(
-            paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR).toString());
+        + StringUtil.getLowerCamelFromSnake(
+            Objects.requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE)).toString())
+        + "." + StringUtil.getLowerCamelFromSnake(Objects
+            .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR)).toString());
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
             new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, propKey,
@@ -134,12 +136,12 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   }
 
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolation<?> cv,
-      Map<String, Object> paramMap, Object values) {
+      Map<@NonNull String, Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
         .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
-    Object displayStringObj =
-        displayStringPp.equals("") ? values : getValue(cv.getLeafBean(), displayStringPp);
+    Object displayStringObj = Objects.requireNonNull(displayStringPp).equals("") ? values
+        : Objects.requireNonNull(getValue(cv.getLeafBean(), displayStringPp));
 
     List<String> displayStringList = (displayStringObj instanceof Object[])
         ? Arrays.asList((Object[]) displayStringObj).stream().map(o -> o.toString()).toList()
