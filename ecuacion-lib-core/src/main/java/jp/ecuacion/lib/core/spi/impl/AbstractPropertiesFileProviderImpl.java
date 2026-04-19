@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.spi.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.spi.AbstractResourceBundleProvider;
@@ -50,9 +51,9 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
 
     // Obtain resource from module.
     String baseFilename = PropertiesFileUtilValueGetter.bundleNameForModule.get();
-    @SuppressWarnings("null")
     String moduleName = getModuleName(baseFilename);
-    Module module = ModuleLayer.boot().findModule(moduleName).orElse(null);
+    Module module = Objects.requireNonNull(ModuleLayer.boot())
+        .findModule(Objects.requireNonNull(moduleName)).orElse(null);
     if (module != null) {
       try {
         String bundleName = baseFilename + (locale.toString().equals("") ? "" : "_")

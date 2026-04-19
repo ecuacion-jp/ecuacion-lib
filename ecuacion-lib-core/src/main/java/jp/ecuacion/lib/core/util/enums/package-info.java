@@ -17,4 +17,7 @@
 /**
  * Provides enums for utilities.
  */
+@NullMarked
 package jp.ecuacion.lib.core.util.enums;
+
+import org.jspecify.annotations.NullMarked;

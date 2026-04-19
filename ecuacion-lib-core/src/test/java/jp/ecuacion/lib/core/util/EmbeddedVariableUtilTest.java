@@ -21,23 +21,24 @@ import java.util.Map;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 public class EmbeddedVariableUtilTest {
 
   @BeforeEach
   public void before() {}
 
   // methodize to shorten the method name
-  private String getVar(String string) throws AppException {
+  private @Nullable String getVar(String string) throws AppException {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, "${", "}", null);
   }
 
-  private String getVarWithOpt(String string, Options options) throws AppException {
+  private @Nullable String getVarWithOpt(String string, Options options)
+      throws AppException {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, "${", "}", options);
   }
 
@@ -45,7 +46,6 @@ public class EmbeddedVariableUtilTest {
   public void getFirstFoundEmbeddedParameterTest() throws AppException {
 
     // string empty
-    Assertions.assertThrows(RequireNonNullException.class, () -> getVar(null));
     Assertions.assertEquals(null, getVar(""));
 
     // parameter none
@@ -102,8 +102,9 @@ public class EmbeddedVariableUtilTest {
   }
 
   // methodize to shorten the method name
-  private Pair<String, String> getVarWithMultipleStartSymbols(String string) throws AppException {
-    return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, new String[] {"${+", "${-"},
+  private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(
+      @Nullable String string) throws AppException {
+    return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, new @NonNull String[] {"${+", "${-"},
         "}", null);
   }
 
@@ -129,7 +130,7 @@ public class EmbeddedVariableUtilTest {
 
   // methodize to shorten the method name
   private List<Pair<String, String>> getPartList(String string) throws AppException {
-    return EmbeddedVariableUtil.getPartList(string, new String[] {"${+", "${-"}, "}");
+    return EmbeddedVariableUtil.getPartList(string, new @NonNull String[] {"${+", "${-"}, "}");
   }
 
 

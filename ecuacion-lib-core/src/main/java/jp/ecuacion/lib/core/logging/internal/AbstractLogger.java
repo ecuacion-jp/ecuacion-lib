@@ -24,19 +24,19 @@ import org.slf4j.event.Level;
 /**
  * Has common methods for concrete loggers.
  */
-public abstract class EclibLogger {
+public abstract class AbstractLogger {
 
   /** internalLogger. */
   protected Logger internalLogger;
   
-  protected static final String NULL_THROWABLE_MESSAGE = "(throwable argument is null)";
+  public static final String NULL_THROWABLE_MESSAGE = "(throwable argument is null)";
 
   /** 
    * Constructs a new instance with a logger name.
    * 
    * @param loggerName loggerName. Cannot be {@code null}.
    */
-  public EclibLogger(String loggerName) {
+  public AbstractLogger(String loggerName) {
     internalLogger = LoggerFactory.getLogger(loggerName);
   }
 
@@ -46,7 +46,7 @@ public abstract class EclibLogger {
    *
    * @param cls class. Cannot be {@code null}.
    */
-  public EclibLogger(Class<?> cls) {
+  public AbstractLogger(Class<?> cls) {
     internalLogger = LoggerFactory.getLogger(cls.getName());
   }
 

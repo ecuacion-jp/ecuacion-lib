@@ -44,7 +44,7 @@ public class MultipleAppException extends AppException {
    * 
    * @param list a list of {@code AppException}. {@code size()} cannot be zero. 
    */
-  public MultipleAppException(@RequireSizeNonZero List<@NonNull ? extends AppException> list) {
+  public MultipleAppException(@RequireSizeNonZero List<? extends AppException> list) {
     super();
 
     ObjectsUtil.requireSizeNonZero(list);
@@ -54,9 +54,9 @@ public class MultipleAppException extends AppException {
     // into a list of {@code SingleAppException}.
     List<@NonNull SingleAppException> internalList = new ArrayList<>();
 
-    for (@NonNull AppException ae : list) {
+    for (AppException ae : ObjectsUtil.requireElementNonNull(list)) {
       if (ae instanceof SingleAppException) {
-        internalList.add((@NonNull SingleAppException) ae);
+        internalList.add((SingleAppException) ae);
 
       } else if (ae instanceof MultipleAppException) {
         internalList.addAll(((MultipleAppException) ae).getList());
@@ -86,7 +86,6 @@ public class MultipleAppException extends AppException {
   /**
    * Returns list of messages holding exceptions have with default locale.
    */
-  @SuppressWarnings("null")
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();

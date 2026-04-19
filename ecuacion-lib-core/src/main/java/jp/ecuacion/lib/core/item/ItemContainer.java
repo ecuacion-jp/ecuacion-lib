@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.item;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,8 +42,6 @@ public interface ItemContainer {
    * @param itemPropertyPath itemPropertyPath
    * @return HtmlItem
    */
-  @SuppressWarnings("null")
-  @Nonnull
   public default Item getItem(String itemPropertyPath) {
     @NonNull
     String noIndexPropertyPath = PropertyPathUtil.removeIndex(itemPropertyPath);
@@ -118,7 +115,6 @@ public interface ItemContainer {
    *     but it's frequently used in extended classes and not used outside 
    *     so let it be defined here.</p>
    */
-  @SuppressWarnings("null")
   default Item[] mergeItems(Item[] items1, Item[] items2) {
 
     List<Item> list = new ArrayList<>(Arrays.asList(items1));

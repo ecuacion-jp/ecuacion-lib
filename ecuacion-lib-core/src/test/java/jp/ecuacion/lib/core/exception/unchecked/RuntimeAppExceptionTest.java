@@ -19,7 +19,6 @@ import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import org.junit.jupiter.api.Test;
-
 public class RuntimeAppExceptionTest extends TestTools {
 
   @Test

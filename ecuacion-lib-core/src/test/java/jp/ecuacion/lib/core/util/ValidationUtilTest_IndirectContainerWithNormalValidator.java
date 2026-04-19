@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.validation.Valid;
-
 public class ValidationUtilTest_IndirectContainerWithNormalValidator {
   @Valid
   public ValidationUtilTest_DirectContainerWithNormalValidator directContainer =

@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 public class PropertyPathUtilTest {
 
   private String getRightMostNode(String propertyPath) {

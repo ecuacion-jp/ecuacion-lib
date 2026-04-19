@@ -29,11 +29,9 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 public class ConstraintViolationBeanTest {
 
   private static final String NOT_EMPTY = "jakarta.validation.constraints.NotEmpty";
-  @SuppressWarnings("null")
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   //@formatter:off

@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.metadata.ConstraintDescriptor;
@@ -104,7 +103,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
    * Constructs a new instance with parameters, not a ConstraintViolation.
    */
   public ConstraintViolationBean(ValidatorKindEnum validatorKind, String validatorClassName,
-      T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
+      @NonNull T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
       Map<@NonNull String, Object> embeddedParameterMap, String constraintViolationPropertyPath,
       String... propertyPaths) {
 
@@ -115,16 +114,13 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     this.validatorClass = validatorClassName;
     this.constraintViolationPropertyPath = constraintViolationPropertyPath;
     this.invalidValue = invalidValue;
-    @SuppressWarnings("null")
-    @NonNull
     String msg = PropertiesFileUtil.getValidationMessage(Locale.ENGLISH,
         messageTemplate.replace("{", "").replace("}", ""), new HashMap<>());
     this.message = msg;
     this.messageTemplate = messageTemplate;
 
-    List<String> propertyPathList = List.of(propertyPaths);
-    for (int i = 0; i < propertyPathList.size(); i++) {
-      String fullPropertyPath = propertyPathList.get(i);
+    List<@NonNull String> propertyPathList = List.of(propertyPaths);
+    for (String fullPropertyPath : propertyPathList) {
       itemList.add(MessageUtil.getItem(fullPropertyPath, rootBean, leafBean));
     }
 
@@ -187,7 +183,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       ppList.add(cvPp);
     }
 
-    @SuppressWarnings("null")
     ConstraintViolationBean<U> rtnCv = new ConstraintViolationBean<>(validatorKind,
         Objects.requireNonNull(Objects.requireNonNull(cv.getConstraintDescriptor()).getAnnotation())
             .annotationType().getName(),
@@ -205,7 +200,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
    */
   @SuppressWarnings("null")
   @Override
-  public @Nonnull String toString() {
+  public String toString() {
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + Objects.requireNonNull(getRootBean()).getClass().getName() + "\n"
         + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
@@ -236,8 +231,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
       }
 
       @Override
-      public @Nullable Iterator<Node> iterator() {
-        return null;
+      public Iterator<Node> iterator() {
+        throw new RuntimeException("Not assumed to call.");
       }
     };
   }
@@ -248,7 +243,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   }
 
   @Override
-  public @Nonnull String getMessageTemplate() {
+  public String getMessageTemplate() {
     return messageTemplate;
   }
 
@@ -256,8 +251,14 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return validatorClass;
   }
 
-  public @Nullable String getInvalidValue() {
-    return invalidValue == null ? null : Objects.requireNonNull(invalidValue).toString();
+  /**
+   * Returns {@code invalidValue} as a string.
+   *
+   * <p>Returns {@code "null"} string when the value is {@code null}.</p>
+   */
+  public String getInvalidValue() {
+    Object iv = invalidValue;
+    return iv == null ? "null" : iv.toString();
   }
 
   public @Nullable ValidatorKindEnum getValidatorKind() {
@@ -268,7 +269,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return itemList;
   }
 
-  @SuppressWarnings("null")
   public Item[] getItems() {
     return itemList.toArray(new Item[itemList.size()]);
   }

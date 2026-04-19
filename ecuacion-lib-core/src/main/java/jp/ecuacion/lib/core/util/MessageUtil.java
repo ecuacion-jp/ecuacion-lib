@@ -15,19 +15,20 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utilities for Message creation.
@@ -45,9 +46,10 @@ public class MessageUtil {
    * Returns {@code itemNameKey} value.
    *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
    */
-  public static String getItemNameKey(String explicitlySetItemNameKeyClass, Object rootBean,
-      Object leafBeanFromConstraintViolation, String defaultItemNameKeyClass,
-      String itemNameKeyField, String propertyPath) {
+  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
+      Object rootBean, Object leafBeanFromConstraintViolation,
+      @Nullable String defaultItemNameKeyClass, @Nullable String itemNameKeyField,
+      String propertyPath) {
 
     Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
@@ -81,11 +83,11 @@ public class MessageUtil {
    *     4: uncapitalized className (always set by ItemContainer#getItem(String))
    * </p>
    */
-  @Nonnull
-  public static String getItemNameKey(String explicitlySetItemNameKeyClass,
-      String itemNameKeyClassFromAnnotation, String itemNameKeyClassFromClassName,
-      String itemNameKeyField, String propertyPath) {
-    String tmpItemNameKeyClass;
+  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
+      @Nullable String itemNameKeyClassFromAnnotation,
+      @Nullable String itemNameKeyClassFromClassName,
+      @Nullable String itemNameKeyField, String propertyPath) {
+    @Nullable String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
@@ -100,7 +102,7 @@ public class MessageUtil {
 
     // tmpItemNameKeyField
     if (!StringUtils.isEmpty(itemNameKeyField)) {
-      tmpItemNameKeyField = itemNameKeyField;
+      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
 
     } else {
       tmpItemNameKeyField =
@@ -113,15 +115,15 @@ public class MessageUtil {
   /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
    */
-  @Nonnull
-  public static String getItemNames(Locale locale, @RequireNonnull List<Item> itemList,
-      boolean showsItemNamePath, Object rootBean) {
+  public static String getItemNames(Locale locale, List<Item> itemList, boolean showsItemNamePath,
+      Object rootBean) {
     final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
     final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");
 
     List<String> itemNameList = new ArrayList<>();
     for (Item infoBean : itemList) {
+      Objects.requireNonNull(infoBean);
       String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
 
       if (showsItemNamePath) {
@@ -214,7 +216,10 @@ public class MessageUtil {
 
     } else {
       try {
-        return new KeywordAndIndex("order", Integer.toString(Integer.parseInt(index) + 1));
+        KeywordAndIndex rtn =
+            new KeywordAndIndex("order", Integer.toString(Integer.parseInt(index) + 1));
+        return rtn;
+
       } catch (NumberFormatException ex) {
         // Non-integer index means Map value access via @Valid cascade
         return new KeywordAndIndex("mapValue", index);
@@ -231,7 +236,7 @@ public class MessageUtil {
     // Cut each itemNamePath and put them into a list.
     String leafBeanPropertyPath =
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(item.getPropertyPath());
-    List<String> itemNamePathList = new ArrayList<>();
+    List<@NonNull String> itemNamePathList = new ArrayList<>();
     String prefix = "";
     for (String node : PropertyPathUtil.getNodeList(leafBeanPropertyPath)) {
       itemNamePathList.add(prefix + (prefix.equals("") ? "" : ".") + node);
@@ -303,8 +308,9 @@ public class MessageUtil {
         && firstChild instanceof ItemContainer) {
 
       // the case that EclibRecord is stored in form or something
-      item = ((ItemContainer) firstChild).getItem(
-          collectionPartRemovedPropertyPath.substring(fullPropertyPath1stPart.length() + 1));
+      String substr =
+          collectionPartRemovedPropertyPath.substring(fullPropertyPath1stPart.length() + 1);
+      item = ((ItemContainer) firstChild).getItem(substr);
     }
 
     if (item == null) {
@@ -322,8 +328,7 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  @Nonnull
-  public static String getValuesOfFormattedString(@RequireNonnull String[] values) {
+  public static String getValuesOfFormattedString(String[] values) {
 
     List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(values)).stream()
         .map(name -> VALUE_PREPEND_SYMBOL + name + VALUE_APPEND_SYMBOL).toList();
@@ -335,7 +340,7 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  public static String getValuesOfFormattedString(@RequireNonnull List<String> valueList) {
+  public static String getValuesOfFormattedString(List<String> valueList) {
     return getValuesOfFormattedString(valueList.toArray(new String[valueList.size()]));
   }
 
@@ -343,13 +348,13 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  @Nonnull
-  public static Arg getValuesArg(@RequireNonnull String[] values) {
+  public static Arg getValuesArg(String[] values) {
     // Get a list of Args from values
     String[] fileKinds = new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString(),
         PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString(),
         PropertiesFileUtilFileKindEnum.ENUM_NAMES.toString()};
-    List<Arg> argList = Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
+    List<@NonNull Arg> argList =
+        Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
 
     List<String> itemNameList = new ArrayList<>();
     for (int i = 0; i < argList.size(); i++) {
@@ -364,8 +369,7 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  @Nonnull
-  public static Arg getValuesArg(@RequireNonnull List<String> valueList) {
+  public static Arg getValuesArg(List<String> valueList) {
     return getValuesArg(valueList.toArray(new String[valueList.size()]));
   }
 }

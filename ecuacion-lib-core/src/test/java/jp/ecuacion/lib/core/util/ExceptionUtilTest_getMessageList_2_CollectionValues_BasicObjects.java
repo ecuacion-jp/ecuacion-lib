@@ -30,14 +30,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
 
   private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -158,7 +158,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     Assertions.assertEquals(expected, msg);
   }
 
-  public static record StringListNotNull(@NotNull List<@NotNull String> strList) {
+  public static record StringListNotNull(@NotNull @Nullable List<@NotNull String> strList) {
   }
   public static record StringList(List<@Pattern(regexp = "[1-9]*") String> strList) {
   }
@@ -269,12 +269,12 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
   }
 
   public static class ColFieldOfBasicNotNull {
-    public static record IntegerSet(@NotNull Set<@NotNull Integer> intSet) {
+    public static record IntegerSet(@NotNull @Nullable Set<@NotNull Integer> intSet) {
     }
     public static record StringDateMap(
-        @NotNull Map<@NotNull String, @NotNull LocalDate> strDateMap) {
+        @NotNull @Nullable Map<@NotNull String, @NotNull LocalDate> strDateMap) {
     }
-    public static record BooleanArray(@NotNull Boolean @NotNull [] blArray) {
+    public static record BooleanArray(@NotNull Boolean @NotNull @Nullable [] blArray) {
     }
   }
 
@@ -323,7 +323,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
     public static record StringDateMap(
         Map<@Pattern(regexp = "[1-9]*") String, @Future LocalDate> strDateMap) {
     }
-    public static record BooleanArray(@NotNull Boolean @NotNull [] blArray) {
+    public static record BooleanArray(@NotNull Boolean @NotNull @Nullable [] blArray) {
     }
   }
 

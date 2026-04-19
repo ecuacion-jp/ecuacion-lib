@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -66,9 +65,7 @@ public class EnumUtil {
   * @param code code
   * @return the enum value
   */
-  @Nonnull
-  public static <T> T getEnumFromCode(@RequireNonnull Class<@NonNull T> enumClass,
-      @RequireNonnull String code) {
+  public static <T> T getEnumFromCode(Class<@NonNull T> enumClass, String code) {
     ObjectsUtil.requireNonNull(enumClass, code);
 
     if (!enumClass.isEnum()) {
@@ -94,12 +91,10 @@ public class EnumUtil {
    * @param code code
    * @return enum value
    */
-  public static <T> boolean hasEnumFromCode(@RequireNonnull Class<@NonNull T> enumClass,
-      @RequireNonnull String code) {
+  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, String code) {
 
     try {
-      T anEnum =
-          getEnumFromCode(ObjectsUtil.requireNonNull(enumClass), ObjectsUtil.requireNonNull(code));
+      T anEnum = getEnumFromCode(enumClass, code);
       return anEnum != null;
 
     } catch (RuntimeException ex) {
@@ -137,7 +132,6 @@ public class EnumUtil {
    * <p>You can use only 1 option from the above. you cannot use multiple options at once. 
    *     "|" is the separator of values.</p>
    */
-  @Nonnull
   public static <T> List<String[]> getListForHtmlSelect(Class<@NonNull T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
@@ -175,8 +169,9 @@ public class EnumUtil {
     String optionKey = optionMap.keySet().stream().toList().get(0);
     String optionValue = optionMap.get(optionKey);
 
-    for (EnumValueInfo<T> value : enumInfo.getValueList()) {
-      if (matchesOption(value, optionKey, optionValue)) {
+    List<@NonNull EnumValueInfo<T>> list = enumInfo.getValueList();
+    for (EnumValueInfo<T> value : list) {
+      if (matchesOption(value, optionKey, Objects.requireNonNull(optionValue))) {
         rtnList.add(new String[] {value.getCode(), value.getLabel()});
       }
     }
@@ -187,18 +182,14 @@ public class EnumUtil {
   private static <T> boolean matchesOption(EnumValueInfo<T> value, String optionKey,
       String optionValue) {
     return switch (optionKey) {
-      case "including" ->
-          Arrays.asList(optionValue.split("\\|")).contains(value.getName());
-      case "excluding" ->
-          !Arrays.asList(optionValue.split("\\|")).contains(value.getName());
-      case "firstCharOfCodeEqualTo" ->
-          Arrays.asList(optionValue.split("\\|")).contains(value.getCode().substring(0, 1));
-      case "firstCharOfCodeLessThanOrEqualTo" ->
-          value.getCode().substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0]
-              <= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
-      case "firstCharOfCodeGreaterThanOrEqualTo" ->
-          value.getCode().substring(0, 1).getBytes(StandardCharsets.US_ASCII)[0]
-              >= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
+      case "including" -> Arrays.asList(optionValue.split("\\|")).contains(value.getName());
+      case "excluding" -> !Arrays.asList(optionValue.split("\\|")).contains(value.getName());
+      case "firstCharOfCodeEqualTo" -> Arrays.asList(optionValue.split("\\|"))
+          .contains(value.getCode().substring(0, 1));
+      case "firstCharOfCodeLessThanOrEqualTo" -> value.getCode().substring(0, 1).getBytes(
+          StandardCharsets.US_ASCII)[0] <= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
+      case "firstCharOfCodeGreaterThanOrEqualTo" -> value.getCode().substring(0, 1).getBytes(
+          StandardCharsets.US_ASCII)[0] >= optionValue.getBytes(StandardCharsets.US_ASCII)[0];
       default -> false;
     };
   }
@@ -210,7 +201,6 @@ public class EnumUtil {
    * @param enumClass enum class
    * @return EnumClassInfo
    */
-  @Nonnull
   public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass) {
     return getEnumInfo(enumClass, null);
   }
@@ -223,9 +213,7 @@ public class EnumUtil {
    * @param locale locale
    * @return EnumClassInfo 
    */
-  @Nonnull
-  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(
-      @RequireNonnull Class<@NonNull T> enumClass,
+  public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass,
       @Nullable Locale locale) {
     ObjectsUtil.requireNonNull(enumClass);
     locale = locale == null ? Locale.getDefault() : locale;
@@ -237,7 +225,7 @@ public class EnumUtil {
       throw new IllegalArgumentException();
     }
 
-    for (T enumValue : enumClass.getEnumConstants()) {
+    for (T enumValue : Objects.requireNonNull(enumClass.getEnumConstants())) {
       String name = enumValue.toString();
 
       try {
@@ -248,15 +236,17 @@ public class EnumUtil {
             enumClass.getMethod("getDisplayName", (Class<?>[]) new Class<?>[] {Locale.class});
         String displayName = (String) displayNameMethod.invoke(enumValue, locale);
 
-        valueList
-            .add(new EnumUtil.EnumValueInfo<T>(name, code, displayName, enumValue, enumClassName));
+        valueList.add(new EnumUtil.EnumValueInfo<T>(name, Objects.requireNonNull(code),
+            Objects.requireNonNull(displayName), enumValue, enumClassName));
 
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
     }
 
-    return new EnumUtil.EnumClassInfo<T>(enumClass.getSimpleName(), valueList);
+    @NonNull
+    String simpleName = enumClass.getSimpleName();
+    return new EnumUtil.EnumClassInfo<T>(simpleName, valueList);
   }
 
   private static enum ListForHtmlSelectOptionEnum {
@@ -269,9 +259,10 @@ public class EnumUtil {
       Set<String> rtnSet = new HashSet<>();
       for (ListForHtmlSelectOptionEnum anEnum : ListForHtmlSelectOptionEnum.values()) {
         rtnSet.add(anEnum.name());
-        
+
         // Add camelcase string too.
-        rtnSet.add(StringUtil.getLowerCamelFromSnake(anEnum.name()));
+        String enumString = anEnum.name();
+        rtnSet.add(StringUtil.getLowerCamelFromSnake(enumString));
       }
 
       return rtnSet;

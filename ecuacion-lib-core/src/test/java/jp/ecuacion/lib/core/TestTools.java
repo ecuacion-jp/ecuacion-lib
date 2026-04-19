@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core;
 
 import org.junit.jupiter.api.Assertions;
-
 public class TestTools {
 
   //

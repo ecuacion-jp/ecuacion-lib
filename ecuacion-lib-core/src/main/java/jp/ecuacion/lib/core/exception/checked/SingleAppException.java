@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -53,6 +52,5 @@ public abstract class SingleAppException extends AppException {
    * 
    * @return an array of propertyPath
    */
-  @Nonnull
   public abstract @NonNull String[] getItemPropertyPaths();
 }
