@@ -24,14 +24,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
 public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
 
   @BeforeAll
@@ -55,7 +56,6 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
    *     whether the validator is {@code @NotNull} or other validators,
    *     but SingleLayer test is executed just in case.
    */
-  @SuppressWarnings("null")
   @Test
   public void itemNameAndItemNamePathTest_List() {
     String msg = null;
@@ -135,10 +135,10 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
     msg = validateCollection(mulListListConChild, true, true);
   }
 
-  public static record TargetCls(@NotNull String field) {
+  public static record TargetCls(@NotNull @Nullable String field) {
   }
   @ItemNameKeyClass("itemNameKeyClass")
-  public static record TargetClsInkc(@NotNull String field) {
+  public static record TargetClsInkc(@NotNull @Nullable String field) {
   }
   public static record SingleList(@Valid List<TargetCls> targetList) {
   }
@@ -153,29 +153,29 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
   }
   public static record SingleListConChild(@Valid Child child) {
 
-    private static record Child(List<List<@Valid GrandChild>> grandChildListList)
+    private static record Child(List<List<@Valid @NonNull GrandChild>> grandChildListList)
         implements ItemContainer {
       @Override
       public Item[] customizedItems() {
         return new Item[] {new Item("field").itemNameKey("icField")};
       }
     }
-    private static record GrandChild(@NotNull String field) {
+    private static record GrandChild(@NotNull @Nullable String field) {
 
     }
   }
 
   public static record MulList(@Valid Child child) {
-    private static record Child(List<List<@Valid GrandChild>> grandChild) {
+    private static record Child(List<List<@Valid @Nullable GrandChild>> grandChild) {
     }
-    private static record GrandChild(@NotNull String field) {
+    private static record GrandChild(@NotNull @Nullable String field) {
     }
   }
   public static record MulListInkc(@Valid Child child) {
-    private static record Child(List<List<@Valid GrandChild>> grandChild) {
+    private static record Child(List<List<@Valid @NonNull GrandChild>> grandChild) {
     }
     @ItemNameKeyClass("itemNameKeyClass")
-    private static record GrandChild(@NotNull String field) {
+    private static record GrandChild(@NotNull @Nullable String field) {
     }
   }
   public static record MulListConRoot(@Valid Child child) implements ItemContainer {
@@ -184,9 +184,9 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
       return new Item[] {new Item("child.grandChildListList[][].field").itemNameKey("icField")};
     }
 
-    private static record Child(List<List<@Valid GrandChild>> grandChildListList) {
+    private static record Child(List<List<@Valid @NonNull GrandChild>> grandChildListList) {
     }
-    private static record GrandChild(@NotNull String field) {
+    private static record GrandChild(@NotNull @Nullable String field) {
     }
   }
 
@@ -263,9 +263,9 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
         return new Item[] {new Item("grandChildListList.field").itemNameKey("icField")};
       }
     }
-    private static record GrandChild(List<List<@Valid TheChild>> theChildListList) {
+    private static record GrandChild(List<List<@Valid @NonNull TheChild>> theChildListList) {
     }
-    private static record TheChild(@NotNull String field) {
+    private static record TheChild(@NotNull @Nullable String field) {
 
     }
   }

@@ -78,7 +78,6 @@ public class BizLogicAppException extends SingleAppException {
    * @param messageId message ID
    * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  @SuppressWarnings("null")
   public BizLogicAppException(String[] itemPropertyPaths, String messageId,
       @Nullable String... messageArgs) {
 

@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import jp.ecuacion.lib.core.logging.ErrorLogger;
 import org.jspecify.annotations.Nullable;
@@ -38,7 +37,7 @@ public class LogUtil {
   * @param throwable throwable
   */
   public static void logSystemError(
-      @RequireNonnull DetailLogger detailLog, @RequireNonnull Throwable throwable) {
+      DetailLogger detailLog, Throwable throwable) {
     logSystemError(detailLog, throwable, null);
   }
 
@@ -51,8 +50,8 @@ public class LogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null}, no additional message is output.
    */
-  public static void logSystemError(@RequireNonnull DetailLogger detailLog,
-      @RequireNonnull Throwable throwable, @Nullable String additionalMessage) {
+  public static void logSystemError(DetailLogger detailLog,
+      Throwable throwable, @Nullable String additionalMessage) {
     ObjectsUtil.requireNonNull(detailLog, throwable);
     
     errLog.logSystemError(throwable, additionalMessage);

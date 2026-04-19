@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.util;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import org.jspecify.annotations.Nullable;
-public class ValidationUtilTest_ObjWithNormalValidator {
-  @NotNull
-  public @Nullable String str1 = null;
+/**
+ * Provides enums for utilities internal package.
+ */
+@NullMarked
+package jp.ecuacion.lib.core.util.internal;
 
-  @Min(3)
-  public int int1 = 2;
-}
+import org.jspecify.annotations.NullMarked;

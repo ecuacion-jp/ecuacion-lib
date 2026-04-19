@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.item;
 
+import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -88,8 +89,8 @@ public class Item {
    * 
    * @param propertyPath itemPropertyPath
    */
-  public Item(String propertyPath) {
-    this.propertyPath = propertyPath;
+  public Item(@RequireNonEmpty String propertyPath) {
+    this.propertyPath = ObjectsUtil.requireNonEmpty(propertyPath);
   }
 
   /**
@@ -178,7 +179,7 @@ public class Item {
   }
 
   /**
-   * Sets itemNameKeyClass from {@coe @ItemameKeyClass} annotation.
+   * Sets itemNameKeyClass from {@code @ItemNameKeyClass} annotation.
    * 
    * @param itemNameKeyClass argument {@code itemNameKeyClass} is @{code @NonNull} 
    *     but property {@code itemNameKeyClass} is {@code @Nullable} 

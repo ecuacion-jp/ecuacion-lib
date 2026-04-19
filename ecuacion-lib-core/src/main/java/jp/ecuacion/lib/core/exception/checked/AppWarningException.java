@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,8 +61,8 @@ public class AppWarningException extends Exception {
   public AppWarningException(String messageId, @Nullable String... messageArgs) {
     super();
 
-    this.messageId = ObjectsUtil.requireNonNull(messageId);
-    this.messageArgs = ObjectsUtil.requireNonNull(messageArgs);
+    this.messageId = messageId;
+    this.messageArgs = messageArgs;
   }
 
   /**

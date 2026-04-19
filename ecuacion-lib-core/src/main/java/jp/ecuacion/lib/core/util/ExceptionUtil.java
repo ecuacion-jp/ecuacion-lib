@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.text.MessageFormat;
@@ -27,8 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Set;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
@@ -58,19 +57,16 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations) {
-    return getMessageList(constraintViolations, null, false, null);
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations) {
+    return getMessageList(constraintViolations, null, false, ValidationUtil.messageParameters());
   }
 
   /**
    * Returns Exception message list.
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale) {
-    return getMessageList(constraintViolations, locale, false, null);
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
+      @Nullable Locale locale) {
+    return getMessageList(constraintViolations, locale, false, ValidationUtil.messageParameters());
   }
 
   /**
@@ -84,9 +80,7 @@ public class ExceptionUtil {
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolationSet,
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolationSet,
       boolean isMessagesWithItemNamesAsDefault) {
     return getMessageList(constraintViolationSet, null, isMessagesWithItemNamesAsDefault);
   }
@@ -102,10 +96,8 @@ public class ExceptionUtil {
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolationSet, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolationSet,
+      @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault) {
 
     return getMessageList(constraintViolationSet, locale, isMessagesWithItemNamesAsDefault,
         ValidationUtil.messageParameters());
@@ -122,10 +114,8 @@ public class ExceptionUtil {
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations,
-      boolean isMessagesWithItemNamesAsDefault, @Nullable MessageParameters messageParameters) {
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
+      boolean isMessagesWithItemNamesAsDefault, MessageParameters messageParameters) {
 
     return getMessageList(constraintViolations, null, isMessagesWithItemNamesAsDefault,
         messageParameters);
@@ -142,12 +132,11 @@ public class ExceptionUtil {
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
-  @Nonnull
-  public static <T> List<String> getMessageList(
-      @RequireNonnull Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, @Nullable MessageParameters messageParameters) {
+  public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
+      @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault,
+      MessageParameters messageParameters) {
 
-    if (constraintViolations == null || constraintViolations.size() == 0) {
+    if (constraintViolations.size() == 0) {
       throw new EclibRuntimeException("Size of ConstraintViolation is zero.");
     }
 
@@ -171,8 +160,7 @@ public class ExceptionUtil {
    * @param throwable throwable
    * @return a list of messages
    */
-  @Nonnull
-  public static List<String> getMessageList(@RequireNonnull Throwable throwable) {
+  public static List<String> getMessageList(Throwable throwable) {
     return getMessageList(throwable, null, false);
   }
 
@@ -192,9 +180,7 @@ public class ExceptionUtil {
    *     which is treated as {@code Locale.getDefault()}.
    * @return a list of messages
    */
-  @Nonnull
-  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale) {
+  public static List<String> getMessageList(Throwable throwable, @Nullable Locale locale) {
     return getMessageList(throwable, locale, false);
   }
 
@@ -223,8 +209,7 @@ public class ExceptionUtil {
    *     which is treated as {@code Locale.getDefault()}.
    * @return a list of messages
    */
-  @Nonnull
-  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
+  public static List<String> getMessageList(Throwable throwable,
       boolean isMessagesWithItemNamesAsDefault) {
     return getMessageList(throwable, null, isMessagesWithItemNamesAsDefault);
   }
@@ -256,11 +241,11 @@ public class ExceptionUtil {
    *     
    * @return a list of messages
    */
-  @Nonnull
-  public static List<String> getMessageList(@RequireNonnull Throwable throwable,
-      @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault) {
+  @SuppressWarnings("null")
+  public static List<String> getMessageList(Throwable throwable, @Nullable Locale locale,
+      boolean isMessagesWithItemNamesAsDefault) {
     ObjectsUtil.requireNonNull(throwable);
-    locale = locale == null ? Locale.getDefault() : locale;
+    Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
 
     List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
@@ -274,7 +259,7 @@ public class ExceptionUtil {
 
       MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
           ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
-          : null;
+          : ValidationUtil.messageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         exList.add(new ValidationAppException(cv, params));
@@ -292,9 +277,9 @@ public class ExceptionUtil {
       } else if (th instanceof BizLogicAppException) {
         BizLogicAppException ex = (BizLogicAppException) th;
         String message = isMessagesWithItemNamesAsDefault
-            ? PropertiesFileUtil.getMessageWithItemName(locale, ex.getMessageId(),
+            ? PropertiesFileUtil.getMessageWithItemName(nonNullLocale, ex.getMessageId(),
                 ex.getMessageArgs())
-            : PropertiesFileUtil.getMessage(locale, ex.getMessageId(), ex.getMessageArgs());
+            : PropertiesFileUtil.getMessage(nonNullLocale, ex.getMessageId(), ex.getMessageArgs());
         rtnList.add(message);
 
       } else if (th instanceof ValidationAppException) {
@@ -313,7 +298,7 @@ public class ExceptionUtil {
           Set<LocalizedEmbeddedParameter> embeddedParameterSet = getMessageParameterSet(bean);
 
           // Add parameters from messageParameterSet.
-          putMesageParameterSetToParamMap(locale, map, embeddedParameterSet,
+          putMesageParameterSetToParamMap(nonNullLocale, map, embeddedParameterSet,
               messageParameters.showsItemNamePath());
 
           // If bean.isMessageWithItemName() is not null (= explicitly specified), it's prioritized
@@ -321,17 +306,18 @@ public class ExceptionUtil {
           // and isMessagesWithItemNamesAsDefault is assumed to be used
           // as system default value.
           Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
-              ? messageParameters.isMessageWithItemName()
+              ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
               : isMessagesWithItemNamesAsDefault;
 
           String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
           boolean isMessageDefined = isMessageWithItemName
-              ? PropertiesFileUtil.hasValidationMessageWithItemName(locale, messageKey)
-              : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
+              ? PropertiesFileUtil.hasValidationMessageWithItemName(nonNullLocale, messageKey)
+              : PropertiesFileUtil.hasValidationMessage(nonNullLocale, messageKey);
           if (isMessageDefined) {
             message = isMessageWithItemName
-                ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
-                : PropertiesFileUtil.getValidationMessage(locale, messageKey, map);
+                ? PropertiesFileUtil.getValidationMessageWithItemName(nonNullLocale, messageKey,
+                    map)
+                : PropertiesFileUtil.getValidationMessage(nonNullLocale, messageKey, map);
 
           } else {
             message = bean.getMessageTemplate();
@@ -339,20 +325,19 @@ public class ExceptionUtil {
 
           // Replace {0} to itemName.
           if (message.contains("{0}")) {
-            message = MessageFormat.format(message, MessageUtil.getItemNames(locale,
+            message = MessageFormat.format(message, MessageUtil.getItemNames(nonNullLocale,
                 bean.getItemList(), messageParameters.showsItemNamePath(), bean.getRootBean()));
           }
 
           // add prefix and postfix messages.
           if (messageParameters.getMessagePrefix() != null) {
-            message =
-                PropertiesFileUtil.getStringFromArg(locale, messageParameters.getMessagePrefix())
-                    + message;
+            message = PropertiesFileUtil.getStringFromArg(nonNullLocale,
+                Objects.requireNonNull(messageParameters.getMessagePrefix())) + message;
           }
 
           if (messageParameters.getMessagePostfix() != null) {
-            message = message + PropertiesFileUtil.getStringFromArg(locale,
-                messageParameters.getMessagePostfix());
+            message = message + PropertiesFileUtil.getStringFromArg(nonNullLocale,
+                Objects.requireNonNull(messageParameters.getMessagePostfix()));
           }
 
         } catch (MissingResourceException mre) {
@@ -398,7 +383,7 @@ public class ExceptionUtil {
     for (LocalizedEmbeddedParameter paramBean : embeddedParameterSet) {
 
       // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
-      if (paramBean.fileKinds() == null || paramBean.fileKinds().length == 0) {
+      if (paramBean.fileKinds().length == 0) {
         map.put(paramBean.parameterKey(), paramBean.propertyFileKey());
         continue;
       }
@@ -406,8 +391,10 @@ public class ExceptionUtil {
       String value = "";
       for (PropertiesFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
         if (paramBean.isItemName()) {
-          value = MessageUtil.getItemNames(locale, Arrays.asList(paramBean.items()),
-              showsItemNamePath, paramBean.rootBean());
+          value =
+              MessageUtil.getItemNames(locale, Arrays.asList(paramBean.items()), showsItemNamePath,
+                  // always nonnull when paramBean.isItemName() == true
+                  Objects.requireNonNull(paramBean.rootBean()));
 
         } else {
           // Put return value of PropertiesFileUtil.get() even when key does not exist.
@@ -435,8 +422,8 @@ public class ExceptionUtil {
    *     propertyPathKey is set as the value.</p>
    */
   public static record LocalizedEmbeddedParameter(String parameterKey,
-      PropertiesFileUtilFileKindEnum[] fileKinds, boolean isItemName, Item[] items, Object rootBean,
-      String propertyFileKey, Arg... args) {
+      PropertiesFileUtilFileKindEnum[] fileKinds, boolean isItemName, Item @Nullable [] items,
+      @Nullable Object rootBean, String propertyFileKey, Arg... args) {
 
     /**
      * Constructs a new instance without itemName info.

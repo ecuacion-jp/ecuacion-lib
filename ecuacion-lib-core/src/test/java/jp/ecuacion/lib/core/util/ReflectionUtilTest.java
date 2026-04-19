@@ -17,17 +17,17 @@ package jp.ecuacion.lib.core.util;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 public class ReflectionUtilTest {
 
   @Test
@@ -71,7 +71,7 @@ public class ReflectionUtilTest {
       private FieldValueChild[] childs = new FieldValueChild[] {new FieldValueChild()};
       private List<FieldValueChild> childList =
           Arrays.asList(new FieldValueChild[] {new FieldValueChild()});
-      private Set<FieldValueChild> childSet = childList.stream().collect(Collectors.toSet());
+      private Set<FieldValueChild> childSet = new HashSet<>(childList);
     }
 
     public static class FieldValueChild {
@@ -128,10 +128,10 @@ public class ReflectionUtilTest {
 
     @SuppressWarnings("unused")
     public static class SimpleClass {
-      private String value;
-      private ChildClass object;
-      private String[] values;
-      private List<ChildClass> objectList;
+      private @Nullable String value;
+      private @Nullable ChildClass object;
+      private String @Nullable [] values;
+      private @Nullable List<ChildClass> objectList;
 
       public static class ChildClass {
       }
@@ -170,11 +170,11 @@ public class ReflectionUtilTest {
 
   @SuppressWarnings("unused")
   public static class GetClass {
-    private List<String> strList;
-    private List<List<String>> strListList;
+    private @Nullable List<String> strList;
+    private @Nullable List<List<String>> strListList;
 
-    private List<Child> childList;
-    private List<List<Child>> childListList;
+    private @Nullable List<Child> childList;
+    private @Nullable List<List<Child>> childListList;
 
     private static class Child {
 

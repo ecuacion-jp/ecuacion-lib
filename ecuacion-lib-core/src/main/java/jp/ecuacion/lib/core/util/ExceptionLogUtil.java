@@ -15,10 +15,9 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -31,7 +30,7 @@ public class ExceptionLogUtil {
   /**
    * Returns strings or error log.
    * 
-   * @param throwable throwable
+   * @param throwable throwable. {@code null} acceptable to avoid system error on logging procedure.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
@@ -39,8 +38,7 @@ public class ExceptionLogUtil {
    *     which is treated as {@code Locale.getDefault()}.
    * @return error log string
    */
-  @Nonnull
-  public static String getErrLogString(@RequireNonnull Throwable throwable,
+  public static String getErrLogString(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale) {
     return getErrLogString(throwable, additionalMessage, locale, null);
   }
@@ -58,8 +56,7 @@ public class ExceptionLogUtil {
    *     This is used when the log displaying area is small.
    * @return error log string
    */
-  @Nonnull
-  public static String getErrLogString(@RequireNonnull Throwable throwable,
+  public static String getErrLogString(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
     ObjectsUtil.requireNonNull(throwable);
@@ -77,7 +74,8 @@ public class ExceptionLogUtil {
 
     getMessageAndStackTraceStringRecursively(sb, throwable, locale, packagesShown);
 
-    return sb.toString();
+    String rtn = sb.toString();
+    return rtn;
   }
 
   /**
@@ -92,13 +90,13 @@ public class ExceptionLogUtil {
    *     "0" shows no packages like "at ..main(ExceptionUtil.java:468)".
    *     "1" shows 1 package part like "at jp...main(ExceptionUtil.java:468)".
    */
-  public static void getMessageAndStackTraceStringRecursively(StringBuilder sb, Throwable th,
-      Locale locale, Integer packagesShown) {
+  public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
+      @Nullable Throwable th, @Nullable Locale locale, @Nullable Integer packagesShown) {
 
     getMessageAndStackTraceString(sb, th, locale, packagesShown);
 
     // Also outputs for getCause().
-    if (th.getCause() != null) {
+    if (th != null && th.getCause() != null) {
       getMessageAndStackTraceStringRecursively(sb, th.getCause(), locale, packagesShown);
     }
   }
@@ -112,15 +110,23 @@ public class ExceptionLogUtil {
    * @param locale locale, may be null 
    * @param packagesShown see getMessageAndStackTraceStringRecursively
    */
-  private static void getMessageAndStackTraceString(StringBuilder sb, Throwable th, Locale locale,
-      Integer packagesShown) {
+  private static void getMessageAndStackTraceString(StringBuilder sb, @Nullable Throwable th,
+      @Nullable Locale locale, @Nullable Integer packagesShown) {
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
     // Call MultipleAppException#getMessage() explicitly
     // since getExceptionMessage skips the exception.
-    String errMsg = (th instanceof MultipleAppException) ? ((MultipleAppException) th).getMessage()
-        : ExceptionUtil.getMessageList(th, locale, true).toString();
-    sb.append(th.getClass().getCanonicalName() + " " + errMsg + RT);
+    String errMsg;
+    if (th == null) {
+      errMsg = AbstractLogger.NULL_THROWABLE_MESSAGE;
+
+    } else {
+      errMsg = th.getClass().getCanonicalName()
+          + ((th instanceof MultipleAppException) ? ((MultipleAppException) th).getMessage()
+              : ExceptionUtil.getMessageList(th, locale, true).toString());
+    }
+
+    sb.append(errMsg + RT);
 
     // Output stackTrace string
     getStackTraceString(sb, th, packagesShown);
@@ -134,7 +140,12 @@ public class ExceptionLogUtil {
    * @param packagesShown see getMessageAndStackTraceStringRecursively
    * @return stackTrace string
    */
-  private static void getStackTraceString(StringBuilder sb, Throwable th, Integer packagesShown) {
+  private static void getStackTraceString(StringBuilder sb, @Nullable Throwable th,
+      @Nullable Integer packagesShown) {
+    if (th == null) {
+      return;
+    }
+
     for (StackTraceElement ste : th.getStackTrace()) {
       String[] spl = ste.getClassName().split("\\.");
       String packageAndClass = ste.getClassName();

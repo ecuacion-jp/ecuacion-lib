@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.exception.checked;
 
 import jp.ecuacion.lib.core.TestTools;
 import org.junit.jupiter.api.Test;
-
 public class BizLogicAppExceptionTest extends TestTools {
   private static final String SAMPLE_MSG_ID = "MSG_ID";
 

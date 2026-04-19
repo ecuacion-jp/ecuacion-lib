@@ -20,11 +20,13 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
+import java.util.Objects;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,10 +42,14 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
   }
 
   private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemManeMapth) {
-    return ExceptionUtil.getMessageList(
-        ValidationUtil.validateThenReturn(obj,
-            ValidationUtil.messageParameters().showsItemNamePath(showsItemManeMapth)).get(),
-        Locale.ENGLISH, isMsgWithItemName).get(0);
+    return ExceptionUtil
+        .getMessageList(
+            Objects.requireNonNull(ValidationUtil
+                .validateThenReturn(obj,
+                    ValidationUtil.messageParameters().showsItemNamePath(showsItemManeMapth))
+                .get()),
+            Locale.ENGLISH, isMsgWithItemName)
+        .get(0);
   }
 
   @Test
@@ -101,7 +107,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
   public static class SingleLayer {
     @NotNull
-    private String field;
+    private @Nullable String field;
   }
   @ItemNameKeyClass("inkc")
   public static class SingleLayerInkc extends SingleLayer {
@@ -118,7 +124,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
     public static class Child implements ItemContainer {
       @NotNull
-      private String field;
+      private @Nullable String field;
 
       @Override
       public Item[] customizedItems() {
@@ -137,7 +143,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
       public static class GrandChild {
         @NotNull
-        private String field;
+        private @Nullable String field;
       }
     }
   }
@@ -154,7 +160,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
       @ItemNameKeyClass("inkcGrandChild")
       public static class GrandChild {
         @NotNull
-        private String field;
+        private @Nullable String field;
       }
     }
   }
@@ -182,7 +188,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
       public static class GrandChild {
         @NotNull
-        private String field;
+        private @Nullable String field;
       }
     }
   }
@@ -230,9 +236,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
   @ClassAlwaysFalse(propertyPath = {"field1", "field2"})
   public static class ClassSingleLayer {
     @SuppressWarnings("unused")
-    private String field1;
+    private @Nullable String field1;
     @SuppressWarnings("unused")
-    private String field2;
+    private @Nullable String field2;
   }
   @ItemNameKeyClass("itemNameKeyClass")
   public static class ClassSingleLayerInkc extends ClassSingleLayer {
@@ -272,9 +278,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }
@@ -295,9 +301,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
         @ItemNameKeyClass("itemNameKeyClass")
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }
@@ -330,9 +336,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }
@@ -360,7 +366,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
         + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayer(), true, true));
     // MethodMultipleLayerItemNameKeyClass
-    msg = "'ItemNameKeyClass considered field 1' at 'child field' > 'grand child field' > 'the child', 'ItemNameKeyClass considered field 2' at 'child field' " + "> 'grand child field' > 'the child'" + MSG;
+    msg =
+        "'ItemNameKeyClass considered field 1' at 'child field' > 'grand child field' > 'the child', 'ItemNameKeyClass considered field 2' at 'child field' "
+            + "> 'grand child field' > 'the child'" + MSG;
     Assertions.assertEquals(msg, getMsg(new MethodMultipleLayerInkc(), true, true));
     // MethodMultipleLayerContainerRoot
     msg = "'ItemContainer considered the child field 1' at 'child field' "
@@ -376,9 +384,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
   public static class MethodSingleLayer {
     @SuppressWarnings("unused")
-    private String field1;
+    private @Nullable String field1;
     @SuppressWarnings("unused")
-    private String field2;
+    private @Nullable String field2;
 
     @MethodAlwaysFalse(propertyPath = {"field1", "field2"})
     public boolean isAlwaysFalse() {
@@ -429,9 +437,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }
@@ -453,9 +461,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
         @ItemNameKeyClass("itemNameKeyClass")
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }
@@ -488,9 +496,9 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
         private static class TheChild {
           @SuppressWarnings("unused")
-          private String field1;
+          private @Nullable String field1;
           @SuppressWarnings("unused")
-          private String field2;
+          private @Nullable String field2;
         }
       }
     }

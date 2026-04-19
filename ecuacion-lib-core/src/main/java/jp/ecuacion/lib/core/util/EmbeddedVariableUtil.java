@@ -15,21 +15,21 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import jp.ecuacion.lib.core.annotation.RequireElementNonEmpty;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.annotation.RequireSizeNonZero;
 import jp.ecuacion.lib.core.exception.checked.AppException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -86,12 +86,10 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws MultipleAppException MultipleAppException
    */
-  @Nullable
-  static String getFirstFoundEmbeddedVariable(@RequireNonnull String string,
+  static @Nullable String getFirstFoundEmbeddedVariable(String string,
       @RequireNonEmpty String startSymbol, @RequireNonEmpty String endSymbol,
       @Nullable Options options) throws StringFormatIncorrectException, MultipleAppException {
 
-    ObjectsUtil.requireNonNull(string);
     ObjectsUtil.requireNonEmpty(startSymbol, endSymbol);
 
     // extract "${VAR}"
@@ -112,9 +110,10 @@ public class EmbeddedVariableUtil {
 
       } else {
         // Ignore the emergence of endSymbol. Remove that part and call the method recursively.
-        return getFirstFoundEmbeddedVariable(
+        String rtn = getFirstFoundEmbeddedVariable(
             string.substring(getFirstFoundIndexOfSymbol(string, endSymbol) + endSymbol.length()),
             startSymbol, endSymbol, options);
+        return rtn;
       }
     }
 
@@ -144,16 +143,22 @@ public class EmbeddedVariableUtil {
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
-  @Nullable
-  static Pair<String, String> getFirstFoundEmbeddedVariable(@RequireNonnull String string,
-      @RequireNonnull @RequireSizeNonZero @RequireElementNonEmpty String[] startSymbols,
+
+  @SuppressWarnings("null")
+  static @Nullable Pair<@NonNull String, String> getFirstFoundEmbeddedVariable(
+      @Nullable String string,
+      @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options)
       throws MultipleAppException, StringFormatIncorrectException {
 
-    ObjectsUtil.requireSizeNonZero(ObjectsUtil.requireNonNull(startSymbols));
+    if (string == null) {
+      return null;
+    }
+
+    ObjectsUtil.requireSizeNonZero(startSymbols);
     List<StringFormatIncorrectException> exList = new ArrayList<>();
 
-    Map<Integer, String> firstFoundParamNameMap = new HashMap<>();
+    Map<Integer, @NonNull String> firstFoundParamNameMap = new HashMap<>();
     for (String startSymbol : startSymbols) {
       try {
         String param = getFirstFoundEmbeddedVariable(string, startSymbol, endSymbol, options);
@@ -184,8 +189,12 @@ public class EmbeddedVariableUtil {
 
     } else {
       String firstFoundStartSymbol = firstFoundParamNameMap.get(firstFoundParamNameList.get(0));
-      return Pair.of(firstFoundParamNameMap.get(firstFoundParamNameList.get(0)),
-          getFirstFoundEmbeddedVariable(string, firstFoundStartSymbol, endSymbol, options));
+      @Nullable
+      Pair<@NonNull String, @Nullable String> pair = Pair.of(
+          Objects.requireNonNull(firstFoundParamNameMap.get(firstFoundParamNameList.get(0))),
+          getFirstFoundEmbeddedVariable(string, Objects.requireNonNull(firstFoundStartSymbol),
+              endSymbol, options));
+      return pair;
     }
   }
 
@@ -213,14 +222,15 @@ public class EmbeddedVariableUtil {
    * @throws MultipleAppException MultipleAppException
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
-  @Nonnull
-  public static List<Pair<String, String>> getPartList(@RequireNonnull String string,
-      @RequireNonnull @RequireSizeNonZero @RequireElementNonEmpty String[] startSymbols,
+  @SuppressWarnings("null")
+  public static List<Pair<String, String>> getPartList(String string,
+      @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options)
       throws StringFormatIncorrectException, MultipleAppException {
 
     // the left side of the pair is startSymbol, and the right variable name.
-    Pair<String, String> param = null;
+    @Nullable
+    Pair<@NonNull String, String> param = null;
 
     // search all the variables and put each part to the list.
     List<Pair<String, String>> list = new ArrayList<>();
@@ -231,7 +241,8 @@ public class EmbeddedVariableUtil {
       // but when a variable exists and there is a normal string part before the variable,
       // both the normal string and a variable are added to the list.
 
-      param = getFirstFoundEmbeddedVariable(part, startSymbols, endSymbol, options);
+      param = getFirstFoundEmbeddedVariable(Objects.requireNonNull(part), startSymbols, endSymbol,
+          options);
 
       // param == null means variable not contained in part
       if (param == null) {
@@ -283,9 +294,8 @@ public class EmbeddedVariableUtil {
    *     It returns list with size zero when the argument string is blank("").
    * @throws AppException AppException 
    */
-  @Nonnull
-  public static List<Pair<String, String>> getPartList(@RequireNonnull String string,
-      @RequireNonnull @RequireSizeNonZero @RequireElementNonEmpty String[] startSymbols,
+  public static List<Pair<String, String>> getPartList(String string,
+      @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol) throws AppException {
 
     return getPartList(string, startSymbols, endSymbol, null);
@@ -310,15 +320,14 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getVariableReplacedString(@RequireNonnull String string,
-      @RequireNonEmpty String startSymbol, @RequireNonEmpty String endSymbol,
-      @RequireNonnull Function<String, String> valueGetterFromKey, @Nullable Options options)
+  public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
+      String endSymbol, Function<String, String> valueGetterFromKey, @Nullable Options options)
       throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     ObjectsUtil.requireNonNull(valueGetterFromKey);
 
     List<Pair<String, String>> list =
-        getPartList(string, new String[] {startSymbol}, endSymbol, options);
+        getPartList(string, new @NonNull String[] {startSymbol}, endSymbol, options);
 
     StringBuilder sb = new StringBuilder();
     for (Pair<String, String> pair : list) {
@@ -330,7 +339,8 @@ public class EmbeddedVariableUtil {
         // Throw an error when the map does not contain the key
         String value = valueGetterFromKey.apply(pair.getRight());
         if (value == null) {
-          throw new VariableNotFoundException(pair.getRight());
+          var ex = new VariableNotFoundException(pair.getRight());
+          throw ex;
 
         } else {
           sb.append(value);
@@ -353,9 +363,8 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getVariableReplacedString(@RequireNonnull String string,
-      @RequireNonEmpty String startSymbol, @RequireNonEmpty String endSymbol,
-      @RequireNonnull Function<String, String> valueGetterFromKey)
+  public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
+      @RequireNonEmpty String endSymbol, Function<String, String> valueGetterFromKey)
       throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     return getVariableReplacedString(string, startSymbol, endSymbol, valueGetterFromKey, null);
@@ -374,9 +383,9 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws VariableNotFoundException StringFormatIncorrectException
    */
-  public static String getVariableReplacedString(@RequireNonnull String string,
-      @RequireNonEmpty String startSymbol, @RequireNonEmpty String endSymbol,
-      @RequireNonnull Map<String, String> parameterMap, @Nullable Options options)
+  public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
+      @RequireNonEmpty String endSymbol, Map<String, String> parameterMap,
+      @Nullable Options options)
       throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     ObjectsUtil.requireNonNull(parameterMap);
@@ -397,9 +406,8 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    * @throws VariableNotFoundException VariableNotFoundException
    */
-  public static String getVariableReplacedString(@RequireNonnull String string,
-      @RequireNonEmpty String startSymbol, @RequireNonEmpty String endSymbol,
-      @RequireNonnull Map<String, String> parameterMap)
+  public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
+      @RequireNonEmpty String endSymbol, Map<String, String> parameterMap)
       throws StringFormatIncorrectException, MultipleAppException, VariableNotFoundException {
 
     return getVariableReplacedString(string, startSymbol, endSymbol, parameterMap, null);

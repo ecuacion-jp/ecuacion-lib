@@ -15,15 +15,15 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireElementNonEmpty;
 import jp.ecuacion.lib.core.annotation.RequireElementNonNull;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.annotation.RequireSizeNonZero;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +54,6 @@ public class ObjectsUtil {
    * @param object Any object
    * @return the argument
    */
-  @Nonnull
   public static <T> @NonNull T requireNonNull(@Nullable T object) {
     if (object == null) {
       throw new RequireNonNullException();
@@ -73,7 +72,6 @@ public class ObjectsUtil {
    * @param object2 Any object
    * @param objects Any objects
    */
-  @Nonnull
   public static void requireNonNull(@Nullable Object object1, @Nullable Object object2,
       @Nullable Object... objects) {
 
@@ -91,9 +89,7 @@ public class ObjectsUtil {
    * @param string Any string 
    * @return the argument
    */
-  @Nonnull
-  public static String requireNonEmpty(@RequireNonEmpty String string) {
-
+  public static String requireNonEmpty(@RequireNonEmpty @Nullable String string) {
     if (string == null || string.equals("")) {
       throw new RequireNonEmptyException();
     }
@@ -109,9 +105,9 @@ public class ObjectsUtil {
    * @param string2 Any string
    * @param strings Any strings
    */
-  @Nonnull
-  public static void requireNonEmpty(@RequireNonEmpty String string1,
-      @RequireNonEmpty String string2, @RequireNonEmpty String... strings) {
+  public static void requireNonEmpty(@RequireNonEmpty @Nullable String string1,
+      @RequireNonEmpty @Nullable String string2,
+      @RequireNonEmpty @Nullable String @Nullable... strings) {
 
     String[] allStrings = ArrayUtils.addAll(strings, string1, string2);
 
@@ -129,9 +125,8 @@ public class ObjectsUtil {
    * @param objects Any object, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
-  public static <T> T[] requireSizeNonZero(@RequireSizeNonZero T[] objects) {
-    requireSizeNonZero(Arrays.asList(objects));
+  public static <T extends @Nullable Object> T[] requireSizeNonZero(T[] objects) {
+    requireSizeNonZero(Objects.requireNonNull(Arrays.asList(objects)));
 
     return objects;
   }
@@ -145,14 +140,14 @@ public class ObjectsUtil {
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
-  public static <T> Collection<T> requireSizeNonZero(@RequireSizeNonZero Collection<T> collection) {
+  public static <T extends @Nullable Object> Collection<T> requireSizeNonZero(
+      Collection<T> collection) {
 
     if (collection != null && collection.size() == 0) {
       throw new RequireSizeNonZeroException();
     }
 
-    return collection;
+    return (Collection<T>) collection;
   }
 
   /**
@@ -163,11 +158,12 @@ public class ObjectsUtil {
    * @param objects Any object, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
-  public static <T> T[] requireElementNonNull(T[] objects) {
-    requireElementNonNull(Arrays.asList(objects));
+  public static <T extends @Nullable Object> T[] requireElementNonNull(T[] objects) {
+    List<T> objList = Arrays.asList(objects);
+    requireElementNonNull(objList);
 
-    return objects;
+    T[] nonNullObjs = objects;
+    return nonNullObjs;
   }
 
   /**
@@ -178,8 +174,7 @@ public class ObjectsUtil {
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
-  public static <T> Collection<T> requireElementNonNull(
+  public static <T extends @Nullable Object> Collection<T> requireElementNonNull(
       Collection<T> collection) {
 
     if (collection != null) {
@@ -190,7 +185,8 @@ public class ObjectsUtil {
       }
     }
 
-    return collection;
+    Collection<T> nonNullCol = collection;
+    return nonNullCol;
   }
 
   /**
@@ -200,7 +196,6 @@ public class ObjectsUtil {
    * @param strings Any strings, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
   public static String[] requireElementNonEmpty(@RequireElementNonEmpty String[] strings) {
 
     if (strings != null) {
@@ -221,7 +216,6 @@ public class ObjectsUtil {
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
   public static Collection<String> requireElementNonEmpty(
       @RequireElementNonEmpty Collection<String> collection) {
     requireElementNonEmpty(collection.toArray(new String[collection.size()]));
@@ -237,7 +231,6 @@ public class ObjectsUtil {
    * @param objects Any object, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
   public static <T> T[] requireElementsNonDuplicated(@RequireElementNonNull T[] objects) {
     requireElementsNonDuplicated(Arrays.asList(objects));
 
@@ -252,7 +245,6 @@ public class ObjectsUtil {
    * @param collection Any collection, {@code null} is acceptable.
    * @return the argument
    */
-  @Nonnull
   public static <T> Collection<T> requireElementsNonDuplicated(
       @RequireElementNonNull Collection<T> collection) {
 
@@ -278,7 +270,7 @@ public class ObjectsUtil {
     /**
      * Construct a new instance.
      */
-    public ObjectsUtilException(@NonNull String message) {
+    public ObjectsUtilException(String message) {
       super(message);
     }
   }

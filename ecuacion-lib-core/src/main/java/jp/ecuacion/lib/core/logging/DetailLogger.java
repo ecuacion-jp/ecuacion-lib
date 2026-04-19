@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
@@ -31,7 +31,7 @@ import org.slf4j.event.Level;
  * 
  * <p>All the loglevels (trace, debug, info, warn, error) can be used.</p>
  */
-public class DetailLogger extends EclibLogger {
+public class DetailLogger extends AbstractLogger {
 
   /** 
    * Constructs a new instance with a caller instance.
@@ -142,9 +142,9 @@ public class DetailLogger extends EclibLogger {
    * 
    * @param logLevel logLevel. Cannot be {@code null}.
    * @param throwable throwable. It can be {@code null}. 
-   *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
+   *     See {@code message} parameter part of {@link AbstractLogger#log(Level, String)}.
    * @param additionalMessage message. Elements can be {@code null}. 
-   *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
+   *     See {@code message} parameter part of {@link AbstractLogger#log(Level, String)}.
    */
   private void log(Level logLevel, @Nullable Throwable throwable,
       @Nullable String... additionalMessages) {

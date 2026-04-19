@@ -58,7 +58,8 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T> ex
   /**
    * is {@code isValid} method for each class-level validators.
    */
-  protected abstract boolean internalIsValid(T value, @Nullable ConstraintValidatorContext context);
+  protected abstract boolean internalIsValid(@NonNull T value,
+      @Nullable ConstraintValidatorContext context);
 
   /**
    * Constructs a new instance.

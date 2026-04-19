@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
@@ -23,7 +22,6 @@ import jakarta.validation.Validator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import org.jspecify.annotations.NonNull;
@@ -48,9 +46,8 @@ public class ValidationUtil {
    * @param object object to validate
    * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object)
-      throws ConstraintViolationException {
-    validateThenThrow(object, (Class<?>[]) null);
+  public static <T> void validateThenThrow(@Nullable T object) throws ConstraintViolationException {
+    validateThenThrow(object, new Class<?>[] {});
   }
 
   /**
@@ -61,7 +58,7 @@ public class ValidationUtil {
    * @param groups validation groups
    * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object, Class<?>... groups)
+  public static <T> void validateThenThrow(T object, Class<?>... groups)
       throws ConstraintViolationException {
     validateThenThrow(object, new MessageParameters(), groups);
   }
@@ -74,9 +71,9 @@ public class ValidationUtil {
    * @param messageParameters See {@link MessageParameters}.
    * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters messageParameters) throws ConstraintViolationException {
-    validateThenThrow(object, messageParameters, (Class<?>[]) null);
+  public static <T> void validateThenThrow(T object, MessageParameters messageParameters)
+      throws ConstraintViolationException {
+    validateThenThrow(object, messageParameters, new Class<?>[] {});
   }
 
   /**
@@ -88,11 +85,11 @@ public class ValidationUtil {
    * @param groups validation groups
    * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(@RequireNonnull T object,
-      @Nullable MessageParameters messageParameters, Class<?>... groups)
-      throws ConstraintViolationException {
+  public static <T> void validateThenThrow(T object, MessageParameters messageParameters,
+      Class<?>... groups) throws ConstraintViolationException {
 
-    @NonNull Optional<@NonNull ConstraintViolationException> opt =
+    @NonNull
+    Optional<@NonNull ConstraintViolationException> opt =
         validateThenReturn(object, messageParameters, groups);
 
     if (opt.isPresent()) {
@@ -107,10 +104,8 @@ public class ValidationUtil {
    * @param object object to validate
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-  @Nonnull
-  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
-      @RequireNonnull T object) {
-    return validateThenReturn(object, (Class<?>[]) null);
+  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object) {
+    return validateThenReturn(object, new Class<?>[] {});
   }
 
   /**
@@ -120,10 +115,9 @@ public class ValidationUtil {
    * @param object object to validate
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-  @Nonnull
-  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
-      @RequireNonnull T object, Class<?>... groups) {
-    return validateThenReturn(object, null, groups);
+  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object,
+      Class<?>... groups) {
+    return validateThenReturn(object, ValidationUtil.messageParameters(), groups);
   }
 
   /**
@@ -133,10 +127,9 @@ public class ValidationUtil {
    * @param object object to validate
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-  @Nonnull
-  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
-      @RequireNonnull T object, MessageParameters messageParameters) {
-    return validateThenReturn(object, messageParameters, (Class<?>[]) null);
+  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object,
+      MessageParameters messageParameters) {
+    return validateThenReturn(object, messageParameters, new Class<?>[] {});
   }
 
   /**
@@ -146,16 +139,15 @@ public class ValidationUtil {
    * @param object object to validate
    * @return MultipleAppException, may be null when no validation errors exist.
    */
-  @Nonnull
-  public static <T> @NonNull Optional<@NonNull ConstraintViolationException> validateThenReturn(
-      @RequireNonnull T object, MessageParameters messageParameters, Class<?>... groups) {
+  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(
+      T object, MessageParameters messageParameters, Class<?>... groups) {
     Set<ConstraintViolation<T>> set =
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
 
     Optional<@NonNull ConstraintViolationException> rtn = set.size() == 0 ? Optional.empty()
         : Optional.of(new ConstraintViolationExceptionWithParameters(set, messageParameters));
-    
+
     return Objects.requireNonNull(rtn);
   }
 
@@ -184,16 +176,15 @@ public class ValidationUtil {
    */
   public static class MessageParameters {
 
-    private Boolean isMessageWithItemName;
-    private boolean showsItemNamePath;
-    private Arg messagePrefix;
-    private Arg messagePostfix;
+    private @Nullable Boolean isMessageWithItemName;
+    private boolean showsItemNamePath = false;
+    private @Nullable Arg messagePrefix;
+    private @Nullable Arg messagePostfix;
 
     /**
      * Construct a new instance.
      */
     public MessageParameters() {
-
     }
 
     /**
@@ -220,7 +211,7 @@ public class ValidationUtil {
     /**
      * Returns addsItemNameToMessage.
      */
-    public Boolean isMessageWithItemName() {
+    public @Nullable Boolean isMessageWithItemName() {
       return isMessageWithItemName;
     }
 
@@ -247,7 +238,7 @@ public class ValidationUtil {
       return this;
     }
 
-    public Arg getMessagePrefix() {
+    public @Nullable Arg getMessagePrefix() {
       return messagePrefix;
     }
 
@@ -272,7 +263,7 @@ public class ValidationUtil {
       return this;
     }
 
-    public Arg getMessagePostfix() {
+    public @Nullable Arg getMessagePostfix() {
       return messagePostfix;
     }
 

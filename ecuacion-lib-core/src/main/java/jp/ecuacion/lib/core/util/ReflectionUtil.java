@@ -15,17 +15,18 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods for {@code java.lang.reflect} and other checks.
@@ -82,7 +83,8 @@ public class ReflectionUtil {
           }
         }
 
-        tmpClass = type instanceof Class<?> c ? c : Class.forName(type.getTypeName());
+        tmpClass = type instanceof Class<?> c ? c
+            : Class.forName(Objects.requireNonNull(type).getTypeName());
 
       } catch (Exception ex) {
         throw new RuntimeException(ex);
@@ -135,7 +137,7 @@ public class ReflectionUtil {
         return Optional.of(an);
       }
 
-      classOfTargetInstance = classOfTargetInstance.getSuperclass();
+      classOfTargetInstance = Objects.requireNonNull(classOfTargetInstance.getSuperclass());
     }
   }
 
@@ -148,7 +150,6 @@ public class ReflectionUtil {
    *     right-hand side is its instance.
    *     When you set "dept.name" to fieldName, instance would be "dept".
    */
-  @Nonnull
   public static Field getField(Class<?> cls, String propertyPath) {
     Field validationTargetField;
 
@@ -157,6 +158,7 @@ public class ReflectionUtil {
 
     if (propertyPath.contains(".")) {
       String leftMost = propertyPath.substring(0, propertyPath.indexOf("."));
+      @NonNull
       String theLeft = propertyPath.substring(leftMost.length() + 1);
 
       return getField(getField(cls, leftMost).getType(), theLeft);
@@ -184,7 +186,7 @@ public class ReflectionUtil {
         }
       }
 
-      cls = cls.getSuperclass();
+      cls = Objects.requireNonNull(cls.getSuperclass());
     }
 
     throw new RuntimeException(ex);
@@ -206,15 +208,18 @@ public class ReflectionUtil {
    * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
    * </code>
    */
-  protected static Object getValue(Object object, String propertyPath) {
+  protected static @Nullable Object getValue(Object object, String propertyPath) {
     try {
 
       while (true) {
         if (propertyPath.contains(".")) {
+          @NonNull
           String leftMostOfPropertyPath = propertyPath.substring(0, propertyPath.indexOf("."));
+          @NonNull
           String theRestOfPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
 
-          return getValue(getValue(object, leftMostOfPropertyPath), theRestOfPropertyPath);
+          return getValue(Objects.requireNonNull(getValue(object, leftMostOfPropertyPath)),
+              theRestOfPropertyPath);
 
         } else {
           if (propertyPath.contains("[")) {
@@ -250,7 +255,7 @@ public class ReflectionUtil {
               throw new ElementOfCollectionCannotBeObtainedException(
                   "Multiple value types other than array and List "
                       + "are not supported. The type of value: "
-                      + objs.getClass().getCanonicalName());
+                      + Objects.requireNonNull(objs).getClass().getCanonicalName());
             }
 
           } else {
@@ -275,7 +280,7 @@ public class ReflectionUtil {
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
 
     return StringUtils.isEmpty(leafBeanItemPropertyPath) ? rootBean
-        : ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath);
+        : Objects.requireNonNull(ReflectionUtil.getValue(rootBean, leafBeanItemPropertyPath));
   }
 
   /**

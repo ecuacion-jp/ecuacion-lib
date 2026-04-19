@@ -25,7 +25,6 @@ import org.jspecify.annotations.Nullable;
 public class MethodAlwaysFalseValidator
     extends MultiplePropertyPathsValidator<MethodAlwaysFalse, Object> {
 
-  @SuppressWarnings("null")
   @Override
   public void initialize(@Nullable MethodAlwaysFalse annotation) {
     Objects.requireNonNull(annotation);
@@ -33,8 +32,7 @@ public class MethodAlwaysFalseValidator
   }
 
   @Override
-  protected boolean internalIsValid(@Nullable Object value,
-      @Nullable ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, @Nullable ConstraintValidatorContext context) {
     return false;
   }
 }

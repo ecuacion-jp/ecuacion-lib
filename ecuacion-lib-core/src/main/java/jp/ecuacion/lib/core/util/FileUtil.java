@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -32,9 +31,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,22 +49,14 @@ public class FileUtil {
    */
   private FileUtil() {}
 
-  private static final Map<String, String> SAVABLE_NAME_REPLACEMENTS = Map.of(
-      "\\\\", "__yen__",
-      "/", "__slash__",
-      ":", "__colon__",
-      "\\*", "__asterisk__",
-      "\\?", "__question__",
-      "\"", "__dquotation__",
-      "<", "__lessthan__",
-      ">", "__morethan__",
-      "\\|", "__pipe__");
+  private static final Map<String, String> SAVABLE_NAME_REPLACEMENTS = Map.of("\\\\", "__yen__",
+      "/", "__slash__", ":", "__colon__", "\\*", "__asterisk__", "\\?", "__question__", "\"",
+      "__dquotation__", "<", "__lessthan__", ">", "__morethan__", "\\|", "__pipe__");
 
   /**
    * Changes argument filename into file-savable name.
    */
-  @Nonnull
-  public static String getFileSavableName(@RequireNonnull String origName) {
+  public static String getFileSavableName(String origName) {
     ObjectsUtil.requireNonNull(origName);
 
     String rtn = origName;
@@ -85,9 +76,7 @@ public class FileUtil {
    * 
    * @return
    */
-  @Nonnull
-  private static String concatTwoFilePaths(@RequireNonnull String path1,
-      @RequireNonnull String path2) {
+  private static String concatTwoFilePaths(String path1, String path2) {
     ObjectsUtil.requireNonNull(path1, path2);
 
     if (path1.endsWith("/")) {
@@ -107,8 +96,7 @@ public class FileUtil {
    * @param paths paths
    * @return the concatenated path
    */
-  @Nonnull
-  public static String concatFilePaths(@Nonnull String... paths) {
+  public static String concatFilePaths(String... paths) {
     String concatPath = "";
     for (String path : paths) {
       if (concatPath.equals("")) {
@@ -127,7 +115,7 @@ public class FileUtil {
    * Supports both slash (/) and backslash (\).<br>
    * Returns -1 if there is no separator position.
    */
-  private static int getFirstPathSeparatorIndex(@RequireNonnull String path) {
+  private static int getFirstPathSeparatorIndex(String path) {
     ObjectsUtil.requireNonNull(path);
 
     int firstSlashIndex = path.indexOf("/");
@@ -160,20 +148,19 @@ public class FileUtil {
    * @param path path
    * @return the cleaned path
    */
-  @Nonnull
-  public static String cleanPathStrWithSlash(@RequireNonnull String path) {
+  public static String cleanPathStrWithSlash(String path) {
     ObjectsUtil.requireNonNull(path);
 
     String rtnStr = null;
     // At the same time, unify the delimiter to "/".
     rtnStr = path.replaceAll("\\\\", "/");
-    // When connecting paths into strings, 
+    // When connecting paths into strings,
     // there may be consecutive path separators (/, \), so we need to clean them up.
     rtnStr = rtnStr.replaceAll("//", "/");
 
-    // In ftp-related processing, paths are sometimes expressed with dots, 
-    // such as "/path/to/dir/.". 
-    // If "/./" is present or if the string ends with "/.", 
+    // In ftp-related processing, paths are sometimes expressed with dots,
+    // such as "/path/to/dir/.".
+    // If "/./" is present or if the string ends with "/.",
     // a process has been added to remove the "/.".
     if (rtnStr.endsWith("/.")) {
       rtnStr = rtnStr.substring(0, rtnStr.length() - 2);
@@ -195,8 +182,7 @@ public class FileUtil {
   /**
    * Returns true if the argument path contains wildcard strings.
    */
-  @Nonnull
-  public static boolean containsWildCard(@RequireNonnull String path) {
+  public static boolean containsWildCard(String path) {
     return (path.contains("?") || path.contains("*"));
   }
 
@@ -206,14 +192,13 @@ public class FileUtil {
    * <p>"*", "?" are supported, but "**" not supported.<br>
    * The separator of returning Paths is "/"</p>
    */
-  @Nonnull
-  public static List<String> getPathListFromPathWithWildcard(@RequireNonnull String path)
+  public static List<String> getPathListFromPathWithWildcard(String path)
       throws BizLogicAppException {
 
     final List<String> fullPathList = new ArrayList<>();
     // Clean the path string.
     path = cleanPathStrWithSlash(path);
-    // If the path ends with a path separator, 
+    // If the path ends with a path separator,
     // it will make the subsequent processing complicated, so remove it first.
     if (path.endsWith("/") || path.endsWith("\\")) {
       path = path.substring(0, path.length() - 1);
@@ -239,21 +224,21 @@ public class FileUtil {
    * @return true if the path is relative
    * @throws BizLogicAppException BizLogicAppException
    */
-  @Nonnull
-  public static boolean isRelativePath(@RequireNonnull String path) throws BizLogicAppException {
+  @SuppressWarnings("unused")
+  public static boolean isRelativePath(String path) throws BizLogicAppException {
     // If no value is set for path, an error occurs.
     if (path == null || path.equals("")) {
       throw new BizLogicAppException("MSG_ERR_PATH_IS_NULL");
     }
 
-    if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")) {
+    if (Objects.requireNonNull(System.getProperty("os.name")).toUpperCase().contains("WINDOWS")) {
       // In Windows, if the second character is ":", such as "c:\...", it is a full path.
       if (path.length() >= 2 && path.substring(1, 2).equals(":")) {
         return false;
       }
 
     } else {
-      // For the time being, we have no choice but to assume that it is a Linux system, 
+      // For the time being, we have no choice but to assume that it is a Linux system,
       // but if the first character is "/", then the full path
       if (path.length() >= 1 && path.substring(0, 1).equals("/")) {
         return false;
@@ -263,8 +248,7 @@ public class FileUtil {
     return true;
   }
 
-  @Nonnull
-  private static String changeRelPathToFullPath(@RequireNonnull String path) {
+  private static String changeRelPathToFullPath(String path) {
     String curPath = new File(".").getAbsolutePath();
     String fullPath = concatFilePaths(curPath, path);
     // Replace them so that no strange "./" or ".\" remains.
@@ -272,9 +256,8 @@ public class FileUtil {
     return fullPath;
   }
 
-  private static void getPathListFromPathWithWildcardRecursively(@RequireNonnull String fullPath,
-      @RequireNonnull String parentPath, @RequireNonnull List<String> rtnFullPathList)
-      throws BizLogicAppException {
+  private static void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
+      List<String> rtnFullPathList) throws BizLogicAppException {
     ObjectsUtil.requireNonNull(fullPath, parentPath, rtnFullPathList);
 
     String myFileOrDirnameWithWildcard = null;
@@ -282,7 +265,7 @@ public class FileUtil {
 
     if (parentPath.equals("")) {
       String myPathWithWildcard = fullPath.substring(0, getFirstPathSeparatorIndex(fullPath) + 1);
-      // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard 
+      // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard
       // to contain a wildcard, so if it does, an error will occur.
       if (myPathWithWildcard.contains("*") || myPathWithWildcard.contains("?")) {
         throw new BizLogicAppException("MSG_ERR_1ST_LEVEL_CANNOT_HAVE_WILDCARD", fullPath);
@@ -292,20 +275,20 @@ public class FileUtil {
 
     } else {
       // ### Below is what I want as a whole.
-      // ### Get the path one level below parentPath, match it with the list of files 
-      // ### and folders under parentPath, and if the target list is found, 
+      // ### Get the path one level below parentPath, match it with the list of files
+      // ### and folders under parentPath, and if the target list is found,
       // ### recursively call this method with the directory one level lower.
-      
+
       // First, get the fullPath (A) by removing the parentPath string.
-      // Strictly speaking, because there is a wildcard in the middle, 
-      // even if you remove the same number of characters, 
+      // Strictly speaking, because there is a wildcard in the middle,
+      // even if you remove the same number of characters,
       // it will not match. You need to count the number of delimiters to match.
       int numOfSeparatorOfParentPath = StringUtils.countMatches(parentPath, "/");
       String fullPathMinusParentPath = fullPath
           .substring(StringUtils.ordinalIndexOf(fullPath, "/", numOfSeparatorOfParentPath) + 1);
       // Check if A contains a path separator
       int ind = getFirstPathSeparatorIndex(fullPathMinusParentPath);
-      // Depending on whether there is a delimiter or not, 
+      // Depending on whether there is a delimiter or not,
       // the string to put in myFileOrDirnameWithWildcard is classified into cases.
       if (ind >= 0) {
         // If there is a delimiter, put the string up to the delimiter into myFileOrDirname
@@ -313,21 +296,21 @@ public class FileUtil {
       } else {
         // If there is no delimiter, it will be set to the last character.
         myFileOrDirnameWithWildcard = fullPathMinusParentPath;
-        
-        // In the case of directory specification, there may be a pattern 
-        // where the delimiter character is the last character, 
-        // but this is not possible because it is removed 
+
+        // In the case of directory specification, there may be a pattern
+        // where the delimiter character is the last character,
+        // but this is not possible because it is removed
         // in the getPathListFromPathWithWildcard method.
-        // Therefore, if we reach this else side, 
-        // it means that we have descended to the fullPath directory depth, 
+        // Therefore, if we reach this else side,
+        // it means that we have descended to the fullPath directory depth,
         // so we set hasReachedFullPathDirDepth to true.
         hasReachedFullPathDirDepth = true;
       }
 
-      // If myFileOrDirname contains a wildcard, 
+      // If myFileOrDirname contains a wildcard,
       // it must be compared with the list of files and directories under parentPath.
       if (myFileOrDirnameWithWildcard.contains("?") || myFileOrDirnameWithWildcard.contains("*")) {
-        // The "." in the file name will be mistaken for a regular expression, 
+        // The "." in the file name will be mistaken for a regular expression,
         // so change it to "\\." first.
         String myFileOrDirnameWithRegEx = myFileOrDirnameWithWildcard.replaceAll("\\.", "\\\\.");
         // Replace wildcards with regular expressions
@@ -344,7 +327,7 @@ public class FileUtil {
         for (String path : arr) {
           String myFullPath = parentPath + path;
 
-          // Since the source of comparison is adopted cleanPathString, 
+          // Since the source of comparison is adopted cleanPathString,
           // so we will also do this so that we can compare it.
           myFullPath = cleanPathStrWithSlash(myFullPath);
 
@@ -378,8 +361,7 @@ public class FileUtil {
    * @param origPath original path
    * @return the separator changed path
    */
-  @Nonnull
-  public static String getParentDirPath(@RequireNonnull String origPath) {
+  public static String getParentDirPath(String origPath) {
     ObjectsUtil.requireNonNull(origPath);
 
     // The separator used is now unified to "/".
@@ -395,11 +377,10 @@ public class FileUtil {
    * @param path path
    * @return filename
    */
-  @Nonnull
-  public static String getFileNameFromFilePath(@RequireNonnull String path) {
+  public static String getFileNameFromFilePath(String path) {
     ObjectsUtil.requireNonNull(path);
 
-    // To avoid any impact whether or not there is a path separator ("/" or "\") 
+    // To avoid any impact whether or not there is a path separator ("/" or "\")
     // at the end of getParentDirPath, remove the leading path separator.
     return path.substring(getParentDirPath(path).length()).replace("\\", "").replace("/", "");
   }
@@ -410,13 +391,12 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  @Nonnull
-  public static String getFileSizeInMb(@RequireNonnull Long fileSize) {
+  public static String getFileSizeInMb(Long fileSize) {
     ObjectsUtil.requireNonNull(fileSize);
 
     double d = Double.valueOf(fileSize);
-    
-    // Since we want to round to the second decimal place, 
+
+    // Since we want to round to the second decimal place,
     // we first divide by the digit that is one place less, then round it up and divide by 10.
     return Double.valueOf(Math.round(d / 100000.0) / 10.0).toString();
   }
@@ -427,8 +407,7 @@ public class FileUtil {
    * @param fileSize fileSize
    * @return the file size in Megabyte
    */
-  @Nonnull
-  public static String getFileSizeInMbWithUnit(@RequireNonnull Long fileSize) {
+  public static String getFileSizeInMbWithUnit(Long fileSize) {
     return getFileSizeInMb(fileSize) + " MB";
   }
 
@@ -451,16 +430,15 @@ public class FileUtil {
    * @return The {@code Pair} tuple which have {@code FileChannel} and {@code FileLock}.
    * @throws IOException IOException
    */
-  @Nonnull
-  public static Pair<FileChannel, FileLock> lock(@RequireNonnull File lockFile,
-      @Nullable String version) throws IOException {
+  public static Pair<FileChannel, FileLock> lock(File lockFile, @Nullable String version)
+      throws IOException {
     ObjectsUtil.requireNonNull(lockFile);
     FileLock lockedObject = null;
 
     FileChannel channel =
         FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
-    // Attempts to lock a file. If lockedObject is null instead of throwing an exception, 
+    // Attempts to lock a file. If lockedObject is null instead of throwing an exception,
     // it may mean that the lock acquisition failed.
     lockedObject = channel.tryLock();
     if (lockedObject == null) {
@@ -486,7 +464,7 @@ public class FileUtil {
    * @throws IOException IOException
    */
   @SuppressWarnings("resource")
-  public static boolean isLocked(@RequireNonnull String path) throws IOException {
+  public static boolean isLocked(String path) throws IOException {
     ObjectsUtil.requireNonNull(path);
 
     File file = new File(path);
@@ -562,8 +540,7 @@ public class FileUtil {
    * @param channelAndLock the return object of the method {@code lock}.
    * @throws IOException IOException
    */
-  public static void release(@RequireNonnull Pair<FileChannel, FileLock> channelAndLock)
-      throws IOException {
+  public static void release(Pair<FileChannel, FileLock> channelAndLock) throws IOException {
     FileChannel channel = channelAndLock.getLeft();
     FileLock lockedObject = channelAndLock.getRight();
 
@@ -594,10 +571,9 @@ public class FileUtil {
    * @return The timestamp string in yyyy-mm-dd-hh-mi-ss.SSS format.
    *     To ignore the time offset, the time is always treated as UTC.
    */
-  @Nonnull
-  public static String getLockFileVersion(@RequireNonnull File lockFile) throws IOException {
+  public static String getLockFileVersion(File lockFile) throws IOException {
     // Create a directory if not exists.
-    lockFile.getParentFile().mkdirs();
+    Objects.requireNonNull(lockFile.getParentFile()).mkdirs();
 
     // Create a file if not exists.
     if (!lockFile.exists()) {

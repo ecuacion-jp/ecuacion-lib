@@ -20,7 +20,6 @@ import java.util.List;
 import jp.ecuacion.lib.core.TestTools;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
-
 public class MultipleAppExceptionTest extends TestTools {
 
   @Test
@@ -35,7 +34,6 @@ public class MultipleAppExceptionTest extends TestTools {
     }
   }
 
-  @SuppressWarnings("null")
   @Test
   public void test01_constructor_01_list_03_valid() {
     List<@NonNull SingleAppException> list = new ArrayList<>();

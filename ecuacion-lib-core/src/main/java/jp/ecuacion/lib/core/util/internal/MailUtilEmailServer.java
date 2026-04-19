@@ -15,6 +15,8 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
+import org.jspecify.annotations.Nullable;
+
 public final class MailUtilEmailServer {
 
   private String smtpServer;
@@ -35,7 +37,7 @@ public final class MailUtilEmailServer {
 
   /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
-      boolean needsAuthentication, boolean checksCertificate, String bounceMailAddress) {
+      boolean needsAuthentication, boolean checksCertificate, @Nullable String bounceMailAddress) {
     this.smtpServer = smtpServer;
     this.port = port;
     this.isSslEnabled = isSslEnabled;

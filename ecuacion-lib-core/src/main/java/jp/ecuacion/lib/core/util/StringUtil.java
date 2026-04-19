@@ -15,11 +15,9 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -46,8 +44,7 @@ public class StringUtil {
    * @param snakeCaseString snakeCaseString
    * @return camel case string
    */
-  @Nonnull
-  public static String getLowerCamelFromSnake(@RequireNonnull String snakeCaseString) {
+  public static String getLowerCamelFromSnake(String snakeCaseString) {
     ObjectsUtil.requireNonNull(snakeCaseString);
 
     // Throw an exception if "_" exists at the start or end because it means it's not a snake case.
@@ -96,8 +93,7 @@ public class StringUtil {
    * @param snakeCaseString snakeCaseString
    * @return camel case string
    */
-  @Nonnull
-  public static String getUpperCamelFromSnake(@RequireNonnull String snakeCaseString) {
+  public static String getUpperCamelFromSnake(String snakeCaseString) {
     return StringUtils.capitalize(getLowerCamelFromSnake(snakeCaseString));
   }
 
@@ -107,10 +103,7 @@ public class StringUtil {
    * @param camelCaseString snakeCaseString, may be null.
    * @return camel case string, may be null when camelCaseString is null.
    */
-  @Nonnull
-  public static String getLowerSnakeFromCamel(@RequireNonnull String camelCaseString) {
-    ObjectsUtil.requireNonNull(camelCaseString);
-
+  public static String getLowerSnakeFromCamel(String camelCaseString) {
     // uncapitalized
     camelCaseString = StringUtils.uncapitalize(camelCaseString);
 
@@ -132,8 +125,7 @@ public class StringUtil {
    * @return String comma-separated number.
    * @throws NumberFormatException NumberFormatException.
    */
-  @Nonnull
-  public static String toCurrencyFormat(@RequireNonnull String number) {
+  public static String toCurrencyFormat(String number) {
     ObjectsUtil.requireNonNull(number);
 
     NumberFormat formatter = NumberFormat.getNumberInstance();
@@ -151,16 +143,14 @@ public class StringUtil {
    * @param separator separator string
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull String[] array,
-      @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy) {
+  public static String getSeparatedValuesString(String[] array, String separator,
+      String leftHandSideEnclosedBy, String rightHandSideEnclosedBy) {
     ObjectsUtil.requireNonNull(array);
 
     separator = separator == null ? "" : separator;
     leftHandSideEnclosedBy = leftHandSideEnclosedBy == null ? "" : leftHandSideEnclosedBy;
     rightHandSideEnclosedBy = rightHandSideEnclosedBy == null ? "" : rightHandSideEnclosedBy;
-    
+
     boolean is1stTime = true;
     StringBuilder sb = new StringBuilder();
     for (String value : array) {
@@ -186,10 +176,8 @@ public class StringUtil {
    * @param separator separator string
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
-      @RequireNonnull String separator, String leftHandSideEnclosedBy,
-      String rightHandSideEnclosedBy) {
+  public static String getSeparatedValuesString(Collection<String> collection, String separator,
+      String leftHandSideEnclosedBy, String rightHandSideEnclosedBy) {
 
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
         leftHandSideEnclosedBy, rightHandSideEnclosedBy);
@@ -204,9 +192,8 @@ public class StringUtil {
    * @param separator separator string
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull String[] array,
-      @RequireNonnull String separator, String elementEnclosedBy) {
+  public static String getSeparatedValuesString(String[] array, String separator,
+      String elementEnclosedBy) {
 
     return getSeparatedValuesString(array, separator, elementEnclosedBy, elementEnclosedBy);
   }
@@ -220,9 +207,8 @@ public class StringUtil {
    * @param separator separator string
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
-      @RequireNonnull String separator, String elementEnclosedBy) {
+  public static String getSeparatedValuesString(Collection<String> collection, String separator,
+      String elementEnclosedBy) {
 
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
         elementEnclosedBy);
@@ -237,11 +223,9 @@ public class StringUtil {
    * @param separator separator string
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull String[] array,
-      @RequireNonnull String separator) {
+  public static String getSeparatedValuesString(String[] array, String separator) {
 
-    return getSeparatedValuesString(array, separator, null);
+    return getSeparatedValuesString(array, separator, "");
   }
 
 
@@ -253,9 +237,7 @@ public class StringUtil {
    * @param collection string collection
    * @return String
    */
-  @Nonnull
-  public static String getSeparatedValuesString(@RequireNonnull Collection<String> collection,
-      @RequireNonnull String separator) {
+  public static String getSeparatedValuesString(Collection<String> collection, String separator) {
 
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
   }
@@ -266,8 +248,7 @@ public class StringUtil {
    * @param array string array
    * @return csv
    */
-  @Nonnull
-  public static String getCsv(@Nonnull String... array) {
+  public static String getCsv(String... array) {
     return getSeparatedValuesString(array, ",");
   }
 
@@ -277,8 +258,7 @@ public class StringUtil {
    * @param collection collection of string.
    * @return csv.
    */
-  @Nonnull
-  public static String getCsv(@RequireNonnull Collection<String> collection) {
+  public static String getCsv(Collection<String> collection) {
     return getCsv(collection.toArray(new String[collection.size()]));
   }
 
@@ -290,8 +270,7 @@ public class StringUtil {
    * @param array list of string.
    * @return csv with spaces after commas.
    */
-  @Nonnull
-  public static String getCsvWithSpace(@RequireNonnull String[] array) {
+  public static String getCsvWithSpace(String[] array) {
     return getSeparatedValuesString(array, ", ");
   }
 
@@ -303,8 +282,7 @@ public class StringUtil {
    * @param collection collection of string.
    * @return csv with spaces after commas.
    */
-  @Nonnull
-  public static String getCsvWithSpace(@RequireNonnull Collection<String> collection) {
+  public static String getCsvWithSpace(Collection<String> collection) {
     return getCsvWithSpace(collection.toArray(new String[collection.size()]));
   }
 
@@ -331,8 +309,7 @@ public class StringUtil {
    * @param str string.
    * @return html-escaped strings.
    */
-  @Nonnull
-  public static String escapeHtml(@RequireNonnull String str) {
+  public static String escapeHtml(String str) {
     StringBuffer result = new StringBuffer();
     for (char c : str.toCharArray()) {
       switch (c) {

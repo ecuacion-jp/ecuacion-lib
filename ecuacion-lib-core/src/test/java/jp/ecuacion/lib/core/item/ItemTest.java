@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 public class ItemTest {
 
   @Test

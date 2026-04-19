@@ -24,7 +24,6 @@ import org.jspecify.annotations.Nullable;
  */
 public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, Object> {
 
-  @SuppressWarnings("null")
   @Override
   public void initialize(@Nullable ClassAlwaysFalse annotation) {
     Objects.requireNonNull(annotation);
@@ -32,8 +31,7 @@ public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, 
   }
 
   @Override
-  protected boolean internalIsValid(@Nullable Object value,
-      @Nullable ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, @Nullable ConstraintValidatorContext context) {
     return false;
   }
 }
