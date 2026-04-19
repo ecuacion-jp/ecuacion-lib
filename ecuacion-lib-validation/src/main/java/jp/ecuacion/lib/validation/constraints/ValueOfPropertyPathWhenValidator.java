@@ -17,8 +17,10 @@ package jp.ecuacion.lib.validation.constraints;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code ValueOfPropertyPathWhen}.
@@ -26,26 +28,27 @@ import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 public class ValueOfPropertyPathWhenValidator
     extends ValidateWhenValidator<ValueOfPropertyPathWhen, Object> {
 
-  private String propertyValuePropertyPath;
+  private String valuePropertyPath = "";
   private List<Object> propertyValues = new ArrayList<>();
 
   /** Initializes an instance. */
   @Override
-  public void initialize(ValueOfPropertyPathWhen annotation) {
+  public void initialize(@Nullable ValueOfPropertyPathWhen annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.notValueOfPropertyPathWhenConditionNotSatisfied());
 
-    this.propertyValuePropertyPath = annotation.valuePropertyPath();
+    this.valuePropertyPath = annotation.valuePropertyPath();
   }
 
   @Override
   public void procedureBeforeLoopForEachPropertyPath(Object instance) {
     super.procedureBeforeLoopForEachPropertyPath(instance);
 
-    Object valueOfPropertyValuePath = getValue(instance, propertyValuePropertyPath);
+    Object valueOfPropertyValuePath = getValue(instance, valuePropertyPath);
 
     propertyValues = new ArrayList<>();
     if (valueOfPropertyValuePath instanceof Object[]) {

@@ -15,8 +15,7 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-import jp.ecuacion.lib.core.constant.EclibCoreConstants;
-import jp.ecuacion.lib.validation.constraints.EmptyWhen;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class ValidateWhenTestBean {
@@ -28,31 +27,31 @@ public class ValidateWhenTestBean {
   public static class ConditionValueString {
 
     private String field = "X";
-    private String condField;
+    private @Nullable String condField;
 
-    public ConditionValueString(String condFieldValue) {
+    public ConditionValueString(@Nullable String condFieldValue) {
       condField = condFieldValue;
     }
   }
 
   public static class ConditionValueIsEmpty {
 
-    public static class String {
+    public static class xString {
 
       private java.lang.String field = "X";
-      private java.lang.String condField;
+      private @Nullable String condField;
 
-      public String(java.lang.String condFieldValue) {
+      public xString(@Nullable String condFieldValue) {
         condField = condFieldValue;
       }
     }
 
-    public static class Integer {
+    public static class xInteger {
 
       private java.lang.String field = "X";
-      private java.lang.Integer condField;
+      private @Nullable Integer condField;
 
-      public Integer(java.lang.Integer condFieldValue) {
+      public xInteger(@Nullable Integer condFieldValue) {
         condField = condFieldValue;
       }
     }
@@ -60,31 +59,31 @@ public class ValidateWhenTestBean {
     public static class TestEnum {
 
       private java.lang.String field = "X";
-      private ValidateWhenTestBean.TestEnum condField;
+      private ValidateWhenTestBean.@Nullable TestEnum condField;
 
-      public TestEnum(ValidateWhenTestBean.TestEnum condFieldValue) {
+      public TestEnum(ValidateWhenTestBean.@Nullable TestEnum condFieldValue) {
         condField = condFieldValue;
       }
     }
   }
 
   public static class ConditionValueIsNotEmpty {
-    public static class String {
+    public static class xString {
 
       private java.lang.String field = "X";
-      private java.lang.String condField;
+      private java.lang.@Nullable String condField;
 
-      public String(java.lang.String condFieldValue) {
+      public xString(java.lang.@Nullable String condFieldValue) {
         condField = condFieldValue;
       }
     }
 
-    public static class Integer {
+    public static class xInteger {
 
       private java.lang.String field = "X";
-      private java.lang.Integer condField;
+      private @Nullable Integer condField;
 
-      public Integer(java.lang.Integer condFieldValue) {
+      public xInteger(@Nullable Integer condFieldValue) {
         condField = condFieldValue;
       }
     }
@@ -92,9 +91,9 @@ public class ValidateWhenTestBean {
     public static class TestEnum {
 
       private java.lang.String field = "X";
-      private ValidateWhenTestBean.TestEnum condField;
+      private ValidateWhenTestBean.@Nullable TestEnum condField;
 
-      public TestEnum(ValidateWhenTestBean.TestEnum condFieldValue) {
+      public TestEnum(ValidateWhenTestBean.@Nullable TestEnum condFieldValue) {
         condField = condFieldValue;
       }
     }
@@ -105,9 +104,9 @@ public class ValidateWhenTestBean {
     public static class Boolean {
 
       private java.lang.String field = "X";
-      private java.lang.Boolean condField;
+      private java.lang.@Nullable Boolean condField;
 
-      public Boolean(java.lang.Boolean condFieldValue) {
+      public Boolean(java.lang.@Nullable Boolean condFieldValue) {
         condField = condFieldValue;
       }
     }
@@ -118,9 +117,9 @@ public class ValidateWhenTestBean {
     public static class NotExist {
 
       private java.lang.String field = "X";
-      private java.lang.String condField;
+      private @Nullable String condField;
 
-      public NotExist(java.lang.String condFieldValue) {
+      public NotExist(@Nullable String condFieldValue) {
         this.condField = condFieldValue;
       }
     }
@@ -151,26 +150,26 @@ public class ValidateWhenTestBean {
       }
     }
 
-    public static class String {
+    public static class xString {
 
       private java.lang.String field = "X";
-      private java.lang.String condField;
-      private java.lang.String fieldHoldingConditionValue;
+      private @Nullable String condField;
+      private @Nullable String fieldHoldingConditionValue;
 
-      public String(java.lang.String condFieldValue, java.lang.String fieldHoldingConditionValue) {
+      public xString(@Nullable String condFieldValue, @Nullable String fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
     }
 
-    public static class Integer {
+    public static class xInteger {
 
       private java.lang.String field = "X";
-      private java.lang.Integer condField;
-      private java.lang.Integer fieldHoldingConditionValue;
+      private @Nullable Integer condField;
+      private @Nullable Integer fieldHoldingConditionValue;
 
-      public Integer(java.lang.Integer condFieldValue,
-          java.lang.Integer fieldHoldingConditionValue) {
+      public xInteger(@Nullable Integer condFieldValue,
+          @Nullable Integer fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
@@ -179,10 +178,10 @@ public class ValidateWhenTestBean {
     public static class AnEnum {
 
       private java.lang.String field = "X";
-      private TestEnum condField;
-      private TestEnum fieldHoldingConditionValue;
+      private @Nullable TestEnum condField;
+      private @Nullable TestEnum fieldHoldingConditionValue;
 
-      public AnEnum(TestEnum condFieldValue, TestEnum fieldHoldingConditionValue) {
+      public AnEnum(@Nullable TestEnum condFieldValue, @Nullable TestEnum fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }
@@ -191,10 +190,10 @@ public class ValidateWhenTestBean {
     public static class StringArray {
 
       private java.lang.String field = "X";
-      private java.lang.String condField;
+      private @Nullable String condField;
       private java.lang.String[] fieldHoldingConditionValue;
 
-      public StringArray(java.lang.String condFieldValue,
+      public StringArray(@Nullable String condFieldValue,
           java.lang.String[] fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
@@ -204,10 +203,10 @@ public class ValidateWhenTestBean {
     public static class IntegerArray {
 
       private java.lang.String field = "X";
-      private java.lang.Integer condField;
+      private @Nullable Integer condField;
       private java.lang.Integer[] fieldHoldingConditionValue;
 
-      public IntegerArray(java.lang.Integer condFieldValue,
+      public IntegerArray(@Nullable Integer condFieldValue,
           java.lang.Integer[] fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
@@ -216,11 +215,11 @@ public class ValidateWhenTestBean {
 
     public static class EnumArray {
 
-      private java.lang.String field = "X";
-      private TestEnum condField;
+      private String field = "X";
+      private @Nullable TestEnum condField;
       private TestEnum[] fieldHoldingConditionValue;
 
-      public EnumArray(TestEnum condFieldValue, TestEnum[] fieldHoldingConditionValue) {
+      public EnumArray(@Nullable TestEnum condFieldValue, TestEnum[] fieldHoldingConditionValue) {
         this.condField = condFieldValue;
         this.fieldHoldingConditionValue = fieldHoldingConditionValue;
       }

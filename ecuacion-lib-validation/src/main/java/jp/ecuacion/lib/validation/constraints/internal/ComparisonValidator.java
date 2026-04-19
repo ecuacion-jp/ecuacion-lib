@@ -28,26 +28,30 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
  */
 public abstract class ComparisonValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
-  private String baselinePropertyPath;
+  private String baselinePropertyPath = "";
   private boolean isValidWhenLessThanBasis;
   private boolean allowsEqual;
-  private TypeConversionFromString typeConversionFromString;
-  private String typeConversionDateTimeFormat;
+  // Put anything to avoid null error.
+  private TypeConversionFromString typeConversionFromString = TypeConversionFromString.NONE;
+  private String typeConversionDateTimeFormat = "";
 
-  private Field fieldOfBasisPropertyPath;
-  private Object valueOfBasisPropertyPath;
+  private @Nullable Field fieldOfBasisPropertyPath;
+  private @Nullable Object valueOfBasisPropertyPath;
 
   /** Initializes an instance. */
   public void initialize(String message, String[] propertyPath, String baselinePropertyPath,
@@ -65,14 +69,15 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   /**
    * Executes validation check.
    */
-  public boolean internalIsValid(Object instance, ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    List<Pair<String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
+    List<Pair<@NonNull String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
         .map(path -> Pair.of(path, getValue(instance, path))).toList();
 
-    for (Pair<String, Object> pair : valueOfFieldList) {
+    for (Pair<@NonNull String, Object> pair : valueOfFieldList) {
+      @SuppressWarnings("null")
       boolean result = isValidForSinglePropertyPath(instance, pair.getLeft(), pair.getRight());
 
       if (!result) {
@@ -88,15 +93,18 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     valueOfBasisPropertyPath = getValue(instance, baselinePropertyPath);
   }
 
-  protected boolean isValidForSinglePropertyPath(
-      Object instance, String propertyPath, Object valueOfPropertyPath) {
+  protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
+      Object valueOfPropertyPath) {
+
     Field fieldOfPropertyPath = ReflectionUtil.getField(instance.getClass(), propertyPath);
+    Field nonNullFieldOfBasisPropertyPath = Objects.requireNonNull(fieldOfBasisPropertyPath);
 
     // Throws an exception when the types of two PropertyPaths differ.
-    if (!fieldOfPropertyPath.getType().isAssignableFrom(fieldOfBasisPropertyPath.getType())) {
-      throw new EclibRuntimeException(
-          "Types of two propertyPath differ. propertyPath: " + fieldOfPropertyPath.getType()
-              + ", basisPropertyPath: " + fieldOfBasisPropertyPath.getType());
+    if (!fieldOfPropertyPath.getType()
+        .isAssignableFrom(nonNullFieldOfBasisPropertyPath.getType())) {
+      throw new EclibRuntimeException("Types of two propertyPath differ. propertyPath: "
+          + fieldOfPropertyPath.getType() + ", basisPropertyPath: "
+          + Objects.requireNonNull(nonNullFieldOfBasisPropertyPath).getType());
     }
 
     // True when one of valueOfField or fieldOfBasisPropertyPath is empty.
@@ -122,7 +130,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       }
 
       String valOfPp = (String) valueOfPropertyPath;
-      String valOfBpp = (String) valueOfBasisPropertyPath;
+      String valOfBpp = Objects.requireNonNull((String) valueOfBasisPropertyPath);
       if (typeConversionFromString == TypeConversionFromString.NUMBER) {
         valueOfPropertyPath = new BigDecimal(valOfPp.replaceAll(",", ""));
         valueOfBasisPropertyPath = new BigDecimal(valOfBpp.replaceAll(",", ""));
@@ -134,21 +142,23 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       }
     }
 
+    Object nonNullValueOfBasisPropertyPath = Objects.requireNonNull(valueOfBasisPropertyPath);
+
     // comparison of 2 values
     Boolean validWhenLessThanBasis = switch (valueOfPropertyPath) {
-      case Long x -> x < (Long) valueOfBasisPropertyPath;
-      case Integer x -> x < (Integer) valueOfBasisPropertyPath;
-      case Short x -> x < (Short) valueOfBasisPropertyPath;
-      case Byte x -> x < (Byte) valueOfBasisPropertyPath;
-      case Double x -> x < (Double) valueOfBasisPropertyPath;
-      case Float x -> x < (Float) valueOfBasisPropertyPath;
-      case BigInteger x -> x.compareTo((BigInteger) valueOfBasisPropertyPath) < 0;
-      case BigDecimal x -> x.compareTo((BigDecimal) valueOfBasisPropertyPath) < 0;
-      case LocalDate x -> x.isBefore((LocalDate) valueOfBasisPropertyPath);
-      case LocalDateTime x -> x.isBefore((LocalDateTime) valueOfBasisPropertyPath);
-      case OffsetDateTime x -> x.isBefore((OffsetDateTime) valueOfBasisPropertyPath);
+      case Long x -> x < (Long) nonNullValueOfBasisPropertyPath;
+      case Integer x -> x < (Integer) nonNullValueOfBasisPropertyPath;
+      case Short x -> x < (Short) nonNullValueOfBasisPropertyPath;
+      case Byte x -> x < (Byte) nonNullValueOfBasisPropertyPath;
+      case Double x -> x < (Double) nonNullValueOfBasisPropertyPath;
+      case Float x -> x < (Float) nonNullValueOfBasisPropertyPath;
+      case BigInteger x -> x.compareTo((BigInteger) nonNullValueOfBasisPropertyPath) < 0;
+      case BigDecimal x -> x.compareTo((BigDecimal) nonNullValueOfBasisPropertyPath) < 0;
+      case LocalDate x -> x.isBefore((LocalDate) nonNullValueOfBasisPropertyPath);
+      case LocalDateTime x -> x.isBefore((LocalDateTime) nonNullValueOfBasisPropertyPath);
+      case OffsetDateTime x -> x.isBefore((OffsetDateTime) nonNullValueOfBasisPropertyPath);
       case ZonedDateTime x -> x.isBefore((ZonedDateTime) valueOfBasisPropertyPath);
-      case String x -> isStringValidWhenLessThanBasis(x, (String) valueOfBasisPropertyPath);
+      case String x -> isStringValidWhenLessThanBasis(x, (String) nonNullValueOfBasisPropertyPath);
       default -> null;
     };
 

@@ -40,14 +40,17 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import org.jspecify.annotations.Nullable;
 
 public abstract class ValidateWhenValidator<A extends Annotation, T> extends ClassValidator<A, T> {
-  private String conditionPropertyPath;
-  private ConditionValue conditionPattern;
-  private ConditionOperator conditionOperator;
-  private String[] conditionValueString;
-  private String conditionValueRegexp;
-  private String conditionValuePropertyPath;
+  private String conditionPropertyPath = "";
+  // Put anything to avoid null error.
+  private ConditionValue conditionPattern = ConditionValue.EMPTY;
+  // Put anything to avoid null error.
+  private ConditionOperator conditionOperator = ConditionOperator.EQUAL_TO;
+  private String[] conditionValueString = new String[] {};
+  private String conditionValueRegexp = "";
+  private String conditionValuePropertyPath = "";
   private boolean validatesWhenConditionNotSatisfied;
 
   private boolean satisfiesCondition = false;
@@ -88,7 +91,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
    * Executes validation check.
    */
   @Override
-  public boolean internalIsValid(Object instance, ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
@@ -141,7 +144,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
   }
 
-  private boolean checkNull(Object valueOfConditionPropertyPath) {
+  private boolean checkNull(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
@@ -156,7 +159,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || !conditionSatisfied && conditionOperator == NOT_EQUAL_TO;
   }
 
-  private boolean checkEmpty(Object valueOfConditionPropertyPath) {
+  private boolean checkEmpty(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
@@ -167,7 +170,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || !isEmpty && conditionOperator == NOT_EQUAL_TO;
   }
 
-  private boolean checkBoolean(Object valueOfConditionPropertyPath) {
+  private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
@@ -187,13 +190,13 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     return conditionPattern == TRUE ? validWhenBooleanTrue : validWhenBooleanFalse;
   }
 
-  private boolean checkString(Object valueOfConditionPropertyPath) {
+  private boolean checkString(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
 
-    Object conditionValue = valueOfConditionPropertyPath == null
-        ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL
-        : valueOfConditionPropertyPath;
+    Object conditionValue =
+        valueOfConditionPropertyPath == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL
+            : valueOfConditionPropertyPath;
 
     // datatype of valueOfConditionField must be String.
     if (!(conditionValue instanceof String)) {
@@ -205,7 +208,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || !contains && conditionOperator == NOT_EQUAL_TO;
   }
 
-  private boolean checkPattern(Object valueOfConditionPropertyPath) {
+  private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValuePropertyPathMustNotSet();
 
@@ -235,7 +238,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || !satisfies && conditionOperator == NOT_EQUAL_TO;
   }
 
-  private boolean checkValueOfPropertyPath(Object instance, Object valueOfConditionPropertyPath) {
+  private boolean checkValueOfPropertyPath(Object instance,
+      @Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
 

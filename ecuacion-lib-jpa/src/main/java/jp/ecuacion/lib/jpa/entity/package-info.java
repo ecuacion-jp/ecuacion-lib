@@ -17,4 +17,7 @@
 /**
  * Provides the customized jpa entity.
  */
+@NullMarked
 package jp.ecuacion.lib.jpa.entity;
+
+import org.jspecify.annotations.NullMarked;

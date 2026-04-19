@@ -15,8 +15,10 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code TrueWhen}.
@@ -25,7 +27,8 @@ public class TrueWhenValidator extends ValidateWhenValidator<TrueWhen, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(TrueWhen annotation) {
+  public void initialize(@Nullable TrueWhen annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),

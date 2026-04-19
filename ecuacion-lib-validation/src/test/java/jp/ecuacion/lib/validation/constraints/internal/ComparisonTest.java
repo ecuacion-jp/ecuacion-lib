@@ -115,6 +115,7 @@ public class ComparisonTest {
     Assertions.assertFalse(obj.isStringValidWhenLessThanBasis("c", "ab"));
   }
 
+  @SuppressWarnings("null")
   @Test
   public void eachAnnotationTest() {
     // valid
@@ -128,6 +129,7 @@ public class ComparisonTest {
     Assertions.assertEquals(6, setInvalid.size());
   }
 
+  @SuppressWarnings("null")
   @Test
   public void dotContainingPropertyPaths() {
     Set<ConstraintViolation<ComparisonTestBean.DotContainingPropertyPaths.Bean>> setBean =

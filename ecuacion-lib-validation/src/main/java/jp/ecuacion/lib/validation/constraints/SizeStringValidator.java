@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code SizeString}.
@@ -30,9 +31,10 @@ public class SizeStringValidator implements ConstraintValidator<SizeString, Stri
   
   /** Initializes an instance. */
   @Override
-  public void initialize(SizeString constraintAnnotation) {
-    min = constraintAnnotation.min();
-    max = constraintAnnotation.max();
+  public void initialize(@Nullable SizeString annotation) {
+    Objects.requireNonNull(annotation);
+    min = annotation.min();
+    max = annotation.max();
   }
 
   /**
@@ -48,7 +50,7 @@ public class SizeStringValidator implements ConstraintValidator<SizeString, Stri
    *     or not (=null).</p>
    */
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
 
     // true if value is null or blank
     if (StringUtils.isEmpty(value)) {
