@@ -23,6 +23,7 @@
 module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.annotation;
   exports jp.ecuacion.lib.core.constant;
+  exports jp.ecuacion.lib.core.exception;
   exports jp.ecuacion.lib.core.exception.checked;
   exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.item;
@@ -35,6 +36,7 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.test.spi;
   exports jp.ecuacion.lib.core.util;
   exports jp.ecuacion.lib.core.util.enums;
+  exports jp.ecuacion.lib.core.violation;
 
   requires transitive jakarta.validation;
   requires jakarta.mail;

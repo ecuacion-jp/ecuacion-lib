@@ -18,8 +18,7 @@ package jp.ecuacion.lib.core.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
@@ -33,17 +32,16 @@ public class EmbeddedVariableUtilTest {
   public void before() {}
 
   // methodize to shorten the method name
-  private @Nullable String getVar(String string) throws AppException {
+  private @Nullable String getVar(String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, "${", "}", null);
   }
 
-  private @Nullable String getVarWithOpt(String string, Options options)
-      throws AppException {
+  private @Nullable String getVarWithOpt(String string, Options options) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, "${", "}", options);
   }
 
   @Test
-  public void getFirstFoundEmbeddedParameterTest() throws AppException {
+  public void getFirstFoundEmbeddedParameterTest() {
 
     // string empty
     Assertions.assertEquals(null, getVar(""));
@@ -74,17 +72,17 @@ public class EmbeddedVariableUtilTest {
     // wrong format
 
     // start symbol only
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("${abc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a${bc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("abc${"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("${abc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("a${bc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("abc${"));
     // end symbol only
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}abc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a}bc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("abc}"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("abc}"));
     // end symbol before start symbol
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}${abc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}abc${"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a}bc${"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("}${abc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc${"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc${"));
 
     // ignoresEmergenceOfEndSymbolOnly == true
 
@@ -96,20 +94,20 @@ public class EmbeddedVariableUtilTest {
     Assertions.assertEquals(null, getVarWithOpt("}a}bc}", opt));
     Assertions.assertEquals("b", getVarWithOpt("}a}${b}c}", opt));
     // end symbol before start symbol
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}${abc"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("}abc${"));
-    Assertions.assertThrows(BizLogicAppException.class, () -> getVar("a}bc${"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("}${abc"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc${"));
+    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc${"));
   }
 
   // methodize to shorten the method name
   private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(
-      @Nullable String string) throws AppException {
-    return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, new @NonNull String[] {"${+", "${-"},
-        "}", null);
+      @Nullable String string) {
+    return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string,
+        new @NonNull String[] {"${+", "${-"}, "}", null);
   }
 
   @Test
-  public void getFirstFoundEmbeddedParameterWithStartSymbolsTest() throws AppException {
+  public void getFirstFoundEmbeddedParameterWithStartSymbolsTest() {
     // parameter none
     Assertions.assertEquals(null, getVarWithMultipleStartSymbols("abc"));
 
@@ -125,17 +123,18 @@ public class EmbeddedVariableUtilTest {
     Assertions.assertEquals(Pair.of("${+", "b"), getVarWithMultipleStartSymbols("a${+b}c${+d}e"));
 
     // wrong format
-    Assertions.assertThrows(AppException.class, () -> getVarWithMultipleStartSymbols("a}c${+d}e"));
+    Assertions.assertThrows(ViolationException.class,
+        () -> getVarWithMultipleStartSymbols("a}c${+d}e"));
   }
 
   // methodize to shorten the method name
-  private List<Pair<String, String>> getPartList(String string) throws AppException {
+  private List<Pair<String, String>> getPartList(String string) {
     return EmbeddedVariableUtil.getPartList(string, new @NonNull String[] {"${+", "${-"}, "}");
   }
 
 
   @Test
-  public void getPartListTest() throws AppException {
+  public void getPartListTest() {
     List<Pair<String, String>> rtn = null;
 
     // parameter none
@@ -168,7 +167,7 @@ public class EmbeddedVariableUtilTest {
     rtn = getPartList("");
   }
 
-  public String getReplacedString(String string) throws AppException {
+  public String getReplacedString(String string) {
 
     Map<String, String> paramMap = new HashMap<>();
     paramMap.put("key1", "value1");
@@ -180,7 +179,7 @@ public class EmbeddedVariableUtilTest {
   }
 
   @Test
-  public void getParameterReplacedString() throws AppException {
+  public void getParameterReplacedString() {
     // parameter none
     Assertions.assertEquals("abc", getReplacedString("abc"));
 

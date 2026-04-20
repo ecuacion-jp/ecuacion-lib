@@ -15,8 +15,11 @@
  */
 package jp.ecuacion.lib.core.logging;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.Locale;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import org.jspecify.annotations.Nullable;
@@ -86,6 +89,7 @@ public class ErrorLogger extends AbstractLogger {
    * @param throwable throwable
    * @param additionalMessage additionalMessage
    */
+  @SuppressWarnings({"removal"})
   public void logSystemError(@Nullable Throwable throwable, @Nullable String additionalMessage) {
 
     String throwableMessage;
@@ -94,12 +98,19 @@ public class ErrorLogger extends AbstractLogger {
       throwableMessage = NULL_THROWABLE_MESSAGE;
 
     } else {
-      throwableMessage = throwable.getClass().getName() + (throwable.getMessage() == null ? ""
-          : " - " + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n",
-              " "));
+      throwableMessage = throwable.getClass().getName() + " - "
+          + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
 
-      // additional info output when the exception is ValidationAppException
-      if (throwable instanceof ValidationAppException) {
+      if (throwable instanceof ViolationException) {
+        StringBuilder sb = new StringBuilder(throwableMessage);
+        for (ConstraintViolation<?> cv
+            : ((ViolationException) throwable).getViolations().getConstraintViolations()) {
+          sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
+        }
+        throwableMessage = sb.toString();
+
+      } else if (throwable instanceof ValidationAppException) {
+        // Legacy: remove this branch when ValidationAppException is retired.
         throwableMessage = throwableMessage + "\n"
             + ((ValidationAppException) throwable).getConstraintViolationBean().toString();
       }

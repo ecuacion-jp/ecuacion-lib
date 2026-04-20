@@ -35,12 +35,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
-import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
@@ -790,7 +788,7 @@ public class PropertiesFileUtil {
         list = EmbeddedVariableUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
             new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-      } catch (StringFormatIncorrectException | MultipleAppException ex) {
+      } catch (ViolationException ex) {
         throw new EclibRuntimeException(ex);
       }
 
@@ -837,30 +835,23 @@ public class PropertiesFileUtil {
     List<String> startSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
         .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
-    // properties files are not managed by users
-    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
-    try {
-      List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
-          startSymbols.toArray(new String[startSymbols.size()]), "}",
-          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+    List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
+        startSymbols.toArray(new String[startSymbols.size()]), "}",
+        new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-      // THrow an exception if a string still has "${+" because it happens only by a
-      // mistake of the string.
-      if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
-        throw new EclibRuntimeException(
-            "Improper '${+' symbols found in a message. message: " + string);
-      }
-
-      // left of the pair starts with "{+" and ends with ":" but they're not needed
-      return list.stream()
-          .map(pair -> pair.getLeft() == null ? pair
-              : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
-                  pair.getRight()))
-          .toList();
-
-    } catch (AppException ex) {
-      throw new EclibRuntimeException(ex);
+    // THrow an exception if a string still has "${+" because it happens only by a
+    // mistake of the string.
+    if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
+      throw new EclibRuntimeException(
+          "Improper '${+' symbols found in a message. message: " + string);
     }
+
+    // left of the pair starts with "{+" and ends with ":" but they're not needed
+    return list.stream()
+        .map(pair -> pair.getLeft() == null ? pair
+            : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
+                pair.getRight()))
+        .toList();
   }
 
   /**
