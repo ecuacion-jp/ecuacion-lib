@@ -27,7 +27,10 @@ import org.jspecify.annotations.NonNull;
  * <p>This has a list of {@code SingleAppException} inside 
  * and by throwing {@code MultipleAppException} multiple
  * error messages can be shown on screen in web apps at once.</p>
+ * 
+ * @deprecated Use Violations instead.
  */
+@Deprecated(since = "15.1", forRemoval = true)
 public class MultipleAppException extends AppException {
   private static final long serialVersionUID = 1L;
 
@@ -44,6 +47,7 @@ public class MultipleAppException extends AppException {
    * 
    * @param list a list of {@code AppException}. {@code size()} cannot be zero. 
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public MultipleAppException(@RequireSizeNonZero List<? extends AppException> list) {
     super();
 
@@ -76,6 +80,7 @@ public class MultipleAppException extends AppException {
    * 
    * @param ex {@code NultipleAppException}
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public MultipleAppException(MultipleAppException ex) {
     List<@NonNull SingleAppException> internalList = new ArrayList<>();
     internalList.addAll(ex.getList());
@@ -86,6 +91,7 @@ public class MultipleAppException extends AppException {
   /**
    * Returns list of messages holding exceptions have with default locale.
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   @Override
   public String getMessage() {
     StringBuilder sb = new StringBuilder();
@@ -101,6 +107,7 @@ public class MultipleAppException extends AppException {
    * 
    * @return exceptionList
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public List<@NonNull SingleAppException> getList() {
     return new ArrayList<>(exceptionList);
   }

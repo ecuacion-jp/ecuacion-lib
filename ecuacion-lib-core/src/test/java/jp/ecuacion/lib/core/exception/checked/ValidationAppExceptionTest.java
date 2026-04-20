@@ -16,16 +16,16 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,16 +45,12 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test01_storingValues_01_constructorWithConstraintViolationArg_11_validArg() {
-    try {
-      // Store in a variable and call getStackTrace() on it to avoid SpotBugs warnings.
-      ValidationAppException ex =
-          new ValidationAppException(ObjectsUtil.requireNonNull(violation));
-      ex.getStackTrace();
+  public void test01_storingValues_01_constraintViolationAddedToViolations() {
+    Set<ConstraintViolation<SampleObj>> set = new HashSet<>();
+    set.add(ObjectsUtil.requireNonNull(violation));
 
-    } catch (Exception e) {
-      fail();
-    }
+    Violations violations = new Violations().add(set);
+    assertEquals(1, violations.getConstraintViolations().size());
   }
 
   @Test
@@ -62,8 +58,8 @@ public class ValidationAppExceptionTest {
     final String className =
         "jp.ecuacion.lib.core.exception.checked." + "ValidationAppExceptionTest$SampleObj";
 
-    ValidationAppException ex = new ValidationAppException(ObjectsUtil.requireNonNull(violation));
-    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
     assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
     assertEquals("must not be null", bean.getMessage());
     assertEquals("{jakarta.validation.constraints.NotNull.message}", bean.getMessageTemplate());
@@ -75,9 +71,9 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test11_obtaining_messageId() {
-    ValidationAppException ex = new ValidationAppException(ObjectsUtil.requireNonNull(violation));
-    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
+  public void test11_obtaining_validatorClass() {
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
     assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
   }
 
@@ -89,19 +85,13 @@ public class ValidationAppExceptionTest {
             + "ValidationAppExceptionTest$SampleObj\n"
             + "leafClassName:jp.ecuacion.lib.core.exception.checked."
             + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
-    ValidationAppException ex = new ValidationAppException(ObjectsUtil.requireNonNull(violation));
-    assertEquals(str, ex.getConstraintViolationBean().toString());
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
+    assertEquals(str, bean.toString());
   }
 
   public static class SampleObj {
     @NotNull
     public @Nullable String str1;
   }
-
-  class SampleWithParamObj {
-    @Min(value = 3)
-    public Integer int1 = 2;
-  }
 }
-
-

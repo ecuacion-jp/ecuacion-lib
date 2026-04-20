@@ -16,14 +16,13 @@
 package jp.ecuacion.lib.core.util;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -40,113 +39,113 @@ public class ValidationUtil {
   private ValidationUtil() {}
 
   /**
-   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
-   * 
+   * Validates and throws {@link jp.ecuacion.lib.core.exception.ViolationException}
+   *     if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
-   * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(@Nullable T object) throws ConstraintViolationException {
+  public static <T> void validateThenThrow(@Nullable T object) {
     validateThenThrow(object, new Class<?>[] {});
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
-   * 
+   * Validates and throws {@link jp.ecuacion.lib.core.exception.ViolationException}
+   *     if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
    * @param groups validation groups
-   * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(T object, Class<?>... groups)
-      throws ConstraintViolationException {
+  public static <T> void validateThenThrow(T object, Class<?>... groups) {
     validateThenThrow(object, new MessageParameters(), groups);
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
-   * 
+   * Validates and throws {@link jp.ecuacion.lib.core.exception.ViolationException}
+   *     if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
    * @param messageParameters See {@link MessageParameters}.
-   * @throws ConstraintViolationException ConstraintViolationException
    */
-  public static <T> void validateThenThrow(T object, MessageParameters messageParameters)
-      throws ConstraintViolationException {
+  public static <T> void validateThenThrow(T object, MessageParameters messageParameters) {
     validateThenThrow(object, messageParameters, new Class<?>[] {});
   }
 
   /**
-   * Validates and throws {@code ConstraintViolationException} if validation errors exist.
-   * 
+   * Validates and throws {@link jp.ecuacion.lib.core.exception.ViolationException}
+   *     if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
    * @param messageParameters See {@link MessageParameters}.
    * @param groups validation groups
-   * @throws ConstraintViolationException ConstraintViolationException
    */
   public static <T> void validateThenThrow(T object, MessageParameters messageParameters,
-      Class<?>... groups) throws ConstraintViolationException {
+      Class<?>... groups) {
 
-    @NonNull
-    Optional<@NonNull ConstraintViolationException> opt =
-        validateThenReturn(object, messageParameters, groups);
+    Optional<@NonNull Violations> opt = validateThenReturn(object, messageParameters, groups);
 
     if (opt.isPresent()) {
-      throw Objects.requireNonNull(opt.get());
+      Objects.requireNonNull(opt.get()).throwIfAny();
     }
   }
 
   /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
+   * Validates and returns {@link Violations} if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
-   * @return MultipleAppException, may be null when no validation errors exist.
+   * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object) {
+  public static <T> Optional<@NonNull Violations> validateThenReturn(T object) {
     return validateThenReturn(object, new Class<?>[] {});
   }
 
   /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
+   * Validates and returns {@link Violations} if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
-   * @return MultipleAppException, may be null when no validation errors exist.
+   * @param groups validation groups
+   * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object,
+  public static <T> Optional<@NonNull Violations> validateThenReturn(T object,
       Class<?>... groups) {
     return validateThenReturn(object, ValidationUtil.messageParameters(), groups);
   }
 
   /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
+   * Validates and returns {@link Violations} if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
-   * @return MultipleAppException, may be null when no validation errors exist.
+   * @param messageParameters See {@link MessageParameters}.
+   * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(T object,
+  public static <T> Optional<@NonNull Violations> validateThenReturn(T object,
       MessageParameters messageParameters) {
     return validateThenReturn(object, messageParameters, new Class<?>[] {});
   }
 
   /**
-   * Validates and returns {@code MultipleAppException} if validation errors exist.
-   * 
+   * Validates and returns {@link Violations} if validation errors exist.
+   *
    * @param <T> any class
    * @param object object to validate
-   * @return MultipleAppException, may be null when no validation errors exist.
+   * @param messageParameters See {@link MessageParameters}.
+   * @param groups validation groups
+   * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull ConstraintViolationException> validateThenReturn(
+  public static <T> Optional<@NonNull Violations> validateThenReturn(
       T object, MessageParameters messageParameters, Class<?>... groups) {
     Set<ConstraintViolation<T>> set =
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
 
-    Optional<@NonNull ConstraintViolationException> rtn = set.size() == 0 ? Optional.empty()
-        : Optional.of(new ConstraintViolationExceptionWithParameters(set, messageParameters));
+    Optional<@NonNull Violations> rtn = set.size() == 0 ? Optional.empty()
+        : Optional.of(new Violations().add(set).messageParameters(messageParameters));
 
     return Objects.requireNonNull(rtn);
   }

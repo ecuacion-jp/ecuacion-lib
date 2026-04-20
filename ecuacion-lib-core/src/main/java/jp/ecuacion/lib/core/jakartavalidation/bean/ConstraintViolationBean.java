@@ -69,7 +69,13 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
   private @Nullable Object invalidValue;
   private String messageTemplate;
   private String message;
-  private Map<@NonNull String, Object> embeddedParamMap = new HashMap<>();
+  /**
+   * Actually key String seems to be {@code @NonNull}, 
+   * but this map is mainly used with {@code map.get(...)} and it doesn't matter 
+   * whether the key of the map contains {@code null} or not,
+   * and adding {@code @NonNull} always is annoying so it's not added.
+   */
+  private Map<String, Object> embeddedParamMap = new HashMap<>();
 
   // values needed for all the patterns
 
@@ -273,7 +279,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return itemList.toArray(new Item[itemList.size()]);
   }
 
-  public Map<@NonNull String, Object> getEmbeddedParamMap() {
+  public Map<String, Object> getEmbeddedParamMap() {
     return embeddedParamMap;
   }
 

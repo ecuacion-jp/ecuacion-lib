@@ -31,9 +31,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
+import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,13 +50,10 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
 
   private String validateCollection(Object object, boolean isMsgWithItemName,
       boolean showsItemNamePath) {
-    ConstraintViolationExceptionWithParameters ex =
-        (ConstraintViolationExceptionWithParameters) ValidationUtil
-            .validateThenReturn(object, ValidationUtil.messageParameters()
-                .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath))
-            .get();
-
-    return ExceptionUtil.getMessageList(ex, Locale.ENGLISH, true).get(0);
+    MessageParameters msgParams = ValidationUtil.messageParameters()
+        .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath);
+    Violations violations = ValidationUtil.validateThenReturn(object, msgParams).get();
+    return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 
   /**

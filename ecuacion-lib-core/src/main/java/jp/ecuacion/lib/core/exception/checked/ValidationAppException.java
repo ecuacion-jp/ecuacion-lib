@@ -30,7 +30,10 @@ import org.jspecify.annotations.NonNull;
  *     when you want to treat one {@code ConstraintViolation} as one exception
  *     (mainly in libraries or frameworks)<br><br>
  *     It's not recommended to use in apps from the view of understandability.</p>
+ *     
+ * @deprecated Use Violations instead.
  */
+@Deprecated(since = "15.1", forRemoval = true)
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
@@ -42,6 +45,7 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public <T> ValidationAppException(ConstraintViolation<T> violation) {
     this(violation, new MessageParameters());
   }
@@ -51,6 +55,7 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public <T> ValidationAppException(ConstraintViolation<T> violation,
       MessageParameters messageParameters) {
     super(violation.getMessage());
@@ -63,6 +68,7 @@ public class ValidationAppException extends SingleAppException {
   }
 
   @Override
+  @Deprecated(since = "15.1", forRemoval = true)
   public @NonNull String[] getItemPropertyPaths() {
     return new @NonNull String[] {};
   }
@@ -72,10 +78,12 @@ public class ValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
+  @Deprecated(since = "15.1", forRemoval = true)
   public ConstraintViolationBean<?> getConstraintViolationBean() {
     return bean;
   }
 
+  @Deprecated(since = "15.1", forRemoval = true)
   public MessageParameters getMessageParameters() {
     return messageParameters;
   }

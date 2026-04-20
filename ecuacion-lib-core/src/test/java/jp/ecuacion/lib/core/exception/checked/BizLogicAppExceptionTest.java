@@ -18,58 +18,13 @@ package jp.ecuacion.lib.core.exception.checked;
 import jp.ecuacion.lib.core.TestTools;
 import org.junit.jupiter.api.Test;
 public class BizLogicAppExceptionTest extends TestTools {
-  private static final String SAMPLE_MSG_ID = "MSG_ID";
 
   @Test
-  public void test01_constructor_01_messageId_02_argIsNotNull() {
-    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
-    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
+  @SuppressWarnings("removal")
+  public void test_getBusinessViolation_delegates_correctly() {
+    BizLogicAppException ex = new BizLogicAppException("MSG_ID", "arg1");
+    assertFalse(ex.getBusinessViolation() == null);
+    assertEquals("MSG_ID", ex.getBusinessViolation().getMessageId());
+    assertEquals(1, ex.getBusinessViolation().getMessageArgs().length);
   }
-
-  @Test
-  public void test01_constructor_02_messageId_messageArgs_02_allExceptMessageIdAreNull() {
-    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID);
-
-    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
-    assertFalse(ex.getMessageArgs() == null);
-    assertEquals(0, ex.getMessageArgs().length);
-  }
-
-  @Test
-  public void test01_constructor_02_messageId_messageArgs_03_valid() {
-    BizLogicAppException ex = new BizLogicAppException(SAMPLE_MSG_ID, "abc");
-
-    assertEquals(SAMPLE_MSG_ID, ex.getMessageId());
-    assertEquals(1, ex.getMessageArgs().length);
-    assertEquals("abc", ex.getMessageArgs()[0].getArgString());
-  }
-
-  @Test
-  public void test01_constructor_12_locale_messageId_messageArgs_02_allExceptMessageIdAreNull() {
-    BizLogicAppException ex = new BizLogicAppException("TEST_KEY");
-
-    assertEquals("TEST_KEY", ex.getMessageId());
-    assertFalse(ex.getMessageArgs() == null);
-    assertEquals(0, ex.getMessageArgs().length);
-  }
-
-  // @Test
-  // public void test11_getMessageArgMap_01_noParams() {
-  // BizLogicAppException ex =
-  // new BizLogicAppException(SAMPLE_MSG_ID);
-  //
-  // assertThat(ex.getMessageArgMap()).isNotEqualTo(null);
-  // assertThat(ex.getMessageArgMap().size()).isEqualTo(0));
-  // }
-
-  // @Test
-  // public void test11_getMessageArgMap_02_withParams() {
-  // BizLogicAppException ex =
-  // new BizLogicAppException(SAMPLE_MSG_ID, "abc", "def");
-  //
-  // assertThat(ex.getMessageArgMap().size()).isEqualTo(2));
-  // // The map is actually a LinkedHashMap, so the order is preserved.
-  // assertThat(ex.getMessageArgMap().get("$0")).isEqualTo("abc"));
-  // assertThat(ex.getMessageArgMap().get("$1")).isEqualTo("def"));
-  // }
 }

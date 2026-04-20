@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.exception.checked;
-
-import jp.ecuacion.lib.core.TestTools;
 
 /**
- * Tests for MultipleAppException have been moved to
- * {@link jp.ecuacion.lib.core.violation.ViolationsTest}.
+ * Provides Exceptions.
  */
-public class MultipleAppExceptionTest extends TestTools {
-}
+@NullMarked
+package jp.ecuacion.lib.core.exception;
+
+import org.jspecify.annotations.NullMarked;

@@ -34,7 +34,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import jp.ecuacion.lib.core.violation.Violations;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
@@ -192,8 +194,7 @@ public class FileUtil {
    * <p>"*", "?" are supported, but "**" not supported.<br>
    * The separator of returning Paths is "/"</p>
    */
-  public static List<String> getPathListFromPathWithWildcard(String path)
-      throws BizLogicAppException {
+  public static List<String> getPathListFromPathWithWildcard(String path) {
 
     final List<String> fullPathList = new ArrayList<>();
     // Clean the path string.
@@ -222,13 +223,13 @@ public class FileUtil {
    * 
    * @param path path
    * @return true if the path is relative
-   * @throws BizLogicAppException BizLogicAppException
    */
   @SuppressWarnings("unused")
-  public static boolean isRelativePath(String path) throws BizLogicAppException {
+  public static boolean isRelativePath(String path) {
     // If no value is set for path, an error occurs.
     if (path == null || path.equals("")) {
-      throw new BizLogicAppException("MSG_ERR_PATH_IS_NULL");
+      throw new ViolationException(
+          new Violations().add(new BusinessViolation("MSG_ERR_PATH_IS_NULL")));
     }
 
     if (Objects.requireNonNull(System.getProperty("os.name")).toUpperCase().contains("WINDOWS")) {
@@ -257,7 +258,7 @@ public class FileUtil {
   }
 
   private static void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
-      List<String> rtnFullPathList) throws BizLogicAppException {
+      List<String> rtnFullPathList) {
     ObjectsUtil.requireNonNull(fullPath, parentPath, rtnFullPathList);
 
     String myFileOrDirnameWithWildcard = null;
@@ -268,7 +269,8 @@ public class FileUtil {
       // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard
       // to contain a wildcard, so if it does, an error will occur.
       if (myPathWithWildcard.contains("*") || myPathWithWildcard.contains("?")) {
-        throw new BizLogicAppException("MSG_ERR_1ST_LEVEL_CANNOT_HAVE_WILDCARD", fullPath);
+        throw new ViolationException(new Violations().add(
+            new BusinessViolation("MSG_ERR_1ST_LEVEL_CANNOT_HAVE_WILDCARD", fullPath)));
       }
 
       getPathListFromPathWithWildcardRecursively(fullPath, myPathWithWildcard, rtnFullPathList);
