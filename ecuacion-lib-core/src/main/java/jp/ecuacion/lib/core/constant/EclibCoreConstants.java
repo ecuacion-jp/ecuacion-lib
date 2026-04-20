@@ -28,7 +28,8 @@ public final class EclibCoreConstants {
 
   /** The common part of the package in ecuacion-lib. */
   public static final String PKG_PARENT = "jp.ecuacion.lib";
-  public static final String PKG = "jp.ecuacion.lib.core";
+  
+  public static final String PKG = PKG_PARENT + ".core";
 
   public static final String ECLIB_PREFIX = "[ecuacion-lib] ";
 

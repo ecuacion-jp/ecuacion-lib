@@ -13,31 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.annotation;
+package jp.ecuacion.lib.core.annotation;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 
 /**
- * THIS IS NOT A VALIDTOR. 
- *     This specifies {@code ItemNameKeyClass} on validated by {@code ValidationUtil}.
+ * Designates that the method throws RequireElementsNonDuplicatedException 
+ *     when elements in an annotated array or collection are duplicated. (= null or blank(""))
  * 
- * <p>When {@code ValidationUtil} validates some object, some itemNameKey is set by default.
- *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
- * 
- * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
+ * <p>This annotation does nothing. 
+ *     Just for the explanation of the implementation of the method to developers.</p>
+ *
+ * @see java.util.Objects
  */
-@Target({ElementType.TYPE})
-@Retention(RUNTIME)
 @Documented
-public @interface ItemNameKeyClass {
+@Retention(RUNTIME)
+public @interface RequireElementNonDuplicated {
 
-  /**
-   * Specifies ItemNameKeyClass.
-   */
-  String value();
 }

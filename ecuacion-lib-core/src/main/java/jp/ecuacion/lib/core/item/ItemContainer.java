@@ -15,82 +15,85 @@
  */
 package jp.ecuacion.lib.core.item;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.annotation.RequireNonempty;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Accepts and stores data from user input, external system, and so on.
  * 
- * <p>It is mainly used when you want to customize an item name and its value 
+ * <p>It is mainly used when you want to customize an item name and its attributes 
  *     in validation messages.</p>
  */
 public interface ItemContainer {
 
   /**
-   * Returns {@code Item} from {@code items[]}. 
+   * Returns {@code Item} from {@code customizedItems[]} or newly created one if not exists. 
    * 
-   * @param propertyPath propertyPath
+   * @param itemPropertyPath itemPropertyPath
    * @return HtmlItem
    */
-  @Nonnull
-  public default Item getItem(@RequireNonempty String propertyPath) {
-    String noIndexPropertyPath = PropertyPathUtil.removeIndex(propertyPath);
+  public default Item getItem(String itemPropertyPath) {
+    @NonNull
+    String noIndexPropertyPath = PropertyPathUtil.removeIndex(itemPropertyPath);
 
-    Map<String, Item> map =
+    Map<@NonNull String, Item> map =
         Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
             .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
 
     Item item = map.get(ObjectsUtil.requireNonEmpty(noIndexPropertyPath));
 
-    item = item == null ? getNewItem(noIndexPropertyPath) : item;
+    final Item finalItem = item == null ? getNewItem(noIndexPropertyPath) : item;
 
     // Set finalDefaultItemNameKeyClass.
     // Since what we want to know is class, instance is not needed.
-    Optional<ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
+    @NonNull
+    Optional<@NonNull ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
         ReflectionUtil.getClass(this.getClass(),
-            PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath)),
+            PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath)),
         ItemNameKeyClass.class);
 
-    if (optAn.isPresent()) {
-      item.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(optAn.get().value()));
-    }
+    optAn.ifPresent(
+        an -> finalItem.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(an.value())));
 
     // Get leafBeanClass.
     Class<?> leafBeanClass = this.getClass();
-    if (propertyPath.contains(".")) {
+    if (itemPropertyPath.contains(".")) {
       // Handle collections and arrays
-      if (propertyPath.endsWith("<list element>")) {
-        propertyPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+      if (itemPropertyPath.endsWith("<list element>")) {
+        itemPropertyPath = itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
       }
 
       leafBeanClass = ReflectionUtil.getClass(this.getClass(),
-          PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
+          PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath));
     }
 
-    item.setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
+    finalItem
+        .setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
 
-    return item;
+    return finalItem;
   }
 
   /**
    * Returns an array of items.
    * 
    * <p>It is NOT meant for use from outside.
-   *     It's supposed to be used by concrete classes.<br>
+   *     It's supposed to be used by concrete classes.</p>
+   *     
+   * <p>Elements of the array are effectively {@code @NonNull},
+   *     but the annotation is not added because you don't want to add it 
+   *     every time you define new {@code Item[]}. 
+   *     (in eclipse you need to do it to avoid a warning on it)</p>
    */
-  @Nullable
   abstract Item[] customizedItems();
 
   /**
@@ -112,16 +115,12 @@ public interface ItemContainer {
    *     but it's frequently used in extended classes and not used outside 
    *     so let it be defined here.</p>
    */
-  @Nonnull
-  default Item[] mergeItems(@Nullable Item[] items1, @Nullable Item[] items2) {
-    // Replace null to empty arrays.
-    items1 = items1 == null ? new Item[] {} : items1;
-    items2 = items2 == null ? new Item[] {} : items2;
+  default Item[] mergeItems(Item[] items1, Item[] items2) {
 
     List<Item> list = new ArrayList<>(Arrays.asList(items1));
 
     // Throw an exception if item is duplicated.
-    List<String> propertyPath1List =
+    List<@NonNull String> propertyPath1List =
         Arrays.asList(items1).stream().map(e -> e.getPropertyPath()).toList();
 
     for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getPropertyPath())

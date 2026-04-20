@@ -5,7 +5,7 @@
 `ecuacion-lib` provides utilities for Jakarta Validation and JPA.
 It also provides some utilities used by other ecuacion modules and apps.
 
-`ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`. `Jakarta EE 10` is adopted for compatibility with `Spring Boot 3` used in `ecuacion-splib`.
+`ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`. `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
 
 ## System Requirements
 

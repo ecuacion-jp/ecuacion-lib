@@ -22,12 +22,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 
 /**
  * Checks if specified {@code itemPropertyPath} is empty only when condition is satisfied.
  */
-@PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

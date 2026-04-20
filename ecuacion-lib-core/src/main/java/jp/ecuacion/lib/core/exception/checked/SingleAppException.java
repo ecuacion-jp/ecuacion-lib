@@ -15,7 +15,8 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** 
  * Is an abstract class describing an occurrence of a single validation error.
@@ -36,12 +37,12 @@ public abstract class SingleAppException extends AppException {
    * 
    * @param message message
    */
-  public SingleAppException(String message) {
+  public SingleAppException(@Nullable String message) {
     super(message);
   }
 
   /**
-   * Provides the location of an item at which this error occurred.
+   * Provides a location of items at which the error occurred.
    * 
    * <p>Its data-type is an array 
    *     because although standard jakarta validation (like {@code @NotEmpty} 
@@ -51,6 +52,5 @@ public abstract class SingleAppException extends AppException {
    * 
    * @return an array of propertyPath
    */
-  @Nonnull
-  public abstract String[] getItemPropertyPaths();
+  public abstract @NonNull String[] getItemPropertyPaths();
 }

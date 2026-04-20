@@ -15,8 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import org.slf4j.event.Level;
 
 /**
@@ -38,7 +37,7 @@ import org.slf4j.event.Level;
  * <li>error: uses for abnormal end</li>
  * </ul>
  */
-public class SummaryLogger extends EclibLogger {
+public class SummaryLogger extends AbstractLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SummaryLogger() {
@@ -48,27 +47,33 @@ public class SummaryLogger extends EclibLogger {
   /** 
    * Logs message with "info" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. 
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
-  public void info(@RequireNonnull String message) {
+  public void info(String message) {
     log(Level.INFO, message);
   }
 
   /** 
    * Logs message with "warn" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. 
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
-  public void warn(@RequireNonnull String message) {
+  public void warn(String message) {
     log(Level.WARN, message);
   }
 
   /** 
    * Logs message with "error" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
-  public void error(@RequireNonnull String message) {
+  public void error(String message) {
     log(Level.ERROR, message);
   }
 }

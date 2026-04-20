@@ -23,10 +23,10 @@
 module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.annotation;
   exports jp.ecuacion.lib.core.constant;
+  exports jp.ecuacion.lib.core.exception;
   exports jp.ecuacion.lib.core.exception.checked;
   exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.item;
-  exports jp.ecuacion.lib.core.jakartavalidation.annotation;
   exports jp.ecuacion.lib.core.jakartavalidation.bean;
   exports jp.ecuacion.lib.core.jakartavalidation.constraints;
   exports jp.ecuacion.lib.core.jakartavalidation.constraintvalidator;
@@ -36,6 +36,7 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.test.spi;
   exports jp.ecuacion.lib.core.util;
   exports jp.ecuacion.lib.core.util.enums;
+  exports jp.ecuacion.lib.core.violation;
 
   requires transitive jakarta.validation;
   requires jakarta.mail;
@@ -44,6 +45,7 @@ module jp.ecuacion.lib.core {
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
   requires jakarta.el;
+  requires transitive org.jspecify;
 
   opens jp.ecuacion.lib.core.jakartavalidation.constraints to org.hibernate.validator;
 

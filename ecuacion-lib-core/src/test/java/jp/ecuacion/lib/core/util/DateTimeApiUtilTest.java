@@ -19,10 +19,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 public class DateTimeApiUtilTest extends TestTools {
 
   @BeforeEach
@@ -38,34 +36,12 @@ public class DateTimeApiUtilTest extends TestTools {
   }
 
   @Test
-  public void test_getLocalDateTimeUserFriendlyString_arg_localDateTime_abnormal_null() {
-    try {
-      DateTimeApiUtil.getLocalDateTimeDisplayString(null);
-      fail();
-
-    } catch (RequireNonNullException ex) {
-
-    }
-  }
-
-  @Test
   public void test_normal_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_normal() {
     OffsetDateTime dateTime =
         OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
     String result = DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
 
     assertEquals("2001-01-01 10:01:01", result);
-  }
-
-  @Test
-  public void test_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_abnormal_null_offsetDateTime() {
-    try {
-      DateTimeApiUtil.getLocalDateTimeDisplayString(null, ZoneOffset.UTC);
-      fail();
-
-    } catch (RequireNonNullException ex) {
-
-    }
   }
 
   @Test
@@ -84,17 +60,6 @@ public class DateTimeApiUtilTest extends TestTools {
     String result = DateTimeApiUtil.getOffsetDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
 
     assertEquals("2001-01-01 10:01:01 +09:00", result);
-  }
-
-  @Test
-  public void test_getOffsetDateTimeUserFriendlyString_abnormal_null_offsetDateTime() {
-    try {
-      DateTimeApiUtil.getOffsetDateTimeDisplayString(null, ZoneOffset.UTC);
-      fail();
-
-    } catch (RequireNonNullException ex) {
-
-    }
   }
 
   @Test

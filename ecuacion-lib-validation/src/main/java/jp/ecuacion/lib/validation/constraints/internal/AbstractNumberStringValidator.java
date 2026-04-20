@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides common validation logic for number-string validators
@@ -49,20 +50,18 @@ public abstract class AbstractNumberStringValidator<A extends Annotation>
    * @return {@code true} if the value is valid
    */
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
 
     // true if value is null or blank
     if (StringUtils.isEmpty(value)) {
       return true;
     }
 
-    Objects.requireNonNull(value);
-
     // Remove commas. Don't have to check whether the position of commas is right.
-    value = value.replaceAll(",", "");
+    String nonNullValue = Objects.requireNonNull(value).replaceAll(",", "");
 
     try {
-      parseNumber(value);
+      parseNumber(nonNullValue);
       return true;
 
     } catch (Exception e) {

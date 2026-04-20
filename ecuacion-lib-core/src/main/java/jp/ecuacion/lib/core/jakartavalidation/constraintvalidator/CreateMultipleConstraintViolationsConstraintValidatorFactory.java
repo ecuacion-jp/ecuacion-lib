@@ -17,7 +17,9 @@ package jp.ecuacion.lib.core.jakartavalidation.constraintvalidator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorFactory;
+import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Creates multiple constraintViolations out of one validation.
@@ -27,10 +29,10 @@ public class CreateMultipleConstraintViolationsConstraintValidatorFactory
     implements ConstraintValidatorFactory {
 
   @Override
-  public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> key) {
-    T validator = null;
+  public <T extends ConstraintValidator<?, ?>> T getInstance(@Nullable Class<T> key) {
+    T validator;
     try {
-      validator = key.getDeclaredConstructor().newInstance();
+      validator = Objects.requireNonNull(key).getDeclaredConstructor().newInstance();
 
       if (validator instanceof MultiplePropertyPathsValidator) {
         ((MultiplePropertyPathsValidator<?, ?>) validator)
@@ -45,5 +47,5 @@ public class CreateMultipleConstraintViolationsConstraintValidatorFactory
   }
 
   @Override
-  public void releaseInstance(ConstraintValidator<?, ?> instance) {}
+  public void releaseInstance(@Nullable ConstraintValidator<?, ?> instance) {}
 }

@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.exception.unchecked;
+package jp.ecuacion.lib.core.exception;
 
-import jakarta.annotation.Nonnull;
-import java.util.Objects;
-import jp.ecuacion.lib.core.exception.checked.AppException;
+import jp.ecuacion.lib.core.violation.Violations;
 
 /**
- * Wraps {@code AppException} and enables to throw AppException
- *  in overridden and no "throws AppException" signature method.
- *  
- *  <p>After thrown, 
- *  caught and processed in library is exactly the same as {@code SingleAppException}.</p>
+ * Is thrown by {@link Violations#throwIfAny()} when one or more violations are present.
  */
-public class UncheckedAppException extends RuntimeException {
+public class ViolationException extends RuntimeException {
+
   private static final long serialVersionUID = 1L;
 
+  private final Violations violations;
+
   /**
-   * Constructs a new instance with {@code AppException}.
-   * 
-   * @param ex appException
+   * Constructs a new instance with the {@code Violations} that caused this exception.
+   *
+   * @param violations the violations that triggered the throw
    */
-  public UncheckedAppException(@Nonnull AppException ex) {
-    super(ex);
-    Objects.requireNonNull(ex);
+  public ViolationException(Violations violations) {
+    this.violations = violations;
+  }
+
+  /**
+   * Gets the violations that caused this exception.
+   *
+   * @return violations
+   */
+  public Violations getViolations() {
+    return violations;
   }
 }

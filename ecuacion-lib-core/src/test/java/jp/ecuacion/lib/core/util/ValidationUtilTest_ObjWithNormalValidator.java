@@ -17,10 +17,10 @@ package jp.ecuacion.lib.core.util;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
+import org.jspecify.annotations.Nullable;
 public class ValidationUtilTest_ObjWithNormalValidator {
   @NotNull
-  public String str1 = null;
+  public @Nullable String str1 = null;
 
   @Min(3)
   public int int1 = 2;

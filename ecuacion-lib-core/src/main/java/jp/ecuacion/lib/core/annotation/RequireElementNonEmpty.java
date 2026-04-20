@@ -13,8 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package jp.ecuacion.lib.core.annotation;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
 
 /**
- * Provides {@code jakarta validation} annotations.
+ * Designates that the method throws {@code RequireElementNonEmptyException}
+ *     when each element of annotated arrays or collections is empty.
+ * 
+ * <p>This annotation does nothing. 
+ *     Just for the explanation of the implementation of the method to developers.</p>
  */
-package jp.ecuacion.lib.core.jakartavalidation.annotation;
+@Documented
+@Retention(RUNTIME)
+public @interface RequireElementNonEmpty {
+
+}

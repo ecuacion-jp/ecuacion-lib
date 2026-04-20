@@ -15,8 +15,10 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code NullWhen}.
@@ -25,7 +27,8 @@ public class NullWhenValidator extends ValidateWhenValidator<NullWhen, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(NullWhen annotation) {
+  public void initialize(@Nullable NullWhen annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),

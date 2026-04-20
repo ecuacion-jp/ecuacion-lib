@@ -17,4 +17,7 @@
 /**
  * Provides beans for {@code jakarta validation} validators.
  */
+@NullMarked
 package jp.ecuacion.lib.core.jakartavalidation.bean;
+
+import org.jspecify.annotations.NullMarked;

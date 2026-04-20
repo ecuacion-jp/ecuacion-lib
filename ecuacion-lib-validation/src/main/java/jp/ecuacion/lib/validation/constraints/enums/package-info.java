@@ -17,4 +17,7 @@
 /**
  * Provides {@code jakarta validation} related enums.
  */
+@NullMarked
 package jp.ecuacion.lib.validation.constraints.enums;
+
+import org.jspecify.annotations.NullMarked;

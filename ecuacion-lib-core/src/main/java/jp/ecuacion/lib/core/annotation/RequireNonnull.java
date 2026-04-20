@@ -30,12 +30,14 @@ import java.lang.annotation.Retention;
  *     when the annotated arguments is {@code null}, but NO IDE warning needed, 
  *     use {@code RequireNonnull}.</p>
  * 
- * <p>This annnotation does nothing. 
+ * <p>This annotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
  *
  * @see jakarta.annotation.Nonnull
  * @see java.util.Objects
+ * @deprecated Use {@code org.jspecify.annotations.NonNull} instead.
  */
+@Deprecated(since = "15.1.0", forRemoval = true)
 @Documented
 @Retention(RUNTIME)
 public @interface RequireNonnull {

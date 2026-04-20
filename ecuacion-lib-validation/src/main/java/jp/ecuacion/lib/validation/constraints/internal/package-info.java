@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.annotation;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws RequireSizeNonZeroException 
- *     when the length of the annotated list or array is zero.
- * 
- * <p>This annnotation does nothing. 
- *     Just for the explanation of the implementation of the method to developers.</p>
+ * Provides {@code Constraints} internal package.
  */
-@Documented
-@Retention(RUNTIME)
-public @interface RequireSizeNonzero {
+@NullMarked
+package jp.ecuacion.lib.validation.constraints.internal;
 
-}
+import org.jspecify.annotations.NullMarked;

@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.annotation;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
- * THIS IS NOT A VALIDTOR. 
- *     It specifies that the validator is placed on class, like {@code EmptyWhen}.
+ * Provides {@code Constants}.
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.ANNOTATION_TYPE})
-public @interface PlacedAtClass {
+@NullMarked
+package jp.ecuacion.lib.validation.constant;
 
-}
+import org.jspecify.annotations.NullMarked;

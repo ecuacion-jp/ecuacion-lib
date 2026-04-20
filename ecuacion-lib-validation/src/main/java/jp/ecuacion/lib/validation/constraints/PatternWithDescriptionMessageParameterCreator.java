@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -26,6 +27,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Is a LocalizedMessageParameter creator for PatternWithDescription.
@@ -35,7 +37,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<String, Object> paramMap) {
+      Map<@NonNull String, Object> paramMap) {
 
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 
@@ -49,7 +51,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     messageParameterSet.add(new LocalizedEmbeddedParameter("description",
         new PropertiesFileUtilFileKindEnum[] {
             PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-        (String) paramMap.get("description"), new Arg[] {}));
+        Objects.requireNonNull((String) paramMap.get("description")), new Arg[] {}));
 
     return messageParameterSet;
   }

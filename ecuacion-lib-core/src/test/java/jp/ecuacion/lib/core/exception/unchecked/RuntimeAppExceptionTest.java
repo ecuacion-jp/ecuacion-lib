@@ -17,27 +17,20 @@ package jp.ecuacion.lib.core.exception.unchecked;
 
 import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
+import jp.ecuacion.lib.core.exception.checked.SingleAppException;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
-
 public class RuntimeAppExceptionTest extends TestTools {
 
   @Test
-  public void test01_constructor_01_argIsNull() {
-    try {
-      @SuppressWarnings("unused")
-      UncheckedAppException ex = new UncheckedAppException(null);
-      fail();
-
-    } catch (NullPointerException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
   public void test01_constructor_02_argIsNotNull() {
-    AppException appEx = new BizLogicAppException("MSG1");
-    UncheckedAppException ex = new UncheckedAppException(appEx);
+    AppException appEx = new SingleAppException() {
+      @Override
+      public @NonNull String[] getItemPropertyPaths() {
+        return new @NonNull String[] {};
+      }
+    };
+    AppRuntimeException ex = new AppRuntimeException(appEx);
 
     assertEquals(ex.getCause(), appEx);
   }

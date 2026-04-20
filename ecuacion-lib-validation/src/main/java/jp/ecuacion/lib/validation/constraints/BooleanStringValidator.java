@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code BooleanString}.
@@ -27,7 +28,7 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
 
   /** Initializes an instance. */
   @Override
-  public void initialize(BooleanString constraintAnnotation) {}
+  public void initialize(@Nullable BooleanString constraintAnnotation) {}
 
   /**
    * Checks if a string is convertible to {@code Boolean}.
@@ -47,7 +48,7 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
    * {@code empty ("")} is invalid.</p>
    */
   @Override
-  public boolean isValid(String value, ConstraintValidatorContext context) {
+  public boolean isValid(@Nullable String value, @Nullable ConstraintValidatorContext context) {
 
     // true if value is null or blank
     if (StringUtils.isEmpty(value)) {

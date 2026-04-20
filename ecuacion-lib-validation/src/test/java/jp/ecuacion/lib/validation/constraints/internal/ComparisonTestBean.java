@@ -27,6 +27,7 @@ import jp.ecuacion.lib.validation.constraints.GreaterThan;
 import jp.ecuacion.lib.validation.constraints.GreaterThanOrEqualTo;
 import jp.ecuacion.lib.validation.constraints.LessThan;
 import jp.ecuacion.lib.validation.constraints.LessThanOrEqualTo;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class ComparisonTestBean {
@@ -52,7 +53,7 @@ public class ComparisonTestBean {
     public static class TypesDifferBetweenPropertyPathAndBasisPropertyPath {
       private int propertyPath1;
       private long propertyPath2;
-      private String basisPropertyPath;
+      private @Nullable String basisPropertyPath;
     }
 
     @Comparison(propertyPath = "propertyPath", basisPropertyPath = "basisPropertyPath")

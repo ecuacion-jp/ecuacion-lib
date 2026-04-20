@@ -103,12 +103,25 @@
 		</dependency>
 		
 		<!-- other -->
-		
+
+		<!-- jspecify -->
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+		</dependency>
+
 		<!-- unit test -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- eclipse null analysis -->
+		<dependency>
+			<groupId>org.lastnpe.eea</groupId>
+			<artifactId>jdk-eea</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

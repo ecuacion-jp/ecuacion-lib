@@ -18,6 +18,8 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -46,8 +48,10 @@ public class ClassValidatorTest {
       Assertions.fail();
 
     } catch (Exception ex) {
+
       Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(ex.getCause().getCause() instanceof NoSuchFieldException);
+      Assertions.assertTrue(
+          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
     }
 
     // propertyPath contains empty
@@ -57,7 +61,8 @@ public class ClassValidatorTest {
 
     } catch (Exception ex) {
       Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(ex.getCause().getCause() instanceof NoSuchFieldException);
+      Assertions.assertTrue(
+          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
     }
 
     // propertyPath length zero
@@ -67,7 +72,8 @@ public class ClassValidatorTest {
 
     } catch (Exception ex) {
       Assertions.assertTrue(ex.getCause() instanceof ValidationException);
-      Assertions.assertEquals("Length of propertyPath is zero.", ex.getCause().getMessage());
+      Assertions.assertEquals("Length of propertyPath is zero.",
+          Objects.requireNonNull(ex.getCause()).getMessage());
     }
 
     // propertyPath not found
@@ -77,27 +83,28 @@ public class ClassValidatorTest {
 
     } catch (Exception ex) {
       Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(ex.getCause().getCause() instanceof NoSuchFieldException);
+      Assertions.assertTrue(
+          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
     }
   }
 
   @ClassAlwaysFalse(propertyPath = "")
-  public static record PropertyPathNotSet(String propertyPath) {
+  public static record PropertyPathNotSet(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {"propertyPath", ""})
-  public static record PropertyPathContainsEmpty(String propertyPath) {
+  public static record PropertyPathContainsEmpty(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {})
-  public static record PropertyPathLengthZero(String propertyPath) {
+  public static record PropertyPathLengthZero(@Nullable String propertyPath) {
 
   }
 
   @ClassAlwaysFalse(propertyPath = {"a"})
-  public static record PropertyPathNotFound(String propertyPath) {
+  public static record PropertyPathNotFound(@Nullable String propertyPath) {
 
   }
 }

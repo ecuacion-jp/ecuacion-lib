@@ -15,49 +15,11 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import java.util.ArrayList;
-import java.util.List;
 import jp.ecuacion.lib.core.TestTools;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
-import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for MultipleAppException have been moved to
+ * {@link jp.ecuacion.lib.core.violation.ViolationsTest}.
+ */
 public class MultipleAppExceptionTest extends TestTools {
-
-  @Test
-  public void test01_constructor_01_list_01_argIsNull() {
-    try {
-      @SuppressWarnings("unused")
-      MultipleAppException ex = new MultipleAppException((List<SingleAppException>) null);
-      fail();
-
-    } catch (RequireNonNullException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test01_constructor_01_list_02_argSizeIsZero() {
-    try {
-      @SuppressWarnings("unused")
-      MultipleAppException ex = new MultipleAppException(new ArrayList<SingleAppException>());
-      fail();
-
-    } catch (RuntimeException npe) {
-      assertTrue(true);
-    }
-  }
-
-  @Test
-  public void test01_constructor_01_list_03_valid() {
-    List<SingleAppException> list = new ArrayList<>();
-    list.add(new BizLogicAppException("TEST_KEY"));
-    list.add(new BizLogicAppException("TEST_KEY"));
-    list.add(new BizLogicAppException("TEST_KEY"));
-    MultipleAppException ex = new MultipleAppException(list);
-
-    assertEquals(3, list.size());
-    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(0)).getMessageId());
-    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(1)).getMessageId());
-    assertEquals("TEST_KEY", ((BizLogicAppException) ex.getList().get(2)).getMessageId());
-  }
 }

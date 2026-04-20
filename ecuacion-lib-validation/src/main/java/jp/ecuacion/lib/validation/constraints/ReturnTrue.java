@@ -23,13 +23,11 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constraints.ReturnTrue.AnyNullList;
 
 /**
  * Is valid when at least one of the values of {@code propertyPath} is null.
  */
-@PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(AnyNullList.class)

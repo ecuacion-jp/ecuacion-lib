@@ -15,13 +15,12 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides Utility methods related to {@code dateTime Api}.
@@ -59,8 +58,7 @@ public class DateTimeApiUtil {
    * @param localDateTime localDateTime
    * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
    */
-  @Nonnull
-  public static String getLocalDateTimeDisplayString(@RequireNonnull LocalDateTime localDateTime) {
+  public static String getLocalDateTimeDisplayString(LocalDateTime localDateTime) {
     ObjectsUtil.requireNonNull(localDateTime);
 
     return localDateTime.format(DateTimeFormatter.ofPattern(USER_FRIENDLY_LOCAL_FORMAT));
@@ -75,14 +73,12 @@ public class DateTimeApiUtil {
    *     {@code ZoneOffset} is also available, which extends {@code ZoneId}.
    * @return localDateTime string: {@code yyyy-MM-dd HH:mm:ss}
    */
-  @Nonnull
-  public static String getLocalDateTimeDisplayString(@RequireNonnull OffsetDateTime dateTime,
+  public static String getLocalDateTimeDisplayString(OffsetDateTime dateTime,
       @Nullable ZoneId zoneId) {
-    ObjectsUtil.requireNonNull(dateTime);
 
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
-    return dateTime.atZoneSameInstant(zoneId).toLocalDateTime()
+    return dateTime.atZoneSameInstant(Objects.requireNonNull(zoneId)).toLocalDateTime()
         .format(DateTimeFormatter.ofPattern(USER_FRIENDLY_LOCAL_FORMAT));
   }
 
@@ -92,7 +88,6 @@ public class DateTimeApiUtil {
    * @param dateTime offsetDateTime
    * @return localDateTime string
    */
-  @Nonnull
   public static String getTimestampStringForFilename(LocalDateTime dateTime) {
     return ObjectsUtil.requireNonNull(dateTime)
         .format(DateTimeFormatter.ofPattern(FILENAME_LOCAL_TIMESTAMP_FORMAT));
@@ -107,13 +102,12 @@ public class DateTimeApiUtil {
    *     {@code ZoneOffset} is also available, which extends {@code ZoneId}.
    * @return offsetDateTime string: {@code yyyy-MM-dd HH:mm:ss +HH:mm}
    */
-  @Nonnull
-  public static String getOffsetDateTimeDisplayString(@RequireNonnull OffsetDateTime offsetDateTime,
+  public static String getOffsetDateTimeDisplayString(OffsetDateTime offsetDateTime,
       @Nullable ZoneId zoneId) {
     ObjectsUtil.requireNonNull(offsetDateTime);
     zoneId = zoneId == null ? ZoneId.systemDefault() : zoneId;
 
-    return offsetDateTime.atZoneSameInstant(zoneId)
+    return offsetDateTime.atZoneSameInstant(Objects.requireNonNull(zoneId))
         .format(DateTimeFormatter.ofPattern(USER_FRIENDLY_OFFSET_FORMAT));
   }
 
@@ -133,8 +127,7 @@ public class DateTimeApiUtil {
    * @param dateTimeString dateTimeString
    * @return LocalDateTime
    */
-  @Nonnull
-  public static LocalDateTime getLocalDateTime(@RequireNonnull String dateTimeString) {
+  public static LocalDateTime getLocalDateTime(String dateTimeString) {
     FormatHolder obj = getLocalDateTimePartFormat(dateTimeString);
     return LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern(obj.fmStr));
   }
@@ -154,8 +147,7 @@ public class DateTimeApiUtil {
    * @param dateTimeString dateTimeString
    * @return OffsetDateTime
    */
-  @Nonnull
-  public static OffsetDateTime getOffsetDateTime(@RequireNonnull String dateTimeString) {
+  public static OffsetDateTime getOffsetDateTime(String dateTimeString) {
     FormatHolder obj = getLocalDateTimePartFormat(dateTimeString);
 
     // Determine the offset expression at the latter part of the format.
@@ -190,8 +182,7 @@ public class DateTimeApiUtil {
    * @param dateTimeString dateTimeString
    * @return formatHolder
    */
-  @Nonnull
-  private static FormatHolder getLocalDateTimePartFormat(@RequireNonnull String dateTimeString) {
+  private static FormatHolder getLocalDateTimePartFormat(String dateTimeString) {
     ObjectsUtil.requireNonNull(dateTimeString);
 
     FormatHolder obj = new FormatHolder();

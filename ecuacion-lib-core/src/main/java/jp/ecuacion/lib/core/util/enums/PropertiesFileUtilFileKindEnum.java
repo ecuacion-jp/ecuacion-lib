@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.core.util.enums;
 
-
 /** 
  * Holds kinds of property files.
  * 

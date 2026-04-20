@@ -16,31 +16,34 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Arrays;
+import java.util.Objects;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code StringWhen}.
  */
 public class StringWhenValidator extends ValidateWhenValidator<StringWhen, Object> {
 
-  private String[] propertyValueString;
+  private String[] string = new String[] {};
 
   /** Initializes an instance. */
   @Override
-  public void initialize(StringWhen annotation) {
+  public void initialize(@Nullable StringWhen annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.notStringWhenConditionNotSatisfied());
 
-    this.propertyValueString = annotation.string();
+    this.string = annotation.string();
   }
 
   @Override
-  protected boolean isValid(Object valueOfField) {
+  protected boolean isValid(@Nullable Object valueOfField) {
     if (valueOfField == null) {
       valueOfField = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
     }
@@ -49,7 +52,7 @@ public class StringWhenValidator extends ValidateWhenValidator<StringWhen, Objec
       throw new EclibRuntimeException("The data type of propertyPath must be String.");
     }
 
-    return Arrays.asList(propertyValueString).contains(valueOfField);
+    return Arrays.asList(string).contains(valueOfField);
   }
 
 }

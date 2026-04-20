@@ -15,66 +15,35 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Is used for buziness logic exceptions.
- * 
+ * Is used for business logic exceptions.
+ *
  * <p>Messages are designated by messageId, which is defined in messages[_xxx].properties.<br>
+ * 
+ * @deprecated Use BusinessViolation instead.
  */
+@Deprecated(since = "15.1", forRemoval = true)
 public class BizLogicAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
-  @Nonnull
-  private String messageId;
-
-  @Nonnull
-  private Arg[] messageArgs;
-
-  @Nonnull
-  private String[] itemPropertyPaths;
-
-  /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
-   * 
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public BizLogicAppException(@RequireNonnull String messageId,
-      @RequireNonnull String... messageArgs) {
-    this(null, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPath}s,
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param itemPropertyPaths the itemPropertyPaths related to the exception
-   * @param messageId message ID
-   * @param messageArgs message Arguments
-   */
-  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @RequireNonnull String... messageArgs) {
-
-    this(itemPropertyPaths, messageId, Arrays.asList(ObjectsUtil.requireNonNull(messageArgs))
-        .stream().map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
-  }
+  private BusinessViolation violation;
 
   /**
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
-   * @param messageArgs message Arguments
+   * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  public BizLogicAppException(@RequireNonnull String messageId, @RequireNonnull Arg[] messageArgs) {
-    this(null, messageId, messageArgs);
+  @Deprecated(since = "15.1", forRemoval = true)
+  public BizLogicAppException(String messageId, @Nullable String... messageArgs) {
+    violation = new BusinessViolation(messageId, messageArgs);
   }
 
   /**
@@ -83,50 +52,89 @@ public class BizLogicAppException extends SingleAppException {
    *
    * @param itemPropertyPaths the itemPropertyPaths related to the exception
    * @param messageId message ID
-   * @param messageArgs message Arguments
+   * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  public BizLogicAppException(@Nullable String[] itemPropertyPaths,
-      @RequireNonnull String messageId, @Nullable Arg[] messageArgs) {
-    this.itemPropertyPaths = itemPropertyPaths == null ? new String[] {} : itemPropertyPaths;
-    this.messageId = ObjectsUtil.requireNonNull(messageId);
-    this.messageArgs = messageArgs == null ? new Arg[] {} : messageArgs;
-  }
-
-  @Override
-  public String getMessage() {
-    return PropertiesFileUtil.getMessage(Locale.ENGLISH, messageId, messageArgs);
-  }
-
-  @Override
-  public @Nonnull String[] getItemPropertyPaths() {
-    return itemPropertyPaths;
+  @Deprecated(since = "15.1", forRemoval = true)
+  public BizLogicAppException(String[] itemPropertyPaths, String messageId,
+      @Nullable String... messageArgs) {
+    violation = new BusinessViolation(itemPropertyPaths, messageId, messageArgs);
   }
 
   /**
-   * Gets messageId. 
-   * 
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   *
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  @Deprecated(since = "15.1", forRemoval = true)
+  public BizLogicAppException(String messageId, @NonNull Arg[] messageArgs) {
+    violation = new BusinessViolation(messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param itemPropertyPaths the itemPropertyPaths related to the exception
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  @Deprecated(since = "15.1", forRemoval = true)
+  public BizLogicAppException(@NonNull String[] itemPropertyPaths, String messageId,
+      @NonNull Arg[] messageArgs) {
+    violation = new BusinessViolation(itemPropertyPaths, messageId, messageArgs);
+  }
+
+  @Override
+  @Deprecated(since = "15.1", forRemoval = true)
+  public String getMessage() {
+    return PropertiesFileUtil.getMessage(Locale.ENGLISH, violation.getMessageId(),
+        violation.getMessageArgs());
+  }
+
+  @Override
+  @Deprecated(since = "15.1", forRemoval = true)
+  public @NonNull String[] getItemPropertyPaths() {
+    return violation.getItemPropertyPaths();
+  }
+
+  /**
+   * Gets messageId.
+   *
    * @return messageId
    */
-  public @Nonnull String getMessageId() {
-    return messageId;
+  @Deprecated(since = "15.1", forRemoval = true)
+  public String getMessageId() {
+    return violation.getMessageId();
   }
 
   /**
-   * Gets messageArgs. 
-   * 
+   * Gets messageArgs.
+   *
    * @return messageArgs
    */
-  @Nonnull
-  public Arg[] getMessageArgs() {
-    return messageArgs == null ? new Arg[] {} : messageArgs;
+  @Deprecated(since = "15.1", forRemoval = true)
+  public @NonNull Arg[] getMessageArgs() {
+    return violation.getMessageArgs();
+  }
+
+  /**
+   * Gets the {@link BusinessViolation} held internally.
+   *
+   * @return businessViolation
+   */
+  @Deprecated(since = "15.1", forRemoval = true)
+  public BusinessViolation getBusinessViolation() {
+    return violation;
   }
 
   /**
    * Provides {@link Exception#initCause(Throwable)} with method chain.
-   * 
+   *
    * @param th throwable
    * @return BizLogicAppException for method chain
    */
+  @Deprecated(since = "15.1", forRemoval = true)
   public BizLogicAppException cause(Throwable th) {
     super.initCause(th);
     return this;

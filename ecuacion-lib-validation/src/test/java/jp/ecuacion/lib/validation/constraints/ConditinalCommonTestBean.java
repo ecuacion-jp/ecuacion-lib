@@ -20,6 +20,7 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class ConditinalCommonTestBean {
@@ -29,9 +30,9 @@ public class ConditinalCommonTestBean {
   public static class NoField {
 
     private String afield;
-    private String condField;
+    private @Nullable String condField;
 
-    public NoField(String fieldValue, String condFieldValue) {
+    public NoField(String fieldValue, @Nullable String condFieldValue) {
       afield = fieldValue;
       condField = condFieldValue;
     }
@@ -42,9 +43,9 @@ public class ConditinalCommonTestBean {
   public static class NoConditionField {
 
     private String field;
-    private String acondField;
+    private @Nullable String acondField;
 
-    public NoConditionField(String fieldValue, String condFieldValue) {
+    public NoConditionField(String fieldValue, @Nullable String condFieldValue) {
       field = fieldValue;
       acondField = condFieldValue;
     }
@@ -56,7 +57,7 @@ public class ConditinalCommonTestBean {
         conditionValue = STRING, conditionValueString = "a",
         notEmptyWhenConditionNotSatisfied = true)
     public static class TrueClass {
-      private String field = null;
+      private @Nullable String field = null;
       private String condField = "b";
     }
 
@@ -64,7 +65,7 @@ public class ConditinalCommonTestBean {
         conditionValue = STRING, conditionValueString = "a",
         notEmptyWhenConditionNotSatisfied = false)
     public static class FalseClass {
-      private String field = null;
+      private @Nullable String field = null;
       private String condField = "b";
     }
   }
@@ -74,7 +75,7 @@ public class ConditinalCommonTestBean {
     @EmptyWhen(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a")
     public static class AllTrue {
-      private String field1 = null;
+      private @Nullable String field1 = null;
       private String field2 = "";
       private String condField = "a";
     }
@@ -82,7 +83,7 @@ public class ConditinalCommonTestBean {
     @EmptyWhen(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a")
     public static class OneFalse {
-      private String field1 = null;
+      private @Nullable String field1 = null;
       private String field2 = "X";
       private String condField = "a";
     }
@@ -99,7 +100,7 @@ public class ConditinalCommonTestBean {
         conditionValue = STRING, conditionValueString = "a",
         notEmptyWhenConditionNotSatisfied = true)
     public static class AllTrueConditionNotSatisfied {
-      private String field1 = null;
+      private @Nullable String field1 = null;
       private String field2 = "";
       private String condField = "b";
     }
@@ -108,7 +109,7 @@ public class ConditinalCommonTestBean {
         conditionValue = STRING, conditionValueString = "a",
         notEmptyWhenConditionNotSatisfied = true)
     public static class OneFalseConditionNotSatisfied {
-      private String field1 = null;
+      private @Nullable String field1 = null;
       private String field2 = "X";
       private String condField = "b";
     }
@@ -143,8 +144,8 @@ public class ConditinalCommonTestBean {
         conditionOperator = ConditionOperator.EQUAL_TO,
         conditionValue = ConditionValue.EMPTY)
     public static class Obj {
-      private String field = null;
-      private String condField = null;
+      private @Nullable String field = null;
+      private @Nullable String condField = null;
     }
 
   }

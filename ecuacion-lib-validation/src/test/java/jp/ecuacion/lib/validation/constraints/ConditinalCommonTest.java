@@ -18,6 +18,7 @@ package jp.ecuacion.lib.validation.constraints;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class ConditinalCommonTest {
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
-      Assertions.assertEquals(true, ex.getCause().getCause() instanceof NoSuchFieldException);
+      Assertions.assertEquals(true, Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
     }
 
     // No Condition Field
@@ -43,7 +44,7 @@ public class ConditinalCommonTest {
       Assertions.fail();
     } catch (ValidationException ex) {
       Assertions.assertEquals(true, ex.getCause() instanceof RuntimeException);
-      Assertions.assertEquals(true, ex.getCause().getCause() instanceof NoSuchFieldException);
+      Assertions.assertEquals(true, Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
     }
   }
 

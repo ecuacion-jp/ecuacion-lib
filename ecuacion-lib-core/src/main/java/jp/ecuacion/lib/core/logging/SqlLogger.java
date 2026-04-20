@@ -15,8 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import org.slf4j.event.Level;
 
 /**
@@ -31,7 +30,7 @@ import org.slf4j.event.Level;
  * <li>trace: uses for sql-related info</li>
  * </ul>
  */
-public class SqlLogger extends EclibLogger {
+public class SqlLogger extends AbstractLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SqlLogger() {
@@ -41,18 +40,22 @@ public class SqlLogger extends EclibLogger {
   /** 
    * Logs message with "trace" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
-  public void trace(@RequireNonnull String message) {
+  public void trace(String message) {
     log(Level.TRACE, message);
   }
 
   /** 
    * Logs message with "debug" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log.
+   *     Cannot be {@code null} since it's used by another library or framework,
+   *     and not by developers.
    */
-  public void debug(@RequireNonnull String message) {
+  public void debug(String message) {
     log(Level.DEBUG, message);
   }
 }

@@ -25,8 +25,6 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VAL
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.el.ELProcessor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -36,16 +34,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
-import jp.ecuacion.lib.core.exception.checked.AppException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
+import java.util.Objects;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
-import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.StringFormatIncorrectException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods to read {@code *.properties} files.
@@ -92,14 +90,14 @@ import org.apache.commons.lang3.tuple.Pair;
  *     <td>messages[_xxx].properties</td>
  *     <td>getMessage(...)<br>
  *     <td style="text-align: center">x</td>
- *     <td style="text-align: center">x️</td>
+ *     <td style="text-align: center">x?�?</td>
  *     <td>Treats localized messages</td>
  *   </tr>
  *   <tr>
  *     <td>strings[_xxx].properties</td>
  *     <td>getString(...)<br>
  *     <td style="text-align: center"></td>
- *     <td style="text-align: center">x️</td>
+ *     <td style="text-align: center">x?�?</td>
  *     <td>Treats non-localized messages</td>
  *   </tr>
  *   <tr>
@@ -275,12 +273,17 @@ public class PropertiesFileUtil {
     }
   }
 
+  private static PropertiesFileUtilValueGetter obtainValueGetter(
+      PropertiesFileUtilFileKindEnum fileKind) {
+    return Objects.requireNonNull(getterMap.get(fileKind));
+  }
+
   /**
    * Prevents other classes from instantiating it.
    */
   private PropertiesFileUtil() {}
 
-  // ■□■ application ■□■
+  // �?□�? application �?□�?
 
   /**
    * Returns the value in application_xxx.properties.
@@ -288,9 +291,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String getApplication(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).getProp(key, null);
+  public static String getApplication(String key) {
+    return obtainValueGetter(APPLICATION).getProp(key, new HashMap<>());
   }
 
 
@@ -300,8 +302,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasApplication(@RequireNonnull String key) {
-    return getterMap.get(APPLICATION).hasProp(key);
+  public static boolean hasApplication(String key) {
+    return obtainValueGetter(APPLICATION).hasProp(key);
   }
 
   /**
@@ -312,17 +314,17 @@ public class PropertiesFileUtil {
    * @param defaultValue default value
    * @return the value of the property
    */
-  @Nullable
-  public static String getApplicationOrElse(@RequireNonnull String key, String defaultValue) {
-    if (getterMap.get(APPLICATION).hasProp(key)) {
-      return getterMap.get(APPLICATION).getProp(key, null);
+  @SuppressWarnings("unchecked")
+  public static <T extends @Nullable String> T getApplicationOrElse(String key, T defaultValue) {
+    if (obtainValueGetter(APPLICATION).hasProp(key)) {
+      return (T) obtainValueGetter(APPLICATION).getProp(key, new HashMap<>());
 
     } else {
       return defaultValue;
     }
   }
 
-  // ■□■ message ■□■
+  // �?□�? message �?□�?
 
   /**
    * Returns the localized value in messages_xxx.properties.
@@ -333,10 +335,8 @@ public class PropertiesFileUtil {
    * @param args message arguments
    * @return the value (message) of the property key (message ID)
    */
-  @Nonnull
-  public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull String... args) {
-    return formatMessage(getterMap.get(MESSAGES).getProp(locale, key, null), args);
+  public static String getMessage(@Nullable Locale locale, String key, String... args) {
+    return formatMessage(obtainValueGetter(MESSAGES).getProp(locale, key, new HashMap<>()), args);
   }
 
   /**
@@ -351,9 +351,7 @@ public class PropertiesFileUtil {
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the message corresponding to the message ID
    */
-  @Nonnull
-  public static String getMessage(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
+  public static String getMessage(@Nullable Locale locale, String key, @NonNull Arg[] args) {
     return getMessage(locale, key, getStringsFromArgs(locale, args));
   }
 
@@ -363,11 +361,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key (message ID)
    */
-  public static boolean hasMessage(@RequireNonnull String key) {
-    return getterMap.get(MESSAGES).hasProp(key);
+  public static boolean hasMessage(String key) {
+    return obtainValueGetter(MESSAGES).hasProp(key);
   }
 
-  // ■□■ messageWithItemName ■□■
+  // �?□�? messageWithItemName �?□�?
 
   /**
    * Returns the localized value in messagesWithItemNames_xxx.properties.
@@ -378,10 +376,9 @@ public class PropertiesFileUtil {
    * @param args message arguments
    * @return the value (message) of the property key (message ID)
    */
-  @Nonnull
-  public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull String... args) {
-    return formatMessage(getterMap.get(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, null), args);
+  public static String getMessageWithItemName(@Nullable Locale locale, String key, String... args) {
+    return formatMessage(
+        obtainValueGetter(MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, new HashMap<>()), args);
   }
 
   /**
@@ -396,9 +393,8 @@ public class PropertiesFileUtil {
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the message corresponding to the message ID
    */
-  @Nonnull
-  public static String getMessageWithItemName(@Nullable Locale locale, @RequireNonnull String key,
-      @RequireNonnull Arg[] args) {
+  public static String getMessageWithItemName(@Nullable Locale locale, String key,
+      @NonNull Arg[] args) {
     return getMessageWithItemName(locale, key, getStringsFromArgs(locale, args));
   }
 
@@ -408,11 +404,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key (message ID)
    */
-  public static boolean hasMessageWithItemName(@RequireNonnull String key) {
-    return getterMap.get(MESSAGES_WITH_ITEM_NAMES).hasProp(key);
+  public static boolean hasMessageWithItemName(String key) {
+    return obtainValueGetter(MESSAGES_WITH_ITEM_NAMES).hasProp(key);
   }
 
-  // ■□■ strings ■□■
+  // �?□�? strings �?□�?
 
   /**
    * Returns the value in string_xxx.properties.
@@ -421,9 +417,8 @@ public class PropertiesFileUtil {
    * @param args message arguments
    * @return the value (message) of the property key (message ID)
    */
-  @Nonnull
-  public static String getString(@RequireNonnull String key, @RequireNonnull String... args) {
-    return formatMessage(getterMap.get(STRINGS).getProp(key, null), args);
+  public static String getString(String key, String... args) {
+    return formatMessage(obtainValueGetter(STRINGS).getProp(key, new HashMap<>()), args);
   }
 
   /**
@@ -436,8 +431,7 @@ public class PropertiesFileUtil {
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the value (message) of the property key (message ID)
    */
-  @Nonnull
-  public static String getString(@RequireNonnull String key, @RequireNonnull Arg[] args) {
+  public static String getString(String key, @NonNull Arg[] args) {
     return getString(key, getStringsFromArgs(null, args));
   }
 
@@ -447,11 +441,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasString(@RequireNonnull String key) {
-    return getterMap.get(STRINGS).hasProp(key);
+  public static boolean hasString(String key) {
+    return obtainValueGetter(STRINGS).hasProp(key);
   }
 
-  // ■□■ item_names ■□■
+  // �?□�? item_names �?□�?
 
   /**
    * Returns the localized item name in item_names_xxx.properties.
@@ -461,9 +455,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String getItemName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ITEM_NAMES).getProp(locale, key, null);
+  public static String getItemName(@Nullable Locale locale, String key) {
+    return obtainValueGetter(ITEM_NAMES).getProp(locale, key, new HashMap<>());
   }
 
   /**
@@ -472,11 +465,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasItemName(@RequireNonnull String key) {
-    return getterMap.get(ITEM_NAMES).hasProp(key);
+  public static boolean hasItemName(String key) {
+    return obtainValueGetter(ITEM_NAMES).hasProp(key);
   }
 
-  // ■□■ enum_names ■□■
+  // �?□�? enum_names �?□�?
 
   /**
    * Returns the localized enum name in enum_names_xxx.properties.
@@ -486,9 +479,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String getEnumName(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(ENUM_NAMES).getProp(locale, key, null);
+  public static String getEnumName(@Nullable Locale locale, String key) {
+    return obtainValueGetter(ENUM_NAMES).getProp(locale, key, new HashMap<>());
   }
 
   /**
@@ -497,11 +489,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasEnumName(@RequireNonnull String key) {
-    return getterMap.get(ENUM_NAMES).hasProp(key);
+  public static boolean hasEnumName(String key) {
+    return obtainValueGetter(ENUM_NAMES).hasProp(key);
   }
 
-  // ■□■ ValidationMessages ■□■
+  // �?□�? ValidationMessages �?□�?
 
   /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
@@ -511,10 +503,9 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String getValidationMessage(@Nullable Locale locale, @RequireNonnull String key,
-      @Nullable Map<String, Object> argMap) {
-    String message = getterMap.get(VALIDATION_MESSAGES).getProp(locale, key, argMap);
+  public static String getValidationMessage(@Nullable Locale locale, String key,
+      Map<String, Object> argMap) {
+    String message = obtainValueGetter(VALIDATION_MESSAGES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
@@ -525,11 +516,11 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasValidationMessage(@Nullable Locale locale, @RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES).hasProp(locale, key);
+  public static boolean hasValidationMessage(@Nullable Locale locale, String key) {
+    return obtainValueGetter(VALIDATION_MESSAGES).hasProp(locale, key);
   }
 
-  // ■□■ ValidationMessagesWithItemNames ■□■
+  // �?□�? ValidationMessagesWithItemNames �?□�?
 
   /**
    * Returns the property value of default locale in ValidationMessagesWithItemNames_xxx.properties.
@@ -542,11 +533,10 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property. Return the key string when the key does not exist.
    */
-  @Nonnull
-  public static String getValidationMessageWithItemName(@Nullable Locale locale,
-      @RequireNonnull String key, @Nullable Map<String, Object> argMap) {
+  public static String getValidationMessageWithItemName(@Nullable Locale locale, String key,
+      Map<String, Object> argMap) {
     String message =
-        getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
+        obtainValueGetter(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
   }
@@ -557,9 +547,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
-  public static boolean hasValidationMessageWithItemName(@Nullable Locale locale,
-      @RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES_WITH_ITEM_NAMES).hasProp(locale, key);
+  public static boolean hasValidationMessageWithItemName(@Nullable Locale locale, String key) {
+    return obtainValueGetter(VALIDATION_MESSAGES_WITH_ITEM_NAMES).hasProp(locale, key);
   }
 
   /**
@@ -569,9 +558,9 @@ public class PropertiesFileUtil {
    *     but locale needed string cannot be resolved in the instance
    *     so some parameters are set to argMap here.</p>
    */
-  @Nonnull
-  private static String substituteArgsToValidationMessages(@Nullable Locale locale,
-      @RequireNonnull String message, @Nullable Map<String, Object> argMap) {
+  @SuppressWarnings("null")
+  private static String substituteArgsToValidationMessages(@Nullable Locale locale, String message,
+      @Nullable Map<String, Object> argMap) {
 
     argMap = argMap == null ? new HashMap<>() : argMap;
 
@@ -583,7 +572,7 @@ public class PropertiesFileUtil {
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
 
       // itemName
-      List<String> itemNameList = Arrays.asList(item).stream()
+      List<@NonNull String> itemNameList = Arrays.asList(item).stream()
           .map(bean -> PropertiesFileUtil.getItemName(locale, bean.getItemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }
@@ -599,7 +588,7 @@ public class PropertiesFileUtil {
     return rtnMessage;
   }
 
-  // ■□■ ValidationMessagesPatternDescriptions ■□■
+  // �?□�? ValidationMessagesPatternDescriptions �?□�?
 
   /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
@@ -609,13 +598,12 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String getValidationMessagePatternDescription(@Nullable Locale locale,
-      @RequireNonnull String key) {
-    return getterMap.get(VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS).getProp(locale, key, null);
+  public static String getValidationMessagePatternDescription(@Nullable Locale locale, String key) {
+    return obtainValueGetter(VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS).getProp(locale, key,
+        new HashMap<>());
   }
 
-  // ■□■ abstract property ■□■
+  // �?□�? abstract property �?□�?
 
   /**
    * Returns the property value of default locale.
@@ -625,11 +613,10 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String get(@RequireNonnull String propertyUtilFileKind,
-      @RequireNonnull String key) {
-    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
-        .getProp(null, key, null);
+  public static String get(String propertyUtilFileKind, String key) {
+    return obtainValueGetter(
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).getProp(null,
+            key, new HashMap<>());
   }
 
   /**
@@ -642,11 +629,10 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
-      @RequireNonnull String key) {
-    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
-        .getProp(locale, key, null);
+  public static String get(String propertyUtilFileKind, @Nullable Locale locale, String key) {
+    return obtainValueGetter(
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).getProp(locale,
+            key, new HashMap<>());
   }
 
   /**
@@ -659,9 +645,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
-      @RequireNonnull String key, String... args) {
+  public static String get(String propertyUtilFileKind, @Nullable Locale locale, String key,
+      String... args) {
     return formatMessage(get(propertyUtilFileKind, locale, key), args);
   }
 
@@ -675,9 +660,8 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  @Nonnull
-  public static String get(@RequireNonnull String propertyUtilFileKind, @Nullable Locale locale,
-      @RequireNonnull String key, Arg... args) {
+  public static String get(String propertyUtilFileKind, @Nullable Locale locale, String key,
+      @NonNull Arg... args) {
     return get(propertyUtilFileKind, locale, key, getStringsFromArgs(locale, args));
   }
 
@@ -689,10 +673,9 @@ public class PropertiesFileUtil {
    * @param key the key of the property
    * @return the value of the property
    */
-  public static boolean has(@RequireNonnull String propertyUtilFileKind,
-      @RequireNonnull String key) {
-    return getterMap.get(PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase()))
-        .hasProp(key);
+  public static boolean has(String propertyUtilFileKind, String key) {
+    return obtainValueGetter(
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).hasProp(key);
   }
 
   /**
@@ -708,7 +691,7 @@ public class PropertiesFileUtil {
    * 
    * @param postfix postfix
    */
-  public static void addResourceBundlePostfix(@RequireNonnull String postfix) {
+  public static void addResourceBundlePostfix(String postfix) {
     PropertiesFileUtilValueGetter.addToDynamicPostfixList(postfix);
   }
 
@@ -724,17 +707,17 @@ public class PropertiesFileUtil {
    * @param arg message arguments, which can be message ID.
    * @return the message corresponding to the message ID or the string set to {@code Arg}.
    */
-  @Nonnull
-  public static String getStringFromArg(@Nullable Locale locale, @RequireNonnull Arg arg) {
+  public static @Nullable String getStringFromArg(@Nullable Locale locale, Arg arg) {
 
     if (arg.argKind == ArgKind.MESSAGE_ID) {
       String msgIdStr = "";
+      String argString = Objects.requireNonNull(arg.getArgString());
       for (String fileKind : arg.getFileKinds()) {
-        arg.messageArgs = arg.messageArgs == null ? new Arg[] {} : arg.messageArgs;
+        arg.messageArgs = arg.messageArgs == null ? new @NonNull Arg[] {} : arg.messageArgs;
         // Obtain the return value even if key does not exist because it returns the key string.
-        msgIdStr = PropertiesFileUtil.get(fileKind, locale, arg.getArgString(), arg.messageArgs);
+        msgIdStr = PropertiesFileUtil.get(fileKind, locale, argString, arg.messageArgs);
 
-        if (PropertiesFileUtil.has(fileKind, arg.getArgString())) {
+        if (PropertiesFileUtil.has(fileKind, argString)) {
           break;
         }
       }
@@ -743,9 +726,8 @@ public class PropertiesFileUtil {
 
     } else if (arg.argKind == ArgKind.FORMATTED_STRING) {
       List<String> argStrList = new ArrayList<>();
-
-
-      String argString = PropertiesFileUtil.analyzedValueString(locale, arg.getArgString(), null);
+      String argString = PropertiesFileUtil.analyzedValueString(locale,
+          Objects.requireNonNull(arg.getArgString()), new HashMap<>());
 
       Arg[] messageArgs = arg.getMessageArgs() == null ? new Arg[] {} : arg.getMessageArgs();
       for (Arg tmpArg : messageArgs) {
@@ -764,7 +746,7 @@ public class PropertiesFileUtil {
     }
   }
 
-  private static String[] getStringsFromArgs(Locale locale, @RequireNonnull Arg[] args) {
+  private static String[] getStringsFromArgs(@Nullable Locale locale, @NonNull Arg[] args) {
     final List<String> list = new ArrayList<>();
     Arrays.asList(ObjectsUtil.requireNonNull(args)).stream()
         .forEach(arg -> list.add(getStringFromArg(locale, arg)));
@@ -793,7 +775,8 @@ public class PropertiesFileUtil {
           sb.append(tuple.getRight());
 
         } else {
-          sb.append(PropertiesFileUtil.get(tuple.getLeft(), locale, tuple.getRight()));
+          sb.append(
+              PropertiesFileUtil.get(tuple.getLeft(), locale, tuple.getRight(), new Arg[] {}));
         }
       }
     }
@@ -805,7 +788,7 @@ public class PropertiesFileUtil {
         list = EmbeddedVariableUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
             new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-      } catch (StringFormatIncorrectException | MultipleAppException ex) {
+      } catch (ViolationException ex) {
         throw new EclibRuntimeException(ex);
       }
 
@@ -852,30 +835,23 @@ public class PropertiesFileUtil {
     List<String> startSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
         .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
-    // properties files are not managed by users
-    // so exceptions occurring while analyzing string are changed to unchecked exceptions.
-    try {
-      List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
-          startSymbols.toArray(new String[startSymbols.size()]), "}",
-          new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+    List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
+        startSymbols.toArray(new String[startSymbols.size()]), "}",
+        new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-      // THrow an exception if a string still has "${+" because it happens only by a
-      // mistake of the string.
-      if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
-        throw new EclibRuntimeException(
-            "Improper '${+' symbols found in a message. message: " + string);
-      }
-
-      // left of the pair starts with "{+" and ends with ":" but they're not needed
-      return list.stream()
-          .map(pair -> pair.getLeft() == null ? pair
-              : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
-                  pair.getRight()))
-          .toList();
-
-    } catch (AppException ex) {
-      throw new EclibRuntimeException(ex);
+    // THrow an exception if a string still has "${+" because it happens only by a
+    // mistake of the string.
+    if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
+      throw new EclibRuntimeException(
+          "Improper '${+' symbols found in a message. message: " + string);
     }
+
+    // left of the pair starts with "{+" and ends with ":" but they're not needed
+    return list.stream()
+        .map(pair -> pair.getLeft() == null ? pair
+            : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
+                pair.getRight()))
+        .toList();
   }
 
   /**
@@ -898,18 +874,24 @@ public class PropertiesFileUtil {
    */
   public static class Arg {
     private ArgKind argKind;
-    private String[] fileKinds;
-    private String argString;
-    private Arg[] messageArgs;
+    private @NonNull String[] fileKinds;
+    /**
+     * Argument string.
+     * It is not {@code null} when ArgKind == FORMATTED_STRING, MESSAGE_ID,
+     * but it can be null you just put string variable to show variable value 
+     * and its value is {@code null}.
+     */
+    private @Nullable String argString;
+    private @NonNull Arg[] messageArgs;
 
     /**
      * Constructs a new instance considered as a normal string.
      * 
      * @param argString argument
      */
-    private Arg(ArgKind argKind, String argString, Arg... messageArgs) {
+    private Arg(ArgKind argKind, @Nullable String argString, @NonNull Arg... messageArgs) {
       this.argKind = argKind;
-      this.fileKinds = new String[] {};
+      this.fileKinds = new @NonNull String[] {};
       this.argString = argString;
       this.messageArgs = messageArgs;
     }
@@ -919,7 +901,8 @@ public class PropertiesFileUtil {
      * 
      * @param argString argument
      */
-    private Arg(String[] fileKinds, String argString, Arg... messageArgs) {
+    private Arg(@NonNull String[] fileKinds, @Nullable String argString,
+        @NonNull Arg... messageArgs) {
       this.argKind = ArgKind.MESSAGE_ID;
       this.fileKinds = fileKinds;
       this.argString = argString;
@@ -932,7 +915,7 @@ public class PropertiesFileUtil {
      * @param argString normal string
      * @return Arg
      */
-    public static Arg string(String argString) {
+    public static Arg string(@Nullable String argString) {
       return new Arg(ArgKind.STRING, argString);
     }
 
@@ -942,7 +925,7 @@ public class PropertiesFileUtil {
      * @param argStrings an array of normal string
      * @return Arg[]
      */
-    public static Arg[] strings(String... argStrings) {
+    public static Arg[] strings(@NonNull String... argStrings) {
       return Arrays.asList(argStrings).stream().map(arg -> Arg.string(arg)).toList()
           .toArray(new Arg[argStrings.length]);
     }
@@ -963,7 +946,7 @@ public class PropertiesFileUtil {
      * @param formattedString formattedString
      * @return Arg
      */
-    public static Arg formattedString(String formattedString, Arg... args) {
+    public static Arg formattedString(String formattedString, @NonNull Arg... args) {
       return new Arg(ArgKind.FORMATTED_STRING, formattedString, args);
     }
 
@@ -975,7 +958,7 @@ public class PropertiesFileUtil {
      */
     public static Arg message(String messageId) {
       return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
-          new Arg[] {});
+          new @NonNull Arg[] {});
     }
 
     /**
@@ -985,7 +968,8 @@ public class PropertiesFileUtil {
      * @param stringArgs stringArgs
      * @return Arg
      */
-    public static Arg message(String messageId, String... stringArgs) {
+    @SuppressWarnings("null")
+    public static Arg message(String messageId, @NonNull String... stringArgs) {
       List<String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
@@ -1000,9 +984,9 @@ public class PropertiesFileUtil {
      * @param messageArgs messageArgs
      * @return Arg
      */
-    public static Arg message(String messageId, Arg... messageArgs) {
-      return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
-          messageArgs);
+    public static Arg message(String messageId, @NonNull Arg... messageArgs) {
+      return new Arg(new @NonNull String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()},
+          messageId, messageArgs);
     }
 
     /**
@@ -1011,8 +995,8 @@ public class PropertiesFileUtil {
      * @param messageId messageId
      * @return Arg
      */
-    public static Arg get(String[] fileKinds, String messageId) {
-      return new Arg(fileKinds, messageId, new Arg[] {});
+    public static Arg get(@NonNull String[] fileKinds, String messageId) {
+      return new Arg(fileKinds, messageId, new @NonNull Arg[] {});
     }
 
     /**
@@ -1022,7 +1006,8 @@ public class PropertiesFileUtil {
      * @param stringArgs stringArgs
      * @return Arg
      */
-    public static Arg get(String[] fileKinds, String messageId, String... stringArgs) {
+    public static Arg get(@NonNull String[] fileKinds, String messageId,
+        @Nullable String... stringArgs) {
       List<String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
@@ -1036,7 +1021,8 @@ public class PropertiesFileUtil {
      * @param messageArgs messageArgs
      * @return Arg
      */
-    public static Arg get(String[] fileKinds, String messageId, Arg... messageArgs) {
+    public static Arg get(@NonNull String[] fileKinds, String messageId,
+        @NonNull Arg... messageArgs) {
       return new Arg(fileKinds, messageId, messageArgs);
     }
 
@@ -1044,15 +1030,15 @@ public class PropertiesFileUtil {
       return argKind;
     }
 
-    public String[] getFileKinds() {
+    public @NonNull String[] getFileKinds() {
       return fileKinds;
     }
 
-    public String getArgString() {
+    public @Nullable String getArgString() {
       return argString;
     }
 
-    public Arg[] getMessageArgs() {
+    public @NonNull Arg[] getMessageArgs() {
       return messageArgs;
     }
   }

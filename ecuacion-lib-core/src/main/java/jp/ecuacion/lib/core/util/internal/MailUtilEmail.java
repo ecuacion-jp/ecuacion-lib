@@ -25,10 +25,6 @@ public class MailUtilEmail {
   private MailUtilEmailContent contentInfo;
   private MailUtilEmailSettings settingInfo;
 
-  public MailUtilEmail() {
-
-  }
-
   public MailUtilEmail(MailUtilEmailServer emailServer, MailUtilEmailContent emailContent,
       MailUtilEmailSettings emailSettings) {
     this.serverInfo = emailServer;
@@ -80,7 +76,7 @@ public class MailUtilEmail {
 
   public String getDebugLogMessage() {
     // Finish when detailLogMap has no values.
-    if (detailLogMap == null || detailLogMap.size() == 0) {
+    if (detailLogMap.size() == 0) {
       return ". (parameter none)";
     }
 

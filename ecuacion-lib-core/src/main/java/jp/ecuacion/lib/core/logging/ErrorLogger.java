@@ -15,35 +15,31 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.annotation.Nullable;
+import jakarta.validation.ConstraintViolation;
 import java.util.Locale;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 /**
- * Logs messages which are surveilled by survaillance service 
- * and alert error occurence to administrators.
+ * Logs messages which are surveilled by surveillance service 
+ * and alert error occurrence to administrators.
  * 
  * <p>It doesn't log details, but just one-line messages. Details should be logged by
- * {@code DetailLogger}.
- * </p>
+ *     {@code DetailLogger} and others.</p>
  * 
- * <p>Usually error loglevel is used, but it can be used for alert by warn
- *  and tell the warning is resolved by info loglevel.<br>
- *  So warn and info loglevel can be used.</p>
- *  
  * <p>Available loglevels are as follows:</p>
  * <ul>
- * <li>error: uses for error occurence</li>
+ * <li>error: uses for error occurrence</li>
  * <li>warn : uses for warning</li>
  * <li>info : uses for recover from warn state</li>
  * </ul>
  */
-public class ErrorLogger extends EclibLogger {
+public class ErrorLogger extends AbstractLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public ErrorLogger() {
@@ -53,18 +49,18 @@ public class ErrorLogger extends EclibLogger {
   /**
    * Logs message with "info" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. Can be {@code null}.
    */
-  public void info(@RequireNonnull String message) {
+  public void info(@Nullable String message) {
     log(Level.INFO, message);
   }
 
   /**
    * Logs message with "warn" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. Can be {@code null}.
    */
-  public void warn(@RequireNonnull String message) {
+  public void warn(@Nullable String message) {
     log(Level.WARN, message);
   }
 
@@ -72,9 +68,9 @@ public class ErrorLogger extends EclibLogger {
   /**
    * Logs message with "error" loglevel.
    *
-   * @param message message to log. Cannot be {@code null}.
+   * @param message message to log. Can be {@code null}.
    */
-  public void error(@RequireNonnull String message) {
+  public void error(@Nullable String message) {
     log(Level.ERROR, message);
   }
 
@@ -83,7 +79,7 @@ public class ErrorLogger extends EclibLogger {
    * 
    * @param throwable throwable
    */
-  public void logSystemError(@RequireNonnull Throwable throwable) {
+  public void logSystemError(@Nullable Throwable throwable) {
     logSystemError(throwable, null);
   }
 
@@ -93,22 +89,34 @@ public class ErrorLogger extends EclibLogger {
    * @param throwable throwable
    * @param additionalMessage additionalMessage
    */
-  public void logSystemError(@RequireNonnull Throwable throwable,
-      @Nullable String additionalMessage) {
+  @SuppressWarnings({"removal"})
+  public void logSystemError(@Nullable Throwable throwable, @Nullable String additionalMessage) {
 
-    ObjectsUtil.requireNonNull(throwable);
+    String throwableMessage;
 
-    String msg = (throwable.getMessage() == null) ? ""
-        : " - "
-            + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
+    if (throwable == null) {
+      throwableMessage = NULL_THROWABLE_MESSAGE;
 
-    // additional info output when the exception is ValidationAppException
-    if (throwable instanceof ValidationAppException) {
-      msg =
-          msg + "\n" + ((ValidationAppException) throwable).getConstraintViolationBean().toString();
+    } else {
+      throwableMessage = throwable.getClass().getName() + " - "
+          + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
+
+      if (throwable instanceof ViolationException) {
+        StringBuilder sb = new StringBuilder(throwableMessage);
+        for (ConstraintViolation<?> cv
+            : ((ViolationException) throwable).getViolations().getConstraintViolations()) {
+          sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
+        }
+        throwableMessage = sb.toString();
+
+      } else if (throwable instanceof ValidationAppException) {
+        // Legacy: remove this branch when ValidationAppException is retired.
+        throwableMessage = throwableMessage + "\n"
+            + ((ValidationAppException) throwable).getConstraintViolationBean().toString();
+      }
     }
 
-    internalLogger.error("A system error has occurred: " + throwable.getClass().getName() + msg
-        + " (" + additionalMessage + ")");
+    String additionalMsg = additionalMessage == null ? "" : " (" + additionalMessage + ")";
+    internalLogger.error("A system error has occurred: " + throwableMessage + additionalMsg);
   }
 }

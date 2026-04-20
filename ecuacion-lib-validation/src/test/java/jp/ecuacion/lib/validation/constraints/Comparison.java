@@ -23,14 +23,12 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constraints.Comparison.ComparisonList;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 
 /**
  * Checks if 2 specified {@code itemPropertyPaths} have assumed numrical comparison relation.
  */
-@PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(ComparisonList.class)

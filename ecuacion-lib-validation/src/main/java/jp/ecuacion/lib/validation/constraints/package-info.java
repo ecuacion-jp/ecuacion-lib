@@ -17,4 +17,7 @@
 /**
  * Provides {@code jakarta validation} validators.
  */
+@NullMarked
 package jp.ecuacion.lib.validation.constraints;
+
+import org.jspecify.annotations.NullMarked;

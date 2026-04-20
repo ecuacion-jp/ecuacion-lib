@@ -15,7 +15,9 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code LessThan}.
@@ -24,7 +26,8 @@ public class LessThanValidator extends ComparisonValidator<LessThan, Object> {
 
   /** Initializes an instance. */
   @Override
-  public void initialize(LessThan annotation) {
+  public void initialize(@Nullable LessThan annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.baselinePropertyPath(), true, false, annotation.typeConversionFromString(),
         annotation.typeConversionDateFormat());

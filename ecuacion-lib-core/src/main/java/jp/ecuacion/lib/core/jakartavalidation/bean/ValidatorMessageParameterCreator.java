@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
-import jakarta.annotation.Nonnull;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides message parameter set used in ValidationMessages.properties as "{param}".
@@ -34,7 +34,6 @@ public interface ValidatorMessageParameterCreator {
   /**
    * Creates and returns message parameter set.
    */
-  @Nonnull
   Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<String, Object> paramMap);
+      Map<@NonNull String, Object> paramMap);
 }

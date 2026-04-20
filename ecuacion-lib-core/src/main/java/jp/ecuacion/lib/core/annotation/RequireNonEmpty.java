@@ -22,13 +22,13 @@ import java.lang.annotation.Retention;
 
 /**
  * Designates that the method throws {@code RequireNonEmptyException}
- *     when the annotated arguments is empty. (= {@code null or blank("")})
+ *     when the annotated arguments is empty.
  * 
- * <p>This annnotation does nothing. 
+ * <p>This annotation does nothing. 
  *     Just for the explanation of the implementation of the method to developers.</p>
  */
 @Documented
 @Retention(RUNTIME)
-public @interface RequireNonempty {
+public @interface RequireNonEmpty {
 
 }

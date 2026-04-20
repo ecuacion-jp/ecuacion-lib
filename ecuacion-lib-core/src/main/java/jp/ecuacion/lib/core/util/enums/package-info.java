@@ -13,22 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.annotation;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws {@code RequireElementNonEmptyException}
- *     when each element of annotated arrays or collections is empty. (= {@code null or blank("")})
- * 
- * <p>This annnotation does nothing. 
- *     Just for the explanation of the implementation of the method to developers.</p>
+ * Provides enums for utilities.
  */
-@Documented
-@Retention(RUNTIME)
-public @interface RequireElementNonempty {
+@NullMarked
+package jp.ecuacion.lib.core.util.enums;
 
-}
+import org.jspecify.annotations.NullMarked;

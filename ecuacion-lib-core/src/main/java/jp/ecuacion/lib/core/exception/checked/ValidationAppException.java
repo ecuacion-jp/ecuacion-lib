@@ -16,21 +16,24 @@
 package jp.ecuacion.lib.core.exception.checked;
 
 import jakarta.validation.ConstraintViolation;
-import jp.ecuacion.lib.core.annotation.RequireNonnull;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Holds a Jakarta Validations violation.
  * 
- * <p>Normally {@code ConstraintViolationBeanException} should be used Since it's alike 
- *     to jakarta validation standard {@code ConstraintViolationException}.<br>
+ * <p>Normally {@code ConstraintViolationException} should be used Since it's  
+ *     a jakarta validation standard.<br>
  *     But sometimes you can use it 
- *     when you want to treat {@code ConstraintViolationBean} as one exception
+ *     when you want to treat one {@code ConstraintViolation} as one exception
  *     (mainly in libraries or frameworks)<br><br>
  *     It's not recommended to use in apps from the view of understandability.</p>
+ *     
+ * @deprecated Use Violations instead.
  */
+@Deprecated(since = "15.1", forRemoval = true)
 public class ValidationAppException extends SingleAppException {
   private static final long serialVersionUID = 1L;
 
@@ -42,7 +45,8 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
-  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation) {
+  @Deprecated(since = "15.1", forRemoval = true)
+  public <T> ValidationAppException(ConstraintViolation<T> violation) {
     this(violation, new MessageParameters());
   }
 
@@ -51,7 +55,8 @@ public class ValidationAppException extends SingleAppException {
    *
    * @param violation violation result
    */
-  public <T> ValidationAppException(@RequireNonnull ConstraintViolation<T> violation,
+  @Deprecated(since = "15.1", forRemoval = true)
+  public <T> ValidationAppException(ConstraintViolation<T> violation,
       MessageParameters messageParameters) {
     super(violation.getMessage());
     this.bean =
@@ -63,8 +68,9 @@ public class ValidationAppException extends SingleAppException {
   }
 
   @Override
-  public String[] getItemPropertyPaths() {
-    return null;
+  @Deprecated(since = "15.1", forRemoval = true)
+  public @NonNull String[] getItemPropertyPaths() {
+    return new @NonNull String[] {};
   }
 
   /**
@@ -72,10 +78,12 @@ public class ValidationAppException extends SingleAppException {
   *
   * @return BeanValidationErrorInfoBean
   */
+  @Deprecated(since = "15.1", forRemoval = true)
   public ConstraintViolationBean<?> getConstraintViolationBean() {
     return bean;
   }
 
+  @Deprecated(since = "15.1", forRemoval = true)
   public MessageParameters getMessageParameters() {
     return messageParameters;
   }

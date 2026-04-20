@@ -16,6 +16,8 @@
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AlwaysFalse}.
@@ -23,12 +25,13 @@ import jakarta.validation.ConstraintValidatorContext;
 public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, Object> {
 
   @Override
-  public void initialize(ClassAlwaysFalse annotation) {
+  public void initialize(@Nullable ClassAlwaysFalse annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 
   @Override
-  protected boolean internalIsValid(Object value, ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, @Nullable ConstraintValidatorContext context) {
     return false;
   }
 }

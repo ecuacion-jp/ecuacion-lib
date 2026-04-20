@@ -15,22 +15,24 @@
  */
 package jp.ecuacion.lib.core.exception.checked;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.violation.Violations;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ValidationAppExceptionTest {
 
-  private ConstraintViolation<SampleObj> violation;
+  private @Nullable ConstraintViolation<SampleObj> violation;
 
   @BeforeEach
   public void before() {
@@ -43,31 +45,12 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test01_storingValues_01_constructorWithConstraintViolationArg_01_argIsNull() {
-    try {
-      // NPE is expected
-      @SuppressWarnings("unused")
-      ValidationAppException ex = new ValidationAppException((ConstraintViolation<?>) null);
-      fail();
+  public void test01_storingValues_01_constraintViolationAddedToViolations() {
+    Set<ConstraintViolation<SampleObj>> set = new HashSet<>();
+    set.add(ObjectsUtil.requireNonNull(violation));
 
-    } catch (NullPointerException npe) {
-      // OK
-
-    } catch (Exception e) {
-      fail();
-    }
-  }
-
-  @Test
-  public void test01_storingValues_01_constructorWithConstraintViolationArg_11_validArg() {
-    try {
-      // Store in a variable and call getStackTrace() on it to avoid SpotBugs warnings.
-      ValidationAppException ex = new ValidationAppException(violation);
-      ex.getStackTrace();
-
-    } catch (Exception e) {
-      fail();
-    }
+    Violations violations = new Violations().add(set);
+    assertEquals(1, violations.getConstraintViolations().size());
   }
 
   @Test
@@ -75,8 +58,8 @@ public class ValidationAppExceptionTest {
     final String className =
         "jp.ecuacion.lib.core.exception.checked." + "ValidationAppExceptionTest$SampleObj";
 
-    ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
     assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
     assertEquals("must not be null", bean.getMessage());
     assertEquals("{jakarta.validation.constraints.NotNull.message}", bean.getMessageTemplate());
@@ -88,32 +71,27 @@ public class ValidationAppExceptionTest {
   }
 
   @Test
-  public void test11_obtaining_messageId() {
-    ValidationAppException ex = new ValidationAppException(violation);
-    ConstraintViolationBean<?> bean = ex.getConstraintViolationBean();
+  public void test11_obtaining_validatorClass() {
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
     assertEquals("jakarta.validation.constraints.NotNull", bean.getValidatorClass());
   }
 
   @Test
   public void test12_obtainingToString() {
-    String str = "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
-        + "rootClassName:jp.ecuacion.lib.core.exception.checked."
-        + "ValidationAppExceptionTest$SampleObj\n"
-        + "leafClassName:jp.ecuacion.lib.core.exception.checked."
-        + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
-    ValidationAppException ex = new ValidationAppException(violation);
-    assertEquals(str, ex.getConstraintViolationBean().toString());
+    String str =
+        "message:must not be null\n" + "annotation:jakarta.validation.constraints.NotNull\n"
+            + "rootClassName:jp.ecuacion.lib.core.exception.checked."
+            + "ValidationAppExceptionTest$SampleObj\n"
+            + "leafClassName:jp.ecuacion.lib.core.exception.checked."
+            + "ValidationAppExceptionTest$SampleObj\n" + "propertyPath:str1\ninvalidValue:null";
+    ConstraintViolationBean<?> bean =
+        ConstraintViolationBean.createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
+    assertEquals(str, bean.toString());
   }
 
   public static class SampleObj {
     @NotNull
-    public String str1;
-  }
-
-  class SampleWithParamObj {
-    @Min(value = 3)
-    public Integer int1 = 2;
+    public @Nullable String str1;
   }
 }
-
-

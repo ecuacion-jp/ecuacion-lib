@@ -15,33 +15,36 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code NotPatternWhen}.
  */
 public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhen, Object> {
 
-  private String propertyValuePatternRegexp;
+  private String regexp = "";
 
   /** Initializes an instance. */
   @Override
-  public void initialize(NotPatternWhen annotation) {
+  public void initialize(@Nullable NotPatternWhen annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.patternWhenConditionNotSatisfied());
 
-    this.propertyValuePatternRegexp = annotation.regexp();
+    this.regexp = annotation.regexp();
   }
 
   @Override
-  protected boolean isValid(Object valueOfField) {
+  protected boolean isValid(@Nullable Object valueOfField) {
     if (StringUtil.isObjectNullOrEmpty(valueOfField)) {
       return true;
     }
@@ -50,7 +53,7 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
       throw new EclibRuntimeException("The data type of propertyPath must be String.");
     }
 
-    Pattern p = Pattern.compile(propertyValuePatternRegexp);
+    Pattern p = Pattern.compile(regexp);
     Matcher m = p.matcher((String) valueOfField);
 
     return !m.find();

@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.annotation;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
 
 /**
- * Designates that the method throws {@code RequireElementNonNullException}
- *     when each element of annotated arrays or collections is {@code null}.
+ * Provides Service Provider Interfaces for tests.
  * 
- * <p>This annnotation does nothing. 
- *     Just for the explanation of the implementation of the method to developers.</p>
+ * <p>Since spi needs to be defined in {@code module-info.java}, 
+ *     Classes used for test also have to defined here.</p>
  */
-@Documented
-@Retention(RUNTIME)
-public @interface RequireElementNonnull {
+@NullMarked
+package jp.ecuacion.lib.core.test.spi;
 
-}
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
@@ -26,6 +27,7 @@ import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Is a LocalizedMessageParameter creator for PatternWithDescription.
@@ -35,16 +37,17 @@ public class ComparisonValidatorMessageParameterCreator extends ReflectionUtil
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<String, Object> paramMap) {
+      Map<@NonNull String, Object> paramMap) {
 
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 
     // Comparison validators
-    String bpp = (String) cv.getEmbeddedParamMap().get("baselinePropertyPath");
+    String bpp =
+        Objects.requireNonNull((String) cv.getEmbeddedParamMap().get("baselinePropertyPath"));
     Item item = MessageUtil.getItem(bpp, cv.getRootBean(), cv.getLeafBean());
     messageParameterSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
         new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES}, true,
-        new Item[] {item}, cv.getRootBean(), item.getItemNameKey(), (Arg[]) null));
+        new Item[] {item}, cv.getRootBean(), item.getItemNameKey(), new Arg[] {}));
 
     return messageParameterSet;
   }

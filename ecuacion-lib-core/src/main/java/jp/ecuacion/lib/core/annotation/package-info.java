@@ -16,5 +16,11 @@
 
 /**
  * Provides annotations.
+ * 
+ * <p>{@code @NullUnmarked} is added 
+ *     because annotations do not need {@code @NullMarked}.</p>
  */
+@NullUnmarked
 package jp.ecuacion.lib.core.annotation;
+
+import org.jspecify.annotations.NullUnmarked;

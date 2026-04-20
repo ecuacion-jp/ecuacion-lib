@@ -18,10 +18,12 @@ package jp.ecuacion.lib.core.spi.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.spi.AbstractResourceBundleProvider;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides an implementation of {@code ResourceBundleProvider}.
@@ -37,20 +39,21 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
    * Provides {@code ResourceBundle}.
    */
   @Override
-  public ResourceBundle getBundle(String baseName, Locale locale) {
+  public @Nullable ResourceBundle getBundle(@Nullable String baseName, @Nullable Locale locale) {
     Locale specifiedLocale = PropertiesFileUtilValueGetter.specifiedLocale.get();
 
     // remove default locale if not specified.
-    if (!locale.getLanguage().equals("")
+    if ((locale == null || (!locale.getLanguage().equals(""))
         && !specifiedLocale.getLanguage().equals(Locale.getDefault().getLanguage())
-        && locale.getLanguage().equals(Locale.getDefault().getLanguage())) {
+        && locale.getLanguage().equals(Locale.getDefault().getLanguage()))) {
       return null;
     }
 
     // Obtain resource from module.
     String baseFilename = PropertiesFileUtilValueGetter.bundleNameForModule.get();
     String moduleName = getModuleName(baseFilename);
-    Module module = ModuleLayer.boot().findModule(moduleName).orElse(null);
+    Module module = Objects.requireNonNull(ModuleLayer.boot())
+        .findModule(Objects.requireNonNull(moduleName)).orElse(null);
     if (module != null) {
       try {
         String bundleName = baseFilename + (locale.toString().equals("") ? "" : "_")
@@ -69,7 +72,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
     return super.getBundle(PropertiesFileUtilValueGetter.bundleNameForModule.get(), locale);
   }
 
-  private String getModuleName(String filename) {
+  private @Nullable String getModuleName(String filename) {
     String[] parts = filename.split("_");
 
     int len = parts.length;

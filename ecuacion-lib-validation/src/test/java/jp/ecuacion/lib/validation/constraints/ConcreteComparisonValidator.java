@@ -15,7 +15,9 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import java.util.Objects;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code EnumElement}.
@@ -24,7 +26,8 @@ public class ConcreteComparisonValidator extends ComparisonValidator<Comparison,
 
   /** Initializes an instance. */
   @Override
-  public void initialize(Comparison annotation) {
+  public void initialize(@Nullable Comparison annotation) {
+    Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
         annotation.basisPropertyPath(), annotation.isValidWhenLessThanBasis(),
         annotation.allowsEqual(), annotation.typeConversionFromString(), "yyyy-MM-dd");

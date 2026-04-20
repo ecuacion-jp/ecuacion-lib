@@ -17,4 +17,7 @@
 /**
  * Provides utilities used in wide situations.
  */
+@NullMarked
 package jp.ecuacion.lib.core.util;
+
+import org.jspecify.annotations.NullMarked;

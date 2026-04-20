@@ -23,7 +23,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.core.jakartavalidation.annotation.PlacedAtClass;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.NotEmptyWhen.NotEmptyWhenList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
@@ -32,7 +31,6 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 /**
  * Checks if specified {@code propertyPath} is not empty only when condition is satisfied.
  */
-@PlacedAtClass
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(NotEmptyWhenList.class)
