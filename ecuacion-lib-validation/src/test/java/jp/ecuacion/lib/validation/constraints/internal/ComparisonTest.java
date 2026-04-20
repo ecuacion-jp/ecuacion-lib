@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constraints.ConcreteComparisonValidator;
@@ -43,7 +44,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Throwable cause = ex.getCause().getCause();
+      Throwable cause = Objects.requireNonNull(ex.getCause()).getCause();
       Assertions.assertTrue(cause instanceof NoSuchFieldException);
       Assertions.assertEquals("propertyPath2", cause.getMessage());
     }
@@ -54,7 +55,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Throwable cause = ex.getCause().getCause();
+      Throwable cause = Objects.requireNonNull(ex.getCause()).getCause();
       Assertions.assertTrue(cause instanceof NoSuchFieldException);
       Assertions.assertEquals("basisPropertyPath", cause.getMessage());
     }
