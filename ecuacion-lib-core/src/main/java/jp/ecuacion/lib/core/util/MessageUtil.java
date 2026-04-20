@@ -85,9 +85,10 @@ public class MessageUtil {
    */
   public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
       @Nullable String itemNameKeyClassFromAnnotation,
-      @Nullable String itemNameKeyClassFromClassName,
-      @Nullable String itemNameKeyField, String propertyPath) {
-    @Nullable String tmpItemNameKeyClass;
+      @Nullable String itemNameKeyClassFromClassName, @Nullable String itemNameKeyField,
+      String propertyPath) {
+    @Nullable
+    String tmpItemNameKeyClass;
     String tmpItemNameKeyField;
 
     if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
@@ -115,8 +116,8 @@ public class MessageUtil {
   /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
    */
-  public static String getItemNames(Locale locale, List<Item> itemList, boolean showsItemNamePath,
-      Object rootBean) {
+  public static String getItemNames(Locale locale, List<@NonNull Item> itemList,
+      boolean showsItemNamePath, Object rootBean) {
     final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
     final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");

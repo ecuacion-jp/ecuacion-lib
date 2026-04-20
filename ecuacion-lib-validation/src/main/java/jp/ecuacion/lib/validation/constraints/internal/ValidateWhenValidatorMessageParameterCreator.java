@@ -135,6 +135,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
             new Arg[] {displayStringOfConditionValueArg}));
   }
 
+  @SuppressWarnings("null")
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolation<?> cv,
       Map<@NonNull String, Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
@@ -143,7 +144,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     Object displayStringObj = Objects.requireNonNull(displayStringPp).equals("") ? values
         : Objects.requireNonNull(getValue(cv.getLeafBean(), displayStringPp));
 
-    List<String> displayStringList = (displayStringObj instanceof Object[])
+    List<@NonNull String> displayStringList = (displayStringObj instanceof Object[])
         ? Arrays.asList((Object[]) displayStringObj).stream().map(o -> o.toString()).toList()
         : Arrays.asList(new String[] {displayStringObj.toString()});
 

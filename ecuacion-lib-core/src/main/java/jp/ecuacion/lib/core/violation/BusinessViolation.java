@@ -16,7 +16,9 @@
 package jp.ecuacion.lib.core.violation;
 
 import java.util.Arrays;
+import java.util.Locale;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -51,6 +53,11 @@ public class BusinessViolation {
   private @NonNull Arg[] messageArgs;
 
   /**
+   * RootBean. Put the object field with {@code itemPropertyPath} has.
+   */
+  private @Nullable Object rootBean;
+
+  /**
    * An array of item propertyPath.
    *
    * <p>Elements of the array cannot be {@code null} because they are usually
@@ -79,9 +86,23 @@ public class BusinessViolation {
    * @param messageId message ID
    * @param messageArgs message Arguments. Each element can be {@code null}.
    */
-  public BusinessViolation(String[] itemPropertyPaths, String messageId,
+  public BusinessViolation(@NonNull String[] itemPropertyPaths, String messageId,
       @Nullable String... messageArgs) {
-    this(itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
+    this(null, itemPropertyPaths, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param rootBean rootBean
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
+      String messageId, @Nullable String... messageArgs) {
+    this(rootBean, itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
         .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
   }
 
@@ -105,9 +126,31 @@ public class BusinessViolation {
    */
   public BusinessViolation(@NonNull String[] itemPropertyPaths, String messageId,
       @NonNull Arg[] messageArgs) {
+    this(null, itemPropertyPaths, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
+      String messageId, @NonNull Arg[] messageArgs) {
+    this.rootBean = rootBean;
     this.itemPropertyPaths = itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = messageArgs;
+  }
+
+  @Override
+  public String toString() {
+    return "{" + "message : \"" + PropertiesFileUtil.getMessage(Locale.ROOT, messageId, messageArgs)
+        + "\", " + "messageId : \"" + messageId + "\", " + "messageArgs : \""
+        + Arrays.toString(messageArgs) + "\", " + "itemPropertyPaths : \""
+        + Arrays.toString(itemPropertyPaths) + "\"}";
   }
 
   /**
@@ -126,6 +169,15 @@ public class BusinessViolation {
    */
   public @NonNull Arg[] getMessageArgs() {
     return messageArgs;
+  }
+
+  /**
+   * Gets rootBean.
+   * 
+   * @return rootBean
+   */
+  public @Nullable Object getRootBean() {
+    return rootBean;
   }
 
   /**
