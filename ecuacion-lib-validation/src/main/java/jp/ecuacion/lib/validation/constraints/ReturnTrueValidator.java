@@ -41,7 +41,7 @@ public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
   public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
     try {
       Method method = object.getClass().getMethod(methodName);
-      return (boolean) method.invoke(object);
+      return (boolean) Objects.requireNonNull(method.invoke(object));
 
     } catch (Exception ex) {
       throw new RuntimeException(ex);

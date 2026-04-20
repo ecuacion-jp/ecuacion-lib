@@ -145,7 +145,7 @@ public class ValidationUtil {
             : validator.validate(object, groups);
 
     Optional<@NonNull Violations> rtn = set.size() == 0 ? Optional.empty()
-        : Optional.of(new Violations().add(set).messageParameters(messageParameters));
+        : Optional.of(new Violations().addAll(set).messageParameters(messageParameters));
 
     return Objects.requireNonNull(rtn);
   }

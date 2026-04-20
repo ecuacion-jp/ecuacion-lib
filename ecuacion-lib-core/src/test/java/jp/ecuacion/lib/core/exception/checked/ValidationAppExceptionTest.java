@@ -49,7 +49,7 @@ public class ValidationAppExceptionTest {
     Set<ConstraintViolation<SampleObj>> set = new HashSet<>();
     set.add(ObjectsUtil.requireNonNull(violation));
 
-    Violations violations = new Violations().add(set);
+    Violations violations = new Violations().addAll(set);
     assertEquals(1, violations.getConstraintViolations().size());
   }
 

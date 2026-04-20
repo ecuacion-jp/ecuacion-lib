@@ -44,11 +44,11 @@ public class Violations {
   /**
    * Adds a set of {@link ConstraintViolation}s.
    *
-   * @param violations set of constraint violations to add
+   * @param violation set of constraint violations to add
    * @return this instance for method chaining
    */
-  public Violations add(Set<? extends ConstraintViolation<?>> violations) {
-    constraintViolations.addAll(violations);
+  public Violations add(ConstraintViolation<?> violation) {
+    constraintViolations.add(violation);
     return this;
   }
 
@@ -60,6 +60,28 @@ public class Violations {
    */
   public Violations add(BusinessViolation violation) {
     businessViolations.add(violation);
+    return this;
+  }
+
+  /**
+   * Adds a set of {@link ConstraintViolation}s.
+   *
+   * @param violations set of constraint violations to add
+   * @return this instance for method chaining
+   */
+  public Violations addAll(Set<? extends ConstraintViolation<?>> violations) {
+    constraintViolations.addAll(violations);
+    return this;
+  }
+
+  /**
+   * Adds a {@link BusinessViolation}.
+   *
+   * @param violationList business violation list to add
+   * @return this instance for method chaining
+   */
+  public Violations addAll(List<BusinessViolation> violationList) {
+    businessViolations.addAll(violationList);
     return this;
   }
 
