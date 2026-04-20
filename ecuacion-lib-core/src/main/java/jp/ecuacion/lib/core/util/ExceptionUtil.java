@@ -290,7 +290,8 @@ public class ExceptionUtil {
       } else if (th instanceof BizLogicAppException) {
         // Legacy: remove this branch when BizLogicAppException is retired.
         rtnList.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-            ((BizLogicAppException) th).getBusinessViolation()));
+            ((BizLogicAppException) th).getBusinessViolation(),
+            ValidationUtil.messageParameters()));
 
       } else if (th instanceof ValidationAppException) {
         // Legacy: remove this branch when ValidationAppException is retired.
@@ -362,8 +363,8 @@ public class ExceptionUtil {
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
-      result.add(
-          getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, bv));
+      result.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+          bv, violations.getMessageParameters()));
     }
 
     return result;
@@ -497,12 +498,48 @@ public class ExceptionUtil {
   }
 
   private static String getMessageFromBusinessViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, BusinessViolation violation) {
-    return isMessagesWithItemNamesAsDefault
-        ? PropertiesFileUtil.getMessageWithItemName(locale, violation.getMessageId(),
-            violation.getMessageArgs())
-        : PropertiesFileUtil.getMessage(locale, violation.getMessageId(),
-            violation.getMessageArgs());
+      boolean isMessagesWithItemNamesAsDefault, BusinessViolation violation,
+      MessageParameters messageParameters) {
+    // return isMessagesWithItemNamesAsDefault
+    // ? PropertiesFileUtil.getMessageWithItemName(locale, violation.getMessageId(),
+    // violation.getMessageArgs())
+    // : PropertiesFileUtil.getMessage(locale, violation.getMessageId(),
+    // violation.getMessageArgs());
+
+    // If messageParameters.isMessageWithItemName() is not null (= explicitly specified),
+    // it's prioritized over isMessagesWithItemNamesAsDefault.
+    Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
+        ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
+        : isMessagesWithItemNamesAsDefault;
+
+    String message = null;
+    String messageKey = violation.getMessageId();
+    message = isMessageWithItemName
+        ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey, violation.getMessageArgs())
+        : PropertiesFileUtil.getMessage(locale, messageKey, violation.getMessageArgs());
+
+    // Replace {0} to itemName.
+    if (message.contains("{0}") && violation.getRootBean() != null) {
+      Object rootBean = Objects.requireNonNull(violation.getRootBean());
+      List<@NonNull Item> itemList = Arrays.asList(violation.getItemPropertyPaths()).stream()
+          .map(path -> MessageUtil.getItem(path, rootBean, rootBean)).toList();
+
+      message = MessageFormat.format(message,
+          MessageUtil.getItemNames(locale, itemList, false, rootBean));
+    }
+
+    // add prefix and postfix messages.
+    if (messageParameters.getMessagePrefix() != null) {
+      message = PropertiesFileUtil.getStringFromArg(locale,
+          Objects.requireNonNull(messageParameters.getMessagePrefix())) + message;
+    }
+
+    if (messageParameters.getMessagePostfix() != null) {
+      message = message + PropertiesFileUtil.getStringFromArg(locale,
+          Objects.requireNonNull(messageParameters.getMessagePostfix()));
+    }
+    
+    return message;
   }
 
   private static void putMesageParameterSetToParamMap(Locale locale,
