@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
@@ -45,7 +45,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
     String description = (String) paramMap.get(key);
 
     if (StringUtils.isEmpty(description)) {
-      throw new EclibRuntimeException("@PatternWithDescription needs " + key + " value.");
+      throw new RuntimeException("@PatternWithDescription needs " + key + " value.");
     }
 
     messageParameterSet.add(new LocalizedEmbeddedParameter("description",
