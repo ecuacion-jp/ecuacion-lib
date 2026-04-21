@@ -21,7 +21,6 @@ import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import java.util.Objects;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constraints.ConcreteComparisonValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,7 +66,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Assertions.assertTrue(ex.getCause() instanceof EclibRuntimeException);
+      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
     }
 
     // unsupported types
@@ -76,7 +75,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Assertions.assertTrue(ex.getCause() instanceof EclibRuntimeException);
+      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
     }
   }
 

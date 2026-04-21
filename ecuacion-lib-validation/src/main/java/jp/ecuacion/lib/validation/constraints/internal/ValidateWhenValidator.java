@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
@@ -140,7 +139,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     } else if (conditionPattern == VALUE_OF_PROPERTY_PATH) {
       return checkValueOfPropertyPath(instance, valueOfConditionPropertyPath);
     } else {
-      throw new EclibRuntimeException("Unexpected.");
+      throw new RuntimeException("Unexpected.");
     }
   }
 
@@ -177,7 +176,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     if (valueOfConditionPropertyPath != null
         && !(valueOfConditionPropertyPath instanceof Boolean)) {
-      throw new EclibRuntimeException("The data type of conditionPropertyPath must be boolean");
+      throw new RuntimeException("The data type of conditionPropertyPath must be boolean");
     }
 
     Boolean bl = (Boolean) valueOfConditionPropertyPath;
@@ -200,7 +199,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     // datatype of valueOfConditionField must be String.
     if (!(conditionValue instanceof String)) {
-      throw new EclibRuntimeException("'valueOfConditionPropertyPath' must be String.");
+      throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
     }
 
     boolean contains = Arrays.asList(conditionValueString).contains(conditionValue);
@@ -222,12 +221,12 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     // datatype of valueOfConditionField must be String.
     if (!(valueOfConditionPropertyPath instanceof String)) {
-      throw new EclibRuntimeException("'valueOfConditionPropertyPath' must be String.");
+      throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
     }
 
     // Pattern must be set.
     if (conditionValueRegexp.equals("")) {
-      throw new EclibRuntimeException("'conditionValuePattern' must be set.");
+      throw new RuntimeException("'conditionValuePattern' must be set.");
     }
 
     Pattern p = Pattern.compile(conditionValueRegexp);
@@ -263,7 +262,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       Class<?> valueOfCf = valueOfConditionPropertyPath.getClass();
       Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
       if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
-        throw new EclibRuntimeException(
+        throw new RuntimeException(
             "Datatype not match. valueOfConditionField: " + valueOfConditionPropertyPath
                 + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
       }
@@ -299,7 +298,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private void conditionValuePropertyPathMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
     if (!conditionValuePropertyPath.equals("")) {
-      throw new EclibRuntimeException("You cannot set 'conditionValuePropertyPath' when "
+      throw new RuntimeException("You cannot set 'conditionValuePropertyPath' when "
           + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
     }
   }
@@ -308,14 +307,14 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
     if (!Arrays.asList(conditionValueString)
         .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "You cannot set 'conditionValueString' when conditionValue is not 'STRING'.");
     }
   }
 
   private void conditionValueRegexpMustNotSet() {
     if (!conditionValueRegexp.equals("")) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
     }
   }
