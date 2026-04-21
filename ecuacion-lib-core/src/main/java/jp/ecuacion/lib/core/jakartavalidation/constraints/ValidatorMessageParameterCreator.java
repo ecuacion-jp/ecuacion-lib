@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import java.util.Map;
 import java.util.Set;
+import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import org.jspecify.annotations.NonNull;
 

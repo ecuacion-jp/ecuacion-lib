@@ -59,10 +59,8 @@ public class ValidationAppException extends SingleAppException {
   public <T> ValidationAppException(ConstraintViolation<T> violation,
       MessageParameters messageParameters) {
     super(violation.getMessage());
-    this.bean =
-        violation instanceof ConstraintViolationBean ? (ConstraintViolationBean<T>) violation
-            : ConstraintViolationBean
-                .createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
+    this.bean = ConstraintViolationBean
+        .createConstraintViolationBean(ObjectsUtil.requireNonNull(violation));
 
     this.messageParameters = messageParameters;
   }
