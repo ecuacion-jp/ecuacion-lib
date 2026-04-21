@@ -22,6 +22,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil;
  * Is thrown just like {@code RuntimeException} whose message contains "ecuacion" 
  * so that you can see the Exception is thrown from the library.
  */
+@Deprecated
 public class EclibRuntimeException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
@@ -31,6 +32,7 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param message message. May be null, which means it has no messages.
    */
+  @Deprecated
   public EclibRuntimeException(String message) {
     super(message);
 
@@ -42,6 +44,7 @@ public class EclibRuntimeException extends RuntimeException {
    * 
    * @param cause cause
    */
+  @Deprecated
   public EclibRuntimeException(Throwable cause) {
     super(cause);
 
@@ -54,6 +57,7 @@ public class EclibRuntimeException extends RuntimeException {
    * @param message message
    * @param cause cause
    */
+  @Deprecated
   public EclibRuntimeException(String message, Throwable cause) {
     super(message, cause);
 
@@ -67,6 +71,7 @@ public class EclibRuntimeException extends RuntimeException {
    * @return message message. May be null, which means message is null.
    */
   @Override
+  @Deprecated
   public String getMessage() {
     return EclibCoreConstants.MSG_RUNTIME_EXCEPTION_PREFIX + super.getMessage();
   }
