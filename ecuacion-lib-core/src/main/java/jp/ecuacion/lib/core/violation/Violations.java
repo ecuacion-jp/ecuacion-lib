@@ -109,6 +109,34 @@ public class Violations {
   }
 
   /**
+   * Instantiates {@code violationExceptionClass} and throws it if any violations have been added.
+   *
+   * <p>{@code violationExceptionClass} must have a constructor
+   *     that takes a single {@link Violations} argument,
+   *     the same as {@link ViolationException#ViolationException(Violations)}.
+   *     If no such constructor exists, {@link RuntimeException} is thrown instead.</p>
+   *
+   * @param <T> exception type extending {@link ViolationException}
+   * @param violationExceptionClass the exception class to instantiate and throw
+   * @throws T when one or more violations are present
+   * @throws RuntimeException when {@code violationExceptionClass}
+   *     has no constructor with a {@link Violations} argument
+   */
+  public <T extends ViolationException> void throwIfAny(Class<T> violationExceptionClass) {
+    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+      try {
+        throw violationExceptionClass.getConstructor(Violations.class).newInstance(this);
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException(violationExceptionClass.getName()
+            + " must have a constructor with a Violations argument.", e);
+      } catch (ReflectiveOperationException e) {
+        throw new RuntimeException(
+            "Failed to instantiate " + violationExceptionClass.getName() + ".", e);
+      }
+    }
+  }
+
+  /**
    * Returns a copy of the collected {@link ConstraintViolation}s.
    *
    * @return list of constraint violations
