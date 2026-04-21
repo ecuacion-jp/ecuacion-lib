@@ -24,7 +24,6 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.RequireElementNonEmpty;
 import jp.ecuacion.lib.core.annotation.RequireElementNonNull;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -263,7 +262,7 @@ public class ObjectsUtil {
   /**
    * Is an abstract exception class.
    */
-  public abstract static class ObjectsUtilException extends EclibRuntimeException {
+  public abstract static class ObjectsUtilException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

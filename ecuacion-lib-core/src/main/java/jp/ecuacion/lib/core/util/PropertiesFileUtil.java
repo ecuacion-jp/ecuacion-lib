@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -742,7 +741,7 @@ public class PropertiesFileUtil {
       return arg.getArgString();
 
     } else {
-      throw new EclibRuntimeException("Unexpected.");
+      throw new RuntimeException("Unexpected.");
     }
   }
 
@@ -789,7 +788,7 @@ public class PropertiesFileUtil {
             new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
       } catch (ViolationException ex) {
-        throw new EclibRuntimeException(ex);
+        throw new RuntimeException(ex);
       }
 
       sb = new StringBuilder();
@@ -842,7 +841,7 @@ public class PropertiesFileUtil {
     // THrow an exception if a string still has "${+" because it happens only by a
     // mistake of the string.
     if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "Improper '${+' symbols found in a message. message: " + string);
     }
 
