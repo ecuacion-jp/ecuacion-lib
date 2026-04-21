@@ -33,10 +33,9 @@ import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -141,7 +140,7 @@ public class ExceptionUtil {
       MessageParameters messageParameters) {
 
     if (constraintViolations.size() == 0) {
-      throw new EclibRuntimeException("Size of ConstraintViolation is zero.");
+      throw new RuntimeException("Size of ConstraintViolation is zero.");
     }
 
     Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
