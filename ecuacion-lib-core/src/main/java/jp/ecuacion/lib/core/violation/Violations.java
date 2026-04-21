@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.exception.ViolationWarningException;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import org.jspecify.annotations.NonNull;
 
@@ -133,6 +134,17 @@ public class Violations {
         throw new RuntimeException(
             "Failed to instantiate " + violationExceptionClass.getName() + ".", e);
       }
+    }
+  }
+
+  /**
+   * Throws {@link ViolationException} if any violations have been added.
+   *
+   * @throws ViolationException when one or more violations are present
+   */
+  public void throwWarningIfAny() {
+    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+      throw new ViolationWarningException(this);
     }
   }
 
