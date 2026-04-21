@@ -20,6 +20,6 @@ import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidatorMessag
 /**
  * Is a kind of ValidatorMessageParameterCreator.
  */
-public class LessThanOrEqualToMessageParameterCreator2
+public class LessThanOrEqualToMessageParameterCreator
     extends ComparisonValidatorMessageParameterCreator {
 }
