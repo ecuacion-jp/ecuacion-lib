@@ -18,7 +18,6 @@ package jp.ecuacion.lib.core.util;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -49,18 +48,18 @@ public class StringUtil {
 
     // Throw an exception if "_" exists at the start or end because it means it's not a snake case.
     if (snakeCaseString.startsWith("_")) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "snake-case string cannot start with '_'. (argment string: '" + snakeCaseString + "')");
     }
 
     if (snakeCaseString.endsWith("_")) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "snake-case string cannot end with '_'. (argment string: '" + snakeCaseString + "')");
     }
 
     // Throw an exception if continuous '_' exists.
     if (snakeCaseString.contains("__")) {
-      throw new EclibRuntimeException("snake-case strings are not supposed to have '__' "
+      throw new RuntimeException("snake-case strings are not supposed to have '__' "
           + "(double underscores). (argument string: '" + snakeCaseString + "')");
     }
 

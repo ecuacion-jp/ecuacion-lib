@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -79,7 +78,7 @@ public class EnumUtil {
     }
 
     // Coming here means that non existent code set to the argument.
-    throw new EclibRuntimeException(
+    throw new RuntimeException(
         "Enum: " + enumClass.getSimpleName() + " doesn't have the code. (code : " + code + ")");
   }
 

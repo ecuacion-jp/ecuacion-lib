@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -354,7 +353,7 @@ public class PropertiesFileUtilValueGetter {
 
     // Throw an exception when msgId is empty.
     if (StringUtils.isEmpty(key)) {
-      throw new EclibRuntimeException("Message ID is blank.");
+      throw new RuntimeException("Message ID is blank.");
     }
 
     try {
@@ -370,7 +369,7 @@ public class PropertiesFileUtilValueGetter {
     }
   }
 
-  public static class NoKeyInPropertiesFileException extends EclibRuntimeException {
+  public static class NoKeyInPropertiesFileException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
@@ -379,7 +378,7 @@ public class PropertiesFileUtilValueGetter {
     }
   }
 
-  public static class KeyDupliccatedException extends EclibRuntimeException {
+  public static class KeyDupliccatedException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
