@@ -29,7 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -97,12 +96,13 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       Object valueOfPropertyPath) {
 
     Field fieldOfPropertyPath = ReflectionUtil.getField(instance.getClass(), propertyPath);
+    @NonNull
     Field nonNullFieldOfBasisPropertyPath = Objects.requireNonNull(fieldOfBasisPropertyPath);
 
     // Throws an exception when the types of two PropertyPaths differ.
     if (!fieldOfPropertyPath.getType()
         .isAssignableFrom(nonNullFieldOfBasisPropertyPath.getType())) {
-      throw new EclibRuntimeException("Types of two propertyPath differ. propertyPath: "
+      throw new RuntimeException("Types of two propertyPath differ. propertyPath: "
           + fieldOfPropertyPath.getType() + ", basisPropertyPath: "
           + Objects.requireNonNull(nonNullFieldOfBasisPropertyPath).getType());
     }
@@ -126,7 +126,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       if (!(valueOfPropertyPath instanceof String)) {
         String msg = "The type of propertyPath "
             + "needs to be String when typeConversionFromString is not 'NONE'.";
-        throw new EclibRuntimeException(msg);
+        throw new RuntimeException(msg);
       }
 
       String valOfPp = (String) valueOfPropertyPath;
@@ -142,6 +142,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       }
     }
 
+    @NonNull
     Object nonNullValueOfBasisPropertyPath = Objects.requireNonNull(valueOfBasisPropertyPath);
 
     // comparison of 2 values
@@ -164,7 +165,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     // Throws an exception when rtn == null, which means the type of propertyPath is unexpected.
     if (validWhenLessThanBasis == null) {
-      throw new EclibRuntimeException("The type of propertyPath is unexpected. type: "
+      throw new RuntimeException("The type of propertyPath is unexpected. type: "
           + fieldOfPropertyPath.getType().getCanonicalName());
     }
 
@@ -197,7 +198,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       return true;
 
     } catch (UnsupportedEncodingException e) {
-      throw new EclibRuntimeException(e);
+      throw new RuntimeException(e);
     }
   }
 }

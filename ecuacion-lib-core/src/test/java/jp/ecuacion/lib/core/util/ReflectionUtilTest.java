@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
@@ -102,7 +101,7 @@ public class ReflectionUtilTest {
       f = ReflectionUtil.getField(SimpleClass.class, "values[]");
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
+    } catch (RuntimeException ex) {
       // OK
     }
 

@@ -17,7 +17,6 @@ package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Arrays;
 import java.util.Objects;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
@@ -49,7 +48,7 @@ public class StringWhenValidator extends ValidateWhenValidator<StringWhen, Objec
     }
 
     if (!(valueOfField instanceof String)) {
-      throw new EclibRuntimeException("The data type of propertyPath must be String.");
+      throw new RuntimeException("The data type of propertyPath must be String.");
     }
 
     return Arrays.asList(string).contains(valueOfField);
