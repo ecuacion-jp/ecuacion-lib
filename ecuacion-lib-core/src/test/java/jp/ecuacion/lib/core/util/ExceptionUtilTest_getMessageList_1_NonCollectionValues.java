@@ -26,6 +26,7 @@ import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
+import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,7 +45,7 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
   private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemManeMapth) {
     return ExceptionUtil.getMessageList(
         Objects.requireNonNull(ValidationUtil.validateThenReturn(obj,
-            ValidationUtil.messageParameters().showsItemNamePath(showsItemManeMapth))),
+            Violations.messageParameters().showsItemNamePath(showsItemManeMapth))),
         Locale.ENGLISH, isMsgWithItemName).get(0);
   }
 
