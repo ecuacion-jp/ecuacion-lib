@@ -18,7 +18,6 @@ package jp.ecuacion.lib.validation.constraints;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
@@ -50,7 +49,7 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
     }
 
     if (!(valueOfField instanceof String)) {
-      throw new EclibRuntimeException("The data type of propertyPath must be String.");
+      throw new RuntimeException("The data type of propertyPath must be String.");
     }
 
     Pattern p = Pattern.compile(regexp);

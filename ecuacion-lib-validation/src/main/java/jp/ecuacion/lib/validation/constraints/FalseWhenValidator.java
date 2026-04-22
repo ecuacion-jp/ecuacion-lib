@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Objects;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +38,7 @@ public class FalseWhenValidator extends ValidateWhenValidator<FalseWhen, Object>
   @Override
   protected boolean isValid(Object valueOfField) {
     if (valueOfField != null && !(valueOfField instanceof Boolean)) {
-      throw new EclibRuntimeException("The data type of propertyPath must be boolean");
+      throw new RuntimeException("The data type of propertyPath must be boolean");
     }
 
     return Boolean.FALSE.equals(valueOfField);

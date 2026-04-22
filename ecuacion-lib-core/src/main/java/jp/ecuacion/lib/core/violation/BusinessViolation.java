@@ -133,6 +133,7 @@ public class BusinessViolation {
    * Constructs a new instance with {@code itemPropertyPaths},
    *     {@code messageId} and {@code messageArgs}.
    *
+   * @param rootBean rootBean
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
    * @param messageArgs message Arguments. Each element can be {@code null}.

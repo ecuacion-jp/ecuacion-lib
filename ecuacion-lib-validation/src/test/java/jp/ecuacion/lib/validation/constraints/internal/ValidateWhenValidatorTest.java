@@ -25,7 +25,6 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 import java.lang.annotation.Annotation;
 import java.util.regex.PatternSyntaxException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenTestBean.TestEnum;
@@ -271,7 +270,7 @@ public class ValidateWhenValidatorTest {
           obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")));
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
+    } catch (RuntimeException ex) {
     }
 
     // regExp broken
@@ -320,7 +319,7 @@ public class ValidateWhenValidatorTest {
           obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")));
       Assertions.fail();
 
-    } catch (EclibRuntimeException ex) {
+    } catch (RuntimeException ex) {
     }
 
     // regExp broken
@@ -499,11 +498,11 @@ public class ValidateWhenValidatorTest {
         new ValidateWhenTestBean.ConditionValueField.NotExist(null)));
 
     // conditionValueField datatype not match
-    Assertions.assertThrows(EclibRuntimeException.class, () -> obj.getSatisfiesCondition(
+    Assertions.assertThrows(RuntimeException.class, () -> obj.getSatisfiesCondition(
         new ValidateWhenTestBean.ConditionValueField.DataTypeNotMatch("a", 1)));
 
     // conditionValueField datatype not match(array)
-    Assertions.assertThrows(EclibRuntimeException.class,
+    Assertions.assertThrows(RuntimeException.class,
         () -> obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueField.DataTypeNotMatchArray("a",
                 new Integer[] {1})));
@@ -703,11 +702,11 @@ public class ValidateWhenValidatorTest {
         new ValidateWhenTestBean.ConditionValueField.NotExist(null)));
 
     // conditionValueField datatype not match
-    Assertions.assertThrows(EclibRuntimeException.class, () -> obj.getSatisfiesCondition(
+    Assertions.assertThrows(RuntimeException.class, () -> obj.getSatisfiesCondition(
         new ValidateWhenTestBean.ConditionValueField.DataTypeNotMatch("a", 1)));
 
     // conditionValueField datatype not match(array)
-    Assertions.assertThrows(EclibRuntimeException.class,
+    Assertions.assertThrows(RuntimeException.class,
         () -> obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueField.DataTypeNotMatchArray("a",
                 new Integer[] {1})));

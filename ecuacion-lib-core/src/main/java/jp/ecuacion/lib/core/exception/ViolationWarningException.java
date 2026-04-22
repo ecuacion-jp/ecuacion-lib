@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.constraints;
+package jp.ecuacion.lib.core.exception;
 
-import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.violation.Violations;
 
 /**
- * Is a kind of ValidatorMessageParameterCreator.
+ * Is thrown by {@link Violations#throwWarningIfAny()} when one or more violations are present.
  */
-public class LessThanOrEqualToMessageParameterCreator2
-    extends ComparisonValidatorMessageParameterCreator {
+public class ViolationWarningException extends ViolationException {
+
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Constructs a new instance with the {@code Violations} that caused this exception.
+   *
+   * @param violations the violations that triggered the throw
+   */
+  public ViolationWarningException(Violations violations) {
+    super(violations);
+  }
 }

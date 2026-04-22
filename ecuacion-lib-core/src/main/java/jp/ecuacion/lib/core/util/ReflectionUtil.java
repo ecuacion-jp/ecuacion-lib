@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -106,7 +105,7 @@ public class ReflectionUtil {
       return cls.getConstructor().newInstance();
 
     } catch (Exception ex) {
-      throw new EclibRuntimeException(ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -166,7 +165,7 @@ public class ReflectionUtil {
 
     // fieldName with arrays or Collections not acceptable.
     if (propertyPath.contains("[")) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "fieldName with index (like value[0]) not acceptable. fieldName: " + propertyPath);
     }
 
@@ -267,7 +266,7 @@ public class ReflectionUtil {
       }
 
     } catch (IllegalArgumentException | IllegalAccessException ex) {
-      throw new EclibRuntimeException(
+      throw new RuntimeException(
           "Field value cannot be obtained " + "from the field name '" + propertyPath + "'", ex);
     }
   }

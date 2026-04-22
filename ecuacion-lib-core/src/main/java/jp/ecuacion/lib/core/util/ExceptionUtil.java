@@ -33,10 +33,9 @@ import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
 import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
-import jp.ecuacion.lib.core.exception.unchecked.EclibRuntimeException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -141,14 +140,15 @@ public class ExceptionUtil {
       MessageParameters messageParameters) {
 
     if (constraintViolations.size() == 0) {
-      throw new EclibRuntimeException("Size of ConstraintViolation is zero.");
+      throw new RuntimeException("Size of ConstraintViolation is zero.");
     }
 
     Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
     List<String> result = new ArrayList<>();
     for (ConstraintViolation<T> cv : constraintViolations) {
-      result.add(buildMessageFromConstraintViolation(nonNullLocale,
-          isMessagesWithItemNamesAsDefault, cv, messageParameters));
+      result
+          .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+              ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
     }
     return result;
   }
@@ -273,8 +273,9 @@ public class ExceptionUtil {
           : ValidationUtil.messageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
-        rtnList.add(buildMessageFromConstraintViolation(nonNullLocale,
-            isMessagesWithItemNamesAsDefault, cv, params));
+        rtnList.add(
+            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+                ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
 
@@ -358,8 +359,10 @@ public class ExceptionUtil {
     Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
 
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
-      result.add(buildMessageFromConstraintViolation(nonNullLocale,
-          isMessagesWithItemNamesAsDefault, cv, violations.getMessageParameters()));
+      result
+          .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+              ConstraintViolationBean.createConstraintViolationBean(cv),
+              violations.getMessageParameters()));
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
@@ -417,13 +420,10 @@ public class ExceptionUtil {
   }
 
   private static String buildMessageFromConstraintViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
+      boolean isMessagesWithItemNamesAsDefault, ConstraintViolationBean<?> bean,
       MessageParameters messageParameters) {
     String message = null;
     try {
-      ConstraintViolationBean<?> bean =
-          cv instanceof ConstraintViolationBean ? (ConstraintViolationBean<?>) cv
-              : ConstraintViolationBean.createConstraintViolationBean(cv);
       final Map<String, Object> map = new HashMap<>(bean.getEmbeddedParamMap());
 
       // Get localize-needed message embedded parameters
@@ -469,7 +469,7 @@ public class ExceptionUtil {
       }
 
     } catch (MissingResourceException ignored) {
-      message = cv.getMessage();
+      message = bean.getMessage();
     }
     return message;
   }
@@ -514,9 +514,17 @@ public class ExceptionUtil {
 
     String message = null;
     String messageKey = violation.getMessageId();
-    message = isMessageWithItemName
-        ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey, violation.getMessageArgs())
-        : PropertiesFileUtil.getMessage(locale, messageKey, violation.getMessageArgs());
+    if (isMessageWithItemName) {
+      message = PropertiesFileUtil.hasMessageWithItemName(messageKey)
+          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey,
+              violation.getMessageArgs())
+          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey,
+              new HashMap<>());
+    } else {
+      message = PropertiesFileUtil.hasMessage(messageKey)
+          ? PropertiesFileUtil.getMessage(locale, messageKey, violation.getMessageArgs())
+          : PropertiesFileUtil.getValidationMessage(locale, messageKey, new HashMap<>());
+    }
 
     // Replace {0} to itemName.
     if (message.contains("{0}") && violation.getRootBean() != null) {
@@ -538,7 +546,7 @@ public class ExceptionUtil {
       message = message + PropertiesFileUtil.getStringFromArg(locale,
           Objects.requireNonNull(messageParameters.getMessagePostfix()));
     }
-    
+
     return message;
   }
 

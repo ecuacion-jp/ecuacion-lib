@@ -16,12 +16,9 @@
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Path;
-import jakarta.validation.metadata.ConstraintDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +41,7 @@ import org.jspecify.annotations.Nullable;
  *     which are not created by {@code Jakarta Validation} can also be treated
  *     just as the one created by {@code Jakarta Validation}.</p>
  */
-public class ConstraintViolationBean<T> extends ReflectionUtil implements ConstraintViolation<T> {
+public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   // properties in ConstraintViolation
 
@@ -218,37 +215,27 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
     return rootBean;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Class<T> getRootBeanClass() {
-    return (Class<T>) Objects.requireNonNull(rootBean).getClass();
-  }
-
   public Object getLeafBean() {
     return leafBean;
   }
 
-  @Override
-  public Path getPropertyPath() {
-    return new Path() {
-
-      public String toString() {
-        return constraintViolationPropertyPath;
-      }
-
-      @Override
-      public Iterator<Node> iterator() {
-        throw new RuntimeException("Not assumed to call.");
-      }
-    };
+  /**
+   * Returns constraintViolationPropertyPath.
+   */
+  public String getConstraintViolationPropertyPath() {
+    return constraintViolationPropertyPath;
   }
 
-  @Override
+  /**
+   * Returns message.
+   */
   public String getMessage() {
     return message;
   }
 
-  @Override
+  /**
+   * Returns messageTemplate.
+   */
   public String getMessageTemplate() {
     return messageTemplate;
   }
@@ -281,26 +268,6 @@ public class ConstraintViolationBean<T> extends ReflectionUtil implements Constr
 
   public Map<String, Object> getEmbeddedParamMap() {
     return embeddedParamMap;
-  }
-
-  @Override
-  public Object[] getExecutableParameters() {
-    throw new RuntimeException("Not assumed to call.");
-  }
-
-  @Override
-  public Object getExecutableReturnValue() {
-    throw new RuntimeException("Not assumed to call.");
-  }
-
-  @Override
-  public ConstraintDescriptor<?> getConstraintDescriptor() {
-    throw new RuntimeException("Not assumed to call.");
-  }
-
-  @Override
-  public <U> U unwrap(@Nullable Class<U> type) {
-    throw new RuntimeException("Not assumed to call.");
   }
 
   /**

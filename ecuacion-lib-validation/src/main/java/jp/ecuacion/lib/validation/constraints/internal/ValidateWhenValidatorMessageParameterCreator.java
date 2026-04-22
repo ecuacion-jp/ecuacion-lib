@@ -18,7 +18,6 @@ package jp.ecuacion.lib.validation.constraints.internal;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
-import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
@@ -50,8 +49,9 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
     // conditionFieldItemNameKey
-    String conditionPropertyPath = (StringUtils.isEmpty(cv.getPropertyPath().toString()) ? ""
-        : cv.getPropertyPath().toString() + ".")
+    String conditionPropertyPath =
+        (StringUtils.isEmpty(cv.getConstraintViolationPropertyPath()) ? ""
+            : cv.getConstraintViolationPropertyPath() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
     Item item = MessageUtil.getItem(conditionPropertyPath, cv.getRootBean(),
         ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
@@ -89,7 +89,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     return messageParameterSet;
   }
 
-  private void displayStringOfConditionValue(ConstraintViolation<?> cv,
+  private void displayStringOfConditionValue(ConstraintViolationBean<?> cv,
       Map<@NonNull String, Object> paramMap, final String commonMessagePrefix,
       Set<LocalizedEmbeddedParameter> messageParameterSet) {
     ConditionValue conditionPtn =
@@ -136,7 +136,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   }
 
   @SuppressWarnings("null")
-  private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolation<?> cv,
+  private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolationBean<?> cv,
       Map<@NonNull String, Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
         .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
@@ -146,7 +146,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
 
     List<@NonNull String> displayStringList = (displayStringObj instanceof Object[])
         ? Arrays.asList((Object[]) displayStringObj).stream().map(o -> o.toString()).toList()
-        : Arrays.asList(new String[] {displayStringObj.toString()});
+        : Arrays.asList(new String[] {Objects.requireNonNull(displayStringObj).toString()});
 
     Arg valueArg = displayStringPp.equals("")
         ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(displayStringList))
