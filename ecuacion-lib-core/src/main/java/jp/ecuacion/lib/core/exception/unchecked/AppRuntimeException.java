@@ -24,6 +24,7 @@ import jp.ecuacion.lib.core.exception.checked.AppException;
  *  <p>After thrown, 
  *  caught and processed in library is exactly the same as {@code AppException}.</p>
  */
+@Deprecated
 public class AppRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
@@ -32,6 +33,7 @@ public class AppRuntimeException extends RuntimeException {
    * 
    * @param ex appException
    */
+  @Deprecated
   public AppRuntimeException(AppException ex) {
     super(ex);
   }

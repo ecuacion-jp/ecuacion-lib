@@ -21,11 +21,13 @@ import org.jspecify.annotations.Nullable;
  * Is an abstract exception class 
  *     describing an occurrence of a validation error.
  */
+@Deprecated
 public abstract class AppException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
   /** Constructs a new instance. */
+  @Deprecated
   public AppException() {
 
   }
@@ -36,6 +38,7 @@ public abstract class AppException extends Exception {
    * @param message message is {@code @Nullable} 
    *     since the one stored in {@code Exception} is {@code @Nullable}.
    */
+  @Deprecated
   public AppException(@Nullable String message) {
     super(message);
   }

@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 /** 
  * Is an abstract class describing an occurrence of a single validation error.
  */
+@Deprecated
 public abstract class SingleAppException extends AppException {
 
   private static final long serialVersionUID = 1L;
@@ -28,6 +29,7 @@ public abstract class SingleAppException extends AppException {
   /**
    * Constructs a new instance.
    */
+  @Deprecated
   public SingleAppException() {
 
   }
@@ -37,6 +39,7 @@ public abstract class SingleAppException extends AppException {
    * 
    * @param message message
    */
+  @Deprecated
   public SingleAppException(@Nullable String message) {
     super(message);
   }
@@ -45,12 +48,12 @@ public abstract class SingleAppException extends AppException {
    * Provides a location of items at which the error occurred.
    * 
    * <p>Its data-type is an array 
-   *     because although standard jakarta validation (like {@code @NotEmpty} 
    *     has only one property path,
    *     but BizLogicAppException which describes an error of some relation between multiple items
    *     may have multiple property paths.</p>
    * 
    * @return an array of propertyPath
    */
+  @Deprecated
   public abstract @NonNull String[] getItemPropertyPaths();
 }

@@ -22,6 +22,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 public class RuntimeAppExceptionTest extends TestTools {
 
+  @SuppressWarnings("deprecation")
   @Test
   public void test01_constructor_02_argIsNotNull() {
     AppException appEx = new SingleAppException() {
