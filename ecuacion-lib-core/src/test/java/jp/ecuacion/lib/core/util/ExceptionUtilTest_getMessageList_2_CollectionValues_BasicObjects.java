@@ -52,7 +52,7 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
       boolean showsItemNamePath) {
     MessageParameters msgParams = ValidationUtil.messageParameters()
         .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath);
-    Violations violations = ValidationUtil.validateThenReturn(object, msgParams).get();
+    Violations violations = ValidationUtil.validateThenReturn(object, msgParams);
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 
