@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
  * 
  * <p>{@code MultipleAppException} for warning does not seem to be needed so it does not exist.</p>
  */
+@Deprecated
 public class AppWarningException extends Exception {
   private static final long serialVersionUID = 1L;
 
@@ -40,6 +41,7 @@ public class AppWarningException extends Exception {
    * <p>It cannot be {@code null} because warning popup windows with no message means 
    *     nothing.</p>
    */
+  @Deprecated
   protected String messageId;
 
   /**
@@ -49,6 +51,7 @@ public class AppWarningException extends Exception {
    *     because messageArgs can be the user-input value and can be {@code null}.<br>
    *     But an array itself cannot be {@code null}.</p>
    */
+  @Deprecated
   protected @Nullable String [] messageArgs;
 
   /**
@@ -58,6 +61,7 @@ public class AppWarningException extends Exception {
    * @param messageId message ID
    * @param messageArgs message Arguments. It's {code @Nullable}. See {@code messageArgs}.
    */
+  @Deprecated
   public AppWarningException(String messageId, @Nullable String... messageArgs) {
     super();
 
@@ -70,6 +74,7 @@ public class AppWarningException extends Exception {
    * 
    * @return message ID
    */
+  @Deprecated
   public String getMessageId() {
     return messageId;
   }
@@ -79,6 +84,7 @@ public class AppWarningException extends Exception {
    * 
    * @return message arguments
    */
+  @Deprecated
   public @Nullable String[] getMessageArgs() {
     return messageArgs.clone();
   }
