@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.exception;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Set;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
+import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
 import org.jspecify.annotations.Nullable;
 
 /**
