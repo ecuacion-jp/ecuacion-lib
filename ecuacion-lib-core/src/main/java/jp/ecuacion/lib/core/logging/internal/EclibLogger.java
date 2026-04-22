@@ -24,7 +24,7 @@ import org.slf4j.event.Level;
 /**
  * Has common methods for concrete loggers.
  */
-public abstract class AbstractLogger {
+public abstract class EclibLogger {
 
   /** internalLogger. */
   protected Logger internalLogger;
@@ -36,7 +36,7 @@ public abstract class AbstractLogger {
    * 
    * @param loggerName loggerName. Cannot be {@code null}.
    */
-  public AbstractLogger(String loggerName) {
+  public EclibLogger(String loggerName) {
     internalLogger = LoggerFactory.getLogger(loggerName);
   }
 
@@ -46,7 +46,7 @@ public abstract class AbstractLogger {
    *
    * @param cls class. Cannot be {@code null}.
    */
-  public AbstractLogger(Class<?> cls) {
+  public EclibLogger(Class<?> cls) {
     internalLogger = LoggerFactory.getLogger(cls.getName());
   }
 
