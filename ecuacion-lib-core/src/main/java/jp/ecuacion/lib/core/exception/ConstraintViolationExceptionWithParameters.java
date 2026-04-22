@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.exception.checked;
+package jp.ecuacion.lib.core.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -23,17 +23,13 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Provides {@code ConstraintViolationException} with meta data.
- * 
- * @deprecated Use ViolationException instead.
  */
-@Deprecated(since = "15.1", forRemoval = true)
 public class ConstraintViolationExceptionWithParameters extends ConstraintViolationException {
 
   private static final long serialVersionUID = 1L;
 
   private MessageParameters messageParameters;
 
-  @Deprecated(since = "15.1", forRemoval = true)
   public MessageParameters getMessageParameters() {
     return messageParameters;
   }
@@ -44,7 +40,6 @@ public class ConstraintViolationExceptionWithParameters extends ConstraintViolat
    * @param constraintViolations can be {@code null} and its elements also can be {@code null}
    *     because the variable is stored in the parent class, the standard jakarta EE class.
    */
-  @Deprecated(since = "15.1", forRemoval = true)
   public ConstraintViolationExceptionWithParameters(
       @Nullable Set<? extends ConstraintViolation<?>> constraintViolations,
       MessageParameters messageParameters) {
