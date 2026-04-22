@@ -17,12 +17,15 @@ package jp.ecuacion.lib.core.violation;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.ViolationWarningException;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Collects {@link ConstraintViolation}s and {@link BusinessViolation}s
@@ -62,6 +65,81 @@ public class Violations {
   public Violations add(BusinessViolation violation) {
     businessViolations.add(violation);
     return this;
+  }
+
+  /**
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   *
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(String messageId, @Nullable String... messageArgs) {
+    return add(new String[] {}, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(@NonNull String[] itemPropertyPaths, String messageId,
+      @Nullable String... messageArgs) {
+    return add(null, itemPropertyPaths, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param rootBean rootBean
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
+      String messageId, @Nullable String... messageArgs) {
+    return add(rootBean, itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
+        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+  }
+
+  /**
+   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   *
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(String messageId, @NonNull Arg[] messageArgs) {
+    return add(new @NonNull String[] {}, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(@NonNull String[] itemPropertyPaths, String messageId,
+      @NonNull Arg[] messageArgs) {
+    return add(null, itemPropertyPaths, messageId, messageArgs);
+  }
+
+  /**
+   * Constructs a new instance with {@code itemPropertyPaths},
+   *     {@code messageId} and {@code messageArgs}.
+   *
+   * @param rootBean rootBean
+   * @param itemPropertyPaths the itemPropertyPaths related to the violation
+   * @param messageId message ID
+   * @param messageArgs message Arguments. Each element can be {@code null}.
+   */
+  public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
+      String messageId, @NonNull Arg[] messageArgs) {
+    return add(new BusinessViolation(rootBean, itemPropertyPaths, messageId, messageArgs));
   }
 
   /**
