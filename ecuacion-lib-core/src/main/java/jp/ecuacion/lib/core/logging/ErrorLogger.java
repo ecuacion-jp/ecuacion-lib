@@ -20,7 +20,7 @@ import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
@@ -39,7 +39,7 @@ import org.slf4j.event.Level;
  * <li>info : uses for recover from warn state</li>
  * </ul>
  */
-public class ErrorLogger extends AbstractLogger {
+public class ErrorLogger extends EclibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public ErrorLogger() {

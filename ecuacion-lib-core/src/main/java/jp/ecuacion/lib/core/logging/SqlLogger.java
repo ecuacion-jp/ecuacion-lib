@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.slf4j.event.Level;
 
 /**
@@ -30,7 +30,7 @@ import org.slf4j.event.Level;
  * <li>trace: uses for sql-related info</li>
  * </ul>
  */
-public class SqlLogger extends AbstractLogger {
+public class SqlLogger extends EclibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SqlLogger() {

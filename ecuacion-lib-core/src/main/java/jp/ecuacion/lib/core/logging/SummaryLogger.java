@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.slf4j.event.Level;
 
 /**
@@ -37,7 +37,7 @@ import org.slf4j.event.Level;
  * <li>error: uses for abnormal end</li>
  * </ul>
  */
-public class SummaryLogger extends AbstractLogger {
+public class SummaryLogger extends EclibLogger {
 
   /** Constructs a new instance with a fixed logger name. */
   public SummaryLogger() {

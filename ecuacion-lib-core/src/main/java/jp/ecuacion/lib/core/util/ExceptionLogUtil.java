@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.util;
 import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -120,7 +120,7 @@ public class ExceptionLogUtil {
     // since getExceptionMessage skips the exception.
     String errMsg;
     if (th == null) {
-      errMsg = AbstractLogger.NULL_THROWABLE_MESSAGE;
+      errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
 
     } else if (th instanceof ViolationException) {
       errMsg = th.getClass().getCanonicalName()
