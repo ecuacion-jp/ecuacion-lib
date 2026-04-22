@@ -45,7 +45,7 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
       boolean showsItemManeMapth) {
     MessageParameters msgParams = ValidationUtil.messageParameters()
         .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemManeMapth);
-    Violations violations = ValidationUtil.validateThenReturn(object, msgParams).get();
+    Violations violations = ValidationUtil.validateThenReturn(object, msgParams);
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 

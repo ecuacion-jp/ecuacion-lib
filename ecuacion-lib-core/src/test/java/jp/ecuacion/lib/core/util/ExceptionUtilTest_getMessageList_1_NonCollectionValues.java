@@ -42,14 +42,10 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
   }
 
   private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemManeMapth) {
-    return ExceptionUtil
-        .getMessageList(
-            Objects.requireNonNull(ValidationUtil
-                .validateThenReturn(obj,
-                    ValidationUtil.messageParameters().showsItemNamePath(showsItemManeMapth))
-                .get()),
-            Locale.ENGLISH, isMsgWithItemName)
-        .get(0);
+    return ExceptionUtil.getMessageList(
+        Objects.requireNonNull(ValidationUtil.validateThenReturn(obj,
+            ValidationUtil.messageParameters().showsItemNamePath(showsItemManeMapth))),
+        Locale.ENGLISH, isMsgWithItemName).get(0);
   }
 
   @Test

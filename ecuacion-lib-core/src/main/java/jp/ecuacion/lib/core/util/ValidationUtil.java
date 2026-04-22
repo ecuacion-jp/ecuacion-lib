@@ -18,12 +18,9 @@ package jp.ecuacion.lib.core.util;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -85,11 +82,7 @@ public class ValidationUtil {
   public static <T> void validateThenThrow(T object, MessageParameters messageParameters,
       Class<?>... groups) {
 
-    Optional<@NonNull Violations> opt = validateThenReturn(object, messageParameters, groups);
-
-    if (opt.isPresent()) {
-      Objects.requireNonNull(opt.get()).throwIfAny();
-    }
+    validateThenReturn(object, messageParameters, groups).throwIfAny();
   }
 
   /**
@@ -99,7 +92,7 @@ public class ValidationUtil {
    * @param object object to validate
    * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull Violations> validateThenReturn(T object) {
+  public static <T> Violations validateThenReturn(T object) {
     return validateThenReturn(object, new Class<?>[] {});
   }
 
@@ -111,8 +104,7 @@ public class ValidationUtil {
    * @param groups validation groups
    * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull Violations> validateThenReturn(T object,
-      Class<?>... groups) {
+  public static <T> Violations validateThenReturn(T object, Class<?>... groups) {
     return validateThenReturn(object, ValidationUtil.messageParameters(), groups);
   }
 
@@ -124,8 +116,7 @@ public class ValidationUtil {
    * @param messageParameters See {@link MessageParameters}.
    * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull Violations> validateThenReturn(T object,
-      MessageParameters messageParameters) {
+  public static <T> Violations validateThenReturn(T object, MessageParameters messageParameters) {
     return validateThenReturn(object, messageParameters, new Class<?>[] {});
   }
 
@@ -138,16 +129,13 @@ public class ValidationUtil {
    * @param groups validation groups
    * @return {@link Violations}, empty when no validation errors exist.
    */
-  public static <T> Optional<@NonNull Violations> validateThenReturn(
-      T object, MessageParameters messageParameters, Class<?>... groups) {
+  public static <T> Violations validateThenReturn(T object, MessageParameters messageParameters,
+      Class<?>... groups) {
     Set<ConstraintViolation<T>> set =
         groups == null || groups.length == 0 ? validator.validate(object)
             : validator.validate(object, groups);
 
-    Optional<@NonNull Violations> rtn = set.size() == 0 ? Optional.empty()
-        : Optional.of(new Violations().addAll(set).messageParameters(messageParameters));
-
-    return Objects.requireNonNull(rtn);
+    return new Violations().addAll(set).messageParameters(messageParameters);
   }
 
   /**
@@ -183,8 +171,7 @@ public class ValidationUtil {
     /**
      * Construct a new instance.
      */
-    public MessageParameters() {
-    }
+    public MessageParameters() {}
 
     /**
      * Construct a new instance.
