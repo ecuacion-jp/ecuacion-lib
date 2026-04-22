@@ -129,6 +129,14 @@
 				<artifactId>jdk-eea</artifactId>
 				<version>${org.lastnpe.eea.jdk-eea.version}</version>
 			</dependency>
-			</dependencies>
+			
+			<!-- jspecify -->
+			<dependency>
+				<groupId>org.jspecify</groupId>
+				<artifactId>jspecify</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+
+		</dependencies>
 	</dependencyManagement>
 </project>
