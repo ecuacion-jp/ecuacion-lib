@@ -61,7 +61,7 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations) {
-    return getMessageList(constraintViolations, null, false, ValidationUtil.messageParameters());
+    return getMessageList(constraintViolations, null, false, Violations.messageParameters());
   }
 
   /**
@@ -69,7 +69,7 @@ public class ExceptionUtil {
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
       @Nullable Locale locale) {
-    return getMessageList(constraintViolations, locale, false, ValidationUtil.messageParameters());
+    return getMessageList(constraintViolations, locale, false, Violations.messageParameters());
   }
 
   /**
@@ -103,7 +103,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault) {
 
     return getMessageList(constraintViolationSet, locale, isMessagesWithItemNamesAsDefault,
-        ValidationUtil.messageParameters());
+        Violations.messageParameters());
   }
 
   /**
@@ -270,7 +270,7 @@ public class ExceptionUtil {
 
       MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
           ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
-          : ValidationUtil.messageParameters();
+          : Violations.messageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
@@ -292,7 +292,7 @@ public class ExceptionUtil {
         // Legacy: remove this branch when BizLogicAppException is retired.
         rtnList.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
             ((BizLogicAppException) th).getBusinessViolation(),
-            ValidationUtil.messageParameters()));
+            Violations.messageParameters()));
 
       } else if (th instanceof ValidationAppException) {
         // Legacy: remove this branch when ValidationAppException is retired.
