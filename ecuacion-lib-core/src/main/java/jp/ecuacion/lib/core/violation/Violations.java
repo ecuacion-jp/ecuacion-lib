@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.ViolationWarningException;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
@@ -176,10 +177,19 @@ public class Violations {
   }
 
   /**
+   * Sets {@link MessageParameters} to apply when constructing messages from
+   *     {@link ConstraintViolation}s.
+   */
+  public MessageParameters messageParameters() {
+    return messageParameters;
+  }
+
+  /**
    * Returns new MessagepPrameters.
    */
-  public static MessageParameters messageParameters() {
-    return new Violations.MessageParameters();
+  public Violations withMessageParameters(Consumer<MessageParameters> action) {
+    action.accept(messageParameters);
+    return this;
   }
 
   /**
@@ -251,12 +261,10 @@ public class Violations {
   }
 
   /**
-   * Gets the {@link MessageParameters}.
-   *
-   * @return messageParameters
+   * Returns new MessagepPrameters.
    */
-  public MessageParameters getMessageParameters() {
-    return messageParameters;
+  public static MessageParameters newMessageParameters() {
+    return new Violations.MessageParameters();
   }
 
   /**

@@ -61,7 +61,7 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations) {
-    return getMessageList(constraintViolations, null, false, Violations.messageParameters());
+    return getMessageList(constraintViolations, null, false, Violations.newMessageParameters());
   }
 
   /**
@@ -69,7 +69,7 @@ public class ExceptionUtil {
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
       @Nullable Locale locale) {
-    return getMessageList(constraintViolations, locale, false, Violations.messageParameters());
+    return getMessageList(constraintViolations, locale, false, Violations.newMessageParameters());
   }
 
   /**
@@ -103,7 +103,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault) {
 
     return getMessageList(constraintViolationSet, locale, isMessagesWithItemNamesAsDefault,
-        Violations.messageParameters());
+        Violations.newMessageParameters());
   }
 
   /**
@@ -270,7 +270,7 @@ public class ExceptionUtil {
 
       MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
           ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
-          : Violations.messageParameters();
+          : Violations.newMessageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
@@ -291,8 +291,7 @@ public class ExceptionUtil {
       } else if (th instanceof BizLogicAppException) {
         // Legacy: remove this branch when BizLogicAppException is retired.
         rtnList.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-            ((BizLogicAppException) th).getBusinessViolation(),
-            Violations.messageParameters()));
+            ((BizLogicAppException) th).getBusinessViolation(), Violations.newMessageParameters()));
 
       } else if (th instanceof ValidationAppException) {
         // Legacy: remove this branch when ValidationAppException is retired.
@@ -362,12 +361,12 @@ public class ExceptionUtil {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
               ConstraintViolationBean.createConstraintViolationBean(cv),
-              violations.getMessageParameters()));
+              violations.messageParameters()));
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
       result.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-          bv, violations.getMessageParameters()));
+          bv, violations.messageParameters()));
     }
 
     return result;

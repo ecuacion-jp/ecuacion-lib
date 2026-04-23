@@ -20,13 +20,11 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import java.util.Locale;
-import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
-import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,8 +42,8 @@ public class ExceptionUtilTest_getMessageList_1_NonCollectionValues {
 
   private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemManeMapth) {
     return ExceptionUtil.getMessageList(
-        Objects.requireNonNull(ValidationUtil.validateThenReturn(obj,
-            Violations.messageParameters().showsItemNamePath(showsItemManeMapth))),
+        (ViolationUtil.validate(obj)
+            .withMessageParameters(p -> p.showsItemNamePath(showsItemManeMapth))),
         Locale.ENGLISH, isMsgWithItemName).get(0);
   }
 
