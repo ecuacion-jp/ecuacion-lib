@@ -33,12 +33,12 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
 
   private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -50,9 +50,8 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
 
   private String validateCollection(Object object, boolean isMsgWithItemName,
       boolean showsItemNamePath) {
-    MessageParameters msgParams = ValidationUtil.messageParameters()
-        .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath);
-    Violations violations = ValidationUtil.validateThenReturn(object, msgParams).get();
+    Violations violations = ViolationUtil.validate(object).withMessageParameters(
+        p -> p.isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath));
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 
@@ -138,7 +137,8 @@ public class ExceptionUtilTest_getMessageList_2_CollectionValues_BasicObjects {
         new StringMulListListInkc(new StringMulListListInkc.Child(
             new StringMulListListInkc.GrandChild(List.of(List.of("1", "a")))));
     expected = "Element 1 > element 2 contained by "
-        + "'ItemNameKeyClass considered string list list' at 'child field' > 'grand child field'" + MSG;
+        + "'ItemNameKeyClass considered string list list' at 'child field' > 'grand child field'"
+        + MSG;
     msg = validateCollection(strMulListListInkc, true, true);
     Assertions.assertEquals(expected, msg);
     // itemNamePath + ItemContiner(root)

@@ -27,13 +27,13 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
 
   @BeforeAll
@@ -43,9 +43,8 @@ public class ExceptionUtilTest_getMessageList_3_CollectionValues_CustomObjects {
 
   private String validateCollection(Object object, boolean isMsgWithItemName,
       boolean showsItemManeMapth) {
-    MessageParameters msgParams = ValidationUtil.messageParameters()
-        .isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemManeMapth);
-    Violations violations = ValidationUtil.validateThenReturn(object, msgParams).get();
+    Violations violations = ViolationUtil.validate(object).withMessageParameters(
+        p -> p.isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemManeMapth));
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 

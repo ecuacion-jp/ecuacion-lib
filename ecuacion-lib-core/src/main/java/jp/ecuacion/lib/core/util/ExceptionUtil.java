@@ -28,19 +28,19 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Set;
+import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.checked.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.ValidationUtil.MessageParameters;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
+import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -61,7 +61,7 @@ public class ExceptionUtil {
    * Returns Exception message list.
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations) {
-    return getMessageList(constraintViolations, null, false, ValidationUtil.messageParameters());
+    return getMessageList(constraintViolations, null, false, Violations.newMessageParameters());
   }
 
   /**
@@ -69,7 +69,7 @@ public class ExceptionUtil {
    */
   public static <T> List<String> getMessageList(Set<ConstraintViolation<T>> constraintViolations,
       @Nullable Locale locale) {
-    return getMessageList(constraintViolations, locale, false, ValidationUtil.messageParameters());
+    return getMessageList(constraintViolations, locale, false, Violations.newMessageParameters());
   }
 
   /**
@@ -103,7 +103,7 @@ public class ExceptionUtil {
       @Nullable Locale locale, boolean isMessagesWithItemNamesAsDefault) {
 
     return getMessageList(constraintViolationSet, locale, isMessagesWithItemNamesAsDefault,
-        ValidationUtil.messageParameters());
+        Violations.newMessageParameters());
   }
 
   /**
@@ -270,7 +270,7 @@ public class ExceptionUtil {
 
       MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
           ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
-          : ValidationUtil.messageParameters();
+          : Violations.newMessageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
@@ -291,8 +291,7 @@ public class ExceptionUtil {
       } else if (th instanceof BizLogicAppException) {
         // Legacy: remove this branch when BizLogicAppException is retired.
         rtnList.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-            ((BizLogicAppException) th).getBusinessViolation(),
-            ValidationUtil.messageParameters()));
+            ((BizLogicAppException) th).getBusinessViolation(), Violations.newMessageParameters()));
 
       } else if (th instanceof ValidationAppException) {
         // Legacy: remove this branch when ValidationAppException is retired.
@@ -362,12 +361,12 @@ public class ExceptionUtil {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
               ConstraintViolationBean.createConstraintViolationBean(cv),
-              violations.getMessageParameters()));
+              violations.messageParameters()));
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
       result.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-          bv, violations.getMessageParameters()));
+          bv, violations.messageParameters()));
     }
 
     return result;
