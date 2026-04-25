@@ -30,9 +30,6 @@ import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.exception.checked.BizLogicAppException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
-import jp.ecuacion.lib.core.exception.checked.ValidationAppException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
@@ -78,7 +75,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
    *     messageParameters.isMessageWithItemName value is adopted 
    *     when messageParameters.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -94,7 +91,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
    *     messageParameters.isMessageWithItemName value is adopted 
    *     when messageParameters.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -112,7 +109,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
    *     messageParameters.isMessageWithItemName value is adopted 
    *     when messageParameters.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -130,7 +127,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
    *     messageParameters.isMessageWithItemName value is adopted 
    *     when messageParameters.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -205,7 +202,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
    *     ConstraintViolationBean.isMessageWithItemName value is adopted 
    *     when ConstraintViolationBean.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
    *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -235,7 +232,7 @@ public class ExceptionUtil {
    * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
    *     ConstraintViolationBean.isMessageWithItemName value is adopted 
    *     when ConstraintViolationBean.isMessageWithItemName is not null 
-   *     (= explicitly specified in ValidationUtil.validate).<br>
+   *     (= explicitly specified by the caller).<br>
    *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
    *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
@@ -244,11 +241,10 @@ public class ExceptionUtil {
    * @param locale locale, may be {@code null} 
    *     which is treated as {@code Locale.getDefault()}.
    * @param isMessagesWithItemNamesAsDefault true 
-   *     when itemName needed for ValidationAppException messages.
+   *     when itemName needed for messages.
    *     
    * @return a list of messages
    */
-  @SuppressWarnings({"removal"})
   public static List<String> getMessageList(Throwable throwable, @Nullable Locale locale,
       boolean isMessagesWithItemNamesAsDefault) {
     ObjectsUtil.requireNonNull(throwable);
@@ -260,7 +256,6 @@ public class ExceptionUtil {
           isMessagesWithItemNamesAsDefault);
     }
 
-    List<Throwable> exList = new ArrayList<>();
     List<String> rtnList = new ArrayList<>();
 
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
@@ -278,33 +273,9 @@ public class ExceptionUtil {
                 ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
-
-    } else {
-      exList.add(throwable);
     }
 
-    for (Throwable th : exList) {
-      if (th instanceof MultipleAppException) {
-        // Legacy: remove this branch when MultipleAppException is retired.
-        continue;
-
-      } else if (th instanceof BizLogicAppException) {
-        // Legacy: remove this branch when BizLogicAppException is retired.
-        rtnList.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-            ((BizLogicAppException) th).getBusinessViolation(), Violations.newMessageParameters()));
-
-      } else if (th instanceof ValidationAppException) {
-        // Legacy: remove this branch when ValidationAppException is retired.
-        ValidationAppException ex = (ValidationAppException) th;
-        rtnList.add(
-            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-                ex.getConstraintViolationBean(), ex.getMessageParameters()));
-
-      } else {
-        rtnList.add(th.getMessage());
-      }
-    }
-
+    rtnList.add(throwable.getMessage());
     return rtnList;
   }
 
