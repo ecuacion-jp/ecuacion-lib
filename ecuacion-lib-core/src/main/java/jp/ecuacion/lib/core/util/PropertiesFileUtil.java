@@ -209,30 +209,38 @@ import org.jspecify.annotations.Nullable;
  * </p>
  * 
  * <p><b>7. To resolve property keys in the obtained value</b><br><br>
- *     You can put a property key into a property value.<br>
- *     For example, you can define keys and values like this in {@code messages.properties}. 
+ *     You can put a property key into a property value using {@code #{fileKind:key}} syntax.<br>
+ *     For example, you can define keys and values like this in {@code messages.properties}.
  *     By executing {@code PropertiesFileUtil.getMessage("message")} you'll get {@code "a-b-c"}.</p>
  * <pre>
- *     message=a-${+messages:message_test1}-c
+ *     message=a-#{messages:message_test1}-c
  *     message_test1=b</pre>
- * 
- * <p>Recursive resolution is also supported so you can even define like the one below. <br>
- * By executing {@code PropertiesFileUtil.getMessage("message")} 
- * you'll get {@code "a-b-c-d-e-f-g"}.</p>
- * 
+ *
+ * <p>You can also omit the file kind using {@code #{key}} syntax.
+ *     In that case the key is searched across
+ *     messages, item_names, strings, and enum_names files.</p>
+ *
  * <pre>
- *     message=a-${+messages:message_test1}-c-${+messages:message_test2}-g
+ *     message=a-#{message_test1}-c
+ *     message_test1=b</pre>
+ *
+ * <p>Recursive resolution is also supported so you can even define like the one below. <br>
+ * By executing {@code PropertiesFileUtil.getMessage("message")}
+ * you'll get {@code "a-b-c-d-e-f-g"}.</p>
+ *
+ * <pre>
+ *     message=a-#{messages:message_test1}-c-#{messages:message_test2}-g
  *     message_test1=b
- *     message_test2=d-${messages:message_test3}-f
+ *     message_test2=d-#{messages:message_test3}-f
  *     message_test3=e</pre>
- * 
- * <p>Examples above uses {@code {+messages:...}} but you can also use other file kinds 
- * like {@code {+application:...}, {+item_names:...} and {+enum_names:...}}.</p>
- *     
- * <p>Recursive resolution is supported, but multiple layer of key is not supported. 
+ *
+ * <p>Other available file kinds:
+ *     {@code #{application:...}}, {@code #{item_names:...}}, {@code #{enum_names:...}}.</p>
+ *
+ * <p>Recursive resolution is supported, but multiple layer of key is not supported.
  *     (which does not seem to be needed)</p>
  *     <pre>
- *     message=a-${+messages:${+messages:message_prefix}_test1}-c
+ *     message=a-#{messages:#{messages:message_prefix}_test1}-c
  *     message_prefix=message
  *     message_test1=b</pre>
  * <br>
@@ -282,7 +290,7 @@ public class PropertiesFileUtil {
    */
   private PropertiesFileUtil() {}
 
-  // �?□�? application �?□�?
+  // === application ===
 
   /**
    * Returns the value in application_xxx.properties.
@@ -323,7 +331,7 @@ public class PropertiesFileUtil {
     }
   }
 
-  // �?□�? message �?□�?
+  // === message ===
 
   /**
    * Returns the localized value in messages_xxx.properties.
@@ -364,7 +372,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(MESSAGES).hasProp(key);
   }
 
-  // �?□�? messageWithItemName �?□�?
+  // === messageWithItemName ===
 
   /**
    * Returns the localized value in messagesWithItemNames_xxx.properties.
@@ -407,7 +415,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(MESSAGES_WITH_ITEM_NAMES).hasProp(key);
   }
 
-  // �?□�? strings �?□�?
+  // === strings ===
 
   /**
    * Returns the value in string_xxx.properties.
@@ -444,7 +452,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(STRINGS).hasProp(key);
   }
 
-  // �?□�? item_names �?□�?
+  // === item_names ===
 
   /**
    * Returns the localized item name in item_names_xxx.properties.
@@ -468,7 +476,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(ITEM_NAMES).hasProp(key);
   }
 
-  // �?□�? enum_names �?□�?
+  // === enum_names ===
 
   /**
    * Returns the localized enum name in enum_names_xxx.properties.
@@ -492,7 +500,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(ENUM_NAMES).hasProp(key);
   }
 
-  // �?□�? ValidationMessages �?□�?
+  // === ValidationMessages ===
 
   /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
@@ -519,7 +527,7 @@ public class PropertiesFileUtil {
     return obtainValueGetter(VALIDATION_MESSAGES).hasProp(locale, key);
   }
 
-  // �?□�? ValidationMessagesWithItemNames �?□�?
+  // === ValidationMessagesWithItemNames ===
 
   /**
    * Returns the property value of default locale in ValidationMessagesWithItemNames_xxx.properties.
@@ -587,7 +595,7 @@ public class PropertiesFileUtil {
     return rtnMessage;
   }
 
-  // �?□�? ValidationMessagesPatternDescriptions �?□�?
+  // === ValidationMessagesPatternDescriptions ===
 
   /**
    * Returns the localized enum name in ValidationMessages[_locale].properties.
@@ -602,7 +610,7 @@ public class PropertiesFileUtil {
         new HashMap<>());
   }
 
-  // �?□�? abstract property �?□�?
+  // === abstract property ===
 
   /**
    * Returns the property value of default locale.
@@ -752,6 +760,19 @@ public class PropertiesFileUtil {
     return list.toArray(new String[list.size()]);
   }
 
+  private static final List<PropertiesFileUtilFileKindEnum> FILE_KINDS_FOR_KEY_ONLY_SEARCH =
+      List.of(MESSAGES, ITEM_NAMES, STRINGS, ENUM_NAMES);
+
+  private static String searchKeyAcrossFileKinds(@Nullable Locale locale, String key) {
+    for (PropertiesFileUtilFileKindEnum fileKind : FILE_KINDS_FOR_KEY_ONLY_SEARCH) {
+      if (obtainValueGetter(fileKind).hasProp(locale, key)) {
+        return PropertiesFileUtil.get(fileKind.toString().toLowerCase(), locale, key, new Arg[] {});
+      }
+    }
+    throw new RuntimeException(
+        "Key '" + key + "' not found in any properties file for '#{key}' syntax.");
+  }
+
   /**
    * Returns analyzed string.
    */
@@ -764,14 +785,17 @@ public class PropertiesFileUtil {
     locale = locale == null ? Locale.ENGLISH : locale;
 
     // conditional branch if el expression exists for processing speed.
-    if (sb.toString().contains("${+")) {
-      // Analyze messageString for ${+...:xxx} format parameters. (like ${+messages:...})
+    if (sb.toString().contains("#{")) {
+      // Analyze messageString for #{fileKind:key} and #{key} format parameters.
       list = analyze(sb.toString());
       sb = new StringBuilder();
 
       for (Pair<String, String> tuple : list) {
         if (tuple.getLeft() == null) {
           sb.append(tuple.getRight());
+
+        } else if (tuple.getLeft().isEmpty()) {
+          sb.append(searchKeyAcrossFileKinds(locale, tuple.getRight()));
 
         } else {
           sb.append(
@@ -810,44 +834,59 @@ public class PropertiesFileUtil {
 
   /**
    * Analyzes and obtain final message part.
-   * 
-   * <p>When there's no message ID in a message, return will be {(null, {@code <message>})}.<br>
-   *     left hand side of a pair is {@code null} means 
-   *     that the message doesn't have a message ID in it.</p>
-   * 
-   * <p>.When one message ID is included in a message return will be 
-   *     {(null, {@code prefixOfMessage}),  
-   *     ({@code PropertiesFileUtilFileKindEnum.MSG, message ID}), 
-   *     (null, {@code postfixOfMessage})}.<br>
-   *     3 parts of a message will be concatenated into a single string, 
-   *     and the middle part will be translated into a message.<br><br>
-   *     For example, when the message is {@code Hello, ${+messages:human}!}, 
-   *     the analyzed result is: <br>
-   *     ({@code (null, "Hello, "), (PropertiesFileUtilFileKindEnum.MSG, "human"),
-   *      (null, "!")}}.</p>
-   * 
+   *
+   * <p>Handles two syntax forms:</p>
+   * <ul>
+   * <li>{@code #{fileKind:key}} - resolves key from the specified file kind</li>
+   * <li>{@code #{key}} - resolves key by searching across messages, item_names,
+   *     strings, and enum_names</li>
+   * </ul>
+   *
+   * <p>For example, when the message is {@code Hello, #{messages:human}!},
+   *     the analyzed result is:<br>
+   *     {@code (null, "Hello, "), ("messages", "human"), (null, "!")}.</p>
+   *
+   * <p>When the message is {@code Hello, #{human}!}, the left side of the pair is
+   *     {@code ""} (empty string), indicating a key-only reference.</p>
+   *
    * @param string string
-   * @return {@code List<Pair<PropertiesFileUtilFileKindEnum, String>>}
+   * @return list of pairs where left is fileKind (or null for literals, "" for key-only)
    */
   private static List<Pair<String, String>> analyze(String string) {
-    String prefix = "${+";
-    List<String> startSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
-        .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
+    final String prefix = "#{";
 
-    List<Pair<String, String>> list = EmbeddedVariableUtil.getPartList(string,
-        startSymbols.toArray(new String[startSymbols.size()]), "}",
+    // Pass 1: #{fileKind:key} patterns (like #{messages:key}, #{item_names:key}).
+    List<String> fileKindStartSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values())
+        .stream().map(en -> prefix + en.toString().toLowerCase() + ":").toList();
+
+    List<Pair<String, String>> pass1Result = EmbeddedVariableUtil.getPartList(string,
+        fileKindStartSymbols.toArray(new String[fileKindStartSymbols.size()]), "}",
         new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
-    // THrow an exception if a string still has "${+" because it happens only by a
-    // mistake of the string.
-    if (list.stream().filter(p -> p.getRight().contains(prefix)).toList().size() > 0) {
-      throw new RuntimeException(
-          "Improper '${+' symbols found in a message. message: " + string);
+    // Pass 2: #{key} patterns (no fileKind) found in remaining literal parts.
+    List<Pair<String, String>> resultList = new ArrayList<>();
+    for (Pair<String, String> pair : pass1Result) {
+      if (pair.getLeft() != null || !pair.getRight().contains(prefix)) {
+        resultList.add(pair);
+      } else {
+        List<Pair<String, String>> subList = EmbeddedVariableUtil.getPartList(
+            pair.getRight(), new String[] {prefix}, "}",
+            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+        for (Pair<String, String> subPair : subList) {
+          resultList.add(subPair.getLeft() != null ? Pair.of("", subPair.getRight()) : subPair);
+        }
+      }
     }
 
-    // left of the pair starts with "{+" and ends with ":" but they're not needed
-    return list.stream()
-        .map(pair -> pair.getLeft() == null ? pair
+    // Error check: remaining "#{"  in literal parts means incorrect syntax.
+    if (resultList.stream().anyMatch(p -> p.getLeft() == null && p.getRight().contains(prefix))) {
+      throw new RuntimeException(
+          "Improper '#{' symbols found in a message. message: " + string);
+    }
+
+    // Strip "#{" prefix and ":" suffix from fileKind start symbols; leave "" (key-only) as-is.
+    return resultList.stream()
+        .map(pair -> pair.getLeft() == null || pair.getLeft().isEmpty() ? pair
             : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
                 pair.getRight()))
         .toList();
@@ -1043,7 +1082,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * FORMATTED_STRING is like "item name is: ${+item_names:xxx}".
+   * FORMATTED_STRING is like "item name is: #{item_names:xxx}".
    */
   public static enum ArgKind {
     STRING, FORMATTED_STRING, MESSAGE_ID
