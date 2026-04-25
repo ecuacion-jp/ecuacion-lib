@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * Provides utilities for Message creation.
  */
 public class MessageUtil {
-  private static final String MSG_CMN_VAL = "${+messages:jp.ecuacion.lib.core.common.value.";
+  private static final String MSG_CMN_VAL = "#{messages:jp.ecuacion.lib.core.common.value.";
   private static final String VALUE_PREPEND_SYMBOL = MSG_CMN_VAL + "prependSymbol}";
   private static final String VALUE_APPEND_SYMBOL = MSG_CMN_VAL + "appendSymbol}";
   private static final String VALUE_SEPARATOR = MSG_CMN_VAL + "separator}";
