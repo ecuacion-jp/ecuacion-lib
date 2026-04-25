@@ -50,9 +50,49 @@
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
+		<!-- nullaway / error prone -->
+		<com.uber.nullaway.version>0.12.7</com.uber.nullaway.version>
+		<com.google.errorprone.error_prone_core.version>2.39.0</com.google.errorprone.error_prone_core.version>
+
 	</properties>
 	
 	<build>
+		<pluginManagement>
+			<plugins>
+
+				<!-- maven-compiler-plugin with NullAway (main sources only) -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<configuration>
+								<compilerArgs>
+									<arg>-XDcompilePolicy=simple</arg>
+									<arg>-XDshould-stop.ifError=FLOW</arg>
+									<arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked</arg>
+								</compilerArgs>
+								<annotationProcessorPaths>
+									<path>
+										<groupId>com.google.errorprone</groupId>
+										<artifactId>error_prone_core</artifactId>
+										<version>${com.google.errorprone.error_prone_core.version}</version>
+									</path>
+									<path>
+										<groupId>com.uber.nullaway</groupId>
+										<artifactId>nullaway</artifactId>
+										<version>${com.uber.nullaway.version}</version>
+									</path>
+								</annotationProcessorPaths>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
 		<plugins>
 
 			<!-- mycila license-maven-plugin -->
@@ -135,6 +175,18 @@
 				<groupId>org.jspecify</groupId>
 				<artifactId>jspecify</artifactId>
 				<version>1.0.0</version>
+			</dependency>
+
+			<!-- nullaway / error prone -->
+			<dependency>
+				<groupId>com.uber.nullaway</groupId>
+				<artifactId>nullaway</artifactId>
+				<version>${com.uber.nullaway.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.errorprone</groupId>
+				<artifactId>error_prone_core</artifactId>
+				<version>${com.google.errorprone.error_prone_core.version}</version>
 			</dependency>
 
 		</dependencies>
