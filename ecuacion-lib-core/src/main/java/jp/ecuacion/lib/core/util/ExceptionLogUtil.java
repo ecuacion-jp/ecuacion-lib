@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util;
 
 import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -111,13 +110,10 @@ public class ExceptionLogUtil {
    * @param locale locale, may be null 
    * @param packagesShown see getMessageAndStackTraceStringRecursively
    */
-  @SuppressWarnings({"removal"})
   private static void getMessageAndStackTraceString(StringBuilder sb, @Nullable Throwable th,
       @Nullable Locale locale, @Nullable Integer packagesShown) {
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
-    // Call MultipleAppException#getMessage() explicitly
-    // since getExceptionMessage skips the exception.
     String errMsg;
     if (th == null) {
       errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
@@ -127,11 +123,8 @@ public class ExceptionLogUtil {
           + ExceptionUtil.getMessageList((ViolationException) th, locale, true).toString();
 
     } else {
-      // Legacy: remove MultipleAppException branch when MultipleAppException is retired.
-      String legacyMsg = (th instanceof MultipleAppException)
-          ? ((MultipleAppException) th).getMessage()
-          : ExceptionUtil.getMessageList(th, locale, true).toString();
-      errMsg = th.getClass().getCanonicalName() + legacyMsg;
+      errMsg = th.getClass().getCanonicalName()
+          + ExceptionUtil.getMessageList(th, locale, true).toString();
     }
 
     sb.append(errMsg + RT);

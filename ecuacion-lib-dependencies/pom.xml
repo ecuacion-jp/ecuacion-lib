@@ -63,13 +63,35 @@
 		<pluginManagement>
 			<plugins>
 
-				<!-- maven-compiler-plugin with NullAway (main sources only) -->
+				<!-- maven-compiler-plugin with NullAway -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<executions>
 						<execution>
 							<id>default-compile</id>
+							<configuration>
+								<compilerArgs>
+									<arg>-XDcompilePolicy=simple</arg>
+									<arg>-XDshould-stop.ifError=FLOW</arg>
+									<arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked</arg>
+								</compilerArgs>
+								<annotationProcessorPaths>
+									<path>
+										<groupId>com.google.errorprone</groupId>
+										<artifactId>error_prone_core</artifactId>
+										<version>${com.google.errorprone.error_prone_core.version}</version>
+									</path>
+									<path>
+										<groupId>com.uber.nullaway</groupId>
+										<artifactId>nullaway</artifactId>
+										<version>${com.uber.nullaway.version}</version>
+									</path>
+								</annotationProcessorPaths>
+							</configuration>
+						</execution>
+						<execution>
+							<id>default-testCompile</id>
 							<configuration>
 								<compilerArgs>
 									<arg>-XDcompilePolicy=simple</arg>
