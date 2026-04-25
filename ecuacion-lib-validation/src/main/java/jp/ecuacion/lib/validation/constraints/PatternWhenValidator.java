@@ -29,7 +29,12 @@ public class PatternWhenValidator extends ValidateWhenValidator<PatternWhen, Obj
 
   private String regexp = "";
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable PatternWhen annotation) {
     Objects.requireNonNull(annotation);
