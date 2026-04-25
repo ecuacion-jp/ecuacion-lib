@@ -29,7 +29,12 @@ public class SizeStringValidator implements ConstraintValidator<SizeString, Stri
   private int min;
   private int max;
   
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable SizeString annotation) {
     Objects.requireNonNull(annotation);

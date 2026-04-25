@@ -28,7 +28,12 @@ public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
 
   private String methodName = "";
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable ReturnTrue annotation) {
     Objects.requireNonNull(annotation);

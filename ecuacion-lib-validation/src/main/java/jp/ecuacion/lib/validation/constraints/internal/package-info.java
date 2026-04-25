@@ -16,6 +16,16 @@
 
 /**
  * Provides {@code Constraints} internal package.
+ *
+ * <p>Note on {@code @Nullable} on {@code ConstraintValidator} method parameters: some
+ *     parameters of methods overriding {@code jakarta.validation.ConstraintValidator}
+ *     are annotated {@code @Nullable} even though they are never {@code null} at
+ *     runtime. This is required to avoid an "Illegal redefinition of parameter" error
+ *     in Eclipse null analysis, which reports a violation when {@code @NullMarked} code
+ *     strengthens the nullness constraint on a parameter inherited from an unannotated
+ *     method. The affected parameters are: the annotation parameter of
+ *     {@code initialize()}, and the {@code ConstraintValidatorContext} parameter of
+ *     {@code isValid()}.</p>
  */
 @NullMarked
 package jp.ecuacion.lib.validation.constraints.internal;
