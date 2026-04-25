@@ -21,8 +21,7 @@ import org.slf4j.event.Level;
 /**
  * Logs sqls and related info like sql parameters. 
  * 
- * <p>Spring framework has it's own sql-logging structure, so this is not used.<br>
- * this is mainly used by ecuacion-util-jpa.</p>
+ * <p>Spring framework has it's own sql-logging structure, so this is not used.</p>
  * 
  * <p>Available loglevels are as follows:</p>
  * <ul>

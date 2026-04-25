@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.spi;
 import java.util.spi.ResourceBundleProvider;
 
 /**
- * Is a {@code ResourceBundleProvider} for messages in {@code ecuacion-util-jpa}.
+ * Is a {@code ResourceBundleProvider} for messages in {@code ecuacion-util-pdf}.
  */
 public interface MessagesUtilPdfboxProvider extends ResourceBundleProvider {
 }
