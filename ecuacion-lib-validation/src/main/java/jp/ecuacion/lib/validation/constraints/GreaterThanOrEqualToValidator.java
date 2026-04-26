@@ -25,7 +25,12 @@ import org.jspecify.annotations.Nullable;
 public class GreaterThanOrEqualToValidator
     extends ComparisonValidator<GreaterThanOrEqualTo, Object> {
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable GreaterThanOrEqualTo annotation) {
     Objects.requireNonNull(annotation);

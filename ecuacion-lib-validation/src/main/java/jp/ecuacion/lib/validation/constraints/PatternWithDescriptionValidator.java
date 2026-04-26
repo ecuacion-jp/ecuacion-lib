@@ -31,7 +31,12 @@ public class PatternWithDescriptionValidator
 
   private String regExp = "";
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable PatternWithDescription annotation) {
     Objects.requireNonNull(annotation);

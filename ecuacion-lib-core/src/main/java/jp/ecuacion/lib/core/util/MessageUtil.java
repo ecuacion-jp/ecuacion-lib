@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * Provides utilities for Message creation.
  */
 public class MessageUtil {
-  private static final String MSG_CMN_VAL = "${+messages:jp.ecuacion.lib.core.common.value.";
+  private static final String MSG_CMN_VAL = "#{messages:jp.ecuacion.lib.core.common.value.";
   private static final String VALUE_PREPEND_SYMBOL = MSG_CMN_VAL + "prependSymbol}";
   private static final String VALUE_APPEND_SYMBOL = MSG_CMN_VAL + "appendSymbol}";
   private static final String VALUE_SEPARATOR = MSG_CMN_VAL + "separator}";
@@ -122,7 +122,7 @@ public class MessageUtil {
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
     final String appendSymbol = PropertiesFileUtil.getMessage(locale, ipf + "appendSymbol");
 
-    List<String> itemNameList = new ArrayList<>();
+    List<@NonNull String> itemNameList = new ArrayList<>();
     for (Item infoBean : itemList) {
       Objects.requireNonNull(infoBean);
       String itemName = getItemName(locale, infoBean, prependSymbol, appendSymbol);
@@ -144,7 +144,7 @@ public class MessageUtil {
       final String appendSymbol) {
 
     String itemNameKey = item.getItemNameKey();
-    List<String> collectionLayerList =
+    List<@NonNull String> collectionLayerList =
         extractCollectionLayers(PropertyPathUtil.getRightMostNode(item.getPropertyPath()));
 
     String itemName =
@@ -171,8 +171,8 @@ public class MessageUtil {
         sb.toString());
   }
 
-  private static List<String> extractCollectionLayers(String rightMostNode) {
-    List<String> layers = new ArrayList<>();
+  private static List<@NonNull String> extractCollectionLayers(String rightMostNode) {
+    List<@NonNull String> layers = new ArrayList<>();
     while (true) {
       if (rightMostNode.contains("<K>")) {
         layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
@@ -251,7 +251,7 @@ public class MessageUtil {
 
     // The following is when itemNamePath exists.
 
-    List<String> modifiedPathItemNameList = new ArrayList<>();
+    List<@NonNull String> modifiedPathItemNameList = new ArrayList<>();
     for (String path : itemNamePathList) {
       Item tmpItem = getItem(path, rootBean, rootBean);
       modifiedPathItemNameList.add(getItemName(locale, tmpItem, prependSymbol, appendSymbol));
@@ -331,7 +331,7 @@ public class MessageUtil {
    */
   public static String getValuesOfFormattedString(String[] values) {
 
-    List<String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(values)).stream()
+    List<@NonNull String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(values)).stream()
         .map(name -> VALUE_PREPEND_SYMBOL + name + VALUE_APPEND_SYMBOL).toList();
 
     return StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR);
@@ -341,7 +341,7 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  public static String getValuesOfFormattedString(List<String> valueList) {
+  public static String getValuesOfFormattedString(List<@NonNull String> valueList) {
     return getValuesOfFormattedString(valueList.toArray(new String[valueList.size()]));
   }
 
@@ -357,7 +357,7 @@ public class MessageUtil {
     List<@NonNull Arg> argList =
         Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
 
-    List<String> itemNameList = new ArrayList<>();
+    List<@NonNull String> itemNameList = new ArrayList<>();
     for (int i = 0; i < argList.size(); i++) {
       itemNameList.add(VALUE_PREPEND_SYMBOL + "{" + i + "}" + VALUE_APPEND_SYMBOL);
     }
@@ -370,7 +370,7 @@ public class MessageUtil {
    * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
    *     considering the prependSymbol, appendSymbol and the separator.
    */
-  public static Arg getValuesArg(List<String> valueList) {
+  public static Arg getValuesArg(List<@NonNull String> valueList) {
     return getValuesArg(valueList.toArray(new String[valueList.size()]));
   }
 }

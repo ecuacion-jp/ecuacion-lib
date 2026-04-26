@@ -89,11 +89,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.annotation</groupId>
-			<artifactId>jakarta.annotation-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>jakarta.mail</groupId>
 			<artifactId>jakarta.mail-api</artifactId>
 			<scope>provided</scope>
@@ -126,18 +121,5 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- jspecify -->
-		<dependency>
-			<groupId>org.jspecify</groupId>
-			<artifactId>jspecify</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- eclipse null analysis -->
-		<dependency>
-			<groupId>org.lastnpe.eea</groupId>
-			<artifactId>jdk-eea</artifactId>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 </project>

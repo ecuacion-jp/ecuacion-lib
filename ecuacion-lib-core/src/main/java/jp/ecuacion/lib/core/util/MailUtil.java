@@ -74,7 +74,6 @@ public class MailUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    */
-  @SuppressWarnings("null")
   public static void sendErrorMail(Throwable throwable, @Nullable String additionalMessage) {
     ObjectsUtil.requireNonNull(throwable);
 
@@ -89,7 +88,7 @@ public class MailUtil {
         + "A system error has occurred.";
 
     try {
-      sendMailCommon(errorMailAddressList, (List<String>) null, false, mailTitle,
+      sendMailCommon(errorMailAddressList, (List<@NonNull String>) null, false, mailTitle,
           getErrorMailContent(throwable, additionalMessage), false);
 
     } catch (Exception ex) {
@@ -111,14 +110,14 @@ public class MailUtil {
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
-  public static void sendWarnMail(String content, List<String> mailToList) {
+  public static void sendWarnMail(String content, List<@NonNull String> mailToList) {
     ObjectsUtil.requireSizeNonZero(mailToList);
 
     String envSpecStr = PropertiesFileUtil.getApplication(APP_PREFIX + "title-prefix");
 
     try {
-      sendMailCommon(mailToList, (List<String>) null, false, envSpecStr + "Warn Message", content,
-          true);
+      sendMailCommon(mailToList, (List<@NonNull String>) null, false, envSpecStr + "Warn Message",
+          content, true);
     } catch (Exception ex) {
       // do nothing.
     }
@@ -151,8 +150,8 @@ public class MailUtil {
    * @param content content, may be {@code null} if no content needed.
    * @throws Exception Exception
    */
-  public static void sendTextMail(@Nullable List<String> mailToList,
-      @Nullable List<String> mailCcList, String title, String content) throws Exception {
+  public static void sendTextMail(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, false, title, content, true);
   }
@@ -162,15 +161,15 @@ public class MailUtil {
    * 
    * @see sendTextMail
    */
-  public static void sendHtmlMail(@Nullable List<String> mailToList,
-      @Nullable List<String> mailCcList, String title, String content) throws Exception {
+  public static void sendHtmlMail(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, true, title, content, true);
   }
 
-  private static void sendMailCommon(@Nullable List<String> mailToList,
-      @Nullable List<String> mailCcList, boolean isHtmlFormat, String title, String content,
-      boolean throwsException) throws Exception {
+  private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
+      String content, boolean throwsException) throws Exception {
     ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
@@ -217,9 +216,9 @@ public class MailUtil {
    *     not to get in the way of business logic</p>
    */
   private static void sendMailInternal(String mailFrom, String pass,
-      @Nullable List<String> mailToList, @Nullable List<String> mailCcList, boolean isHtmlFormat,
-      String title, String content, MailUtilEmail emailInfo, boolean throwsException)
-      throws Exception {
+      @Nullable List<@NonNull String> mailToList, @Nullable List<@NonNull String> mailCcList,
+      boolean isHtmlFormat, String title, String content, MailUtilEmail emailInfo,
+      boolean throwsException) throws Exception {
     try {
       // Finish when the number of senders is zero.
       if ((mailToList == null || mailToList.size() == 0)

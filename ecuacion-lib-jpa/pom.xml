@@ -79,11 +79,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.annotation</groupId>
-			<artifactId>jakarta.annotation-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 		    <groupId>jakarta.persistence</groupId>
 		    <artifactId>jakarta.persistence-api</artifactId>
 			<scope>provided</scope>
@@ -111,18 +106,5 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- jspecify -->
-		<dependency>
-			<groupId>org.jspecify</groupId>
-			<artifactId>jspecify</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- eclipse null analysis -->
-		<dependency>
-			<groupId>org.lastnpe.eea</groupId>
-			<artifactId>jdk-eea</artifactId>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 </project>

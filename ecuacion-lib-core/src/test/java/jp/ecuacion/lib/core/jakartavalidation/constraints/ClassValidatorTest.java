@@ -40,11 +40,12 @@ public class ClassValidatorTest {
    * Tests irregulars on propertyPath.
    */
   @Test
+  @SuppressWarnings("unused")
   public void irregular() {
 
     // propertyPath not set
     try {
-      validator.validate(new PropertyPathNotSet(null)).size();
+      var unused = validator.validate(new PropertyPathNotSet(null)).size();
       Assertions.fail();
 
     } catch (Exception ex) {
@@ -56,7 +57,7 @@ public class ClassValidatorTest {
 
     // propertyPath contains empty
     try {
-      validator.validate(new PropertyPathContainsEmpty(null)).size();
+      var unused = validator.validate(new PropertyPathContainsEmpty(null)).size();
       Assertions.fail();
 
     } catch (Exception ex) {
@@ -67,7 +68,7 @@ public class ClassValidatorTest {
 
     // propertyPath length zero
     try {
-      validator.validate(new PropertyPathLengthZero(null)).size();
+      var unused = validator.validate(new PropertyPathLengthZero(null)).size();
       Assertions.fail();
 
     } catch (Exception ex) {
@@ -78,7 +79,7 @@ public class ClassValidatorTest {
 
     // propertyPath not found
     try {
-      validator.validate(new PropertyPathNotFound(null)).size();
+      var unused = validator.validate(new PropertyPathNotFound(null)).size();
       Assertions.fail();
 
     } catch (Exception ex) {

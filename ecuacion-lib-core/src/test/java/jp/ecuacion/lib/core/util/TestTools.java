@@ -13,11 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.util;
+package jp.ecuacion.lib.core.util;
 
-import jakarta.validation.Valid;
+import org.junit.jupiter.api.Assertions;
+public class TestTools {
 
-public class ValidationUtilTest_DirectContainerWithClassValidadtor {
-  @Valid
-  public ValidationUtilTest_ObjWithClassValidator classValidator = new ValidationUtilTest_ObjWithClassValidator();
+  //
+  // assertion methods are defined here because static imports are troublesome to define.
+  //
+
+  public void assertTrue(boolean bl) {
+    Assertions.assertTrue(bl);
+  }
+
+  public void assertFalse(boolean bl) {
+    Assertions.assertFalse(bl);
+  }
+
+  public void assertEquals(Object expected, Object actual) {
+    Assertions.assertEquals(expected, actual);
+  }
+
+  public void fail() {
+    Assertions.fail();
+  }
 }

@@ -26,10 +26,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Describes a single business logic violation.
  *
- * <p>Holds the same information as
- *     {@link jp.ecuacion.lib.core.exception.checked.BizLogicAppException}
- *     but as a plain data object rather than an exception.<br>
- *     Use this when you want to collect violations without immediately throwing,
+ * <p>Use this when you want to collect violations without immediately throwing,
  *     then call {@link Violations#throwIfAny()} after all checks are done.</p>
  */
 public class BusinessViolation {

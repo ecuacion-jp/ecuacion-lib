@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util;
 
 import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.exception.checked.MultipleAppException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -29,38 +28,48 @@ public class ExceptionLogUtil {
   private static final String RT = "\n";
 
   /**
-   * Returns strings or error log.
-   * 
-   * @param throwable throwable. {@code null} acceptable to avoid system error on logging procedure.
+   * Returns strings or error log. All packages are shown in stack traces.
+   *
+   * @param throwable throwable. {@code null} is accepted because logging must not
+   *     terminate with an error even for irregular input — if logging itself fails,
+   *     we would lose information about what originally went wrong.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
-   * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   * @param locale locale, may be {@code null}
+   *     which is treated as {@code Locale.ROOT}.
    * @return error log string
    */
   public static String getErrLogString(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale) {
-    return getErrLogString(throwable, additionalMessage, locale, null);
+    return getErrLogStringCore(throwable, additionalMessage, locale, null);
   }
 
   /**
    * Returns strings or error log.
-   * 
-   * @param throwable throwable
+   *
+   * @param throwable throwable. {@code null} is accepted because logging must not
+   *     terminate with an error even for irregular input — if logging itself fails,
+   *     we would lose information about what originally went wrong.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
-   * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
-   * @param packagesShown packages shown in the stack traces.
+   * @param locale locale, may be {@code null}
+   *     which is treated as {@code Locale.ROOT}.
+   * @param packagesShown number of package levels shown in stack traces.
    *     This is used when the log displaying area is small.
+   *     {@code 0} shows no packages like {@code "at ..main(ExceptionUtil.java:468)"}.
+   *     {@code 1} shows 1 package part like {@code "at jp...main(ExceptionUtil.java:468)"}.
    * @return error log string
    */
   public static String getErrLogString(@Nullable Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale, int packagesShown) {
+    return getErrLogStringCore(throwable, additionalMessage, locale, packagesShown);
+  }
+
+  private static String getErrLogStringCore(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
-    ObjectsUtil.requireNonNull(throwable);
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
     StringBuilder sb = new StringBuilder();
@@ -73,51 +82,64 @@ public class ExceptionLogUtil {
 
     sb.append(RT);
 
-    getMessageAndStackTraceStringRecursively(sb, throwable, locale, packagesShown);
+    getMessageAndStackTraceStringRecursivelyCore(sb, throwable, locale, packagesShown);
 
     String rtn = sb.toString();
     return rtn;
   }
 
   /**
-   * Adds Throwable message and stackTrace string to argument stringBuilder 
-   *     for a throwable and its causes.
-   * 
+   * Adds Throwable message and stackTrace string to argument stringBuilder
+   *     for a throwable and its causes. All packages are shown in stack traces.
+   *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null 
-   * @param packagesShown null means all package of a class is shown 
-   *     like "at jp.ecuacion.lib.core.util.ExceptionUtil.main(ExceptionUtil.java:468)".
-   *     "0" shows no packages like "at ..main(ExceptionUtil.java:468)".
-   *     "1" shows 1 package part like "at jp...main(ExceptionUtil.java:468)".
+   * @param locale locale, may be null
    */
   public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
+      @Nullable Throwable th, @Nullable Locale locale) {
+    getMessageAndStackTraceStringRecursivelyCore(sb, th, locale, null);
+  }
+
+  /**
+   * Adds Throwable message and stackTrace string to argument stringBuilder
+   *     for a throwable and its causes.
+   *
+   * @param sb StringBuilder
+   * @param th throwable
+   * @param locale locale, may be null
+   * @param packagesShown number of package levels shown in stack traces.
+   *     See {@link #getErrLogString(Throwable, String, Locale, int)} for details.
+   */
+  public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
+      @Nullable Throwable th, @Nullable Locale locale, int packagesShown) {
+    getMessageAndStackTraceStringRecursivelyCore(sb, th, locale, packagesShown);
+  }
+
+  private static void getMessageAndStackTraceStringRecursivelyCore(StringBuilder sb,
       @Nullable Throwable th, @Nullable Locale locale, @Nullable Integer packagesShown) {
 
     getMessageAndStackTraceString(sb, th, locale, packagesShown);
 
     // Also outputs for getCause().
     if (th != null && th.getCause() != null) {
-      getMessageAndStackTraceStringRecursively(sb, th.getCause(), locale, packagesShown);
+      getMessageAndStackTraceStringRecursivelyCore(sb, th.getCause(), locale, packagesShown);
     }
   }
 
   /**
-   * Adds Throwable message and stackTrace string to argument stringBuilder 
+   * Adds Throwable message and stackTrace string to argument stringBuilder
    *     for one throwable. (getCause() ignored)
-   * 
+   *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null 
+   * @param locale locale, may be null
    * @param packagesShown see getMessageAndStackTraceStringRecursively
    */
-  @SuppressWarnings({"removal"})
   private static void getMessageAndStackTraceString(StringBuilder sb, @Nullable Throwable th,
       @Nullable Locale locale, @Nullable Integer packagesShown) {
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
-    // Call MultipleAppException#getMessage() explicitly
-    // since getExceptionMessage skips the exception.
     String errMsg;
     if (th == null) {
       errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
@@ -127,11 +149,8 @@ public class ExceptionLogUtil {
           + ExceptionUtil.getMessageList((ViolationException) th, locale, true).toString();
 
     } else {
-      // Legacy: remove MultipleAppException branch when MultipleAppException is retired.
-      String legacyMsg = (th instanceof MultipleAppException)
-          ? ((MultipleAppException) th).getMessage()
-          : ExceptionUtil.getMessageList(th, locale, true).toString();
-      errMsg = th.getClass().getCanonicalName() + legacyMsg;
+      errMsg = th.getClass().getCanonicalName()
+          + ExceptionUtil.getMessageList(th, locale, true).toString();
     }
 
     sb.append(errMsg + RT);
@@ -142,11 +161,10 @@ public class ExceptionLogUtil {
 
   /**
    * get stackTrace string for one throwable. (getCause() ignored)
-   * 
+   *
    * @param sb StringBuilder
    * @param th throwable
    * @param packagesShown see getMessageAndStackTraceStringRecursively
-   * @return stackTrace string
    */
   private static void getStackTraceString(StringBuilder sb, @Nullable Throwable th,
       @Nullable Integer packagesShown) {

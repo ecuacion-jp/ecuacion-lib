@@ -39,6 +39,7 @@ import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -194,9 +195,9 @@ public class FileUtil {
    * <p>"*", "?" are supported, but "**" not supported.<br>
    * The separator of returning Paths is "/"</p>
    */
-  public static List<String> getPathListFromPathWithWildcard(String path) {
+  public static List<@NonNull String> getPathListFromPathWithWildcard(String path) {
 
-    final List<String> fullPathList = new ArrayList<>();
+    final List<@NonNull String> fullPathList = new ArrayList<>();
     // Clean the path string.
     path = cleanPathStrWithSlash(path);
     // If the path ends with a path separator,
@@ -258,7 +259,7 @@ public class FileUtil {
   }
 
   private static void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
-      List<String> rtnFullPathList) {
+      List<@NonNull String> rtnFullPathList) {
     ObjectsUtil.requireNonNull(fullPath, parentPath, rtnFullPathList);
 
     String myFileOrDirnameWithWildcard = null;

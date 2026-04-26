@@ -28,7 +28,12 @@ public class StringWhenValidator extends ValidateWhenValidator<StringWhen, Objec
 
   private String[] string = new String[] {};
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable StringWhen annotation) {
     Objects.requireNonNull(annotation);

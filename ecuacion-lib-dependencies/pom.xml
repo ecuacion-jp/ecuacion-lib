@@ -32,7 +32,6 @@
 		
 		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
 		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
-		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
 		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
 		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
 		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
@@ -47,12 +46,77 @@
 		<!-- module versions (test scope) -->
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 
+		<!-- jspecify -->
+		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
+
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
+
+		<!-- nullaway / error prone -->
+		<com.uber.nullaway.version>0.12.7</com.uber.nullaway.version>
+		<com.google.errorprone.error_prone_core.version>2.39.0</com.google.errorprone.error_prone_core.version>
 
 	</properties>
 	
 	<build>
+		<pluginManagement>
+			<plugins>
+
+				<!-- maven-compiler-plugin with NullAway -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>default-compile</id>
+							<configuration>
+								<compilerArgs>
+									<arg>-XDcompilePolicy=simple</arg>
+									<arg>-XDshould-stop.ifError=FLOW</arg>
+									<arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked</arg>
+								</compilerArgs>
+								<annotationProcessorPaths>
+									<path>
+										<groupId>com.google.errorprone</groupId>
+										<artifactId>error_prone_core</artifactId>
+										<version>${com.google.errorprone.error_prone_core.version}</version>
+									</path>
+									<path>
+										<groupId>com.uber.nullaway</groupId>
+										<artifactId>nullaway</artifactId>
+										<version>${com.uber.nullaway.version}</version>
+									</path>
+								</annotationProcessorPaths>
+							</configuration>
+						</execution>
+						<execution>
+							<id>default-testCompile</id>
+							<configuration>
+								<compilerArgs>
+									<arg>-XDcompilePolicy=simple</arg>
+									<arg>-XDshould-stop.ifError=FLOW</arg>
+									<arg>-Xplugin:ErrorProne -XepOpt:NullAway:OnlyNullMarked</arg>
+								</compilerArgs>
+								<annotationProcessorPaths>
+									<path>
+										<groupId>com.google.errorprone</groupId>
+										<artifactId>error_prone_core</artifactId>
+										<version>${com.google.errorprone.error_prone_core.version}</version>
+									</path>
+									<path>
+										<groupId>com.uber.nullaway</groupId>
+										<artifactId>nullaway</artifactId>
+										<version>${com.uber.nullaway.version}</version>
+									</path>
+								</annotationProcessorPaths>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
 		<plugins>
 
 			<!-- mycila license-maven-plugin -->
@@ -64,6 +128,26 @@
 		</plugins>
 	</build>
 
+	<dependencies>
+
+		<!-- jspecify -->
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+			<version>${org.jspecify.jspecify.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- eclipse null analysis -->
+		<dependency>
+			<groupId>org.lastnpe.eea</groupId>
+			<artifactId>jdk-eea</artifactId>
+			<version>${org.lastnpe.eea.jdk-eea.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+
 	<!-- Add modules whose versions are managed by spring or other external frameworks here. -->
 	<dependencyManagement>
 		<dependencies>
@@ -72,11 +156,6 @@
 				<groupId>jakarta.servlet</groupId>
 				<artifactId>jakarta.servlet-api</artifactId>
 				<version>${jakarta.servlet.jakarta.servlet-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.annotation</groupId>
-				<artifactId>jakarta.annotation-api</artifactId>
-				<version>${jakarta.annotation.jakarta.annotation-api.version}</version>
 			</dependency>
 			<dependency>
 			    <groupId>jakarta.persistence</groupId>
@@ -124,17 +203,16 @@
 				<artifactId>junit-jupiter-api</artifactId>
 				<version>${org.junit.jupiter.junit-jupiter-api.version}</version>
 			</dependency>
+			<!-- nullaway / error prone -->
 			<dependency>
-				<groupId>org.lastnpe.eea</groupId>
-				<artifactId>jdk-eea</artifactId>
-				<version>${org.lastnpe.eea.jdk-eea.version}</version>
+				<groupId>com.uber.nullaway</groupId>
+				<artifactId>nullaway</artifactId>
+				<version>${com.uber.nullaway.version}</version>
 			</dependency>
-			
-			<!-- jspecify -->
 			<dependency>
-				<groupId>org.jspecify</groupId>
-				<artifactId>jspecify</artifactId>
-				<version>1.0.0</version>
+				<groupId>com.google.errorprone</groupId>
+				<artifactId>error_prone_core</artifactId>
+				<version>${com.google.errorprone.error_prone_core.version}</version>
 			</dependency>
 
 		</dependencies>

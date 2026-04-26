@@ -27,7 +27,6 @@ It offers customized entity class.
 
 ### Manual Load Needed Libraries
 
-- `jakarta.annotation:jakarta.annotation-api`
 - `jakarta.persistence:jakarta.persistence-api`
 
 (modules depending on `ecuacion-lib-core`)

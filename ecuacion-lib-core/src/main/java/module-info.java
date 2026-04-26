@@ -24,8 +24,6 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.annotation;
   exports jp.ecuacion.lib.core.constant;
   exports jp.ecuacion.lib.core.exception;
-  exports jp.ecuacion.lib.core.exception.checked;
-  exports jp.ecuacion.lib.core.exception.unchecked;
   exports jp.ecuacion.lib.core.item;
   exports jp.ecuacion.lib.core.jakartavalidation.bean;
   exports jp.ecuacion.lib.core.jakartavalidation.constraints;
@@ -40,7 +38,6 @@ module jp.ecuacion.lib.core {
 
   requires transitive jakarta.validation;
   requires jakarta.mail;
-  requires jakarta.annotation;
   requires transitive org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
@@ -73,7 +70,6 @@ module jp.ecuacion.lib.core {
 
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
-  uses jp.ecuacion.lib.core.spi.MessagesUtilJpaProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilPdfboxProvider;
 
   // ecuacion-lib-core

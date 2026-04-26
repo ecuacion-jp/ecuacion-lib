@@ -26,7 +26,12 @@ import org.jspecify.annotations.Nullable;
  */
 public class BooleanStringValidator implements ConstraintValidator<BooleanString, String> {
 
-  /** Initializes an instance. */
+  /**
+   * Initializes an instance.
+   *
+   * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
+   *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
+   */
   @Override
   public void initialize(@Nullable BooleanString constraintAnnotation) {}
 

@@ -32,6 +32,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -59,7 +60,7 @@ public class PropertiesFileUtilValueGetter {
       new String[] {"", "base", "core", "core_web", "core_batch"};
   private static final String[] APP_ENVS = new String[] {"", "profile"};
 
-  private static final List<String> dynamicPostfixList = new ArrayList<>();
+  private static final List<@NonNull String> dynamicPostfixList = new ArrayList<>();
 
   /**
    * Offers a way to add postfixes dynamically.
@@ -78,7 +79,7 @@ public class PropertiesFileUtilValueGetter {
   /*
    * Is accessible only from the same package for unit test.
    */
-  static List<String> getDynamicPostfixList() {
+  static List<@NonNull String> getDynamicPostfixList() {
     return new ArrayList<>(dynamicPostfixList);
   }
 
@@ -128,8 +129,9 @@ public class PropertiesFileUtilValueGetter {
    * 
    * @return postfix list
    */
-  List<String> getPostfixes() {
-    List<String> rtnList = new ArrayList<>();
+  @SuppressWarnings("null")
+  List<@NonNull String> getPostfixes() {
+    List<@NonNull String> rtnList = new ArrayList<>();
     rtnList.addAll(
         Arrays.asList(LIB_MODULES).stream().map(str -> "_lib_" + str).collect(Collectors.toList()));
     rtnList.addAll(Arrays.asList(SPLIB_MODULES).stream().map(str -> "_splib_" + str)
@@ -156,7 +158,8 @@ public class PropertiesFileUtilValueGetter {
    *     which means no {@code Locale} specified.
    * @param key the key of the property
    */
-  private String getValue(@Nullable Locale locale, String key, Map<String, Object> elParameterMap) {
+  private String getValue(@Nullable Locale locale, String key,
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     String str = getRawValue(locale, key);
@@ -216,15 +219,15 @@ public class PropertiesFileUtilValueGetter {
   private @Nullable String getValueFromPropertiesFilesWithSamePriority(@Nullable Locale locale,
       String key, String[] filePrefixesOfSamePriority) {
     // Search the key in properties files.
-    List<String> postfixes = getPostfixes();
-    Map<String, ResourceBundle> rbMap = new HashMap<>();
+    List<@NonNull String> postfixes = getPostfixes();
+    Map<String, @Nullable ResourceBundle> rbMap = new HashMap<>();
 
     for (String prefix : filePrefixesOfSamePriority) {
       for (int i = 0; i < postfixes.size(); i++) {
         String postfix = postfixes.get(i);
         String filename = prefix + postfix;
 
-        ResourceBundle bundle = getResourceBundle(filename, locale);
+        @Nullable ResourceBundle bundle = getResourceBundle(filename, locale);
         rbMap.put(filename, bundle);
       }
     }
@@ -288,15 +291,22 @@ public class PropertiesFileUtilValueGetter {
   }
 
   private @Nullable String getValueAndDuplicationCheck(
-      Map<String, ResourceBundle> resourceBundleMap, String key) {
+      Map<String, @Nullable ResourceBundle> resourceBundleMap, String key) {
     String messageString = null;
-    for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
-      if (entry.getValue() != null && entry.getValue().containsKey(key)) {
+    for (Entry<String, @Nullable ResourceBundle> entry : resourceBundleMap.entrySet()) {
+      
+      if (entry.getValue() == null) {
+        continue;
+      }
+      
+      ResourceBundle nonNullRb = Objects.requireNonNull(entry.getValue());
+      
+      if (nonNullRb.containsKey(key)) {
         if (messageString != null) {
           throw new KeyDupliccatedException(key);
         }
 
-        messageString = entry.getValue().getString(key);
+        messageString = nonNullRb.getString(key);
       }
     }
 
@@ -336,7 +346,8 @@ public class PropertiesFileUtilValueGetter {
   /*
    * Obtains value from a key. 
    */
-  public String getProp(String key, @Nullable Map<String, Object> elParameterMap) {
+  public String getProp(String key,
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     return getProp(null, key, elParameterMap);
   }
 
@@ -348,7 +359,7 @@ public class PropertiesFileUtilValueGetter {
    * @param key the key of the property
    */
   public String getProp(@Nullable Locale locale, String key,
-      @Nullable Map<String, Object> elParameterMap) {
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     // Throw an exception when msgId is empty.
@@ -357,7 +368,7 @@ public class PropertiesFileUtilValueGetter {
     }
 
     try {
-      return getValue(locale, key, elParameterMap == null ? new HashMap<>() : elParameterMap);
+      return getValue(locale, key, elParameterMap);
 
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {
