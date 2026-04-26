@@ -28,7 +28,7 @@ public class ExceptionLogUtil {
   private static final String RT = "\n";
 
   /**
-   * Returns strings or error log.
+   * Returns strings or error log. All packages are shown in stack traces.
    *
    * @param throwable throwable. {@code null} is accepted because logging must not
    *     terminate with an error even for irregular input — if logging itself fails,
@@ -42,7 +42,7 @@ public class ExceptionLogUtil {
    */
   public static String getErrLogString(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale) {
-    return getErrLogString(throwable, additionalMessage, locale, null);
+    return getErrLogStringCore(throwable, additionalMessage, locale, null);
   }
 
   /**
@@ -56,11 +56,18 @@ public class ExceptionLogUtil {
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null}
    *     which is treated as {@code Locale.ROOT}.
-   * @param packagesShown packages shown in the stack traces.
+   * @param packagesShown number of package levels shown in stack traces.
    *     This is used when the log displaying area is small.
+   *     {@code 0} shows no packages like {@code "at ..main(ExceptionUtil.java:468)"}.
+   *     {@code 1} shows 1 package part like {@code "at jp...main(ExceptionUtil.java:468)"}.
    * @return error log string
    */
   public static String getErrLogString(@Nullable Throwable throwable,
+      @Nullable String additionalMessage, @Nullable Locale locale, int packagesShown) {
+    return getErrLogStringCore(throwable, additionalMessage, locale, packagesShown);
+  }
+
+  private static String getErrLogStringCore(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
     locale = (locale == null) ? Locale.ENGLISH : locale;
@@ -75,42 +82,58 @@ public class ExceptionLogUtil {
 
     sb.append(RT);
 
-    getMessageAndStackTraceStringRecursively(sb, throwable, locale, packagesShown);
+    getMessageAndStackTraceStringRecursivelyCore(sb, throwable, locale, packagesShown);
 
     String rtn = sb.toString();
     return rtn;
   }
 
   /**
-   * Adds Throwable message and stackTrace string to argument stringBuilder 
-   *     for a throwable and its causes.
-   * 
+   * Adds Throwable message and stackTrace string to argument stringBuilder
+   *     for a throwable and its causes. All packages are shown in stack traces.
+   *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null 
-   * @param packagesShown null means all package of a class is shown 
-   *     like "at jp.ecuacion.lib.core.util.ExceptionUtil.main(ExceptionUtil.java:468)".
-   *     "0" shows no packages like "at ..main(ExceptionUtil.java:468)".
-   *     "1" shows 1 package part like "at jp...main(ExceptionUtil.java:468)".
+   * @param locale locale, may be null
    */
   public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
+      @Nullable Throwable th, @Nullable Locale locale) {
+    getMessageAndStackTraceStringRecursivelyCore(sb, th, locale, null);
+  }
+
+  /**
+   * Adds Throwable message and stackTrace string to argument stringBuilder
+   *     for a throwable and its causes.
+   *
+   * @param sb StringBuilder
+   * @param th throwable
+   * @param locale locale, may be null
+   * @param packagesShown number of package levels shown in stack traces.
+   *     See {@link #getErrLogString(Throwable, String, Locale, int)} for details.
+   */
+  public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
+      @Nullable Throwable th, @Nullable Locale locale, int packagesShown) {
+    getMessageAndStackTraceStringRecursivelyCore(sb, th, locale, packagesShown);
+  }
+
+  private static void getMessageAndStackTraceStringRecursivelyCore(StringBuilder sb,
       @Nullable Throwable th, @Nullable Locale locale, @Nullable Integer packagesShown) {
 
     getMessageAndStackTraceString(sb, th, locale, packagesShown);
 
     // Also outputs for getCause().
     if (th != null && th.getCause() != null) {
-      getMessageAndStackTraceStringRecursively(sb, th.getCause(), locale, packagesShown);
+      getMessageAndStackTraceStringRecursivelyCore(sb, th.getCause(), locale, packagesShown);
     }
   }
 
   /**
-   * Adds Throwable message and stackTrace string to argument stringBuilder 
+   * Adds Throwable message and stackTrace string to argument stringBuilder
    *     for one throwable. (getCause() ignored)
-   * 
+   *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null 
+   * @param locale locale, may be null
    * @param packagesShown see getMessageAndStackTraceStringRecursively
    */
   private static void getMessageAndStackTraceString(StringBuilder sb, @Nullable Throwable th,
@@ -138,11 +161,10 @@ public class ExceptionLogUtil {
 
   /**
    * get stackTrace string for one throwable. (getCause() ignored)
-   * 
+   *
    * @param sb StringBuilder
    * @param th throwable
    * @param packagesShown see getMessageAndStackTraceStringRecursively
-   * @return stackTrace string
    */
   private static void getStackTraceString(StringBuilder sb, @Nullable Throwable th,
       @Nullable Integer packagesShown) {
