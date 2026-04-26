@@ -1,1 +1,1 @@
-ecuacion-repository maven-central
+maven-central
