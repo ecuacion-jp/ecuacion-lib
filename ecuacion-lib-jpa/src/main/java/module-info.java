@@ -20,7 +20,6 @@
 module jp.ecuacion.lib.jpa {
   exports jp.ecuacion.lib.jpa.entity;
 
-  requires jakarta.annotation;
   requires transitive jakarta.persistence;
 
   requires transitive jp.ecuacion.lib.core;
