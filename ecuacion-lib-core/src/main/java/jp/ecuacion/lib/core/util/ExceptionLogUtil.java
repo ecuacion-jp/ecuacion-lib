@@ -37,7 +37,7 @@ public class ExceptionLogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @return error log string
    */
   public static String getErrLogString(@Nullable Throwable throwable,
@@ -55,7 +55,7 @@ public class ExceptionLogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param packagesShown packages shown in the stack traces.
    *     This is used when the log displaying area is small.
    * @return error log string

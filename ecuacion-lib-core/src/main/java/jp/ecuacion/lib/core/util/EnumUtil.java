@@ -194,7 +194,7 @@ public class EnumUtil {
   }
 
   /**
-   * Returns enum class info. {@code Locale.getDefault()} is used for display name of the enum.
+   * Returns enum class info. {@code Locale.ROOT} is used for display name of the enum.
    * 
    * @param <T> any enum
    * @param enumClass enum class
@@ -215,7 +215,7 @@ public class EnumUtil {
   public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass,
       @Nullable Locale locale) {
     ObjectsUtil.requireNonNull(enumClass);
-    locale = locale == null ? Locale.getDefault() : locale;
+    locale = locale == null ? Locale.ROOT : locale;
 
     List<EnumUtil.EnumValueInfo<T>> valueList = new ArrayList<>();
     String enumClassName = enumClass.getSimpleName();

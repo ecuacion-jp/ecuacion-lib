@@ -458,7 +458,7 @@ public class PropertiesFileUtil {
    * Returns the localized item name in item_names_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -482,7 +482,7 @@ public class PropertiesFileUtil {
    * Returns the localized enum name in enum_names_xxx.properties.
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -506,7 +506,7 @@ public class PropertiesFileUtil {
    * Returns the localized enum name in ValidationMessages[_locale].properties.
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -536,7 +536,7 @@ public class PropertiesFileUtil {
    *     which is a placeholder for item names.</p>
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property. Return the key string when the key does not exist.
    */
@@ -599,7 +599,7 @@ public class PropertiesFileUtil {
    * Returns the localized enum name in ValidationMessages[_locale].properties.
    * 
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -630,7 +630,7 @@ public class PropertiesFileUtil {
    * @param propertyUtilFileKind String value of 
    *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -646,7 +646,7 @@ public class PropertiesFileUtil {
    * @param propertyUtilFileKind String value of 
    *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
@@ -661,7 +661,7 @@ public class PropertiesFileUtil {
    * @param propertyUtilFileKind String value of 
    *     {@code PropertyUtilFileKind} (application, messages, ...)
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
    */
