@@ -348,12 +348,12 @@ public class PropertiesFileUtil {
 
   /**
    * Returns the localized value in messages_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
+   *
+   * @param locale locale, may be {@code null}
    *     which means no {@code Locale} specified.
    * @param key the key of the property
    * @param args message arguments, which can be message ID.
-   *     The data type is {@code Arg[]}, not {@code Arg...} 
+   *     The data type is {@code Arg[]}, not {@code Arg...}
    *     because if {@code Arg} causes an error when you call {@code getMsg(key)}
    *     since the second parameter is unclear ({@code String...} or {@code Arg...}.
    * @return the message corresponding to the message ID
@@ -363,13 +363,43 @@ public class PropertiesFileUtil {
   }
 
   /**
+   * Returns the localized value in messages_xxx.properties.
+   *
+   * <p>Unlike {@link #getMessage(Locale, String, String...)}, this accepts {@link Object} arguments
+   *     enabling type-aware {@link java.text.MessageFormat} formatting
+   *     (e.g., {@code {0,date,yyyy/MM/dd}}, {@code {0,number,#,###}}).</p>
+   *
+   * @param locale locale, may be {@code null}
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param args message arguments as {@code Object[]}
+   * @return the value (message) of the property key (message ID)
+   */
+  public static String getMessage(@Nullable Locale locale, String key, Object[] args) {
+    String template = obtainValueGetter(MESSAGES).getProp(locale, key, new HashMap<>());
+    return formatMessageWithObjects(locale, template, args);
+  }
+
+  /**
    * Returns the existence of the key in messages_xxx.properties.
-   * 
+   *
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key (message ID)
    */
   public static boolean hasMessage(String key) {
     return obtainValueGetter(MESSAGES).hasProp(key);
+  }
+
+  /**
+   * Returns the existence of the key in messages_xxx.properties for the specified locale.
+   *
+   * @param locale locale, may be {@code null}
+   *     which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key (message ID)
+   */
+  public static boolean hasMessage(@Nullable Locale locale, String key) {
+    return obtainValueGetter(MESSAGES).hasProp(locale, key);
   }
 
   // === messageWithItemName ===
@@ -702,6 +732,15 @@ public class PropertiesFileUtil {
 
   private static String formatMessage(String msgStr, String... args) {
     return (args.length == 0) ? msgStr : MessageFormat.format(msgStr, (Object[]) args);
+  }
+
+  private static String formatMessageWithObjects(@Nullable Locale locale, String msgStr,
+      Object[] args) {
+    if (args.length == 0) {
+      return msgStr;
+    }
+    Locale effectiveLocale = locale != null ? locale : Locale.ROOT;
+    return new MessageFormat(msgStr, effectiveLocale).format(args);
   }
 
   /**
