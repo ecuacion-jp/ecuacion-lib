@@ -144,7 +144,7 @@ public class ExceptionUtil {
       throw new RuntimeException("Size of ConstraintViolation is zero.");
     }
 
-    Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
+    Locale nonNullLocale = locale == null ? Locale.ROOT : locale;
     List<@NonNull String> result = new ArrayList<>();
     for (ConstraintViolation<T> cv : constraintViolations) {
       result
@@ -185,7 +185,7 @@ public class ExceptionUtil {
    *
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Throwable throwable, @Nullable Locale locale) {
@@ -214,7 +214,7 @@ public class ExceptionUtil {
    * @param throwable throwable
    * @param isMessagesWithItemNamesAsDefault 
    *     isValidationMessagesWithItemNames, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Throwable throwable,
@@ -243,7 +243,7 @@ public class ExceptionUtil {
    *
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.getDefault()}.
+   *     which is treated as {@code Locale.ROOT}.
    * @param isMessagesWithItemNamesAsDefault true 
    *     when itemName needed for messages.
    *     
@@ -252,7 +252,7 @@ public class ExceptionUtil {
   public static List<@NonNull String> getMessageList(Throwable throwable, @Nullable Locale locale,
       boolean isMessagesWithItemNamesAsDefault) {
     ObjectsUtil.requireNonNull(throwable);
-    Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
+    Locale nonNullLocale = locale == null ? Locale.ROOT : locale;
 
     // Handle ViolationException first.
     if (throwable instanceof ViolationException) {
@@ -300,7 +300,7 @@ public class ExceptionUtil {
    * Returns message list from {@link Violations}.
    *
    * @param violations violations
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.getDefault()}.
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Violations violations,
@@ -327,14 +327,14 @@ public class ExceptionUtil {
    *     for {@link ConstraintViolation} message resolution.</p>
    *
    * @param violations violations
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.getDefault()}.
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
    * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Violations violations, @Nullable Locale locale,
       boolean isMessagesWithItemNamesAsDefault) {
     List<@NonNull String> result = new ArrayList<>();
-    Locale nonNullLocale = locale == null ? Locale.getDefault() : locale;
+    Locale nonNullLocale = locale == null ? Locale.ROOT : locale;
 
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
       result
@@ -365,7 +365,7 @@ public class ExceptionUtil {
    * Returns message list from {@link ViolationException}.
    *
    * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.getDefault()}.
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(ViolationException ex,
@@ -389,7 +389,7 @@ public class ExceptionUtil {
    * Returns message list from {@link ViolationException}.
    *
    * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.getDefault()}.
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
    * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
