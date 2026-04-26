@@ -167,6 +167,7 @@
 					<artifactId>wagon-maven-plugin</artifactId>
 					<version>${org.codehaus.mojo.wagon-maven-plugin.version}</version>
 					<configuration>
+						<skip>${wagon.skip}</skip>
 						<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
 						<url>${remote-location.javadoc}/work</url>
 						<serverId>ecuacion-repo-sftp</serverId>
