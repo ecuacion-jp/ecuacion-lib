@@ -219,14 +219,14 @@ public class PropertiesFileUtilValueGetter {
       String key, String[] filePrefixesOfSamePriority) {
     // Search the key in properties files.
     List<String> postfixes = getPostfixes();
-    Map<String, ResourceBundle> rbMap = new HashMap<>();
+    Map<String, @Nullable ResourceBundle> rbMap = new HashMap<>();
 
     for (String prefix : filePrefixesOfSamePriority) {
       for (int i = 0; i < postfixes.size(); i++) {
         String postfix = postfixes.get(i);
         String filename = prefix + postfix;
 
-        ResourceBundle bundle = getResourceBundle(filename, locale);
+        @Nullable ResourceBundle bundle = getResourceBundle(filename, locale);
         rbMap.put(filename, bundle);
       }
     }
@@ -290,15 +290,22 @@ public class PropertiesFileUtilValueGetter {
   }
 
   private @Nullable String getValueAndDuplicationCheck(
-      Map<String, ResourceBundle> resourceBundleMap, String key) {
+      Map<String, @Nullable ResourceBundle> resourceBundleMap, String key) {
     String messageString = null;
-    for (Entry<String, ResourceBundle> entry : resourceBundleMap.entrySet()) {
-      if (entry.getValue() != null && entry.getValue().containsKey(key)) {
+    for (Entry<String, @Nullable ResourceBundle> entry : resourceBundleMap.entrySet()) {
+      
+      if (entry.getValue() == null) {
+        continue;
+      }
+      
+      ResourceBundle nonNullRb = Objects.requireNonNull(entry.getValue());
+      
+      if (nonNullRb.containsKey(key)) {
         if (messageString != null) {
           throw new KeyDupliccatedException(key);
         }
 
-        messageString = entry.getValue().getString(key);
+        messageString = nonNullRb.getString(key);
       }
     }
 
@@ -339,7 +346,7 @@ public class PropertiesFileUtilValueGetter {
    * Obtains value from a key. 
    */
   public String getProp(String key,
-      @Nullable Map<@NonNull String, @Nullable Object> elParameterMap) {
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     return getProp(null, key, elParameterMap);
   }
 
@@ -351,7 +358,7 @@ public class PropertiesFileUtilValueGetter {
    * @param key the key of the property
    */
   public String getProp(@Nullable Locale locale, String key,
-      @Nullable Map<@NonNull String, @Nullable Object> elParameterMap) {
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     // Throw an exception when msgId is empty.
@@ -360,7 +367,7 @@ public class PropertiesFileUtilValueGetter {
     }
 
     try {
-      return getValue(locale, key, elParameterMap == null ? new HashMap<>() : elParameterMap);
+      return getValue(locale, key, elParameterMap);
 
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {

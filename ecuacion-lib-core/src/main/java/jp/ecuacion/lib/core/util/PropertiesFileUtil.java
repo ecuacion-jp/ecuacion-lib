@@ -567,9 +567,7 @@ public class PropertiesFileUtil {
    */
   @SuppressWarnings("null")
   private static String substituteArgsToValidationMessages(@Nullable Locale locale, String message,
-      @Nullable Map<@NonNull String, @Nullable Object> argMap) {
-
-    argMap = argMap == null ? new HashMap<>() : argMap;
+      Map<@NonNull String, @Nullable Object> argMap) {
 
     final String argAnnotationValue = (String) argMap.get("annotation");
     final Item[] item = (Item[]) argMap.get("itemAttributes");
@@ -713,8 +711,10 @@ public class PropertiesFileUtil {
    *     which means no {@code Locale} specified.
    * @param arg message arguments, which can be message ID.
    * @return the message corresponding to the message ID or the string set to {@code Arg}.
+   *     When {@code Arg} is created by {@link Arg#string(String)} with a {@code null} argument,
+   *     returns the string {@code "null"}.
    */
-  public static @Nullable String getStringFromArg(@Nullable Locale locale, Arg arg) {
+  public static String getStringFromArg(@Nullable Locale locale, Arg arg) {
 
     if (arg.argKind == ArgKind.MESSAGE_ID) {
       String msgIdStr = "";
@@ -746,7 +746,7 @@ public class PropertiesFileUtil {
           (Object[]) argStrList.toArray(new String[argStrList.size()]));
 
     } else if (arg.argKind == ArgKind.STRING) {
-      return arg.getArgString();
+      return Objects.requireNonNull(Objects.toString(arg.getArgString(), "null"));
 
     } else {
       throw new RuntimeException("Unexpected.");
@@ -781,7 +781,6 @@ public class PropertiesFileUtil {
     StringBuilder sb = new StringBuilder();
     sb.append(rawString);
     List<Pair<String, String>> list = null;
-    elParameterMap = elParameterMap == null ? new HashMap<>() : elParameterMap;
     locale = locale == null ? Locale.ENGLISH : locale;
 
     // conditional branch if el expression exists for processing speed.

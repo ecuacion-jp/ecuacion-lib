@@ -106,7 +106,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   public ConstraintViolationBean(ValidatorKindEnum validatorKind, String validatorClassName,
       @NonNull T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
-      Map<@NonNull String, @NonNull Object> embeddedParameterMap,
+      Map<@NonNull String, @Nullable Object> embeddedParameterMap,
       String constraintViolationPropertyPath,
       String... propertyPaths) {
 
@@ -151,7 +151,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     boolean isParamNull = cv.getConstraintDescriptor().getAttributes() == null;
 
     // embeddedParamMap
-    Map<@NonNull String, @NonNull Object> embeddedParamMap =
+    Map<@NonNull String, @Nullable Object> embeddedParamMap =
         isParamNull ? new HashMap<>() : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
     // Remove keys which are not used as message parameters.
     embeddedParamMap.remove("groups");

@@ -42,8 +42,6 @@ import org.jspecify.annotations.Nullable;
 public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
 
-  private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
-
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
@@ -116,7 +114,8 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
           Objects.requireNonNull((String) paramMap.get("conditionValuePatternDescription"));
       String regExp = (String) paramMap.get("conditionValuePatternRegexp");
 
-      if (description.equals(NULL) || description.equals("")) {
+      if (description.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
+          || description.equals("")) {
         displayStringOfConditionValueArg = Arg.string(regExp);
 
       } else {
