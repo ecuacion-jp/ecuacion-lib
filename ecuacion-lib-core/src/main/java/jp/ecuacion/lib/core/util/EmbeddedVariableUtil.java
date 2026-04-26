@@ -143,7 +143,7 @@ public class EmbeddedVariableUtil {
    */
 
   @SuppressWarnings("null")
-  static @Nullable Pair<@NonNull String, String> getFirstFoundEmbeddedVariable(
+  static @Nullable Pair<@NonNull String, @Nullable String> getFirstFoundEmbeddedVariable(
       String string,
       @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options) {
@@ -218,16 +218,16 @@ public class EmbeddedVariableUtil {
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
   @SuppressWarnings("null")
-  public static List<Pair<String, String>> getPartList(String string,
+  public static List<Pair<@Nullable String, String>> getPartList(String string,
       @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options) {
 
     // the left side of the pair is startSymbol, and the right variable name.
     @Nullable
-    Pair<@NonNull String, String> param = null;
+    Pair<@NonNull String, @Nullable String> param = null;
 
     // search all the variables and put each part to the list.
-    List<Pair<String, String>> list = new ArrayList<>();
+    List<Pair<@Nullable String, String>> list = new ArrayList<>();
 
     String part = string;
     while (true) {
@@ -287,7 +287,7 @@ public class EmbeddedVariableUtil {
    *     And {null, "string"} when it's simple string.
    *     It returns list with size zero when the argument string is blank("").
    */
-  public static List<Pair<String, String>> getPartList(String string,
+  public static List<Pair<@Nullable String, String>> getPartList(String string,
       @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol) {
 
@@ -317,11 +317,11 @@ public class EmbeddedVariableUtil {
 
     ObjectsUtil.requireNonNull(valueGetterFromKey);
 
-    List<Pair<String, String>> list =
+    List<Pair<@Nullable String, String>> list =
         getPartList(string, new @NonNull String[] {startSymbol}, endSymbol, options);
 
     StringBuilder sb = new StringBuilder();
-    for (Pair<String, String> pair : list) {
+    for (Pair<@Nullable String, String> pair : list) {
 
       if (pair.getLeft() == null) {
         sb.append(pair.getRight());

@@ -135,7 +135,6 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
             new Arg[] {displayStringOfConditionValueArg}));
   }
 
-  @SuppressWarnings("null")
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolationBean<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap

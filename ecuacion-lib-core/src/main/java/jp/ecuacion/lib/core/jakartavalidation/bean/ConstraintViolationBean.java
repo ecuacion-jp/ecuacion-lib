@@ -171,7 +171,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     // propertyPathList
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    List<String> ppList = null;
+    List<@NonNull String> ppList = null;
     if (isMultiplePropertyPathsValidator) {
       // Base differs class from method.
       String cvPpBase = isClassValidator ? cvPp

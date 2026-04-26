@@ -60,7 +60,7 @@ public class PropertiesFileUtilValueGetter {
       new String[] {"", "base", "core", "core_web", "core_batch"};
   private static final String[] APP_ENVS = new String[] {"", "profile"};
 
-  private static final List<String> dynamicPostfixList = new ArrayList<>();
+  private static final List<@NonNull String> dynamicPostfixList = new ArrayList<>();
 
   /**
    * Offers a way to add postfixes dynamically.
@@ -79,7 +79,7 @@ public class PropertiesFileUtilValueGetter {
   /*
    * Is accessible only from the same package for unit test.
    */
-  static List<String> getDynamicPostfixList() {
+  static List<@NonNull String> getDynamicPostfixList() {
     return new ArrayList<>(dynamicPostfixList);
   }
 
@@ -129,8 +129,9 @@ public class PropertiesFileUtilValueGetter {
    * 
    * @return postfix list
    */
-  List<String> getPostfixes() {
-    List<String> rtnList = new ArrayList<>();
+  @SuppressWarnings("null")
+  List<@NonNull String> getPostfixes() {
+    List<@NonNull String> rtnList = new ArrayList<>();
     rtnList.addAll(
         Arrays.asList(LIB_MODULES).stream().map(str -> "_lib_" + str).collect(Collectors.toList()));
     rtnList.addAll(Arrays.asList(SPLIB_MODULES).stream().map(str -> "_splib_" + str)
@@ -218,7 +219,7 @@ public class PropertiesFileUtilValueGetter {
   private @Nullable String getValueFromPropertiesFilesWithSamePriority(@Nullable Locale locale,
       String key, String[] filePrefixesOfSamePriority) {
     // Search the key in properties files.
-    List<String> postfixes = getPostfixes();
+    List<@NonNull String> postfixes = getPostfixes();
     Map<String, @Nullable ResourceBundle> rbMap = new HashMap<>();
 
     for (String prefix : filePrefixesOfSamePriority) {

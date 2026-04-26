@@ -62,7 +62,6 @@ public abstract class EclibLogger {
    *     So {@code message} is {@code @Nullable}.
    */
   public void log(Level logLevel, @Nullable String message) {
-    ObjectsUtil.requireNonNull(message);
     ObjectsUtil.requireNonNull(logLevel);
 
     switch (logLevel) {

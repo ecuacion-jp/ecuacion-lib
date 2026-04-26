@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides utilities on propertyPaths.
@@ -34,16 +35,16 @@ import java.util.List;
  * </tr>
  * <tr>
  *     <td rowspan="4">List</td><td rowspan="2">String</td>
- *     <td>{@code List<String>}</td><td>{@code stringList[1].<list element>}</td></tr>
- * <tr><td>{@code List<List<String>>}</td>
+ *     <td>{@code List<@NonNull String>}</td><td>{@code stringList[1].<list element>}</td></tr>
+ * <tr><td>{@code List<List<@NonNull String>>}</td>
  *     <td>{@code stringList[1].<list element>[2].<list element>}</td></tr>
  * <tr>
  *     <td rowspan="2">Book</td>
  *     <td>{@code List<Book>}</td><td>{@code bookList[1].title}</td></tr>
- * <tr><td>{@code List<List<String>>}</td>
+ * <tr><td>{@code List<List<@NonNull String>>}</td>
  *     <td>{@code stringList[1].<list element>[2].<list element>}</td></tr>
  * <tr>
- *     <td>String</td><td>{@code List<String>}</td>
+ *     <td>String</td><td>{@code List<@NonNull String>}</td>
  *     <td>{@code stringList[1].<list element>}</td>
  * </tr>
  * 
@@ -79,7 +80,7 @@ public class PropertyPathUtil {
    * 
    * <p>Nodes contains collection parts.
    *     For example, {@code strList[0].<list element>}
-   *     (specifies {@code List<String> strList})
+   *     (specifies {@code List<@NonNull String> strList})
    *     or {@code beanList[0]} (specifies {@code List<Bean> beanList}).<br>
    *     This method considers the collection parts as a part of a node.</p>
    *     
@@ -149,8 +150,8 @@ public class PropertyPathUtil {
    * 
    * <p>About {@code node}, {@see getRightMostNode(String}}.</p>
    */
-  public static List<String> getNodeList(String propertyPath) {
-    List<String> rtnList = new ArrayList<>();
+  public static List<@NonNull String> getNodeList(String propertyPath) {
+    List<@NonNull String> rtnList = new ArrayList<>();
 
     String pp = propertyPath;
     while (true) {
@@ -177,7 +178,7 @@ public class PropertyPathUtil {
    * Removes Collection related part from the given propertyPath node.
    */
   public static String removeCollectionPart(String propertyPath) {
-    List<String> nodeList = new ArrayList<>();
+    List<@NonNull String> nodeList = new ArrayList<>();
     for (String node : getNodeList(propertyPath)) {
       nodeList.add(removeCollectionPartFromNode(node));
     }
@@ -259,7 +260,7 @@ public class PropertyPathUtil {
 
     // Remove element keywords.
     tmpPropertyPath = sb.toString();
-    List<String> list =
+    List<@NonNull String> list =
         Arrays.asList(new String[] {".<list element>", ".<iterable element>", ".<map value>"});
     for (String keyword : list) {
       while (true) {

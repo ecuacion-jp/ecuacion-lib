@@ -19,6 +19,7 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -236,7 +237,8 @@ public class StringUtil {
    * @param collection string collection
    * @return String
    */
-  public static String getSeparatedValuesString(Collection<String> collection, String separator) {
+  public static String getSeparatedValuesString(Collection<@NonNull String> collection,
+      String separator) {
 
     return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
   }

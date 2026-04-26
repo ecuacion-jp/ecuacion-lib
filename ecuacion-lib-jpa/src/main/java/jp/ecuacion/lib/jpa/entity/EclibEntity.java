@@ -15,7 +15,6 @@
  */
 package jp.ecuacion.lib.jpa.entity;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,7 +62,6 @@ public abstract class EclibEntity {
    * 
    * @return surrogate key field name.
    */
-  @Nonnull
   public String getPkFieldName() {
     Field[] fields = this.getClass().getDeclaredFields();
 
@@ -84,7 +83,6 @@ public abstract class EclibEntity {
    * 
    * @return auto-increment field name.
    */
-  @Nonnull
   public Set<String> getAutoIncrementFieldNameSet() {
     Field[] fields = this.getClass().getDeclaredFields();
     Set<String> rtnSet = new HashSet<>();
@@ -115,9 +113,8 @@ public abstract class EclibEntity {
    * 
    * @return set of unique constraint column list.
    */
-  @Nonnull
-  public Set<List<String>> getSetOfUniqueConstraintFieldList() {
-    Set<List<String>> rtnSet = new HashSet<>();
+  public Set<List<@NonNull String>> getSetOfUniqueConstraintFieldList() {
+    Set<List<@NonNull String>> rtnSet = new HashSet<>();
 
     Table table = Objects.requireNonNull(this.getClass().getAnnotation(Table.class));
     UniqueConstraint[] ucs = table.uniqueConstraints();
