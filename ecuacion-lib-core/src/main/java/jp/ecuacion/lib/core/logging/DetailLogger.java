@@ -155,7 +155,7 @@ public class DetailLogger extends EclibLogger {
 
     } else {
       StringBuilder sb = new StringBuilder();
-      ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null, null);
+      ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null);
       throwableMessage = sb.toString();
     }
 
