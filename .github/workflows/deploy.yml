@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  MAVEN_OPTS: -Xmx512m
+  MAVEN_OPTS: -Xmx2g
 
 jobs:
   deploy:
