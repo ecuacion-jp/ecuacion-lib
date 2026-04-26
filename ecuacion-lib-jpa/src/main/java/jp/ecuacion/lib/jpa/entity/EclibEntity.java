@@ -15,97 +15,19 @@
  */
 package jp.ecuacion.lib.jpa.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the customized jpa entity.
  */
 public abstract class EclibEntity {
-
-  /**
-   * Returns the value of the designated fieldName.
-   * 
-   * @param fieldName fieldName. Cannot be {@code null}.
-   * 
-   * @return value. May be null when the value is null.
-   */
-  public @Nullable Object getValue(String fieldName) {
-    try {
-      Method m = this.getClass().getMethod("get" + StringUtils.capitalize(fieldName));
-      Object value = m.invoke(this);
-
-      return value;
-
-    } catch (SecurityException | IllegalArgumentException | IllegalAccessException
-        | NoSuchMethodException | InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /** 
-   * Returns the surrogate-key field name, to which '@Id' is added.
-   * 
-   * @return surrogate key field name.
-   */
-  public String getPkFieldName() {
-    Field[] fields = this.getClass().getDeclaredFields();
-
-    for (Field field : fields) {
-      @Nullable Annotation annotation = field.getAnnotation(Id.class);
-
-      if (annotation != null) {
-        return Objects.requireNonNull(field.getName());
-      }
-    }
-
-    // Adding a surrogate key is a mandatory requirement in ecuacion-lib-jpa,
-    // so a RuntimeException is thrown.
-    throw new RuntimeException("Field with '@Id' not found.");
-  }
-
-  /** 
-   * Returns the auto-increment field name, to which '@GeneratedValue' is added.
-   * 
-   * @return auto-increment field name.
-   */
-  public Set<String> getAutoIncrementFieldNameSet() {
-    Field[] fields = this.getClass().getDeclaredFields();
-    Set<String> rtnSet = new HashSet<>();
-
-    for (Field field : fields) {
-      Annotation annotation = Objects.requireNonNull(field.getAnnotation(GeneratedValue.class));
-      if (annotation != null) {
-        rtnSet.add(field.getName());
-      }
-    }
-
-    return rtnSet;
-  }
-
-  /**
-   * Returns if the designated field is auto-increment.
-   * 
-   * @param fieldName fieldName.
-   * @return field is auto-increment
-   */
-  public boolean isAutoIncrement(String fieldName) {
-    return getAutoIncrementFieldNameSet().contains(fieldName);
-  }
 
   /**
    * Returns an array of fields which construct a unique
