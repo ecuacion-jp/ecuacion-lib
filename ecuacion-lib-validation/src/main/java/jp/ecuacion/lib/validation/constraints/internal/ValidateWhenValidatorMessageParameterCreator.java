@@ -37,15 +37,14 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     implements ValidatorMessageParameterCreator {
 
-  private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
-
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<@NonNull String, Object> paramMap) {
+      Map<@NonNull String, @Nullable Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
     // conditionFieldItemNameKey
@@ -90,7 +89,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
   }
 
   private void displayStringOfConditionValue(ConstraintViolationBean<?> cv,
-      Map<@NonNull String, Object> paramMap, final String commonMessagePrefix,
+      Map<@NonNull String, @Nullable Object> paramMap, final String commonMessagePrefix,
       Set<LocalizedEmbeddedParameter> messageParameterSet) {
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
@@ -115,7 +114,8 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
           Objects.requireNonNull((String) paramMap.get("conditionValuePatternDescription"));
       String regExp = (String) paramMap.get("conditionValuePatternRegexp");
 
-      if (description.equals(NULL) || description.equals("")) {
+      if (description.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
+          || description.equals("")) {
         displayStringOfConditionValueArg = Arg.string(regExp);
 
       } else {
@@ -135,9 +135,8 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
             new Arg[] {displayStringOfConditionValueArg}));
   }
 
-  @SuppressWarnings("null")
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolationBean<?> cv,
-      Map<@NonNull String, Object> paramMap, Object values) {
+      Map<@NonNull String, @Nullable Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
         .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 

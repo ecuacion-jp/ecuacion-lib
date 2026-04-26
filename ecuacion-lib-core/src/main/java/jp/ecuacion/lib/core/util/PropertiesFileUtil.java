@@ -511,7 +511,7 @@ public class PropertiesFileUtil {
    * @return the value of the property
    */
   public static String getValidationMessage(@Nullable Locale locale, String key,
-      Map<String, Object> argMap) {
+      Map<@NonNull String, @Nullable Object> argMap) {
     String message = obtainValueGetter(VALIDATION_MESSAGES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
@@ -541,7 +541,7 @@ public class PropertiesFileUtil {
    * @return the value of the property. Return the key string when the key does not exist.
    */
   public static String getValidationMessageWithItemName(@Nullable Locale locale, String key,
-      Map<String, Object> argMap) {
+      Map<@NonNull String, @Nullable Object> argMap) {
     String message =
         obtainValueGetter(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
 
@@ -567,9 +567,7 @@ public class PropertiesFileUtil {
    */
   @SuppressWarnings("null")
   private static String substituteArgsToValidationMessages(@Nullable Locale locale, String message,
-      @Nullable Map<String, Object> argMap) {
-
-    argMap = argMap == null ? new HashMap<>() : argMap;
+      Map<@NonNull String, @Nullable Object> argMap) {
 
     final String argAnnotationValue = (String) argMap.get("annotation");
     final Item[] item = (Item[]) argMap.get("itemAttributes");
@@ -714,7 +712,7 @@ public class PropertiesFileUtil {
    * @param arg message arguments, which can be message ID.
    * @return the message corresponding to the message ID or the string set to {@code Arg}.
    */
-  public static @Nullable String getStringFromArg(@Nullable Locale locale, Arg arg) {
+  public static String getStringFromArg(@Nullable Locale locale, Arg arg) {
 
     if (arg.argKind == ArgKind.MESSAGE_ID) {
       String msgIdStr = "";
@@ -732,7 +730,7 @@ public class PropertiesFileUtil {
       return msgIdStr;
 
     } else if (arg.argKind == ArgKind.FORMATTED_STRING) {
-      List<String> argStrList = new ArrayList<>();
+      List<@NonNull String> argStrList = new ArrayList<>();
       String argString = PropertiesFileUtil.analyzedValueString(locale,
           Objects.requireNonNull(arg.getArgString()), new HashMap<>());
 
@@ -754,7 +752,7 @@ public class PropertiesFileUtil {
   }
 
   private static String[] getStringsFromArgs(@Nullable Locale locale, @NonNull Arg[] args) {
-    final List<String> list = new ArrayList<>();
+    final List<@NonNull String> list = new ArrayList<>();
     Arrays.asList(ObjectsUtil.requireNonNull(args)).stream()
         .forEach(arg -> list.add(getStringFromArg(locale, arg)));
     return list.toArray(new String[list.size()]);
@@ -777,11 +775,10 @@ public class PropertiesFileUtil {
    * Returns analyzed string.
    */
   public static String analyzedValueString(@Nullable Locale locale, String rawString,
-      Map<String, Object> elParameterMap) {
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     StringBuilder sb = new StringBuilder();
     sb.append(rawString);
-    List<Pair<String, String>> list = null;
-    elParameterMap = elParameterMap == null ? new HashMap<>() : elParameterMap;
+    List<Pair<@Nullable String, String>> list = null;
     locale = locale == null ? Locale.ENGLISH : locale;
 
     // conditional branch if el expression exists for processing speed.
@@ -790,16 +787,16 @@ public class PropertiesFileUtil {
       list = analyze(sb.toString());
       sb = new StringBuilder();
 
-      for (Pair<String, String> tuple : list) {
-        if (tuple.getLeft() == null) {
+      for (Pair<@Nullable String, String> tuple : list) {
+        String left = tuple.getLeft();
+        if (left == null) {
           sb.append(tuple.getRight());
 
-        } else if (tuple.getLeft().isEmpty()) {
+        } else if (left.isEmpty()) {
           sb.append(searchKeyAcrossFileKinds(locale, tuple.getRight()));
 
         } else {
-          sb.append(
-              PropertiesFileUtil.get(tuple.getLeft(), locale, tuple.getRight(), new Arg[] {}));
+          sb.append(PropertiesFileUtil.get(left, locale, tuple.getRight(), new Arg[] {}));
         }
       }
     }
@@ -819,7 +816,7 @@ public class PropertiesFileUtil {
       ELProcessor elProcessor = new ELProcessor();
       elParameterMap.forEach(elProcessor::setValue);
 
-      for (Pair<String, String> tuple : list) {
+      for (Pair<@Nullable String, String> tuple : list) {
         if (tuple.getLeft() == null) {
           sb.append(tuple.getRight());
 
@@ -852,43 +849,44 @@ public class PropertiesFileUtil {
    * @param string string
    * @return list of pairs where left is fileKind (or null for literals, "" for key-only)
    */
-  private static List<Pair<String, String>> analyze(String string) {
+  private static List<Pair<@Nullable String, String>> analyze(String string) {
     final String prefix = "#{";
 
     // Pass 1: #{fileKind:key} patterns (like #{messages:key}, #{item_names:key}).
-    List<String> fileKindStartSymbols = Arrays.asList(PropertiesFileUtilFileKindEnum.values())
-        .stream().map(en -> prefix + en.toString().toLowerCase() + ":").toList();
+    List<@NonNull String> fileKindStartSymbols =
+        Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
+            .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
-    List<Pair<String, String>> pass1Result = EmbeddedVariableUtil.getPartList(string,
+    List<Pair<@Nullable String, String>> pass1Result = EmbeddedVariableUtil.getPartList(string,
         fileKindStartSymbols.toArray(new String[fileKindStartSymbols.size()]), "}",
         new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
     // Pass 2: #{key} patterns (no fileKind) found in remaining literal parts.
-    List<Pair<String, String>> resultList = new ArrayList<>();
-    for (Pair<String, String> pair : pass1Result) {
+    List<Pair<@Nullable String, String>> resultList = new ArrayList<>();
+    for (Pair<@Nullable String, String> pair : pass1Result) {
       if (pair.getLeft() != null || !pair.getRight().contains(prefix)) {
         resultList.add(pair);
       } else {
-        List<Pair<String, String>> subList = EmbeddedVariableUtil.getPartList(
-            pair.getRight(), new String[] {prefix}, "}",
-            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
-        for (Pair<String, String> subPair : subList) {
+        List<Pair<@Nullable String, String>> subList =
+            EmbeddedVariableUtil.getPartList(pair.getRight(), new String[] {prefix}, "}",
+                new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+        for (Pair<@Nullable String, String> subPair : subList) {
           resultList.add(subPair.getLeft() != null ? Pair.of("", subPair.getRight()) : subPair);
         }
       }
     }
 
-    // Error check: remaining "#{"  in literal parts means incorrect syntax.
+    // Error check: remaining "#{" in literal parts means incorrect syntax.
     if (resultList.stream().anyMatch(p -> p.getLeft() == null && p.getRight().contains(prefix))) {
-      throw new RuntimeException(
-          "Improper '#{' symbols found in a message. message: " + string);
+      throw new RuntimeException("Improper '#{' symbols found in a message. message: " + string);
     }
 
     // Strip "#{" prefix and ":" suffix from fileKind start symbols; leave "" (key-only) as-is.
     return resultList.stream()
-        .map(pair -> pair.getLeft() == null || pair.getLeft().isEmpty() ? pair
-            : Pair.of(pair.getLeft().substring(prefix.length(), pair.getLeft().length() - 1),
-                pair.getRight()))
+        .map(pair -> pair.getLeft() == null || Objects.requireNonNull(pair.getLeft()).isEmpty()
+            ? pair
+            : Pair.of(Objects.requireNonNull(pair.getLeft()).substring(prefix.length(),
+                Objects.requireNonNull(pair.getLeft()).length() - 1), pair.getRight()))
         .toList();
   }
 
@@ -915,11 +913,10 @@ public class PropertiesFileUtil {
     private @NonNull String[] fileKinds;
     /**
      * Argument string.
-     * It is not {@code null} when ArgKind == FORMATTED_STRING, MESSAGE_ID,
-     * but it can be null you just put string variable to show variable value 
-     * and its value is {@code null}.
+     * When created via {@link #string(String)} with a {@code null} argument,
+     * the value is stored as the string {@code "null"}.
      */
-    private @Nullable String argString;
+    private String argString;
     private @NonNull Arg[] messageArgs;
 
     /**
@@ -927,7 +924,7 @@ public class PropertiesFileUtil {
      * 
      * @param argString argument
      */
-    private Arg(ArgKind argKind, @Nullable String argString, @NonNull Arg... messageArgs) {
+    private Arg(ArgKind argKind, String argString, @NonNull Arg... messageArgs) {
       this.argKind = argKind;
       this.fileKinds = new @NonNull String[] {};
       this.argString = argString;
@@ -939,8 +936,7 @@ public class PropertiesFileUtil {
      * 
      * @param argString argument
      */
-    private Arg(@NonNull String[] fileKinds, @Nullable String argString,
-        @NonNull Arg... messageArgs) {
+    private Arg(@NonNull String[] fileKinds, String argString, @NonNull Arg... messageArgs) {
       this.argKind = ArgKind.MESSAGE_ID;
       this.fileKinds = fileKinds;
       this.argString = argString;
@@ -949,12 +945,14 @@ public class PropertiesFileUtil {
 
     /**
      * Constructs a new instance of normal string.
-     * 
-     * @param argString normal string
+     *
+     * <p>If {@code argString} is {@code null}, the string {@code "null"} is stored.</p>
+     *
+     * @param argString normal string, may be {@code null}
      * @return Arg
      */
     public static Arg string(@Nullable String argString) {
-      return new Arg(ArgKind.STRING, argString);
+      return new Arg(ArgKind.STRING, Objects.requireNonNull(Objects.toString(argString, "null")));
     }
 
     /**
@@ -1006,9 +1004,8 @@ public class PropertiesFileUtil {
      * @param stringArgs stringArgs
      * @return Arg
      */
-    @SuppressWarnings("null")
     public static Arg message(String messageId, @NonNull String... stringArgs) {
-      List<String> stringArgList = Arrays.asList(stringArgs);
+      List<@NonNull String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
       return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
@@ -1046,7 +1043,7 @@ public class PropertiesFileUtil {
      */
     public static Arg get(@NonNull String[] fileKinds, String messageId,
         @Nullable String... stringArgs) {
-      List<String> stringArgList = Arrays.asList(stringArgs);
+      List<@Nullable String> stringArgList = Arrays.asList(stringArgs);
       Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
           .toArray(new Arg[stringArgList.size()]);
       return new Arg(fileKinds, messageId, args);
@@ -1072,7 +1069,7 @@ public class PropertiesFileUtil {
       return fileKinds;
     }
 
-    public @Nullable String getArgString() {
+    public String getArgString() {
       return argString;
     }
 

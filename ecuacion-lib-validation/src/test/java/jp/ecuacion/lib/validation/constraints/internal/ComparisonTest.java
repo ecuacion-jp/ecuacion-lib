@@ -43,7 +43,8 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Throwable cause = Objects.requireNonNull(ex.getCause()).getCause();
+      Throwable cause =
+          Objects.requireNonNull(Objects.requireNonNull(ex.getCause()).getCause());
       Assertions.assertTrue(cause instanceof NoSuchFieldException);
       Assertions.assertEquals("propertyPath2", cause.getMessage());
     }
@@ -54,7 +55,8 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Throwable cause = Objects.requireNonNull(ex.getCause()).getCause();
+      Throwable cause =
+          Objects.requireNonNull(Objects.requireNonNull(ex.getCause()).getCause());
       Assertions.assertTrue(cause instanceof NoSuchFieldException);
       Assertions.assertEquals("basisPropertyPath", cause.getMessage());
     }

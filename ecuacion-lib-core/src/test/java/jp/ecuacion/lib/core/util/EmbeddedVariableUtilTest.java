@@ -101,7 +101,7 @@ public class EmbeddedVariableUtilTest {
 
   // methodize to shorten the method name
   private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(
-      @Nullable String string) {
+      String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string,
         new @NonNull String[] {"${+", "${-"}, "}", null);
   }
@@ -128,14 +128,14 @@ public class EmbeddedVariableUtilTest {
   }
 
   // methodize to shorten the method name
-  private List<Pair<String, String>> getPartList(String string) {
+  private List<Pair<@Nullable String, String>> getPartList(String string) {
     return EmbeddedVariableUtil.getPartList(string, new @NonNull String[] {"${+", "${-"}, "}");
   }
 
 
   @Test
   public void getPartListTest() {
-    List<Pair<String, String>> rtn = null;
+    List<Pair<@Nullable String, String>> rtn = null;
 
     // parameter none
     rtn = getPartList("abc");

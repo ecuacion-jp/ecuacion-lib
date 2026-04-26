@@ -72,10 +72,12 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    List<Pair<@NonNull String, Object>> valueOfFieldList = Arrays.asList(propertyPaths).stream()
-        .map(path -> Pair.of(path, getValue(instance, path))).toList();
+    // Return of getValue is @NonNull because null means path is wrong and it should be NPE.
+    List<Pair<@NonNull String, @NonNull Object>> valueOfFieldList =
+        Arrays.asList(propertyPaths).stream()
+            .map(path -> Pair.of(path, Objects.requireNonNull(getValue(instance, path)))).toList();
 
-    for (Pair<@NonNull String, Object> pair : valueOfFieldList) {
+    for (Pair<@NonNull String, @NonNull Object> pair : valueOfFieldList) {
       @SuppressWarnings("null")
       boolean result = isValidForSinglePropertyPath(instance, pair.getLeft(), pair.getRight());
 

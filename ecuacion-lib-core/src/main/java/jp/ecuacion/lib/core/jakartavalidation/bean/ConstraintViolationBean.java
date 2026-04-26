@@ -67,12 +67,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   private String messageTemplate;
   private String message;
   /**
-   * Actually key String seems to be {@code @NonNull}, 
-   * but this map is mainly used with {@code map.get(...)} and it doesn't matter 
-   * whether the key of the map contains {@code null} or not,
-   * and adding {@code @NonNull} always is annoying so it's not added.
+   * The value of the map is {@code @Nullable} 
+   *     because this map stores {@code invalidValue} parameter 
+   *     and its value (validated value) can be {@code null}.
    */
-  private Map<String, Object> embeddedParamMap = new HashMap<>();
+  private Map<@NonNull String, @Nullable Object> embeddedParamMap = new HashMap<>();
 
   // values needed for all the patterns
 
@@ -107,7 +106,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   public ConstraintViolationBean(ValidatorKindEnum validatorKind, String validatorClassName,
       @NonNull T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
-      Map<@NonNull String, Object> embeddedParameterMap, String constraintViolationPropertyPath,
+      Map<@NonNull String, @Nullable Object> embeddedParameterMap,
+      String constraintViolationPropertyPath,
       String... propertyPaths) {
 
     // Needs to avoid static analysis warning.
@@ -151,7 +151,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     boolean isParamNull = cv.getConstraintDescriptor().getAttributes() == null;
 
     // embeddedParamMap
-    Map<String, Object> embeddedParamMap =
+    Map<@NonNull String, @Nullable Object> embeddedParamMap =
         isParamNull ? new HashMap<>() : new HashMap<>(cv.getConstraintDescriptor().getAttributes());
     // Remove keys which are not used as message parameters.
     embeddedParamMap.remove("groups");
@@ -171,7 +171,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     // propertyPathList
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    List<String> ppList = null;
+    List<@NonNull String> ppList = null;
     if (isMultiplePropertyPathsValidator) {
       // Base differs class from method.
       String cvPpBase = isClassValidator ? cvPp
@@ -266,7 +266,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return itemList.toArray(new Item[itemList.size()]);
   }
 
-  public Map<String, Object> getEmbeddedParamMap() {
+  public Map<@NonNull String, @Nullable Object> getEmbeddedParamMap() {
     return embeddedParamMap;
   }
 

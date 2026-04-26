@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.violation;
 
-import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.TestTools;
 import org.junit.jupiter.api.Test;
 public class BusinessViolationTest extends TestTools {
   private static final String SAMPLE_MSG_ID = "MSG_ID";

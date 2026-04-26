@@ -29,12 +29,14 @@ public class ExceptionLogUtil {
 
   /**
    * Returns strings or error log.
-   * 
-   * @param throwable throwable. {@code null} acceptable to avoid system error on logging procedure.
+   *
+   * @param throwable throwable. {@code null} is accepted because logging must not
+   *     terminate with an error even for irregular input — if logging itself fails,
+   *     we would lose information about what originally went wrong.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
-   * @param locale locale, may be {@code null} 
+   * @param locale locale, may be {@code null}
    *     which is treated as {@code Locale.getDefault()}.
    * @return error log string
    */
@@ -45,12 +47,14 @@ public class ExceptionLogUtil {
 
   /**
    * Returns strings or error log.
-   * 
-   * @param throwable throwable
+   *
+   * @param throwable throwable. {@code null} is accepted because logging must not
+   *     terminate with an error even for irregular input — if logging itself fails,
+   *     we would lose information about what originally went wrong.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
-   * @param locale locale, may be {@code null} 
+   * @param locale locale, may be {@code null}
    *     which is treated as {@code Locale.getDefault()}.
    * @param packagesShown packages shown in the stack traces.
    *     This is used when the log displaying area is small.
@@ -59,7 +63,6 @@ public class ExceptionLogUtil {
   public static String getErrLogString(@Nullable Throwable throwable,
       @Nullable String additionalMessage, @Nullable Locale locale,
       @Nullable Integer packagesShown) {
-    ObjectsUtil.requireNonNull(throwable);
     locale = (locale == null) ? Locale.ENGLISH : locale;
 
     StringBuilder sb = new StringBuilder();
