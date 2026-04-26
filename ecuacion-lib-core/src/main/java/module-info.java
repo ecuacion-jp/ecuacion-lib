@@ -38,7 +38,6 @@ module jp.ecuacion.lib.core {
 
   requires transitive jakarta.validation;
   requires jakarta.mail;
-  requires jakarta.annotation;
   requires transitive org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
