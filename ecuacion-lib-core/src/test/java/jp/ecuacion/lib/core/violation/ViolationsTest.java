@@ -15,8 +15,8 @@
  */
 package jp.ecuacion.lib.core.violation;
 
-import jp.ecuacion.lib.core.TestTools;
 import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.util.TestTools;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 public class ViolationsTest extends TestTools {

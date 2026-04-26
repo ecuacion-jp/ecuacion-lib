@@ -20,7 +20,7 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MES
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-import jp.ecuacion.lib.core.TestTools;
+import jp.ecuacion.lib.core.util.TestTools;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter.KeyDupliccatedException;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter.NoKeyInPropertiesFileException;
 import org.jspecify.annotations.Nullable;

@@ -711,8 +711,6 @@ public class PropertiesFileUtil {
    *     which means no {@code Locale} specified.
    * @param arg message arguments, which can be message ID.
    * @return the message corresponding to the message ID or the string set to {@code Arg}.
-   *     When {@code Arg} is created by {@link Arg#string(String)} with a {@code null} argument,
-   *     returns the string {@code "null"}.
    */
   public static String getStringFromArg(@Nullable Locale locale, Arg arg) {
 
@@ -746,7 +744,7 @@ public class PropertiesFileUtil {
           (Object[]) argStrList.toArray(new String[argStrList.size()]));
 
     } else if (arg.argKind == ArgKind.STRING) {
-      return Objects.requireNonNull(Objects.toString(arg.getArgString(), "null"));
+      return arg.getArgString();
 
     } else {
       throw new RuntimeException("Unexpected.");
@@ -868,19 +866,17 @@ public class PropertiesFileUtil {
       if (pair.getLeft() != null || !pair.getRight().contains(prefix)) {
         resultList.add(pair);
       } else {
-        List<Pair<String, String>> subList = EmbeddedVariableUtil.getPartList(
-            pair.getRight(), new String[] {prefix}, "}",
-            new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
+        List<Pair<String, String>> subList = EmbeddedVariableUtil.getPartList(pair.getRight(),
+            new String[] {prefix}, "}", new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
         for (Pair<String, String> subPair : subList) {
           resultList.add(subPair.getLeft() != null ? Pair.of("", subPair.getRight()) : subPair);
         }
       }
     }
 
-    // Error check: remaining "#{"  in literal parts means incorrect syntax.
+    // Error check: remaining "#{" in literal parts means incorrect syntax.
     if (resultList.stream().anyMatch(p -> p.getLeft() == null && p.getRight().contains(prefix))) {
-      throw new RuntimeException(
-          "Improper '#{' symbols found in a message. message: " + string);
+      throw new RuntimeException("Improper '#{' symbols found in a message. message: " + string);
     }
 
     // Strip "#{" prefix and ":" suffix from fileKind start symbols; leave "" (key-only) as-is.
@@ -914,11 +910,10 @@ public class PropertiesFileUtil {
     private @NonNull String[] fileKinds;
     /**
      * Argument string.
-     * It is not {@code null} when ArgKind == FORMATTED_STRING, MESSAGE_ID,
-     * but it can be null you just put string variable to show variable value 
-     * and its value is {@code null}.
+     * When created via {@link #string(String)} with a {@code null} argument,
+     * the value is stored as the string {@code "null"}.
      */
-    private @Nullable String argString;
+    private String argString;
     private @NonNull Arg[] messageArgs;
 
     /**
@@ -926,7 +921,7 @@ public class PropertiesFileUtil {
      * 
      * @param argString argument
      */
-    private Arg(ArgKind argKind, @Nullable String argString, @NonNull Arg... messageArgs) {
+    private Arg(ArgKind argKind, String argString, @NonNull Arg... messageArgs) {
       this.argKind = argKind;
       this.fileKinds = new @NonNull String[] {};
       this.argString = argString;
@@ -938,8 +933,7 @@ public class PropertiesFileUtil {
      * 
      * @param argString argument
      */
-    private Arg(@NonNull String[] fileKinds, @Nullable String argString,
-        @NonNull Arg... messageArgs) {
+    private Arg(@NonNull String[] fileKinds, String argString, @NonNull Arg... messageArgs) {
       this.argKind = ArgKind.MESSAGE_ID;
       this.fileKinds = fileKinds;
       this.argString = argString;
@@ -948,12 +942,14 @@ public class PropertiesFileUtil {
 
     /**
      * Constructs a new instance of normal string.
-     * 
-     * @param argString normal string
+     *
+     * <p>If {@code argString} is {@code null}, the string {@code "null"} is stored.</p>
+     *
+     * @param argString normal string, may be {@code null}
      * @return Arg
      */
     public static Arg string(@Nullable String argString) {
-      return new Arg(ArgKind.STRING, argString);
+      return new Arg(ArgKind.STRING, Objects.requireNonNull(Objects.toString(argString, "null")));
     }
 
     /**
@@ -1071,7 +1067,7 @@ public class PropertiesFileUtil {
       return fileKinds;
     }
 
-    public @Nullable String getArgString() {
+    public String getArgString() {
       return argString;
     }
 
