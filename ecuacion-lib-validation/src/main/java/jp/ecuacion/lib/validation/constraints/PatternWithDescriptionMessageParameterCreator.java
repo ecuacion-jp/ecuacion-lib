@@ -27,6 +27,7 @@ import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Is a LocalizedMessageParameter creator for PatternWithDescription.
@@ -36,7 +37,7 @@ public class PatternWithDescriptionMessageParameterCreator extends ReflectionUti
 
   @Override
   public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
-      Map<@NonNull String, Object> paramMap) {
+      Map<@NonNull String, @Nullable Object> paramMap) {
 
     Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
 

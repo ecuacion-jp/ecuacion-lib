@@ -511,7 +511,7 @@ public class PropertiesFileUtil {
    * @return the value of the property
    */
   public static String getValidationMessage(@Nullable Locale locale, String key,
-      Map<String, Object> argMap) {
+      Map<@NonNull String, @Nullable Object> argMap) {
     String message = obtainValueGetter(VALIDATION_MESSAGES).getProp(locale, key, argMap);
 
     return substituteArgsToValidationMessages(locale, message, argMap);
@@ -541,7 +541,7 @@ public class PropertiesFileUtil {
    * @return the value of the property. Return the key string when the key does not exist.
    */
   public static String getValidationMessageWithItemName(@Nullable Locale locale, String key,
-      Map<String, Object> argMap) {
+      Map<@NonNull String, @Nullable Object> argMap) {
     String message =
         obtainValueGetter(VALIDATION_MESSAGES_WITH_ITEM_NAMES).getProp(locale, key, argMap);
 
@@ -567,7 +567,7 @@ public class PropertiesFileUtil {
    */
   @SuppressWarnings("null")
   private static String substituteArgsToValidationMessages(@Nullable Locale locale, String message,
-      @Nullable Map<String, Object> argMap) {
+      @Nullable Map<@NonNull String, @Nullable Object> argMap) {
 
     argMap = argMap == null ? new HashMap<>() : argMap;
 
@@ -777,7 +777,7 @@ public class PropertiesFileUtil {
    * Returns analyzed string.
    */
   public static String analyzedValueString(@Nullable Locale locale, String rawString,
-      Map<String, Object> elParameterMap) {
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     StringBuilder sb = new StringBuilder();
     sb.append(rawString);
     List<Pair<String, String>> list = null;

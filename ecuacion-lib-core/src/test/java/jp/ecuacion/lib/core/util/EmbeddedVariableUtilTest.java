@@ -101,7 +101,7 @@ public class EmbeddedVariableUtilTest {
 
   // methodize to shorten the method name
   private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(
-      @Nullable String string) {
+      String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string,
         new @NonNull String[] {"${+", "${-"}, "}", null);
   }

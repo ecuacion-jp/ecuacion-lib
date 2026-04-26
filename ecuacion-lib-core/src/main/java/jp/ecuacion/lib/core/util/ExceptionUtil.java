@@ -394,7 +394,7 @@ public class ExceptionUtil {
       MessageParameters messageParameters) {
     String message = null;
     try {
-      final Map<String, Object> map = new HashMap<>(bean.getEmbeddedParamMap());
+      final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
 
       // Get localize-needed message embedded parameters
       Set<LocalizedEmbeddedParameter> embeddedParameterSet = getMessageParameterSet(bean);
@@ -521,7 +521,8 @@ public class ExceptionUtil {
   }
 
   private static void putMesageParameterSetToParamMap(Locale locale,
-      final Map<@NonNull String, Object> map, Set<LocalizedEmbeddedParameter> embeddedParameterSet,
+      final Map<@NonNull String, @Nullable Object> map,
+      Set<LocalizedEmbeddedParameter> embeddedParameterSet,
       boolean showsItemNamePath) {
     for (LocalizedEmbeddedParameter paramBean : embeddedParameterSet) {
 

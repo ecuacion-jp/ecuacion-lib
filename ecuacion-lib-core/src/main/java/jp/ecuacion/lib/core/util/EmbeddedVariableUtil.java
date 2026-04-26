@@ -144,13 +144,9 @@ public class EmbeddedVariableUtil {
 
   @SuppressWarnings("null")
   static @Nullable Pair<@NonNull String, String> getFirstFoundEmbeddedVariable(
-      @Nullable String string,
+      String string,
       @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options) {
-
-    if (string == null) {
-      return null;
-    }
 
     ObjectsUtil.requireSizeNonZero(startSymbols);
     List<StringFormatIncorrectException> exList = new ArrayList<>();

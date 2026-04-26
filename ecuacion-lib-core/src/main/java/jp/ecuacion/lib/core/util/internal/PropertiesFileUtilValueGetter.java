@@ -32,6 +32,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -156,7 +157,8 @@ public class PropertiesFileUtilValueGetter {
    *     which means no {@code Locale} specified.
    * @param key the key of the property
    */
-  private String getValue(@Nullable Locale locale, String key, Map<String, Object> elParameterMap) {
+  private String getValue(@Nullable Locale locale, String key,
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     String str = getRawValue(locale, key);
@@ -336,7 +338,8 @@ public class PropertiesFileUtilValueGetter {
   /*
    * Obtains value from a key. 
    */
-  public String getProp(String key, @Nullable Map<String, Object> elParameterMap) {
+  public String getProp(String key,
+      @Nullable Map<@NonNull String, @Nullable Object> elParameterMap) {
     return getProp(null, key, elParameterMap);
   }
 
@@ -348,7 +351,7 @@ public class PropertiesFileUtilValueGetter {
    * @param key the key of the property
    */
   public String getProp(@Nullable Locale locale, String key,
-      @Nullable Map<String, Object> elParameterMap) {
+      @Nullable Map<@NonNull String, @Nullable Object> elParameterMap) {
     ObjectsUtil.requireNonNull(key);
 
     // Throw an exception when msgId is empty.
