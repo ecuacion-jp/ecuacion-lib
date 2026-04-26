@@ -32,6 +32,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
+import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
@@ -43,9 +44,8 @@ import org.jspecify.annotations.Nullable;
 public abstract class ComparisonValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
   private String baselinePropertyPath = "";
-  private boolean isValidWhenLessThanBasis;
-  private boolean allowsEqual;
   // Put anything to avoid null error.
+  private ComparisonType comparisonType = ComparisonType.GREATER_THAN;
   private TypeConversionFromString typeConversionFromString = TypeConversionFromString.NONE;
   private String typeConversionDateTimeFormat = "";
 
@@ -54,13 +54,12 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
   /** Initializes an instance. */
   public void initialize(String message, String[] propertyPath, String baselinePropertyPath,
-      boolean isValidWhenLessThanBasis, boolean allowsEqual,
+      ComparisonType comparisonType,
       TypeConversionFromString typeConversionFromString, String typeConversionDateTimeFormat) {
     super.initialize(message, propertyPath);
 
     this.baselinePropertyPath = baselinePropertyPath;
-    this.isValidWhenLessThanBasis = isValidWhenLessThanBasis;
-    this.allowsEqual = allowsEqual;
+    this.comparisonType = comparisonType;
     this.typeConversionFromString = typeConversionFromString;
     this.typeConversionDateTimeFormat = typeConversionDateTimeFormat;
   }
@@ -74,7 +73,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     // Return of getValue is @NonNull because null means path is wrong and it should be NPE.
     List<Pair<@NonNull String, @NonNull Object>> valueOfFieldList =
-        Arrays.asList(propertyPaths).stream()
+        Arrays.stream(propertyPaths)
             .map(path -> Pair.of(path, Objects.requireNonNull(getValue(instance, path)))).toList();
 
     for (Pair<@NonNull String, @NonNull Object> pair : valueOfFieldList) {
@@ -119,7 +118,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     // same values treatment
     if (valueOfPropertyPath.equals(valueOfBasisPropertyPath)) {
-      return allowsEqual;
+      return comparisonType.allowsEqual();
     }
 
     // type conversion for record classes
@@ -171,13 +170,14 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
           + fieldOfPropertyPath.getType().getCanonicalName());
     }
 
-    return isValidWhenLessThanBasis ? validWhenLessThanBasis : !validWhenLessThanBasis;
+    return comparisonType.isValidWhenLessThanBasis()
+        ? validWhenLessThanBasis : !validWhenLessThanBasis;
   }
 
   protected boolean isStringValidWhenLessThanBasis(String x1, String x2) {
     try {
       byte[] bytesPropertyPath = x1.getBytes("UTF-8");
-      byte[] bytesBasisPropertyPath = ((String) x2).getBytes("UTF-8");
+      byte[] bytesBasisPropertyPath = x2.getBytes("UTF-8");
 
       for (int i = 0; i < bytesPropertyPath.length; i++) {
         byte bytePropertyPath = bytesPropertyPath[i];

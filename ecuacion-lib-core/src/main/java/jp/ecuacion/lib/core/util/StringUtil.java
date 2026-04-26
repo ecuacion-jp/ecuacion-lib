@@ -179,7 +179,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<String> collection, String separator,
       String leftHandSideEnclosedBy, String rightHandSideEnclosedBy) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator,
         leftHandSideEnclosedBy, rightHandSideEnclosedBy);
   }
 
@@ -210,7 +210,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<String> collection, String separator,
       String elementEnclosedBy) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator,
         elementEnclosedBy);
   }
 
@@ -240,7 +240,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<@NonNull String> collection,
       String separator) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator);
   }
 
   /**
@@ -260,7 +260,7 @@ public class StringUtil {
    * @return csv.
    */
   public static String getCsv(Collection<String> collection) {
-    return getCsv(collection.toArray(new String[collection.size()]));
+    return getCsv(collection.toArray(String[]::new));
   }
 
   /**
@@ -284,7 +284,7 @@ public class StringUtil {
    * @return csv with spaces after commas.
    */
   public static String getCsvWithSpace(Collection<String> collection) {
-    return getCsvWithSpace(collection.toArray(new String[collection.size()]));
+    return getCsvWithSpace(collection.toArray(String[]::new));
   }
 
   /* ■□■□ object ■□■□ */

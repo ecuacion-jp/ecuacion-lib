@@ -144,9 +144,9 @@ public class ExceptionLogUtil {
     if (th == null) {
       errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
 
-    } else if (th instanceof ViolationException) {
+    } else if (th instanceof ViolationException ve) {
       errMsg = th.getClass().getCanonicalName()
-          + ExceptionUtil.getMessageList((ViolationException) th, locale, true).toString();
+          + ExceptionUtil.getMessageList(ve, locale, true).toString();
 
     } else {
       errMsg = th.getClass().getCanonicalName()

@@ -140,7 +140,7 @@ public class ExceptionUtil {
       Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale,
       boolean isMessagesWithItemNamesAsDefault, MessageParameters messageParameters) {
 
-    if (constraintViolations.size() == 0) {
+    if (constraintViolations.isEmpty()) {
       throw new RuntimeException("Size of ConstraintViolation is zero.");
     }
 
@@ -255,20 +255,17 @@ public class ExceptionUtil {
     Locale nonNullLocale = locale == null ? Locale.ROOT : locale;
 
     // Handle ViolationException first.
-    if (throwable instanceof ViolationException) {
-      return getMessageList(((ViolationException) throwable).getViolations(), locale,
-          isMessagesWithItemNamesAsDefault);
+    if (throwable instanceof ViolationException ve) {
+      return getMessageList(ve.getViolations(), locale, isMessagesWithItemNamesAsDefault);
     }
 
     List<@NonNull String> rtnList = new ArrayList<>();
 
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
     // In that case messages are built directly from ConstraintViolation.
-    if (throwable instanceof ConstraintViolationException) {
-      ConstraintViolationException cve = (ConstraintViolationException) throwable;
-
-      MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters
-          ? ((ConstraintViolationExceptionWithParameters) cve).getMessageParameters()
+    if (throwable instanceof ConstraintViolationException cve) {
+      MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters cvewp
+          ? cvewp.getMessageParameters()
           : Violations.newMessageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
@@ -508,7 +505,7 @@ public class ExceptionUtil {
     // Replace {0} to itemName.
     if (message.contains("{0}") && violation.getRootBean() != null) {
       Object rootBean = Objects.requireNonNull(violation.getRootBean());
-      List<@NonNull Item> itemList = Arrays.asList(violation.getItemPropertyPaths()).stream()
+      List<@NonNull Item> itemList = Arrays.stream(violation.getItemPropertyPaths())
           .map(path -> MessageUtil.getItem(path, rootBean, rootBean)).toList();
 
       message = MessageFormat.format(message,

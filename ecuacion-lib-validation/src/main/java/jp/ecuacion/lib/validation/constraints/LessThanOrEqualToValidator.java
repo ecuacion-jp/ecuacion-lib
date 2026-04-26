@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Objects;
+import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
 import org.jspecify.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public class LessThanOrEqualToValidator extends ComparisonValidator<LessThanOrEq
   public void initialize(@Nullable LessThanOrEqualTo annotation) {
     Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
-        annotation.baselinePropertyPath(), true, true, annotation.typeConversionFromString(),
-        annotation.typeConversionDateFormat());
+        annotation.baselinePropertyPath(), ComparisonType.LESS_THAN_OR_EQUAL_TO,
+        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
   }
 }

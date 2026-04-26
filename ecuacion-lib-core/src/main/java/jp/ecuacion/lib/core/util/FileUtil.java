@@ -102,7 +102,7 @@ public class FileUtil {
   public static String concatFilePaths(String... paths) {
     String concatPath = "";
     for (String path : paths) {
-      if (concatPath.equals("")) {
+      if (concatPath.isEmpty()) {
         concatPath = path;
 
       } else {
@@ -225,10 +225,9 @@ public class FileUtil {
    * @param path path
    * @return true if the path is relative
    */
-  @SuppressWarnings("unused")
   public static boolean isRelativePath(String path) {
     // If no value is set for path, an error occurs.
-    if (path == null || path.equals("")) {
+    if (StringUtils.isEmpty(path)) {
       throw new ViolationException(
           new Violations().add(new BusinessViolation("MSG_ERR_PATH_IS_NULL")));
     }
@@ -265,7 +264,7 @@ public class FileUtil {
     String myFileOrDirnameWithWildcard = null;
     boolean hasReachedFullPathDirDepth = false;
 
-    if (parentPath.equals("")) {
+    if (parentPath.isEmpty()) {
       String myPathWithWildcard = fullPath.substring(0, getFirstPathSeparatorIndex(fullPath) + 1);
       // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard
       // to contain a wildcard, so if it does, an error will occur.

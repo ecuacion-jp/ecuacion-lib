@@ -57,7 +57,7 @@ public class MessageUtil {
 
     String itemNameKeyClassFromAnnotation =
         ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
-            .map(opt -> opt.value()).orElse(null);
+            .map(ItemNameKeyClass::value).orElse(null);
 
     return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
         leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
@@ -240,22 +240,21 @@ public class MessageUtil {
     List<@NonNull String> itemNamePathList = new ArrayList<>();
     String prefix = "";
     for (String node : PropertyPathUtil.getNodeList(leafBeanPropertyPath)) {
-      itemNamePathList.add(prefix + (prefix.equals("") ? "" : ".") + node);
-      prefix = prefix + (prefix.equals("") ? "" : ".") + node;
+      itemNamePathList.add(prefix + (prefix.isEmpty() ? "" : ".") + node);
+      prefix = prefix + (prefix.isEmpty() ? "" : ".") + node;
     }
 
     // Return itemName when no itemNamePath exists.
-    if (itemNamePathList.size() == 0) {
+    if (itemNamePathList.isEmpty()) {
       return itemName;
     }
 
     // The following is when itemNamePath exists.
 
-    List<@NonNull String> modifiedPathItemNameList = new ArrayList<>();
-    for (String path : itemNamePathList) {
-      Item tmpItem = getItem(path, rootBean, rootBean);
-      modifiedPathItemNameList.add(getItemName(locale, tmpItem, prependSymbol, appendSymbol));
-    }
+    List<@NonNull String> modifiedPathItemNameList = itemNamePathList.stream()
+        .map(path -> getItemName(locale, getItem(path, rootBean, rootBean),
+            prependSymbol, appendSymbol))
+        .toList();
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
     itemName = PropertiesFileUtil.getMessage(locale, pstring, itemName, pathString);
@@ -299,19 +298,18 @@ public class MessageUtil {
     // Remove collection part from rightmost node.
     String rightMostRemoved = PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
     String collectionPartRemovedPropertyPath =
-        (rightMostRemoved.equals("") ? "" : rightMostRemoved + ".") + PropertyPathUtil
+        (rightMostRemoved.isEmpty() ? "" : rightMostRemoved + ".") + PropertyPathUtil
             .removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
-    if (rootBean instanceof ItemContainer) {
+    if (rootBean instanceof ItemContainer ic) {
       // the case that rootBean is an EclibRecord
-      item = ((ItemContainer) rootBean).getItem(collectionPartRemovedPropertyPath);
+      item = ic.getItem(collectionPartRemovedPropertyPath);
 
-    } else if (fullPropertyPath1stPart != null && firstChild != null
-        && firstChild instanceof ItemContainer) {
+    } else if (fullPropertyPath1stPart != null && firstChild instanceof ItemContainer ic) {
 
       // the case that EclibRecord is stored in form or something
       String substr =
           collectionPartRemovedPropertyPath.substring(fullPropertyPath1stPart.length() + 1);
-      item = ((ItemContainer) firstChild).getItem(substr);
+      item = ic.getItem(substr);
     }
 
     if (item == null) {
@@ -331,7 +329,7 @@ public class MessageUtil {
    */
   public static String getValuesOfFormattedString(String[] values) {
 
-    List<@NonNull String> itemNameList = Arrays.asList(ObjectsUtil.requireNonNull(values)).stream()
+    List<@NonNull String> itemNameList = Arrays.stream(ObjectsUtil.requireNonNull(values))
         .map(name -> VALUE_PREPEND_SYMBOL + name + VALUE_APPEND_SYMBOL).toList();
 
     return StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR);
@@ -342,7 +340,7 @@ public class MessageUtil {
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static String getValuesOfFormattedString(List<@NonNull String> valueList) {
-    return getValuesOfFormattedString(valueList.toArray(new String[valueList.size()]));
+    return getValuesOfFormattedString(valueList.toArray(String[]::new));
   }
 
   /**
@@ -355,7 +353,7 @@ public class MessageUtil {
         PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString(),
         PropertiesFileUtilFileKindEnum.ENUM_NAMES.toString()};
     List<@NonNull Arg> argList =
-        Arrays.asList(values).stream().map(str -> Arg.get(fileKinds, str)).toList();
+        Arrays.stream(values).map(str -> Arg.get(fileKinds, str)).toList();
 
     List<@NonNull String> itemNameList = new ArrayList<>();
     for (int i = 0; i < argList.size(); i++) {
@@ -363,7 +361,7 @@ public class MessageUtil {
     }
 
     return Arg.formattedString(StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR),
-        argList.toArray(new Arg[argList.size()]));
+        argList.toArray(Arg[]::new));
   }
 
   /**
@@ -371,6 +369,6 @@ public class MessageUtil {
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static Arg getValuesArg(List<@NonNull String> valueList) {
-    return getValuesArg(valueList.toArray(new String[valueList.size()]));
+    return getValuesArg(valueList.toArray(String[]::new));
   }
 }

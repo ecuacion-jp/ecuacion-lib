@@ -89,11 +89,11 @@ public class ObjectsUtil {
    * @return the argument
    */
   public static String requireNonEmpty(@RequireNonEmpty @Nullable String string) {
-    if (string == null || string.equals("")) {
+    if (StringUtils.isEmpty(string)) {
       throw new RequireNonEmptyException();
     }
 
-    return string;
+    return Objects.requireNonNull(string);
   }
 
   /**
@@ -142,7 +142,7 @@ public class ObjectsUtil {
   public static <T extends @Nullable Object> Collection<T> requireSizeNonZero(
       Collection<T> collection) {
 
-    if (collection != null && collection.size() == 0) {
+    if (collection != null && collection.isEmpty()) {
       throw new RequireSizeNonZeroException();
     }
 
@@ -217,7 +217,7 @@ public class ObjectsUtil {
    */
   public static Collection<String> requireElementNonEmpty(
       @RequireElementNonEmpty Collection<String> collection) {
-    requireElementNonEmpty(collection.toArray(new String[collection.size()]));
+    requireElementNonEmpty(collection.toArray(String[]::new));
 
     return collection;
   }

@@ -170,8 +170,8 @@ public class EmbeddedVariableUtil {
     List<Integer> firstFoundParamNameList =
         firstFoundParamNameMap.keySet().stream().sorted().toList();
 
-    if (firstFoundParamNameList.size() == 0) {
-      if (exList.size() == 0) {
+    if (firstFoundParamNameList.isEmpty()) {
+      if (exList.isEmpty()) {
         // simply no variable found.
         return null;
 
@@ -295,9 +295,7 @@ public class EmbeddedVariableUtil {
   }
 
   private static Function<String, String> getValueGetterFromKey(Map<String, String> parameterMap) {
-    return (key) -> {
-      return parameterMap.get(key);
-    };
+    return parameterMap::get;
   }
 
   /**

@@ -49,8 +49,8 @@ public class NotEmptyWhenValidator extends ValidateWhenValidator<NotEmptyWhen, O
       valueOfField = null;
     }
 
-    if (valueOfField != null && valueOfField instanceof String) {
-      return !StringUtils.isEmpty((String) valueOfField);
+    if (valueOfField instanceof String s) {
+      return !StringUtils.isEmpty(s);
 
     } else {
       return valueOfField != null;

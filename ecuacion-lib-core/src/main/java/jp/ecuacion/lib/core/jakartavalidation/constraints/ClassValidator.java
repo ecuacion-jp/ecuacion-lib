@@ -54,9 +54,9 @@ public abstract class ClassValidator<A extends Annotation, T>
 
   private Object[] setValuesOfPropertyPaths(T object) {
     List<Object> list =
-        Arrays.asList(propertyPaths).stream().map(path -> getValue(object, path)).toList();
+        Arrays.stream(propertyPaths).map(path -> getValue(object, path)).toList();
 
-    Object[] rtn = list.toArray(new Object[list.size()]);
+    Object[] rtn = list.toArray(Object[]::new);
     return rtn;
   }
 }

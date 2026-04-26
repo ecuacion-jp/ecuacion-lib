@@ -131,7 +131,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     // Put field in this instance to paramMap
     embeddedParamMap.put("annotation", validatorClass);
-    embeddedParamMap.put("itemAttributes", itemList.toArray(new Item[itemList.size()]));
+    embeddedParamMap.put("itemAttributes", itemList.toArray(Item[]::new));
 
     if (embeddedParameterMap != null) {
       this.embeddedParamMap.putAll(embeddedParameterMap);
@@ -178,7 +178,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
           : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
       String cvPpPrefix = (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".");
 
-      ppList = (Arrays.asList((String[]) embeddedParamMap.get("propertyPath")).stream()
+      ppList = (Arrays.stream((String[]) embeddedParamMap.get("propertyPath"))
           .map(p -> cvPpPrefix + p).toList());
 
     } else {
@@ -191,7 +191,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
             .annotationType().getName(),
         cv.getRootBean(), cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(),
         embeddedParamMap, cv.getPropertyPath().toString(),
-        ppList.toArray(new String[ppList.size()]));
+        ppList.toArray(String[]::new));
 
     return rtnCv;
   }
@@ -207,7 +207,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + Objects.requireNonNull(getRootBean()).getClass().getName() + "\n"
         + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getItemList().stream().map(b -> b.getPropertyPath()).toList()) + "\n"
+        + StringUtil.getCsv(getItemList().stream().map(Item::getPropertyPath).toList()) + "\n"
         + "invalidValue:" + getInvalidValue();
   }
 
@@ -263,7 +263,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   }
 
   public Item[] getItems() {
-    return itemList.toArray(new Item[itemList.size()]);
+    return itemList.toArray(Item[]::new);
   }
 
   public Map<@NonNull String, @Nullable Object> getEmbeddedParamMap() {

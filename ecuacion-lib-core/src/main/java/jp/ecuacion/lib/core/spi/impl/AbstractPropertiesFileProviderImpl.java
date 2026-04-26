@@ -43,7 +43,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
     Locale specifiedLocale = PropertiesFileUtilValueGetter.specifiedLocale.get();
 
     // remove default locale if not specified.
-    if ((locale == null || (!locale.getLanguage().equals(""))
+    if ((locale == null || (!locale.getLanguage().isEmpty())
         && !specifiedLocale.getLanguage().equals(Locale.getDefault().getLanguage())
         && locale.getLanguage().equals(Locale.getDefault().getLanguage()))) {
       return null;
@@ -56,7 +56,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
         .findModule(Objects.requireNonNull(moduleName)).orElse(null);
     if (module != null) {
       try {
-        String bundleName = baseFilename + (locale.toString().equals("") ? "" : "_")
+        String bundleName = baseFilename + (locale.toString().isEmpty() ? "" : "_")
             + locale.toString() + ".properties";
         InputStream is = module.getResourceAsStream(bundleName);
 

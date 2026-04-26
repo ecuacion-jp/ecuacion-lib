@@ -26,7 +26,6 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
-import java.util.stream.Collectors;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -129,22 +128,21 @@ public class PropertiesFileUtilValueGetter {
    * 
    * @return postfix list
    */
-  @SuppressWarnings("null")
   List<@NonNull String> getPostfixes() {
     List<@NonNull String> rtnList = new ArrayList<>();
     rtnList.addAll(
-        Arrays.asList(LIB_MODULES).stream().map(str -> "_lib_" + str).collect(Collectors.toList()));
-    rtnList.addAll(Arrays.asList(SPLIB_MODULES).stream().map(str -> "_splib_" + str)
-        .collect(Collectors.toList()));
-    rtnList.addAll(Arrays.asList(UTIL_MODULES).stream().map(str -> "_util_" + str).toList());
+        Arrays.stream(LIB_MODULES).map(str -> "_lib_" + str).toList());
+    rtnList.addAll(Arrays.stream(SPLIB_MODULES).map(str -> "_splib_" + str)
+        .toList());
+    rtnList.addAll(Arrays.stream(UTIL_MODULES).map(str -> "_util_" + str).toList());
     rtnList.addAll(dynamicPostfixList.stream().map(str -> "_" + str).toList());
 
     // APP_MODULES are combined to APP_ENVS
     for (String moduleName : APP_MODULES) {
       for (String envName : APP_ENVS) {
         // Add "-" and "_"
-        rtnList.add((moduleName.equals("") ? "" : "_" + moduleName)
-            + (envName.equals("") ? "" : "-" + envName));
+        rtnList.add((moduleName.isEmpty() ? "" : "_" + moduleName)
+            + (envName.isEmpty() ? "" : "-" + envName));
       }
     }
 

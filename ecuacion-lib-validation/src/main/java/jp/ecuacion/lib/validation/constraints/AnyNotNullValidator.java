@@ -39,6 +39,6 @@ public class AnyNotNullValidator extends AllAnyValidator<AnyNotNull, Object> {
 
   @Override
   public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
-    return numberOfNonNullValues(object) > 0;
+    return numberOfNonNullValues() > 0;
   }
 }
