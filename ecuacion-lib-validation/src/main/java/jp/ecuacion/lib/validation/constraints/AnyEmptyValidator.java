@@ -39,6 +39,6 @@ public class AnyEmptyValidator extends AllAnyValidator<AnyEmpty, Object> {
 
   @Override
   public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
-    return numberOfNonEmptyValues(object) < propertyPaths.length;
+    return numberOfNonEmptyValues() < propertyPaths.length;
   }
 }

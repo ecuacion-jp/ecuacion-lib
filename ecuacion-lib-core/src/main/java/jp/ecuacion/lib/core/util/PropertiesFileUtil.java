@@ -607,7 +607,7 @@ public class PropertiesFileUtil {
     if (argAnnotationValue != null && argAnnotationValue.startsWith(annotationPrefix)) {
 
       // itemName
-      List<@NonNull String> itemNameList = Arrays.asList(item).stream()
+      List<@NonNull String> itemNameList = Arrays.stream(item)
           .map(bean -> PropertiesFileUtil.getItemName(locale, bean.getItemNameKey())).toList();
       argMap.put("itemName", StringUtil.getCsvWithSpace(itemNameList));
     }
@@ -780,7 +780,7 @@ public class PropertiesFileUtil {
 
       // replace ' to '' because MessageFormat removes single '.
       return MessageFormat.format(argString.replace("'", "''"),
-          (Object[]) argStrList.toArray(new String[argStrList.size()]));
+          (Object[]) argStrList.toArray(String[]::new));
 
     } else if (arg.argKind == ArgKind.STRING) {
       return arg.getArgString();
@@ -791,10 +791,8 @@ public class PropertiesFileUtil {
   }
 
   private static String[] getStringsFromArgs(@Nullable Locale locale, @NonNull Arg[] args) {
-    final List<@NonNull String> list = new ArrayList<>();
-    Arrays.asList(ObjectsUtil.requireNonNull(args)).stream()
-        .forEach(arg -> list.add(getStringFromArg(locale, arg)));
-    return list.toArray(new String[list.size()]);
+    return Arrays.stream(ObjectsUtil.requireNonNull(args))
+        .map(arg -> getStringFromArg(locale, arg)).toArray(String[]::new);
   }
 
   private static final List<PropertiesFileUtilFileKindEnum> FILE_KINDS_FOR_KEY_ONLY_SEARCH =
@@ -893,11 +891,11 @@ public class PropertiesFileUtil {
 
     // Pass 1: #{fileKind:key} patterns (like #{messages:key}, #{item_names:key}).
     List<@NonNull String> fileKindStartSymbols =
-        Arrays.asList(PropertiesFileUtilFileKindEnum.values()).stream()
+        Arrays.stream(PropertiesFileUtilFileKindEnum.values())
             .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
 
     List<Pair<@Nullable String, String>> pass1Result = EmbeddedVariableUtil.getPartList(string,
-        fileKindStartSymbols.toArray(new String[fileKindStartSymbols.size()]), "}",
+        fileKindStartSymbols.toArray(String[]::new), "}",
         new Options().setIgnoresEmergenceOfEndSymbolOnly(true));
 
     // Pass 2: #{key} patterns (no fileKind) found in remaining literal parts.
@@ -1001,8 +999,7 @@ public class PropertiesFileUtil {
      * @return Arg[]
      */
     public static Arg[] strings(@NonNull String... argStrings) {
-      return Arrays.asList(argStrings).stream().map(arg -> Arg.string(arg)).toList()
-          .toArray(new Arg[argStrings.length]);
+      return Arrays.stream(argStrings).map(Arg::string).toArray(Arg[]::new);
     }
 
     /**
@@ -1044,9 +1041,7 @@ public class PropertiesFileUtil {
      * @return Arg
      */
     public static Arg message(String messageId, @NonNull String... stringArgs) {
-      List<@NonNull String> stringArgList = Arrays.asList(stringArgs);
-      Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
-          .toArray(new Arg[stringArgList.size()]);
+      Arg[] args = Arrays.stream(stringArgs).map(Arg::string).toArray(Arg[]::new);
       return new Arg(new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString()}, messageId,
           args);
     }
@@ -1082,9 +1077,7 @@ public class PropertiesFileUtil {
      */
     public static Arg get(@NonNull String[] fileKinds, String messageId,
         @Nullable String... stringArgs) {
-      List<@Nullable String> stringArgList = Arrays.asList(stringArgs);
-      Arg[] args = stringArgList.stream().map(str -> Arg.string(str)).toList()
-          .toArray(new Arg[stringArgList.size()]);
+      Arg[] args = Arrays.stream(stringArgs).map(Arg::string).toArray(Arg[]::new);
       return new Arg(fileKinds, messageId, args);
     }
 

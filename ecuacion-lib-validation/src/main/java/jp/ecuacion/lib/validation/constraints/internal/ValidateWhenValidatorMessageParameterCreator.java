@@ -115,7 +115,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
       String regExp = (String) paramMap.get("conditionValuePatternRegexp");
 
       if (description.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
-          || description.equals("")) {
+          || description.isEmpty()) {
         displayStringOfConditionValueArg = Arg.string(regExp);
 
       } else {
@@ -140,18 +140,20 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     String displayStringPp = (String) paramMap
         .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
-    Object displayStringObj = Objects.requireNonNull(displayStringPp).equals("") ? values
+    Objects.requireNonNull(displayStringPp);
+    
+    Object displayStringObj =  displayStringPp.isEmpty() ? values
         : Objects.requireNonNull(getValue(cv.getLeafBean(), displayStringPp));
 
-    List<@NonNull String> displayStringList = (displayStringObj instanceof Object[])
-        ? Arrays.asList((Object[]) displayStringObj).stream().map(o -> o.toString()).toList()
-        : Arrays.asList(new String[] {Objects.requireNonNull(displayStringObj).toString()});
+    List<@NonNull String> displayStringList = displayStringObj instanceof Object[] arr
+        ? Arrays.stream(arr).map(Object::toString).toList()
+        : List.of(Objects.requireNonNull(displayStringObj).toString());
 
-    Arg valueArg = displayStringPp.equals("")
+    Arg valueArg = displayStringPp.isEmpty()
         ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(displayStringList))
         : MessageUtil.getValuesArg(displayStringList);
 
-    String[] strs = displayStringList.toArray(new String[displayStringList.size()]);
+    String[] strs = displayStringList.toArray(String[]::new);
 
     Arg displayStringOfConditionValueArg;
     displayStringOfConditionValueArg = strs.length > 1

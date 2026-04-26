@@ -16,11 +16,12 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Objects;
+import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code GreaterThan}.
+ * Provides the validation logic for {@code GreaterThanOrEqualTo}.
  */
 public class GreaterThanOrEqualToValidator
     extends ComparisonValidator<GreaterThanOrEqualTo, Object> {
@@ -35,7 +36,7 @@ public class GreaterThanOrEqualToValidator
   public void initialize(@Nullable GreaterThanOrEqualTo annotation) {
     Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath(),
-        annotation.baselinePropertyPath(), false, true, annotation.typeConversionFromString(),
-        annotation.typeConversionDateFormat());
+        annotation.baselinePropertyPath(), ComparisonType.GREATER_THAN_OR_EQUAL_TO,
+        annotation.typeConversionFromString(), annotation.typeConversionDateFormat());
   }
 }

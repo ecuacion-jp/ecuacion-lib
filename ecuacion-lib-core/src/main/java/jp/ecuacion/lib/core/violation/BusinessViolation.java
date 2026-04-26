@@ -99,8 +99,8 @@ public class BusinessViolation {
    */
   public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
       String messageId, @Nullable String... messageArgs) {
-    this(rootBean, itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
-        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+    this(rootBean, itemPropertyPaths, messageId,
+        Arrays.stream(messageArgs).map(arg -> Arg.string(arg)).toArray(Arg[]::new));
   }
 
   /**

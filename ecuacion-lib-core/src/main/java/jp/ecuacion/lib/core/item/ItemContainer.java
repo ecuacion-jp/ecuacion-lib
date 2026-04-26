@@ -47,8 +47,8 @@ public interface ItemContainer {
     String noIndexPropertyPath = PropertyPathUtil.removeIndex(itemPropertyPath);
 
     Map<@NonNull String, Item> map =
-        Arrays.asList(customizedItems() == null ? new Item[] {} : customizedItems()).stream()
-            .collect(Collectors.toMap(e -> e.getPropertyPath(), e -> e));
+        Arrays.stream(customizedItems() == null ? new Item[] {} : customizedItems())
+            .collect(Collectors.toMap(Item::getPropertyPath, e -> e));
 
     Item item = map.get(ObjectsUtil.requireNonEmpty(noIndexPropertyPath));
 
@@ -121,9 +121,9 @@ public interface ItemContainer {
 
     // Throw an exception if item is duplicated.
     List<@NonNull String> propertyPath1List =
-        Arrays.asList(items1).stream().map(e -> e.getPropertyPath()).toList();
+        Arrays.stream(items1).map(Item::getPropertyPath).toList();
 
-    for (String propertyPath2 : Arrays.asList(items2).stream().map(e -> e.getPropertyPath())
+    for (String propertyPath2 : Arrays.stream(items2).map(Item::getPropertyPath)
         .toList()) {
       if (propertyPath1List.contains(propertyPath2)) {
         throw new RuntimeException(
@@ -133,6 +133,6 @@ public interface ItemContainer {
 
     list.addAll(Arrays.asList(items2));
 
-    return list.toArray(new Item[list.size()]);
+    return list.toArray(Item[]::new);
   }
 }

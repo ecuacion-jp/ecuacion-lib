@@ -110,7 +110,7 @@ public class PropertyPathUtil {
       String removingString = pp.contains(".") ? pp.substring(pp.lastIndexOf(".") + 1) : pp;
       pp = pp.contains(".") ? pp.substring(0, pp.lastIndexOf(".")) : "";
 
-      rightMostNode = removingString + (rightMostNode.equals("") ? "" : ".") + rightMostNode;
+      rightMostNode = removingString + (rightMostNode.isEmpty() ? "" : ".") + rightMostNode;
 
       if (Arrays.stream(COLLECTION_ELS).anyMatch(removingString::contains)) {
         continue;
@@ -155,7 +155,7 @@ public class PropertyPathUtil {
 
     String pp = propertyPath;
     while (true) {
-      if (pp.equals("")) {
+      if (pp.isEmpty()) {
         return rtnList.reversed();
       }
 
@@ -178,14 +178,9 @@ public class PropertyPathUtil {
    * Removes Collection related part from the given propertyPath node.
    */
   public static String removeCollectionPart(String propertyPath) {
-    List<@NonNull String> nodeList = new ArrayList<>();
-    for (String node : getNodeList(propertyPath)) {
-      nodeList.add(removeCollectionPartFromNode(node));
-    }
-
-    StringBuilder sb = new StringBuilder();
-    nodeList.stream().forEach(node -> sb.append("." + node));
-    return sb.toString().length() < 1 ? "" : sb.toString().substring(1);
+    List<@NonNull String> nodeList = getNodeList(propertyPath).stream()
+        .map(PropertyPathUtil::removeCollectionPartFromNode).toList();
+    return String.join(".", nodeList);
   }
 
   /**
@@ -246,7 +241,7 @@ public class PropertyPathUtil {
 
     // Remove characters between "[" and "]".
     while (true) {
-      if (tmpPropertyPath.equals("")) {
+      if (tmpPropertyPath.isEmpty()) {
         break;
 
       } else if (!tmpPropertyPath.contains("]")) {

@@ -80,7 +80,7 @@ public class MailUtil {
     List<@NonNull String> errorMailAddressList = Arrays.asList(
         PropertiesFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
 
-    if (errorMailAddressList == null || errorMailAddressList.size() == 0) {
+    if (errorMailAddressList == null || errorMailAddressList.isEmpty()) {
       return;
     }
 
@@ -173,8 +173,8 @@ public class MailUtil {
     ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
-    if ((mailToList == null || mailToList.size() == 0)
-        && (mailCcList == null || mailCcList.size() == 0)) {
+    if ((mailToList == null || mailToList.isEmpty())
+        && (mailCcList == null || mailCcList.isEmpty())) {
       throw new RuntimeException(
           "Either mailToList or mailCcList need to have at least one element.");
     }
@@ -221,8 +221,8 @@ public class MailUtil {
       boolean throwsException) throws Exception {
     try {
       // Finish when the number of senders is zero.
-      if ((mailToList == null || mailToList.size() == 0)
-          && (mailCcList == null || mailCcList.size() == 0)) {
+      if ((mailToList == null || mailToList.isEmpty())
+          && (mailCcList == null || mailCcList.isEmpty())) {
         dtlLog.info("mail:no TO or CC specified.");
         return;
       }

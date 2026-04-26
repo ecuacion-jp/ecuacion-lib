@@ -101,8 +101,8 @@ public class Violations {
    */
   public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
       String messageId, @Nullable String... messageArgs) {
-    return add(rootBean, itemPropertyPaths, messageId, Arrays.asList(messageArgs).stream()
-        .map(arg -> Arg.string(arg)).toList().toArray(new Arg[messageArgs.length]));
+    return add(rootBean, itemPropertyPaths, messageId,
+        Arrays.stream(messageArgs).map(arg -> Arg.string(arg)).toArray(Arg[]::new));
   }
 
   /**
