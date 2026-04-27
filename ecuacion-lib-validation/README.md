@@ -2,7 +2,16 @@
 
 ## What is it?
 
-`ecuacion-lib-validation` provides customized validatiors for Jakarta Validation.
+`ecuacion-lib-validation` provides customized validators for Jakarta Validation.
+
+## Validators
+
+| Category | Annotations |
+| --- | --- |
+| Conditional (When) | `@NotEmptyWhen`, `@EmptyWhen`, `@NotNullWhen`, `@NullWhen`, `@TrueWhen`, `@FalseWhen`, `@StringWhen`, `@NotStringWhen`, `@PatternWhen`, `@NotPatternWhen`, `@ValueOfPropertyPathWhen`, `@NotValueOfPropertyPathWhen` |
+| Multi-field | `@AllEmptyOrAllNotEmpty`, `@AllNullOrAllNotNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
+| Numeric comparison | `@GreaterThan`, `@GreaterThanOrEqualTo`, `@LessThan`, `@LessThanOrEqualTo` |
+| Others | `@PatternWithDescription`, `@AssertTrueWithPropertyPath`, `@ReturnTrue`, ... |
 
 ## System Requirements
 
