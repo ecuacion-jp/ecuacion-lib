@@ -143,7 +143,9 @@ public class MiscValidatorsTest {
       @SuppressWarnings("unused")
       private String field = "dummy";
 
-      @SuppressWarnings("unused")
+      // public is required because ReturnTrueValidator looks up the method via
+      // Class#getMethod, which only finds public methods.
+      @SuppressWarnings({"unused", "EffectivelyPrivate"})
       public boolean check() {
         return true;
       }
@@ -154,7 +156,9 @@ public class MiscValidatorsTest {
       @SuppressWarnings("unused")
       private String field = "dummy";
 
-      @SuppressWarnings("unused")
+      // public is required because ReturnTrueValidator looks up the method via
+      // Class#getMethod, which only finds public methods.
+      @SuppressWarnings({"unused", "EffectivelyPrivate"})
       public boolean check() {
         return false;
       }
