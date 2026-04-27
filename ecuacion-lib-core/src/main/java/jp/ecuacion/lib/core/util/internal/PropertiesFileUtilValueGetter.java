@@ -149,12 +149,13 @@ public class PropertiesFileUtilValueGetter {
     return rtnList;
   }
 
-  /*
+  /**
    * Obtains value from key.
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param key the key of the property
+   * @param elParameterMap elParameterMap
+   * @return value
    */
   private String getValue(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> elParameterMap) {
@@ -204,15 +205,16 @@ public class PropertiesFileUtilValueGetter {
     throw new NoKeyInPropertiesFileException(key);
   }
 
-  /*
-   * Obtains value from key and locale by reading multiple properties files 
-   *     with prefixes and postfixes of the filename.
-   * 
+  /**
+   * Obtains value from key and locale by reading multiple properties files
+   * with prefixes and postfixes of the filename.
+   *
    * <p>The duplicate check of the key is also executed here.</p>
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param key the key of the property
+   * @param filePrefixesOfSamePriority filePrefixesOfSamePriority
+   * @return value
    */
   private @Nullable String getValueFromPropertiesFilesWithSamePriority(@Nullable Locale locale,
       String key, String[] filePrefixesOfSamePriority) {
@@ -349,12 +351,13 @@ public class PropertiesFileUtilValueGetter {
     return getProp(null, key, elParameterMap);
   }
 
-  /*
-   * Obtains value from a key. 
-   * 
-   * @param locale locale, may be {@code null} 
-   *     which means no {@code Locale} specified.
+  /**
+   * Obtains value from a key.
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param key the key of the property
+   * @param elParameterMap elParameterMap
+   * @return value
    */
   public String getProp(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> elParameterMap) {

@@ -134,14 +134,15 @@ public class EnumUtil {
   public static <T> List<String[]> getListForHtmlSelect(Class<@NonNull T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
-    String[] options = optionsString.split(",");
+    String[] options = optionsString.split(",", -1);
     EnumClassInfo<T> enumInfo = getEnumInfo(enumClass, locale);
 
     // Create the map which stores optionKey, optionValue
     Map<String, String> optionMap = new HashMap<>();
     for (String option : options) {
-      String optionKey = option.split("=")[0];
-      String optionValue = option.split("=").length == 1 ? null : option.split("=")[1];
+      String[] parts = option.split("=", -1);
+      String optionKey = parts[0];
+      String optionValue = parts.length == 1 ? null : parts[1];
 
       // Store the only keys contained in ListForHtmlSelectOptionEnum to the Map
       if (ListForHtmlSelectOptionEnum.getNameSet().contains(optionKey)) {

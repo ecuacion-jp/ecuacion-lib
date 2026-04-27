@@ -73,11 +73,11 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
-   *     messageParameters.isMessageWithItemName value is adopted 
-   *     when messageParameters.isMessageWithItemName is not null 
+   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
+   *     messageParameters.isMessageWithItemName value is adopted
+   *     when messageParameters.isMessageWithItemName is not null
    *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
@@ -90,11 +90,11 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
-   *     messageParameters.isMessageWithItemName value is adopted 
-   *     when messageParameters.isMessageWithItemName is not null 
+   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
+   *     messageParameters.isMessageWithItemName value is adopted
+   *     when messageParameters.isMessageWithItemName is not null
    *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
@@ -109,11 +109,11 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
-   *     messageParameters.isMessageWithItemName value is adopted 
-   *     when messageParameters.isMessageWithItemName is not null 
+   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
+   *     messageParameters.isMessageWithItemName value is adopted
+   *     when messageParameters.isMessageWithItemName is not null
    *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
@@ -128,11 +128,11 @@ public class ExceptionUtil {
   /**
    * Returns Exception message list.
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNamesAsDefault} is non-null value, 
-   *     messageParameters.isMessageWithItemName value is adopted 
-   *     when messageParameters.isMessageWithItemName is not null 
+   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
+   *     messageParameters.isMessageWithItemName value is adopted
+   *     when messageParameters.isMessageWithItemName is not null
    *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNamesAsDefault} is assumed to a system default value
+   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
    *     so messageParameters.isMessageWithItemName, specified for each validation
    *     overcomes it.</p>
    */
@@ -570,6 +570,7 @@ public class ExceptionUtil {
    * <p>When you designate fileKinds = new PropertiesFileUtilFileKindEnum[] {} (length is zero),
    *     propertyPathKey is set as the value.</p>
    */
+  @SuppressWarnings("ArrayRecordComponent")
   public static record LocalizedEmbeddedParameter(String parameterKey,
       PropertiesFileUtilFileKindEnum[] fileKinds, boolean isItemName, Item @Nullable [] items,
       @Nullable Object rootBean, String propertyFileKey, Arg... args) {

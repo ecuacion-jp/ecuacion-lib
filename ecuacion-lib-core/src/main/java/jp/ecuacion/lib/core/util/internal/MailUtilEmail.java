@@ -34,7 +34,7 @@ public class MailUtilEmail {
   }
 
   public MailUtilEmail(MailUtilEmailServer emailServer, MailUtilEmailContent emailContent,
-      MailUtilEmailSettings emailSettings, HashMap<String, String> detailLogMap) {
+      MailUtilEmailSettings emailSettings, Map<String, String> detailLogMap) {
     this.serverInfo = emailServer;
     this.contentInfo = emailContent;
     this.settingInfo = emailSettings;
@@ -122,11 +122,11 @@ public class MailUtilEmail {
     this.settingInfo = settingInfo;
   }
 
-  public HashMap<String, String> getDetailLogMap() {
+  public Map<String, String> getDetailLogMap() {
     return new HashMap<>(detailLogMap);
   }
 
-  public void setDetailLogMap(HashMap<String, String> detailLogMap) {
+  public void setDetailLogMap(Map<String, String> detailLogMap) {
     this.detailLogMap = new HashMap<>(detailLogMap);
   }
 }

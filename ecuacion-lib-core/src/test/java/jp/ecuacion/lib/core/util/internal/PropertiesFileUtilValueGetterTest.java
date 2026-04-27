@@ -17,18 +17,21 @@ package jp.ecuacion.lib.core.util.internal;
 
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.APPLICATION;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES;
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-import jp.ecuacion.lib.core.util.TestTools;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter.KeyDupliccatedException;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter.NoKeyInPropertiesFileException;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class PropertiesFileUtilValueGetterTest extends TestTools {
+/** Tests for {@link PropertiesFileUtilValueGetter}. */
+@DisplayName("PropertiesFileUtilValueGetter")
+public class PropertiesFileUtilValueGetterTest {
 
   private @Nullable PropertiesFileUtilValueGetter obj;
 
@@ -47,230 +50,166 @@ public class PropertiesFileUtilValueGetterTest extends TestTools {
   }
 
   @Test
+  @DisplayName("constructor accepts FileKindEnum and String[][] argument")
   public void constructor_test() {
-
-    // argument: PropertiesFileUtilFileKindEnu
-
-    // nonnull
-    Assertions.assertEquals("TEST_VALUE",
-        OBJ_MSG.getProp(Locale.CANADA, "TEST_KEY", new HashMap<>()));
+    // argument: PropertiesFileUtilFileKindEnum
+    assertThat(OBJ_MSG.getProp(Locale.CANADA, "TEST_KEY", new HashMap<>()))
+        .isEqualTo("TEST_VALUE");
 
     // argument: String[][]
-
-    // nonnull
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"messages"}});
-    Assertions.assertEquals("TEST_VALUE",
-        Objects.requireNonNull(obj).getProp(Locale.CANADA, "TEST_KEY", new HashMap<>()));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"messages"}});
+    assertThat(Objects.requireNonNull(obj).getProp(Locale.CANADA, "TEST_KEY", new HashMap<>()))
+        .isEqualTo("TEST_VALUE");
   }
 
   @Test
+  @DisplayName("hasProp returns false for missing file or key, true when key exists")
   public void hasProp_basicTest() {
     // file not exist
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
-    Assertions.assertFalse(Objects.requireNonNull(obj).hasProp("testkey"));
-
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"non-exist-file"}});
+    assertThat(Objects.requireNonNull(obj).hasProp("testkey")).isFalse();
     // key not exist
-    Assertions.assertFalse(OBJ_MSG.hasProp("non-exist-key"));
-
+    assertThat(OBJ_MSG.hasProp("non-exist-key")).isFalse();
     // key exists
-    Assertions.assertTrue(OBJ_MSG.hasProp("TEST_KEY"));
+    assertThat(OBJ_MSG.hasProp("TEST_KEY")).isTrue();
   }
 
   @Test
+  @DisplayName("getProp returns value or throws when key/file is missing")
   public void getProp_basicTest() {
-    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp("TEST_KEY", new HashMap<>()));
-
-    // # argument: key
+    assertThat(OBJ_APP.getProp("TEST_KEY", new HashMap<>())).isEqualTo("TEST_APP");
 
     // file not exist
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"non-exist-file"}});
-    Assertions.assertThrows(NO_KEY_EX, () -> Objects.requireNonNull(obj).getProp("testkey", new HashMap<>()));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"non-exist-file"}});
+    Assertions.assertThrows(NO_KEY_EX, () ->
+        Objects.requireNonNull(obj).getProp("testkey", new HashMap<>()));
 
     // key not exist : throwsExceptionWhenKeyDoesNotExist = true (APP)
     Assertions.assertThrows(NO_KEY_EX, () -> OBJ_APP.getProp("non-exist-key", new HashMap<>()));
 
     // key exist
-    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp("TEST_KEY", new HashMap<>()));
-
-    // # argument: locale, key
+    assertThat(OBJ_APP.getProp("TEST_KEY", new HashMap<>())).isEqualTo("TEST_APP");
 
     // locale is null
-    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp(null, "TEST_KEY", new HashMap<>()));
-
+    assertThat(OBJ_APP.getProp(null, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_APP");
     // locale is not null
-    Assertions.assertEquals("TEST_APP", OBJ_APP.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>()));
+    assertThat(OBJ_APP.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_APP");
   }
 
   public void duplicatedKeyTest() {
     // By the specification of "ResourceBundle", it's not an error.
     PropertiesFileUtilValueGetter store = new PropertiesFileUtilValueGetter(
-        new String[][] {new String[] {"test92-duplicate-in-one-file"}});
+        new String[][]{new String[]{"test92-duplicate-in-one-file"}});
     store.getProp("KEY2", new HashMap<>());
   }
 
   @Test
+  @DisplayName("locale resolution falls back correctly through file hierarchy")
   public void localeTest() {
 
-    // # properties file: non-locale only
+    // properties file: non-locale only
 
     PropertiesFileUtilValueGetter none =
-        new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-none"}});
-    // argument: no-locale
-    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.ROOT, "TEST_KEY", new HashMap<>()));
-    // argument: lang
-    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.JAPANESE, "TEST_KEY", new HashMap<>()));
-    // argument: lang and country
-    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>()));
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-none"}});
+    assertThat(none.getProp(Locale.ROOT, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
+    assertThat(none.getProp(Locale.JAPANESE, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
+    assertThat(none.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
 
-    // # properties file: lang
+    // properties file: lang
 
     PropertiesFileUtilValueGetter lang =
-        new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-lang"}});
-    // argument: lang
-    Assertions.assertEquals("TEST_VALUE", none.getProp(Locale.ENGLISH, "TEST_KEY", new HashMap<>()));
-    // argument: other lang
-    Assertions.assertThrows(NO_KEY_EX, () -> lang.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>()));
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-lang"}});
+    assertThat(none.getProp(Locale.ENGLISH, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
+    Assertions.assertThrows(NO_KEY_EX,
+        () -> lang.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>()));
 
-    // # properties file: none-and-lang
+    // properties file: none-and-lang
 
     PropertiesFileUtilValueGetter noneAndLang =
-        new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-none-and-lang"}});
-    // argument: lang
-    Assertions.assertEquals("it", noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE", new HashMap<>()));
-    // argument: lang-country
-    Assertions.assertEquals("it", noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE", new HashMap<>()));
-    // argument: other lang
-    Assertions.assertEquals("none", noneAndLang.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()));
-    // argument: other lang-country
-    Assertions.assertEquals("none", noneAndLang.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()));
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-none-and-lang"}});
+    assertThat(noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE", new HashMap<>())).isEqualTo("it");
+    assertThat(noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("it");
+    assertThat(noneAndLang.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLang.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
 
-    // # properties file: none-and-langCountry
+    // properties file: none-and-langCountry
 
     PropertiesFileUtilValueGetter noneAndLangCountry = new PropertiesFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-country_lib-core-test"}});
-    // argument: lang
-    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()));
-    // argument: lang (other lang)
-    Assertions.assertEquals("none",
-        noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry
-    Assertions.assertEquals("fr_CA",
-        noneAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other country)
-    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other lang)
-    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other lang, other country)
-    Assertions.assertEquals("none", noneAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()));
+        new String[][]{new String[]{"test92-none-and-lang-country_lib-core-test"}});
+    assertThat(noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("fr_CA");
+    assertThat(noneAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
 
-    // # properties file: none-and-lang-and-langCountry
+    // properties file: none-and-lang-and-langCountry
 
     PropertiesFileUtilValueGetter noneAndLangAndLangCountry = new PropertiesFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang-and-lang-country"}});
-    // argument: lang
-    Assertions.assertEquals("fr",
-        noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()));
-    // argument: lang (other lang)
-    Assertions.assertEquals("none",
-        noneAndLangAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry
-    Assertions.assertEquals("fr_CA",
-        noneAndLangAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other country)
-    Assertions.assertEquals("fr",
-        noneAndLangAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other lang)
-    Assertions.assertEquals("none",
-        noneAndLangAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE", new HashMap<>()));
-    // argument: langCountry (other lang, other country)
-    Assertions.assertEquals("none",
-        noneAndLangAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()));
+        new String[][]{new String[]{"test92-none-and-lang-and-lang-country"}});
+    assertThat(noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("fr");
+    assertThat(noneAndLangAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(
+        noneAndLangAndLangCountry.getProp(Locale.CANADA_FRENCH, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("fr_CA");
+    assertThat(noneAndLangAndLangCountry.getProp(Locale.FRANCE, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("fr");
+    assertThat(noneAndLangAndLangCountry.getProp(Locale.CANADA, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
+    assertThat(noneAndLangAndLangCountry.getProp(Locale.JAPAN, "FILE_LOCALE", new HashMap<>()))
+        .isEqualTo("none");
   }
 
-  // To read multiple kinds of ".properties"
-  // ({@code application, messages, enum_names, item_names, ValidationMessages,
-  // ValidationMessagesWithItemNames})</li>
-
-  // (no test)
-
-  // To read all the ".properties" files in library modules and multiple modules
-  // in projects of an app
-
   @Test
+  @DisplayName("fileKind postfix detection covers all expected patterns")
   public void fileKindTest() {
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_lib_core");
 
-    // ecuacion_lib_xxx
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, Objects.requireNonNull(obj).getPostfixes().contains("_lib_core"));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_splib_web");
 
-    // ecuacion_splib_xxx
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true,
-        Objects.requireNonNull(obj).getPostfixes().contains("_splib_web"));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("");
 
-    // app
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, Objects.requireNonNull(obj).getPostfixes().contains(""));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_base");
 
-    // app-base
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, Objects.requireNonNull(obj).getPostfixes().contains("_base"));
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("-profile");
 
-    // app_profile
-    obj = new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, Objects.requireNonNull(obj).getPostfixes().contains("-profile"));
-
-    // app_core_profile
     PropertiesFileUtilValueGetter store =
-        new PropertiesFileUtilValueGetter(new String[][] {new String[] {"test92-12-11"}});
-    Assertions.assertEquals(true, store.getPostfixes().contains("_core-profile"));
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    assertThat(store.getPostfixes()).contains("_core-profile");
 
-    // inter-file key duplication
-
+    // inter-file key duplication throws
     PropertiesFileUtilValueGetter dup = new PropertiesFileUtilValueGetter(
-        new String[][] {new String[] {"test92-duplicate-in-multiple-files"}});
-    Assertions.assertThrows(KeyDupliccatedException.class, () -> dup.getProp("KEY1", new HashMap<>()));
+        new String[][]{new String[]{"test92-duplicate-in-multiple-files"}});
+    Assertions.assertThrows(KeyDupliccatedException.class,
+        () -> dup.getProp("KEY1", new HashMap<>()));
   }
 
-  // To remove default locale from candidate locales
-  public void defaultLocaleRemovedFromLocaleCandidateTest() {
-    Locale.setDefault(Locale.ITALY);
-    PropertiesFileUtilValueGetter noneAndLang = new PropertiesFileUtilValueGetter(
-        new String[][] {new String[] {"test92-none-and-lang_test"}});
-    Assertions.assertEquals("none", noneAndLang.getProp("FILE_LOCALE", new HashMap<>()));
-  }
-
-  // To avoid throwing an exception exen if message Keys do not exist
   @Test
+  @DisplayName("throwsExceptionWhenKeyDoesNotExist=false returns key string when key not found")
   public void throwsExceptionWhenKeyDoesNotExistIsFalseTest() {
-    // key not exist : throwsExceptionWhenKeyDoesNotExist = false (MSG)
-
-    // hasProp : false
-    Assertions.assertEquals(false, OBJ_MSG.hasProp("non-exist-key"));
-
-    // getProp : No exception occurs and return key plus alpha string
-    Assertions.assertEquals("non-exist-key", OBJ_MSG.getProp("non-exist-key", new HashMap<>()));
+    assertThat(OBJ_MSG.hasProp("non-exist-key")).isFalse();
+    assertThat(OBJ_MSG.getProp("non-exist-key", new HashMap<>())).isEqualTo("non-exist-key");
   }
-
-  // To use "default" message by putting the postfix of the message ID ".default"
-
-  // (no test)
-
-  // To have the override function by java launch parameter (-D) or System.setProperty(...)
-
-  // (no test)
-
-  // To resolve property keys in the obtained value
 
   @Test
+  @DisplayName("property keys in obtained value are resolved recursively")
   public void resolvePropertyKeysInObtainedValueTest() {
-    Assertions.assertEquals("Hi, John.", OBJ_MSG.getProp("KEY_IN_MSG", new HashMap<>()));
-
-
+    assertThat(OBJ_MSG.getProp("KEY_IN_MSG", new HashMap<>())).isEqualTo("Hi, John.");
   }
-
-  // To resolve property keys in arguments</li>
-
-  // (no test)
-
 }

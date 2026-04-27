@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Provides custom jakarta validation validators and related utilities.
- * It must be open module for PropertiesFileUtil to read properties files at the root package.
+
+/**
+ * Provides loggers internal package.
  */
-open module jp.ecuacion.lib.validation {
-  exports jp.ecuacion.lib.validation.constant;
-  exports jp.ecuacion.lib.validation.constraints;
-  exports jp.ecuacion.lib.validation.constraints.enums;
+@NullMarked
+package jp.ecuacion.lib.core.logging.internal;
 
-  requires transitive jakarta.validation;
-  requires transitive jp.ecuacion.lib.core;
-
-  requires org.apache.commons.lang3;
-}
+import org.jspecify.annotations.NullMarked;

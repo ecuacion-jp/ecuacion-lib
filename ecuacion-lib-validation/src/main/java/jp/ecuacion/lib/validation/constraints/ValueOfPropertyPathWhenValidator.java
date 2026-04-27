@@ -56,8 +56,8 @@ public class ValueOfPropertyPathWhenValidator
     Object valueOfPropertyValuePath = getValue(instance, valuePropertyPath);
 
     propertyValues = new ArrayList<>();
-    if (valueOfPropertyValuePath instanceof Object[]) {
-      for (Object val : (Object[]) valueOfPropertyValuePath) {
+    if (valueOfPropertyValuePath instanceof Object[] arr) {
+      for (Object val : arr) {
         propertyValues.add(val);
       }
     } else {

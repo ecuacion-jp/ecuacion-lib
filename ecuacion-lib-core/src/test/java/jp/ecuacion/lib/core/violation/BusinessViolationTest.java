@@ -15,41 +15,47 @@
  */
 package jp.ecuacion.lib.core.violation;
 
-import jp.ecuacion.lib.core.util.TestTools;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-public class BusinessViolationTest extends TestTools {
+
+/** Tests for {@link BusinessViolation}. */
+@DisplayName("BusinessViolation")
+public class BusinessViolationTest {
+
   private static final String SAMPLE_MSG_ID = "MSG_ID";
 
   @Test
-  public void test01_constructor_01_messageId_02_argIsNotNull() {
+  @DisplayName("messageId is stored on construction")
+  public void messageId() {
     BusinessViolation v = new BusinessViolation(SAMPLE_MSG_ID);
-    assertEquals(SAMPLE_MSG_ID, v.getMessageId());
+    assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
   }
 
   @Test
-  public void test01_constructor_02_messageId_messageArgs_02_allExceptMessageIdAreNull() {
+  @DisplayName("messageArgs defaults to empty array when not provided")
+  public void messageArgsDefaultsToEmpty() {
     BusinessViolation v = new BusinessViolation(SAMPLE_MSG_ID);
-
-    assertEquals(SAMPLE_MSG_ID, v.getMessageId());
-    assertFalse(v.getMessageArgs() == null);
-    assertEquals(0, v.getMessageArgs().length);
+    assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
+    assertThat(v.getMessageArgs()).isNotNull();
+    assertThat(v.getMessageArgs()).isEmpty();
   }
 
   @Test
-  public void test01_constructor_02_messageId_messageArgs_03_valid() {
+  @DisplayName("messageArgs stores provided argument")
+  public void messageArgsWithValue() {
     BusinessViolation v = new BusinessViolation(SAMPLE_MSG_ID, "abc");
-
-    assertEquals(SAMPLE_MSG_ID, v.getMessageId());
-    assertEquals(1, v.getMessageArgs().length);
-    assertEquals("abc", v.getMessageArgs()[0].getArgString());
+    assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
+    assertThat(v.getMessageArgs()).hasSize(1);
+    assertThat(v.getMessageArgs()[0].getArgString()).isEqualTo("abc");
   }
 
   @Test
-  public void test01_constructor_12_messageId_02_allExceptMessageIdAreNull() {
+  @DisplayName("messageArgs is empty when only messageId is given (alternate constructor)")
+  public void messageArgsEmptyForAltConstructor() {
     BusinessViolation v = new BusinessViolation("TEST_KEY");
-
-    assertEquals("TEST_KEY", v.getMessageId());
-    assertFalse(v.getMessageArgs() == null);
-    assertEquals(0, v.getMessageArgs().length);
+    assertThat(v.getMessageId()).isEqualTo("TEST_KEY");
+    assertThat(v.getMessageArgs()).isNotNull();
+    assertThat(v.getMessageArgs()).isEmpty();
   }
 }

@@ -72,6 +72,7 @@ public class PropertyPathUtil {
    */
   public static final String EL_MAP_VAL = "<map value>";
 
+  @SuppressWarnings("MutablePublicArray")
   public static final String[] COLLECTION_ELS =
       new String[] {EL_LIST, EL_SET, EL_MAP_KEY, EL_MAP_VAL};
 
@@ -148,7 +149,7 @@ public class PropertyPathUtil {
   /**
    * Returns node list from propertyPath.
    * 
-   * <p>About {@code node}, {@see getRightMostNode(String}}.</p>
+   * <p>About {@code node}, see {@link #getRightMostNode(String)}.</p>
    */
   public static List<@NonNull String> getNodeList(String propertyPath) {
     List<@NonNull String> rtnList = new ArrayList<>();

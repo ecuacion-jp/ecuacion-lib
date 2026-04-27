@@ -86,8 +86,9 @@ public enum PropertiesFileUtilFileKindEnum {
           new String[] {"ValidationMessages"}},
       false);
 
-  private String[][] actualFilePrefixes;
-  private boolean throwsExceptionWhenKeyDoesNotExist;
+  @SuppressWarnings("ImmutableEnumChecker")
+  private final String[][] actualFilePrefixes;
+  private final boolean throwsExceptionWhenKeyDoesNotExist;
 
   private PropertiesFileUtilFileKindEnum(String[][] actualFilePrefixes,
       boolean throwsExceptionWhenKeyDoesNotExist) {

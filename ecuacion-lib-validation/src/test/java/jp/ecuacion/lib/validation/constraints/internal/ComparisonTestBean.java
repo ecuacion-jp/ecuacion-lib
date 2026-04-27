@@ -29,7 +29,7 @@ import jp.ecuacion.lib.validation.constraints.LessThan;
 import jp.ecuacion.lib.validation.constraints.LessThanOrEqualTo;
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "SameNameButDifferent", "JavaTimeDefaultTimeZone"})
 public class ComparisonTestBean {
 
   public static class Irregular {

@@ -59,8 +59,6 @@ public class EmbeddedVariableUtil {
 
       if (indexOfSymbol > 0 && indexOfSymbolWithEscape == indexOfSymbol - 1) {
         ordinal++;
-        continue;
-
       } else {
         return indexOfSymbol;
       }
@@ -103,7 +101,7 @@ public class EmbeddedVariableUtil {
     }
 
     // incorrect format
-    if (startIndex < 0 && endIndex >= 0 || startIndex > endIndex) {
+    if ((startIndex < 0 && endIndex >= 0) || startIndex > endIndex) {
       if (options == null || !options.ignoresEmergenceOfEndSymbolOnly) {
         throw new StringFormatIncorrectException(string, startSymbol, endSymbol);
 

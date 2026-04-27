@@ -22,11 +22,13 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.jspecify.annotations.Nullable;
 
+/** Test beans for {@link ConditionalCommonTest}. */
 @SuppressWarnings("unused")
-public class ConditinalCommonTestBean {
+public class ConditionalCommonTestBean {
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionValue = STRING, conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
+      conditionValue = STRING,
+      conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoField {
 
     private String afield;
@@ -39,7 +41,8 @@ public class ConditinalCommonTestBean {
   }
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
-      conditionValue = STRING, conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
+      conditionValue = STRING,
+      conditionValueString = EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
   public static class NoConditionField {
 
     private String field;
@@ -147,6 +150,5 @@ public class ConditinalCommonTestBean {
       private @Nullable String field = null;
       private @Nullable String condField = null;
     }
-
   }
 }

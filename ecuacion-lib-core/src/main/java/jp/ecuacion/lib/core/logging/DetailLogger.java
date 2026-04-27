@@ -143,7 +143,7 @@ public class DetailLogger extends EclibLogger {
    * @param logLevel logLevel. Cannot be {@code null}.
    * @param throwable throwable. It can be {@code null}. 
    *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
-   * @param additionalMessage message. Elements can be {@code null}. 
+   * @param additionalMessages message. Elements can be {@code null}.
    *     See {@code message} parameter part of {@link EclibLogger#log(Level, String)}.
    */
   private void log(Level logLevel, @Nullable Throwable throwable,

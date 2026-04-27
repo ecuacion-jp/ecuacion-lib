@@ -15,6 +15,8 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,15 +25,17 @@ import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+/** Tests for {@link EmbeddedVariableUtil}. */
+@DisplayName("EmbeddedVariableUtil")
 public class EmbeddedVariableUtilTest {
 
   @BeforeEach
   public void before() {}
 
-  // methodize to shorten the method name
   private @Nullable String getVar(String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string, "${", "}", null);
   }
@@ -41,134 +45,123 @@ public class EmbeddedVariableUtilTest {
   }
 
   @Test
-  public void getFirstFoundEmbeddedParameterTest() {
-
+  @DisplayName("getFirstFoundEmbeddedVariable: finds first variable or returns null")
+  public void getFirstFoundEmbeddedParameter() {
     // string empty
-    Assertions.assertEquals(null, getVar(""));
-
+    assertThat(getVar("")).isNull();
     // parameter none
-    Assertions.assertEquals(null, getVar("abc"));
+    assertThat(getVar("abc")).isNull();
 
-    // parameter 1
-
-    // parameter only
-    Assertions.assertEquals("abc", getVar("${abc}"));
-
+    // parameter 1 - parameter only
+    assertThat(getVar("${abc}")).isEqualTo("abc");
     // head of string
-    Assertions.assertEquals("a", getVar("${a}bc"));
-
+    assertThat(getVar("${a}bc")).isEqualTo("a");
     // middle of string
-    Assertions.assertEquals("bc", getVar("a${bc}de"));
-
+    assertThat(getVar("a${bc}de")).isEqualTo("bc");
     // tail of string
-    Assertions.assertEquals("bc", getVar("a${bc}"));
+    assertThat(getVar("a${bc}")).isEqualTo("bc");
 
     // parameter multiple
+    assertThat(getVar("${a}${b}c")).isEqualTo("a");
+    assertThat(getVar("${a}b${c}")).isEqualTo("a");
+    assertThat(getVar("${a}${b}${c}")).isEqualTo("a");
 
-    Assertions.assertEquals("a", getVar("${a}${b}c"));
-    Assertions.assertEquals("a", getVar("${a}b${c}"));
-    Assertions.assertEquals("a", getVar("${a}${b}${c}"));
-
-    // wrong format
-
-    // start symbol only
-    Assertions.assertThrows(ViolationException.class, () -> getVar("${abc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("a${bc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("abc${"));
+    // wrong format - start symbol only
+    assertThatThrownBy(() -> getVar("${abc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("a${bc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("abc${")).isInstanceOf(ViolationException.class);
     // end symbol only
-    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("abc}"));
+    assertThatThrownBy(() -> getVar("}abc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("a}bc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("abc}")).isInstanceOf(ViolationException.class);
     // end symbol before start symbol
-    Assertions.assertThrows(ViolationException.class, () -> getVar("}${abc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc${"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc${"));
+    assertThatThrownBy(() -> getVar("}${abc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("}abc${")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("a}bc${")).isInstanceOf(ViolationException.class);
 
     // ignoresEmergenceOfEndSymbolOnly == true
-
     Options opt = new EmbeddedVariableUtil.Options().setIgnoresEmergenceOfEndSymbolOnly(true);
-    // end symbol only
-    Assertions.assertEquals(null, getVarWithOpt("}abc", opt));
-    Assertions.assertEquals(null, getVarWithOpt("a}bc", opt));
-    Assertions.assertEquals(null, getVarWithOpt("abc}", opt));
-    Assertions.assertEquals(null, getVarWithOpt("}a}bc}", opt));
-    Assertions.assertEquals("b", getVarWithOpt("}a}${b}c}", opt));
-    // end symbol before start symbol
-    Assertions.assertThrows(ViolationException.class, () -> getVar("}${abc"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("}abc${"));
-    Assertions.assertThrows(ViolationException.class, () -> getVar("a}bc${"));
+    assertThat(getVarWithOpt("}abc", opt)).isNull();
+    assertThat(getVarWithOpt("a}bc", opt)).isNull();
+    assertThat(getVarWithOpt("abc}", opt)).isNull();
+    assertThat(getVarWithOpt("}a}bc}", opt)).isNull();
+    assertThat(getVarWithOpt("}a}${b}c}", opt)).isEqualTo("b");
+    // end symbol before start symbol still throws even with option
+    assertThatThrownBy(() -> getVar("}${abc")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("}abc${")).isInstanceOf(ViolationException.class);
+    assertThatThrownBy(() -> getVar("a}bc${")).isInstanceOf(ViolationException.class);
   }
 
-  // methodize to shorten the method name
-  private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(
-      String string) {
+  private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string,
-        new @NonNull String[] {"${+", "${-"}, "}", null);
+        new @NonNull String[]{"${+", "${-"}, "}", null);
   }
 
   @Test
-  public void getFirstFoundEmbeddedParameterWithStartSymbolsTest() {
+  @DisplayName("getFirstFoundEmbeddedVariable with multiple start symbols returns start+value pair")
+  public void getFirstFoundEmbeddedParameterWithStartSymbols() {
     // parameter none
-    Assertions.assertEquals(null, getVarWithMultipleStartSymbols("abc"));
+    assertThat(getVarWithMultipleStartSymbols("abc")).isNull();
 
     // parameter 1
-    Assertions.assertEquals(Pair.of("${+", "abc"), getVarWithMultipleStartSymbols("${+abc}"));
+    assertThat(getVarWithMultipleStartSymbols("${+abc}")).isEqualTo(Pair.of("${+", "abc"));
 
     // parameter 2
-    Assertions.assertEquals(Pair.of("${+", "a"), getVarWithMultipleStartSymbols("${+a}${-b}"));
-    Assertions.assertEquals(Pair.of("${+", "a"), getVarWithMultipleStartSymbols("${+a}${+b}"));
-    Assertions.assertEquals(Pair.of("${+", "ab"), getVarWithMultipleStartSymbols("${+ab}${-cd}"));
-    Assertions.assertEquals(Pair.of("${+", "ab"), getVarWithMultipleStartSymbols("${+ab}${+cd}"));
-    Assertions.assertEquals(Pair.of("${+", "b"), getVarWithMultipleStartSymbols("a${+b}c${-d}e"));
-    Assertions.assertEquals(Pair.of("${+", "b"), getVarWithMultipleStartSymbols("a${+b}c${+d}e"));
+    assertThat(getVarWithMultipleStartSymbols("${+a}${-b}")).isEqualTo(Pair.of("${+", "a"));
+    assertThat(getVarWithMultipleStartSymbols("${+a}${+b}")).isEqualTo(Pair.of("${+", "a"));
+    assertThat(getVarWithMultipleStartSymbols("${+ab}${-cd}")).isEqualTo(Pair.of("${+", "ab"));
+    assertThat(getVarWithMultipleStartSymbols("${+ab}${+cd}")).isEqualTo(Pair.of("${+", "ab"));
+    assertThat(getVarWithMultipleStartSymbols("a${+b}c${-d}e")).isEqualTo(Pair.of("${+", "b"));
+    assertThat(getVarWithMultipleStartSymbols("a${+b}c${+d}e")).isEqualTo(Pair.of("${+", "b"));
 
     // wrong format
-    Assertions.assertThrows(ViolationException.class,
-        () -> getVarWithMultipleStartSymbols("a}c${+d}e"));
+    assertThatThrownBy(() -> getVarWithMultipleStartSymbols("a}c${+d}e"))
+        .isInstanceOf(ViolationException.class);
   }
 
-  // methodize to shorten the method name
   private List<Pair<@Nullable String, String>> getPartList(String string) {
-    return EmbeddedVariableUtil.getPartList(string, new @NonNull String[] {"${+", "${-"}, "}");
+    return EmbeddedVariableUtil.getPartList(string, new @NonNull String[]{"${+", "${-"}, "}");
   }
-
 
   @Test
-  public void getPartListTest() {
-    List<Pair<@Nullable String, String>> rtn = null;
+  @DisplayName("getPartList splits string into literal and variable parts")
+  public void getPartList() {
+    List<Pair<@Nullable String, String>> rtn;
 
     // parameter none
     rtn = getPartList("abc");
-    Assertions.assertEquals(1, rtn.size());
-    Assertions.assertEquals(Pair.of(null, "abc"), rtn.get(0));
+    assertThat(rtn).hasSize(1);
+    assertThat(rtn.get(0)).isEqualTo(Pair.of(null, "abc"));
 
-    // parameter 1
+    // parameter 1 - only
     rtn = getPartList("${+abc}");
-    Assertions.assertEquals(1, rtn.size());
-    Assertions.assertEquals(Pair.of("${+", "abc"), rtn.get(0));
+    assertThat(rtn).hasSize(1);
+    assertThat(rtn.get(0)).isEqualTo(Pair.of("${+", "abc"));
 
+    // parameter 1 - head
     rtn = getPartList("${+a}bc");
-    Assertions.assertEquals(2, rtn.size());
-    Assertions.assertEquals(Pair.of("${+", "a"), rtn.get(0));
-    Assertions.assertEquals(Pair.of(null, "bc"), rtn.get(1));
+    assertThat(rtn).hasSize(2);
+    assertThat(rtn.get(0)).isEqualTo(Pair.of("${+", "a"));
+    assertThat(rtn.get(1)).isEqualTo(Pair.of(null, "bc"));
 
+    // parameter 1 - tail
     rtn = getPartList("a${+bc}");
-    Assertions.assertEquals(2, rtn.size());
-    Assertions.assertEquals(Pair.of(null, "a"), rtn.get(0));
-    Assertions.assertEquals(Pair.of("${+", "bc"), rtn.get(1));
+    assertThat(rtn).hasSize(2);
+    assertThat(rtn.get(0)).isEqualTo(Pair.of(null, "a"));
+    assertThat(rtn.get(1)).isEqualTo(Pair.of("${+", "bc"));
 
+    // parameter 1 - middle
     rtn = getPartList("a${+b}c");
-    Assertions.assertEquals(3, rtn.size());
-    Assertions.assertEquals(Pair.of(null, "a"), rtn.get(0));
-    Assertions.assertEquals(Pair.of("${+", "b"), rtn.get(1));
-    Assertions.assertEquals(Pair.of(null, "c"), rtn.get(2));
+    assertThat(rtn).hasSize(3);
+    assertThat(rtn.get(0)).isEqualTo(Pair.of(null, "a"));
+    assertThat(rtn.get(1)).isEqualTo(Pair.of("${+", "b"));
+    assertThat(rtn.get(2)).isEqualTo(Pair.of(null, "c"));
 
-    // complicated pattern
+    // empty string
     rtn = getPartList("");
   }
 
   public String getReplacedString(String string) {
-
     Map<String, String> paramMap = new HashMap<>();
     paramMap.put("key1", "value1");
     paramMap.put("key2", "value2");
@@ -179,24 +172,24 @@ public class EmbeddedVariableUtilTest {
   }
 
   @Test
+  @DisplayName("getVariableReplacedString substitutes variables from map")
   public void getParameterReplacedString() {
     // parameter none
-    Assertions.assertEquals("abc", getReplacedString("abc"));
+    assertThat(getReplacedString("abc")).isEqualTo("abc");
 
-    // 1 parameter (1 pattern only because finding parameter partis tested
-    // in getFirstFoundEmbeddedParameterTest)
-    Assertions.assertEquals("avalue1c", getReplacedString("a${key1}c"));
+    // 1 parameter
+    assertThat(getReplacedString("a${key1}c")).isEqualTo("avalue1c");
 
     // multiple parameters
-    Assertions.assertEquals("value3value2value1", getReplacedString("${key3}${key2}${key1}"));
+    assertThat(getReplacedString("${key3}${key2}${key1}")).isEqualTo("value3value2value1");
 
     // param contains start or end symbol
-    Assertions.assertEquals("a${key1c", getReplacedString("a${key4}c"));
-    Assertions.assertEquals("}abc", getReplacedString("${key5}bc"));
-    Assertions.assertEquals("${key1}abc", getReplacedString("${key4}${key5}bc"));
+    assertThat(getReplacedString("a${key4}c")).isEqualTo("a${key1c");
+    assertThat(getReplacedString("${key5}bc")).isEqualTo("}abc");
+    assertThat(getReplacedString("${key4}${key5}bc")).isEqualTo("${key1}abc");
 
     // string outside param contains start or end symbol with escape char
-    Assertions.assertEquals("a\\${key1\\}c", getReplacedString("a\\${key1\\}c"));
-    Assertions.assertEquals("a\\${key1\\}cvalue1e", getReplacedString("a\\${key1\\}c${key1}e"));
+    assertThat(getReplacedString("a\\${key1\\}c")).isEqualTo("a\\${key1\\}c");
+    assertThat(getReplacedString("a\\${key1\\}c${key1}e")).isEqualTo("a\\${key1\\}cvalue1e");
   }
 }

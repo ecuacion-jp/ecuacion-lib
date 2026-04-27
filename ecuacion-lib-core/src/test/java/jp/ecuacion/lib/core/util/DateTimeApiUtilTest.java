@@ -15,165 +15,123 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-public class DateTimeApiUtilTest extends TestTools {
 
-  @BeforeEach
-  public void before() {
-  }
+/** Tests for {@link DateTimeApiUtil}. */
+@DisplayName("DateTimeApiUtil")
+public class DateTimeApiUtilTest {
 
   @Test
-  public void test_getLocalDateTimeUserFriendlyString_arg_localDateTime_normal() {
+  @DisplayName("getLocalDateTimeDisplayString(LocalDateTime) formats correctly")
+  public void getLocalDateTimeDisplayString_localDateTime() {
     LocalDateTime dateTime = LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111);
-    String result = DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime);
-
-    assertEquals("2001-01-01 01:01:01", result);
+    assertThat(DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime))
+        .isEqualTo("2001-01-01 01:01:01");
   }
 
   @Test
-  public void test_normal_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_normal() {
+  @DisplayName("getLocalDateTimeDisplayString(OffsetDateTime) converts to target zone")
+  public void getLocalDateTimeDisplayString_offsetDateTime() {
     OffsetDateTime dateTime =
         OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    String result = DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
-
-    assertEquals("2001-01-01 10:01:01", result);
+    assertThat(DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9)))
+        .isEqualTo("2001-01-01 10:01:01");
   }
 
   @Test
-  public void test_getLocalDateTimeUserFriendlyString_arg_offsetDateTime_abnormal_null_ZoneOffset() {
-    // OffsetDateTime dateTime =
-    // OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    // String result = DateTimeApiUtil.getLocalDateTimeUserFriendlyString(dateTime, null);
-
-    // assertEquals(dateTime."2001-01-01 " + atZoneSameInstant(ZoneId.systemDefault()).getHour());
-  }
-
-  @Test
-  public void test_getOffsetDateTimeUserFriendlyString_normal() {
+  @DisplayName("getOffsetDateTimeDisplayString formats with offset suffix")
+  public void getOffsetDateTimeDisplayString() {
     OffsetDateTime dateTime =
         OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    String result = DateTimeApiUtil.getOffsetDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9));
-
-    assertEquals("2001-01-01 10:01:01 +09:00", result);
+    assertThat(DateTimeApiUtil.getOffsetDateTimeDisplayString(dateTime, ZoneOffset.ofHours(9)))
+        .isEqualTo("2001-01-01 10:01:01 +09:00");
   }
 
   @Test
-  public void test_getOffsetDateTimeUserFriendlyString_abnormal_null_ZoneOffset() {
-    // OffsetDateTime dateTime =
-    // OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1, 111), ZoneOffset.UTC);
-    // String result = DateTimeApiUtil.getOffsetDateTimeUserFriendlyString(OffsetDateTime.now(), null);
-    //
-    // assertEquals("2001-01-01 10:01:01 +09:00", result);
-  }
-
-  /*
-   * <li>2001-01-01 01:01:01 (The separator of year, month and day of month is dash)</li>
-   */
-  @Test
-  public void test_getLocalDateTime_normal1() {
+  @DisplayName("getLocalDateTime parses date with dash separator")
+  public void getLocalDateTime_dashSeparator() {
     LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01 01:01:01");
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 1);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(1);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
   }
 
-  /*
-   * <li>2001/01/01 01:01:01 (The separator of year, month and day of month is slash)</li>
-   */
   @Test
-  public void test_getLocalDateTime_normal2() {
+  @DisplayName("getLocalDateTime parses date with slash separator")
+  public void getLocalDateTime_slashSeparator() {
     LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001/01/01 01:01:01");
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 1);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(1);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
   }
 
-  /*
-   * <li> (The separator of the date and the time is "T")</li>
-   */
   @Test
-  public void test_getLocalDateTime_normal3() {
+  @DisplayName("getLocalDateTime parses date with 'T' separator between date and time")
+  public void getLocalDateTime_tSeparator() {
     LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01T01:01:01");
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 1);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(1);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
   }
 
-  /*
-   * <li>2001-01-01 01:01:01.123 (Smaller seconds than 1 are added)</li>
-   */
   @Test
-  public void test_getLocalDateTime_normal4() {
+  @DisplayName("getLocalDateTime parses date with sub-second precision")
+  public void getLocalDateTime_withMilliseconds() {
     LocalDateTime result = DateTimeApiUtil.getLocalDateTime("2001-01-01 01:01:01.123");
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 1);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
-    assertEquals(result.getNano(), 123000000);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(1);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
+    assertThat(result.getNano()).isEqualTo(123000000);
   }
 
-  /*
-   * day of month not padded with "0" 
-   */
   @Test
-  public void test_getLocalDateTime_abnormal1() {
-    try {
-      DateTimeApiUtil.getLocalDateTime("2001-01-1 01:01:01");
-      fail();
-      
-    } catch (Exception ex) {
-      // ex.printStackTrace();
-    }
+  @DisplayName("getLocalDateTime throws when day of month is not zero-padded")
+  public void getLocalDateTime_unpadded_throws() {
+    assertThatThrownBy(() -> DateTimeApiUtil.getLocalDateTime("2001-01-1 01:01:01"))
+        .isInstanceOf(Exception.class);
   }
 
-  /*
-   * <li>(localDateTime-part)+09:00</li>
-   */
   @Test
-  public void test_getOffsetDateTime_normal1() {
+  @DisplayName("getOffsetDateTime parses offset string with '+00:00' suffix")
+  public void getOffsetDateTime_plusZeroOffset() {
     OffsetDateTime tmp = DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01+00:00");
     LocalDateTime result = tmp.withOffsetSameInstant(ZoneOffset.ofHours(9)).toLocalDateTime();
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 10);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(10);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
   }
 
-  /*
-   * <li>(localDateTime-part) +09:00</li>
-   */
   @Test
-  public void test_getOffsetDateTime_normal2() {
+  @DisplayName("getOffsetDateTime parses offset string with ' +00:00' suffix (space before sign)")
+  public void getOffsetDateTime_spacedPlusZeroOffset() {
     OffsetDateTime tmp = DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01 +00:00");
     LocalDateTime result = tmp.withOffsetSameInstant(ZoneOffset.ofHours(9)).toLocalDateTime();
-
-    assertEquals(result.getYear(), 2001);
-    assertEquals(result.getMonthValue(), 1);
-    assertEquals(result.getDayOfMonth(), 1);
-    assertEquals(result.getHour(), 10);
-    assertEquals(result.getMinute(), 1);
-    assertEquals(result.getSecond(), 1);
+    assertThat(result.getYear()).isEqualTo(2001);
+    assertThat(result.getMonthValue()).isEqualTo(1);
+    assertThat(result.getDayOfMonth()).isEqualTo(1);
+    assertThat(result.getHour()).isEqualTo(10);
+    assertThat(result.getMinute()).isEqualTo(1);
+    assertThat(result.getSecond()).isEqualTo(1);
   }
 }

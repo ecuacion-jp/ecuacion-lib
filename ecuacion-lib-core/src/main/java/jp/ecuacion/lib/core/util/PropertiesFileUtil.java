@@ -650,7 +650,8 @@ public class PropertiesFileUtil {
    */
   public static String get(String propertyUtilFileKind, String key) {
     return obtainValueGetter(
-        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).getProp(null,
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase(Locale.ROOT)))
+            .getProp(null,
             key, new HashMap<>());
   }
 
@@ -666,7 +667,8 @@ public class PropertiesFileUtil {
    */
   public static String get(String propertyUtilFileKind, @Nullable Locale locale, String key) {
     return obtainValueGetter(
-        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).getProp(locale,
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase(Locale.ROOT)))
+            .getProp(locale,
             key, new HashMap<>());
   }
 
@@ -710,7 +712,8 @@ public class PropertiesFileUtil {
    */
   public static boolean has(String propertyUtilFileKind, String key) {
     return obtainValueGetter(
-        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase())).hasProp(key);
+        PropertiesFileUtilFileKindEnum.valueOf(propertyUtilFileKind.toUpperCase(Locale.ROOT)))
+            .hasProp(key);
   }
 
   /**
@@ -801,7 +804,8 @@ public class PropertiesFileUtil {
   private static String searchKeyAcrossFileKinds(@Nullable Locale locale, String key) {
     for (PropertiesFileUtilFileKindEnum fileKind : FILE_KINDS_FOR_KEY_ONLY_SEARCH) {
       if (obtainValueGetter(fileKind).hasProp(locale, key)) {
-        return PropertiesFileUtil.get(fileKind.toString().toLowerCase(), locale, key, new Arg[] {});
+        return PropertiesFileUtil.get(fileKind.toString().toLowerCase(Locale.ROOT), locale, key,
+            new Arg[] {});
       }
     }
     throw new RuntimeException(
@@ -892,7 +896,7 @@ public class PropertiesFileUtil {
     // Pass 1: #{fileKind:key} patterns (like #{messages:key}, #{item_names:key}).
     List<@NonNull String> fileKindStartSymbols =
         Arrays.stream(PropertiesFileUtilFileKindEnum.values())
-            .map(en -> prefix + en.toString().toLowerCase() + ":").toList();
+            .map(en -> prefix + en.toString().toLowerCase(Locale.ROOT) + ":").toList();
 
     List<Pair<@Nullable String, String>> pass1Result = EmbeddedVariableUtil.getPartList(string,
         fileKindStartSymbols.toArray(String[]::new), "}",

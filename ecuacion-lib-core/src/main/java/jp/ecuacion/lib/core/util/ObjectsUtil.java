@@ -253,6 +253,7 @@ public class ObjectsUtil {
         if (set.contains(object)) {
           throw new RequireElementsNonDuplicatedException();
         }
+        set.add(object);
       }
     }
 

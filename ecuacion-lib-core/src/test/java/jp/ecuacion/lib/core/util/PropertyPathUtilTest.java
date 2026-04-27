@@ -15,8 +15,12 @@
  */
 package jp.ecuacion.lib.core.util;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+/** Tests for {@link PropertyPathUtil#getRightMostNode}. */
+@DisplayName("PropertyPathUtil - getRightMostNode")
 public class PropertyPathUtilTest {
 
   private String getRightMostNode(String propertyPath) {
@@ -32,77 +36,77 @@ public class PropertyPathUtilTest {
   @Test
   public void getRightMostNodeTest_normalPattern() {
     // no "."
-    Assertions.assertEquals("field", getRightMostNode("field"));
+    assertThat(getRightMostNode("field")).isEqualTo("field");
 
     // with "."
-    Assertions.assertEquals("field", getRightMostNode("bean.field"));
-    Assertions.assertEquals("field", getRightMostNode("bean1.bean2.field"));
+    assertThat(getRightMostNode("bean.field")).isEqualTo("field");
+    assertThat(getRightMostNode("bean1.bean2.field")).isEqualTo("field");
   }
 
   @Test
   public void getRightMostNodeTest_array() {
     // array: index notation only, no collection-element marker
-    Assertions.assertEquals("field[0]", getRightMostNode("field[0]"));
-    Assertions.assertEquals("field[0]", getRightMostNode("bean.field[0]"));
+    assertThat(getRightMostNode("field[0]")).isEqualTo("field[0]");
+    assertThat(getRightMostNode("bean.field[0]")).isEqualTo("field[0]");
   }
 
   @Test
   public void getRightMostNodeTest_list() {
     // List: strList[0].<list element>
-    Assertions.assertEquals("strList[0]." + L, getRightMostNode("strList[0]." + L));
-    Assertions.assertEquals("strList[0]." + L, getRightMostNode("bean.strList[0]." + L));
+    assertThat(getRightMostNode("strList[0]." + L)).isEqualTo("strList[0]." + L);
+    assertThat(getRightMostNode("bean.strList[0]." + L)).isEqualTo("strList[0]." + L);
   }
 
   @Test
   public void getRightMostNodeTest_set() {
     // Set: intSet[].<iterable element>
-    Assertions.assertEquals("intSet[]." + S, getRightMostNode("intSet[]." + S));
-    Assertions.assertEquals("intSet[]." + S, getRightMostNode("bean.intSet[]." + S));
+    assertThat(getRightMostNode("intSet[]." + S)).isEqualTo("intSet[]." + S);
+    assertThat(getRightMostNode("bean.intSet[]." + S)).isEqualTo("intSet[]." + S);
   }
 
   @Test
   public void getRightMostNodeTest_mapKey() {
     // Map key: strMap<K>[].<map key>
-    Assertions.assertEquals("strMap<K>[]." + MK, getRightMostNode("strMap<K>[]." + MK));
-    Assertions.assertEquals("strMap<K>[]." + MK, getRightMostNode("bean.strMap<K>[]." + MK));
+    assertThat(getRightMostNode("strMap<K>[]." + MK)).isEqualTo("strMap<K>[]." + MK);
+    assertThat(getRightMostNode("bean.strMap<K>[]." + MK)).isEqualTo("strMap<K>[]." + MK);
   }
 
   @Test
   public void getRightMostNodeTest_mapValue() {
     // Map value: strMap[key1].<map value>
-    Assertions.assertEquals("strMap[key1]." + MV, getRightMostNode("strMap[key1]." + MV));
-    Assertions.assertEquals("strMap[key1]." + MV, getRightMostNode("bean.strMap[key1]." + MV));
+    assertThat(getRightMostNode("strMap[key1]." + MV)).isEqualTo("strMap[key1]." + MV);
+    assertThat(getRightMostNode("bean.strMap[key1]." + MV)).isEqualTo("strMap[key1]." + MV);
   }
 
   @Test
   public void getRightMostNodeTest_pairRight() {
     // Pair.right is exposed as map value node type (no key qualifier)
-    Assertions.assertEquals("pairField." + MV, getRightMostNode("pairField." + MV));
-    Assertions.assertEquals("pairField." + MV, getRightMostNode("bean.pairField." + MV));
+    assertThat(getRightMostNode("pairField." + MV)).isEqualTo("pairField." + MV);
+    assertThat(getRightMostNode("bean.pairField." + MV)).isEqualTo("pairField." + MV);
   }
 
   @Test
   public void getRightMostNodeTest_nestedList() {
     // List<List<String>>: strListList[0].<list element>[0].<list element>
     String path = "strListList[0]." + L + "[0]." + L;
-    Assertions.assertEquals(path, getRightMostNode(path));
-    Assertions.assertEquals(path, getRightMostNode("bean." + path));
+    assertThat(getRightMostNode(path)).isEqualTo(path);
+    assertThat(getRightMostNode("bean." + path)).isEqualTo(path);
   }
 
   @Test
   public void getRightMostNodeTest_nestedSet() {
     // Set<Set<Integer>>: intSetSet[].<iterable element>[].<iterable element>
     String path = "intSetSet[]." + S + "[]." + S;
-    Assertions.assertEquals(path, getRightMostNode(path));
-    Assertions.assertEquals(path, getRightMostNode("bean." + path));
+    assertThat(getRightMostNode(path)).isEqualTo(path);
+    assertThat(getRightMostNode("bean." + path)).isEqualTo(path);
   }
 
   @Test
   public void getRightMostNodeTest_nestedMapValue() {
     // Map<V, Map<V>>: mapMap[outer].<map value>[inner].<map value>
     String path = "mapMap[outer]." + MV + "[inner]." + MV;
-    Assertions.assertEquals(path, getRightMostNode(path));
-    Assertions.assertEquals(path, getRightMostNode("bean." + path));
+    assertThat(getRightMostNode(path)).isEqualTo(path);
+    assertThat(getRightMostNode("bean." + path)).isEqualTo(path);
   }
 
   @Test
@@ -110,7 +114,7 @@ public class PropertyPathUtilTest {
     // List<Set<Map<String, Integer>>>:
     // listSetMap[0].<list element>[].<iterable element>[key].<map value>
     String path = "listSetMap[0]." + L + "[]." + S + "[key]." + MV;
-    Assertions.assertEquals(path, getRightMostNode(path));
-    Assertions.assertEquals(path, getRightMostNode("bean." + path));
+    assertThat(getRightMostNode(path)).isEqualTo(path);
+    assertThat(getRightMostNode("bean." + path)).isEqualTo(path);
   }
 }
