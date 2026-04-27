@@ -179,7 +179,7 @@ public class ComparisonTestBean {
       private static class NumberBean {
         private int number;
         
-        public NumberBean(int number) {
+        NumberBean(int number) {
           this.number = number;
         }
       }

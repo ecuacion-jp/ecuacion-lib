@@ -304,8 +304,8 @@ public class ConstraintViolationBeanTest {
         throw new RuntimeException();
     }
 
-    /// 2. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
-    /// existence: `ancestor`
+    // 2. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
+    // existence: `ancestor`
     Set<ConstraintViolation<itemNameKeyClassAnnotationReadTest.No2.Root>> set2 =
         validator.validate(new itemNameKeyClassAnnotationReadTest.No2.Root());
     assertThat(set2).isNotEmpty();

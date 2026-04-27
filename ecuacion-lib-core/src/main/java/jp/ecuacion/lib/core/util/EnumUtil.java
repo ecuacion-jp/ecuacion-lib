@@ -249,7 +249,7 @@ public class EnumUtil {
     FIRST_CHAR_OF_CODE_GREATER_THAN_OR_EQUAL_TO;
     //@formatter:on
 
-    public static Set<String> getNameSet() {
+    static Set<String> getNameSet() {
       Set<String> rtnSet = new HashSet<>();
       for (ListForHtmlSelectOptionEnum anEnum : ListForHtmlSelectOptionEnum.values()) {
         rtnSet.add(anEnum.name());

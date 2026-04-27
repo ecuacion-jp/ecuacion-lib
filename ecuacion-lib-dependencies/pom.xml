@@ -46,7 +46,7 @@
 		<!-- module versions (test scope) -->
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 		<org.junit.jupiter.junit-jupiter-params.version>5.13.4</org.junit.jupiter.junit-jupiter-params.version>
-		<org.assertj.assertj-core.version>3.27.3</org.assertj.assertj-core.version>
+		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
 
 		<!-- jspecify -->
 		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
@@ -55,8 +55,8 @@
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.12.7</com.uber.nullaway.version>
-		<com.google.errorprone.error_prone_core.version>2.39.0</com.google.errorprone.error_prone_core.version>
+		<com.uber.nullaway.version>0.13.4</com.uber.nullaway.version>
+		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
 
 	</properties>
 	

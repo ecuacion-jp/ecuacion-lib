@@ -76,22 +76,22 @@
 		-->
 
 		<!-- plugin module versions -->
-		<org.apache.maven.plugins.maven-compiler-plugin.version>3.13.0</org.apache.maven.plugins.maven-compiler-plugin.version>
-		<org.apache.maven.plugins.maven-source-plugin.version>3.3.1</org.apache.maven.plugins.maven-source-plugin.version>
-		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.11.2</org.apache.maven.plugins.maven-javadoc-plugin.version>
-		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.5.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
-		<com.mycila.license-maven-plugin.version>4.6</com.mycila.license-maven-plugin.version>
+		<org.apache.maven.plugins.maven-compiler-plugin.version>3.15.0</org.apache.maven.plugins.maven-compiler-plugin.version>
+		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
+		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.12.0</org.apache.maven.plugins.maven-javadoc-plugin.version>
+		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.6.2</org.apache.maven.plugins.maven-enforcer-plugin.version>
+		<com.mycila.license-maven-plugin.version>5.0.0</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>13.3.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>13.4.1</com.puppycrawl.tools.checkstyle.version>
 		<!-- wagon -->
 		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
 		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
 		<!-- spotbugs -->
-		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.3.2</com.github.spotbugs.spotbugs-maven-plugin.version>
+		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.8.3</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
 		<!-- gpg -->
-		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.7</org.apache.maven.plugins.maven-gpg-plugin.version>
+		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.8</org.apache.maven.plugins.maven-gpg-plugin.version>
 		<!-- central publishing -->
 		<org.sonatype.central.central-publishing-maven-plugin.version>0.10.0</org.sonatype.central.central-publishing-maven-plugin.version>
 
