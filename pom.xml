@@ -90,6 +90,10 @@
 		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.8.3</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
+		<!-- allure -->
+		<io.qameta.allure.allure-maven.version>2.14.0</io.qameta.allure.allure-maven.version>
+		<!-- surefire -->
+		<org.apache.maven.plugins.maven-surefire-plugin.version>3.2.5</org.apache.maven.plugins.maven-surefire-plugin.version>
 		<!-- gpg -->
 		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.8</org.apache.maven.plugins.maven-gpg-plugin.version>
 		<!-- central publishing -->
@@ -257,6 +261,30 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+				</plugin>
+
+				<!-- allure -->
+				<plugin>
+					<groupId>io.qameta.allure</groupId>
+					<artifactId>allure-maven</artifactId>
+					<version>${io.qameta.allure.allure-maven.version}</version>
+					<configuration>
+						<resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+					</configuration>
+				</plugin>
+
+				<!-- maven-surefire-plugin: redirect allure results to target/ -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+					<configuration>
+						<systemPropertyVariables>
+							<allure.results.directory>
+								${project.build.directory}/allure-results
+							</allure.results.directory>
+						</systemPropertyVariables>
+					</configuration>
 				</plugin>
 
 				<!-- spotbugs -->
