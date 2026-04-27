@@ -25,6 +25,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -239,7 +240,8 @@ public class MailUtil {
 
       session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());
       // Pass log output to DetailLogger.
-      session.setDebugOut(new PrintStream(new MailUtilLogOutputStream(), true, "UTF-8"));
+      session.setDebugOut(
+          new PrintStream(new MailUtilLogOutputStream(), true, StandardCharsets.UTF_8));
 
       InternetAddress[] addressTo = new InternetAddress[mailToList.size()];
       for (int i = 0; i < mailToList.size(); i++) {

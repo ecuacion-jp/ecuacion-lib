@@ -46,7 +46,11 @@
 		<!-- module versions (test scope) -->
 		<org.junit.jupiter.junit-jupiter-api.version>5.13.4</org.junit.jupiter.junit-jupiter-api.version>
 		<org.junit.jupiter.junit-jupiter-params.version>5.13.4</org.junit.jupiter.junit-jupiter-params.version>
-		<org.assertj.assertj-core.version>3.27.3</org.assertj.assertj-core.version>
+		<org.junit.platform.junit-platform-launcher.version>1.13.4</org.junit.platform.junit-platform-launcher.version>
+		<org.junit.platform.junit-platform-engine.version>1.13.4</org.junit.platform.junit-platform-engine.version>
+		<org.junit.platform.junit-platform-commons.version>1.13.4</org.junit.platform.junit-platform-commons.version>
+		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
+		<io.qameta.allure.allure-junit5.version>2.29.0</io.qameta.allure.allure-junit5.version>
 
 		<!-- jspecify -->
 		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
@@ -55,8 +59,8 @@
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.12.7</com.uber.nullaway.version>
-		<com.google.errorprone.error_prone_core.version>2.39.0</com.google.errorprone.error_prone_core.version>
+		<com.uber.nullaway.version>0.13.4</com.uber.nullaway.version>
+		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
 
 	</properties>
 	
@@ -68,52 +72,26 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>default-compile</id>
-							<configuration>
-								<compilerArgs>
-									<arg>-XDcompilePolicy=simple</arg>
-									<arg>-XDshould-stop.ifError=FLOW</arg>
-									<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
-								</compilerArgs>
-								<annotationProcessorPaths>
-									<path>
-										<groupId>com.google.errorprone</groupId>
-										<artifactId>error_prone_core</artifactId>
-										<version>${com.google.errorprone.error_prone_core.version}</version>
-									</path>
-									<path>
-										<groupId>com.uber.nullaway</groupId>
-										<artifactId>nullaway</artifactId>
-										<version>${com.uber.nullaway.version}</version>
-									</path>
-								</annotationProcessorPaths>
-							</configuration>
-						</execution>
-						<execution>
-							<id>default-testCompile</id>
-							<configuration>
-								<compilerArgs>
-									<arg>-XDcompilePolicy=simple</arg>
-									<arg>-XDshould-stop.ifError=FLOW</arg>
-									<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
-								</compilerArgs>
-								<annotationProcessorPaths>
-									<path>
-										<groupId>com.google.errorprone</groupId>
-										<artifactId>error_prone_core</artifactId>
-										<version>${com.google.errorprone.error_prone_core.version}</version>
-									</path>
-									<path>
-										<groupId>com.uber.nullaway</groupId>
-										<artifactId>nullaway</artifactId>
-										<version>${com.uber.nullaway.version}</version>
-									</path>
-								</annotationProcessorPaths>
-							</configuration>
-						</execution>
-					</executions>
+					<configuration>
+						<compilerArgs>
+							<arg>-XDcompilePolicy=simple</arg>
+							<arg>-XDshould-stop.ifError=FLOW</arg>
+							<arg>-XDaddTypeAnnotationsToSymbol=true</arg>
+							<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
+						</compilerArgs>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>com.google.errorprone</groupId>
+								<artifactId>error_prone_core</artifactId>
+								<version>${com.google.errorprone.error_prone_core.version}</version>
+							</path>
+							<path>
+								<groupId>com.uber.nullaway</groupId>
+								<artifactId>nullaway</artifactId>
+								<version>${com.uber.nullaway.version}</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
 				</plugin>
 
 			</plugins>
@@ -214,6 +192,26 @@
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
 				<version>${org.assertj.assertj-core.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>${org.junit.platform.junit-platform-launcher.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-engine</artifactId>
+				<version>${org.junit.platform.junit-platform-engine.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-commons</artifactId>
+				<version>${org.junit.platform.junit-platform-commons.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.qameta.allure</groupId>
+				<artifactId>allure-junit5</artifactId>
+				<version>${io.qameta.allure.allure-junit5.version}</version>
 			</dependency>
 			<!-- nullaway / error prone -->
 			<dependency>

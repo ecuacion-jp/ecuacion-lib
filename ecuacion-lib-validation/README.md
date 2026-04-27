@@ -2,7 +2,53 @@
 
 ## What is it?
 
-`ecuacion-lib-validation` provides customized validatiors for Jakarta Validation.
+`ecuacion-lib-validation` provides customized validators for Jakarta Validation.
+
+## Validators
+
+| Category | Annotations |
+| --- | --- |
+| Conditional (When) | `@NotEmptyWhen`, `@EmptyWhen`, `@NotNullWhen`, `@NullWhen`, `@TrueWhen`, `@FalseWhen`, `@StringWhen`, `@NotStringWhen`, `@PatternWhen`, `@NotPatternWhen`, `@ValueOfPropertyPathWhen`, `@NotValueOfPropertyPathWhen` |
+| Multi-field | `@AllEmptyOrAllNotEmpty`, `@AllNullOrAllNotNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
+| Numeric comparison | `@GreaterThan`, `@GreaterThanOrEqualTo`, `@LessThan`, `@LessThanOrEqualTo` |
+| Others | `@PatternWithDescription`, `@AssertTrueWithPropertyPath`, `@ReturnTrue`, ... |
+
+## Usage Examples
+
+**Conditional (When)** — validate a field only when another field has a specific value:
+
+```java
+@NotEmptyWhen(
+    propertyPath = "companyName",
+    conditionPropertyPath = "type",
+    conditionValue = ConditionValue.STRING,
+    conditionValueString = "CORPORATE"
+)
+public class RegistrationForm {
+    private String type;
+    private String companyName;  // required only when type == "CORPORATE"
+}
+```
+
+**Multi-field** — validate relationships across multiple fields:
+
+```java
+@AllEmptyOrAllNotEmpty(propertyPath = {"startDate", "endDate"})
+public class SearchForm {
+    private String startDate;  // both must be filled in, or both must be empty
+    private String endDate;
+}
+```
+
+**Numeric comparison** — compare values between two fields:
+
+```java
+@GreaterThan(propertyPath = "endDate", baselinePropertyPath = "startDate")
+public class SearchForm {
+    private String startDate;
+    private String endDate;  // must be greater than startDate
+}
+```
 
 ## System Requirements
 
