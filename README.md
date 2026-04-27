@@ -16,22 +16,14 @@ a custom class-level validator for every case.
 
 ```java
 @NotEmptyWhen(
-    propertyPath = {"companyName"},
+    propertyPath = "companyName",
     conditionPropertyPath = "type",
     conditionValue = ConditionValue.STRING,
-    conditionValueString = {"CORPORATE"}
+    conditionValueString = "CORPORATE"
 )
 public class RegistrationForm {
     private String type;
     private String companyName;  // required only when type == "CORPORATE"
-}
-```
-
-```java
-@AllEmptyOrAllNotEmpty(propertyPath = {"startDate", "endDate"})
-public class SearchForm {
-    private String startDate;  // both must be filled in, or both must be empty
-    private String endDate;
 }
 ```
 
