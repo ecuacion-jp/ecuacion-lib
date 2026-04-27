@@ -1,5 +1,11 @@
 # ecuacion-lib
 
+[![Java CI](https://github.com/ecuacion-jp/ecuacion-lib/actions/workflows/ci.yml/badge.svg)](https://github.com/ecuacion-jp/ecuacion-lib/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/ecuacion-jp/ecuacion-lib)](https://github.com/ecuacion-jp/ecuacion-lib/releases)
+[![Maven Central](https://img.shields.io/maven-central/v/jp.ecuacion.lib/ecuacion-lib-validation.svg)](https://search.maven.org/artifact/jp.ecuacion.lib/ecuacion-lib-validation)
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
 ## What is it?
 
 `ecuacion-lib` provides utilities for Jakarta Validation.
