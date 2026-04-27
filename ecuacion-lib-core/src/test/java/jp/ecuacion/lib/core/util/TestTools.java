@@ -16,6 +16,12 @@
 package jp.ecuacion.lib.core.util;
 
 import org.junit.jupiter.api.Assertions;
+
+/**
+ * @deprecated All test classes now use AssertJ directly. This class is no longer referenced
+ *     and can be deleted.
+ */
+@Deprecated
 public class TestTools {
 
   //

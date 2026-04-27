@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.util;
 
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -73,14 +74,14 @@ public class StringUtil {
     // It's not good so only the strings without lower case alphabets are changed to lower case.
     Pattern pattern = Pattern.compile("^[A-Z0-9_]*$");
     if (pattern.matcher(snakeCaseString).find()) {
-      snakeCaseString = snakeCaseString.toLowerCase();
+      snakeCaseString = snakeCaseString.toLowerCase(Locale.ROOT);
     }
 
     String lowStr = StringUtils.uncapitalize(snakeCaseString);
     while (lowStr.indexOf("_") >= 0) {
       int firstUsPos = lowStr.indexOf("_");
       lowStr = lowStr.substring(0, firstUsPos)
-          + lowStr.substring(firstUsPos + 1, firstUsPos + 2).toUpperCase()
+          + lowStr.substring(firstUsPos + 1, firstUsPos + 2).toUpperCase(Locale.ROOT)
           + lowStr.substring(firstUsPos + 2);
     }
 
@@ -110,7 +111,7 @@ public class StringUtil {
     char[] chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     for (char c : chars) {
       String s = String.valueOf(c);
-      camelCaseString = camelCaseString.replaceAll(s, "_" + s);
+      camelCaseString = camelCaseString.replaceAll(s, "_" + s.toLowerCase(Locale.ROOT));
     }
 
     return camelCaseString;
@@ -179,7 +180,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<String> collection, String separator,
       String leftHandSideEnclosedBy, String rightHandSideEnclosedBy) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator,
         leftHandSideEnclosedBy, rightHandSideEnclosedBy);
   }
 
@@ -210,7 +211,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<String> collection, String separator,
       String elementEnclosedBy) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator,
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator,
         elementEnclosedBy);
   }
 
@@ -240,7 +241,7 @@ public class StringUtil {
   public static String getSeparatedValuesString(Collection<@NonNull String> collection,
       String separator) {
 
-    return getSeparatedValuesString(collection.toArray(new String[collection.size()]), separator);
+    return getSeparatedValuesString(collection.toArray(String[]::new), separator);
   }
 
   /**
@@ -260,7 +261,7 @@ public class StringUtil {
    * @return csv.
    */
   public static String getCsv(Collection<String> collection) {
-    return getCsv(collection.toArray(new String[collection.size()]));
+    return getCsv(collection.toArray(String[]::new));
   }
 
   /**
@@ -284,7 +285,7 @@ public class StringUtil {
    * @return csv with spaces after commas.
    */
   public static String getCsvWithSpace(Collection<String> collection) {
-    return getCsvWithSpace(collection.toArray(new String[collection.size()]));
+    return getCsvWithSpace(collection.toArray(String[]::new));
   }
 
   /* ■□■□ object ■□■□ */
@@ -299,7 +300,7 @@ public class StringUtil {
    * @return {@code true} if the value is {@code null} or an empty {@code String}
    */
   public static boolean isObjectNullOrEmpty(@Nullable Object value) {
-    return value == null || (value instanceof String && StringUtils.isEmpty((String) value));
+    return value == null || (value instanceof String s && StringUtils.isEmpty(s));
   }
 
   /* ■□■□ html escape ■□■□ */
@@ -311,8 +312,9 @@ public class StringUtil {
    * @return html-escaped strings.
    */
   public static String escapeHtml(String str) {
-    StringBuffer result = new StringBuffer();
-    for (char c : str.toCharArray()) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < str.length(); i++) {
+      char c = str.charAt(i);
       switch (c) {
         case '&' -> result.append("&amp;");
         case '<' -> result.append("&lt;");

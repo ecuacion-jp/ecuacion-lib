@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Locale;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
@@ -66,7 +67,7 @@ public class BooleanStringValidator implements ConstraintValidator<BooleanString
         new String[] {"true", "false", "on", "off", "yes", "no", "t", "f", "y", "n", "○", "×"};
 
     for (String keyword : allowedLowerCaseStrings) {
-      if (keyword.equals(value.toLowerCase())) {
+      if (keyword.equals(value.toLowerCase(Locale.ROOT))) {
         return true;
       }
     }

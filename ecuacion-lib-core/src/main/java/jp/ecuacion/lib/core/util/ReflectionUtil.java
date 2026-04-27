@@ -244,11 +244,11 @@ public class ReflectionUtil {
             // and Map (since the propertyPath is like "childMap[test]"
             // where test is the key of them map entry. Any type can be key and
             // it's impossible to resolve it).
-            if (objs instanceof Object[]) {
-              return ((Object[]) objs)[Integer.parseInt(index)];
+            if (objs instanceof Object[] arr) {
+              return arr[Integer.parseInt(index)];
 
-            } else if (objs instanceof List<?>) {
-              return ((List<?>) objs).get(Integer.parseInt(index));
+            } else if (objs instanceof List<?> list) {
+              return list.get(Integer.parseInt(index));
 
             } else {
               throw new ElementOfCollectionCannotBeObtainedException(

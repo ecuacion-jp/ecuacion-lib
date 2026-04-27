@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util.internal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 
 public class MailUtilEmail {
   private HashMap<String, String> detailLogMap = new HashMap<>();
@@ -33,7 +34,7 @@ public class MailUtilEmail {
   }
 
   public MailUtilEmail(MailUtilEmailServer emailServer, MailUtilEmailContent emailContent,
-      MailUtilEmailSettings emailSettings, HashMap<String, String> detailLogMap) {
+      MailUtilEmailSettings emailSettings, Map<String, String> detailLogMap) {
     this.serverInfo = emailServer;
     this.contentInfo = emailContent;
     this.settingInfo = emailSettings;
@@ -47,7 +48,7 @@ public class MailUtilEmail {
     props.setProperty("mail.smtp.auth",
         Boolean.valueOf(serverInfo.isNeedsAuthentication()).toString());
     String bounce = contentInfo.getBounceMailAddress();
-    if (bounce != null && !bounce.equals("")) {
+    if (StringUtils.isNotEmpty(bounce)) {
       props.setProperty("mail.smtp.from", bounce);
     }
 
@@ -76,7 +77,7 @@ public class MailUtilEmail {
 
   public String getDebugLogMessage() {
     // Finish when detailLogMap has no values.
-    if (detailLogMap.size() == 0) {
+    if (detailLogMap.isEmpty()) {
       return ". (parameter none)";
     }
 
@@ -121,11 +122,11 @@ public class MailUtilEmail {
     this.settingInfo = settingInfo;
   }
 
-  public HashMap<String, String> getDetailLogMap() {
+  public Map<String, String> getDetailLogMap() {
     return new HashMap<>(detailLogMap);
   }
 
-  public void setDetailLogMap(HashMap<String, String> detailLogMap) {
+  public void setDetailLogMap(Map<String, String> detailLogMap) {
     this.detailLogMap = new HashMap<>(detailLogMap);
   }
 }

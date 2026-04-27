@@ -144,9 +144,9 @@ public class ExceptionLogUtil {
     if (th == null) {
       errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
 
-    } else if (th instanceof ViolationException) {
+    } else if (th instanceof ViolationException ve) {
       errMsg = th.getClass().getCanonicalName()
-          + ExceptionUtil.getMessageList((ViolationException) th, locale, true).toString();
+          + ExceptionUtil.getMessageList(ve, locale, true).toString();
 
     } else {
       errMsg = th.getClass().getCanonicalName()
@@ -173,7 +173,7 @@ public class ExceptionLogUtil {
     }
 
     for (StackTraceElement ste : th.getStackTrace()) {
-      String[] spl = ste.getClassName().split("\\.");
+      String[] spl = ste.getClassName().split("\\.", -1);
       String packageAndClass = ste.getClassName();
       if (packagesShown != null) {
         String packages = "";

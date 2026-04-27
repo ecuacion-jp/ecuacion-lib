@@ -134,14 +134,15 @@ public class EnumUtil {
   public static <T> List<String[]> getListForHtmlSelect(Class<@NonNull T> enumClass,
       @Nullable Locale locale, @Nullable String optionsString) {
     optionsString = (optionsString == null) ? "" : optionsString;
-    String[] options = optionsString.split(",");
+    String[] options = optionsString.split(",", -1);
     EnumClassInfo<T> enumInfo = getEnumInfo(enumClass, locale);
 
     // Create the map which stores optionKey, optionValue
     Map<String, String> optionMap = new HashMap<>();
     for (String option : options) {
-      String optionKey = option.split("=")[0];
-      String optionValue = option.split("=").length == 1 ? null : option.split("=")[1];
+      String[] parts = option.split("=", -1);
+      String optionKey = parts[0];
+      String optionValue = parts.length == 1 ? null : parts[1];
 
       // Store the only keys contained in ListForHtmlSelectOptionEnum to the Map
       if (ListForHtmlSelectOptionEnum.getNameSet().contains(optionKey)) {
@@ -149,33 +150,27 @@ public class EnumUtil {
       }
     }
 
-    List<String[]> rtnList = new ArrayList<>();
-
-    if (optionMap.keySet().size() > 1) {
+    if (optionMap.size() > 1) {
       // An error occurs when multiple options set.
       throw new RuntimeException(
           "Multiple options cannot be set. (" + optionMap.keySet().toString() + ")");
     }
 
-    if (optionMap.keySet().size() == 0) {
+    if (optionMap.isEmpty()) {
       // Add all and end since no options exist.
-      enumInfo.getValueList().stream()
-          .forEach(value -> rtnList.add(new String[] {value.getCode(), value.getLabel()}));
-      return rtnList;
+      return enumInfo.getValueList().stream()
+          .map(value -> new String[] {value.getCode(), value.getLabel()})
+          .toList();
     }
 
-    // The following is the case that optionMap.keySet().size() == 1
+    // The following is the case that optionMap.size() == 1
     String optionKey = optionMap.keySet().stream().toList().get(0);
     String optionValue = optionMap.get(optionKey);
 
-    List<@NonNull EnumValueInfo<T>> list = enumInfo.getValueList();
-    for (EnumValueInfo<T> value : list) {
-      if (matchesOption(value, optionKey, Objects.requireNonNull(optionValue))) {
-        rtnList.add(new String[] {value.getCode(), value.getLabel()});
-      }
-    }
-
-    return rtnList;
+    return enumInfo.getValueList().stream()
+        .filter(value -> matchesOption(value, optionKey, Objects.requireNonNull(optionValue)))
+        .map(value -> new String[] {value.getCode(), value.getLabel()})
+        .toList();
   }
 
   private static <T> boolean matchesOption(EnumValueInfo<T> value, String optionKey,

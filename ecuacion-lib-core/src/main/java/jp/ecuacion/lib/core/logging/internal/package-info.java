@@ -15,9 +15,9 @@
  */
 
 /**
- * Provides the customized jpa entity.
+ * Provides loggers internal package.
  */
 @NullMarked
-package jp.ecuacion.lib.jpa.entity;
+package jp.ecuacion.lib.core.logging.internal;
 
 import org.jspecify.annotations.NullMarked;

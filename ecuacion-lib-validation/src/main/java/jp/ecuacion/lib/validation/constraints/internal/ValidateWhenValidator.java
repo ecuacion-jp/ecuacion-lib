@@ -17,15 +17,8 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.EQUAL_TO;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionOperator.NOT_EQUAL_TO;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.EMPTY;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.FALSE;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_EMPTY;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NOT_NULL;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.NULL;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.PATTERN;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.TRUE;
-import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
@@ -126,21 +119,15 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   boolean getSatisfiesCondition(Object instance) {
     Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
 
-    if (conditionPattern == NULL || conditionPattern == NOT_NULL) {
-      return checkNull(valueOfConditionPropertyPath);
-    } else if (conditionPattern == EMPTY || conditionPattern == NOT_EMPTY) {
-      return checkEmpty(valueOfConditionPropertyPath);
-    } else if (conditionPattern == TRUE || conditionPattern == FALSE) {
-      return checkBoolean(valueOfConditionPropertyPath);
-    } else if (conditionPattern == STRING) {
-      return checkString(valueOfConditionPropertyPath);
-    } else if (conditionPattern == PATTERN) {
-      return checkPattern(valueOfConditionPropertyPath);
-    } else if (conditionPattern == VALUE_OF_PROPERTY_PATH) {
-      return checkValueOfPropertyPath(instance, valueOfConditionPropertyPath);
-    } else {
-      throw new RuntimeException("Unexpected.");
-    }
+    return switch (conditionPattern) {
+      case NULL, NOT_NULL -> checkNull(valueOfConditionPropertyPath);
+      case EMPTY, NOT_EMPTY -> checkEmpty(valueOfConditionPropertyPath);
+      case TRUE, FALSE -> checkBoolean(valueOfConditionPropertyPath);
+      case STRING -> checkString(valueOfConditionPropertyPath);
+      case PATTERN -> checkPattern(valueOfConditionPropertyPath);
+      case VALUE_OF_PROPERTY_PATH ->
+          checkValueOfPropertyPath(instance, valueOfConditionPropertyPath);
+    };
   }
 
   private boolean checkNull(@Nullable Object valueOfConditionPropertyPath) {
@@ -154,8 +141,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     // conditionOperator then further modifies the direction.
     boolean patternMatchesNull = conditionPattern == NULL;
     boolean conditionSatisfied = patternMatchesNull ? isNull : !isNull;
-    return conditionSatisfied && conditionOperator == EQUAL_TO
-        || !conditionSatisfied && conditionOperator == NOT_EQUAL_TO;
+    return (conditionSatisfied && conditionOperator == EQUAL_TO)
+        || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkEmpty(@Nullable Object valueOfConditionPropertyPath) {
@@ -165,8 +152,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
 
-    return isEmpty && conditionOperator == EQUAL_TO
-        || !isEmpty && conditionOperator == NOT_EQUAL_TO;
+    return (isEmpty && conditionOperator == EQUAL_TO)
+        || (!isEmpty && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
@@ -203,8 +190,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
 
     boolean contains = Arrays.asList(conditionValueString).contains(conditionValue);
-    return contains && conditionOperator == EQUAL_TO
-        || !contains && conditionOperator == NOT_EQUAL_TO;
+    return (contains && conditionOperator == EQUAL_TO)
+        || (!contains && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
@@ -220,21 +207,21 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
 
     // datatype of valueOfConditionField must be String.
-    if (!(valueOfConditionPropertyPath instanceof String)) {
+    if (!(valueOfConditionPropertyPath instanceof String s)) {
       throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
     }
 
     // Pattern must be set.
-    if (conditionValueRegexp.equals("")) {
+    if (conditionValueRegexp.isEmpty()) {
       throw new RuntimeException("'conditionValuePattern' must be set.");
     }
 
     Pattern p = Pattern.compile(conditionValueRegexp);
-    Matcher m = p.matcher((String) valueOfConditionPropertyPath);
+    Matcher m = p.matcher(s);
 
     boolean satisfies = m.find();
-    return satisfies && conditionOperator == EQUAL_TO
-        || !satisfies && conditionOperator == NOT_EQUAL_TO;
+    return (satisfies && conditionOperator == EQUAL_TO)
+        || (!satisfies && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkValueOfPropertyPath(Object instance,
@@ -244,19 +231,18 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     Object valueOfConditionValueField = getValue(instance, conditionValuePropertyPath);
 
-    List<Object> valueListOfConditionValueField = new ArrayList<>();
-    if (valueOfConditionValueField instanceof Object[]) {
-      for (Object val : (Object[]) valueOfConditionValueField) {
-        valueListOfConditionValueField.add(val);
-      }
+    List<Object> valueListOfConditionValueField;
+    if (valueOfConditionValueField instanceof Object[] arr) {
+      valueListOfConditionValueField = new ArrayList<>(Arrays.asList(arr));
     } else {
+      valueListOfConditionValueField = new ArrayList<>();
       valueListOfConditionValueField.add(valueOfConditionValueField);
     }
 
     // dataType difference check
     List<Object> nonnullList =
         valueListOfConditionValueField.stream().filter(v -> v != null).toList();
-    Object firstValueOfConditionValueField = nonnullList.size() == 0 ? null : nonnullList.get(0);
+    Object firstValueOfConditionValueField = nonnullList.isEmpty() ? null : nonnullList.get(0);
     // if either of 2 values is null you cant check difference of datatype. So both is not null.
     if (valueOfConditionPropertyPath != null && firstValueOfConditionValueField != null) {
       Class<?> valueOfCf = valueOfConditionPropertyPath.getClass();
@@ -277,8 +263,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || (valueOfConditionPropertyPath != null
             && valueListOfConditionValueField.contains(valueOfConditionPropertyPath));
 
-    return contains && conditionOperator == EQUAL_TO
-        || !contains && conditionOperator == NOT_EQUAL_TO;
+    return (contains && conditionOperator == EQUAL_TO)
+        || (!contains && conditionOperator == NOT_EQUAL_TO);
   }
 
   /**
@@ -297,7 +283,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
   private void conditionValuePropertyPathMustNotSet() {
     // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!conditionValuePropertyPath.equals("")) {
+    if (!conditionValuePropertyPath.isEmpty()) {
       throw new RuntimeException("You cannot set 'conditionValuePropertyPath' when "
           + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
     }
@@ -313,7 +299,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   }
 
   private void conditionValueRegexpMustNotSet() {
-    if (!conditionValueRegexp.equals("")) {
+    if (!conditionValueRegexp.isEmpty()) {
       throw new RuntimeException(
           "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
     }

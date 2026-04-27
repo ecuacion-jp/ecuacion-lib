@@ -18,17 +18,20 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
  * Tests ClassValidator.
- * 
+ *
  * <p>Tests for {0} messages is executed in {@code ExceptionUtil}.</p>
  */
+@DisplayName("ClassValidator")
 public class ClassValidatorTest {
 
   @BeforeAll
@@ -50,9 +53,9 @@ public class ClassValidatorTest {
 
     } catch (Exception ex) {
 
-      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(
-          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getCause())
+          .isInstanceOf(NoSuchFieldException.class);
     }
 
     // propertyPath contains empty
@@ -61,9 +64,9 @@ public class ClassValidatorTest {
       Assertions.fail();
 
     } catch (Exception ex) {
-      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(
-          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getCause())
+          .isInstanceOf(NoSuchFieldException.class);
     }
 
     // propertyPath length zero
@@ -72,9 +75,9 @@ public class ClassValidatorTest {
       Assertions.fail();
 
     } catch (Exception ex) {
-      Assertions.assertTrue(ex.getCause() instanceof ValidationException);
-      Assertions.assertEquals("Length of propertyPath is zero.",
-          Objects.requireNonNull(ex.getCause()).getMessage());
+      assertThat(ex.getCause()).isInstanceOf(ValidationException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .isEqualTo("Length of propertyPath is zero.");
     }
 
     // propertyPath not found
@@ -83,9 +86,9 @@ public class ClassValidatorTest {
       Assertions.fail();
 
     } catch (Exception ex) {
-      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
-      Assertions.assertTrue(
-          Objects.requireNonNull(ex.getCause()).getCause() instanceof NoSuchFieldException);
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getCause())
+          .isInstanceOf(NoSuchFieldException.class);
     }
   }
 

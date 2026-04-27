@@ -53,12 +53,12 @@ public class NotPatternWhenValidator extends ValidateWhenValidator<NotPatternWhe
       return true;
     }
 
-    if (!(valueOfField instanceof String)) {
+    if (!(valueOfField instanceof String s)) {
       throw new RuntimeException("The data type of propertyPath must be String.");
     }
 
     Pattern p = Pattern.compile(regexp);
-    Matcher m = p.matcher((String) valueOfField);
+    Matcher m = p.matcher(s);
 
     return !m.find();
   }

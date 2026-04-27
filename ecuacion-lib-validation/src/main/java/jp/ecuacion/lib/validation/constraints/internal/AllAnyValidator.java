@@ -16,41 +16,19 @@
 package jp.ecuacion.lib.validation.constraints.internal;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class AllAnyValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
-  protected int numberOfNonEmptyValues(Object object) {
-    List<Object> list = new ArrayList<>();
-
-    for (Object fieldValue : valuesOfPropertyPaths) {
-      if (fieldValue instanceof String) {
-        if (StringUtils.isNotEmpty((String) fieldValue)) {
-          list.add(fieldValue);
-        }
-
-      } else {
-        if (fieldValue != null) {
-          list.add(fieldValue);
-        }
-      }
-    }
-
-    return list.size();
+  protected int numberOfNonEmptyValues() {
+    return (int) Arrays.stream(valuesOfPropertyPaths)
+        .filter(v -> v instanceof String s ? StringUtils.isNotEmpty(s) : v != null)
+        .count();
   }
 
-  protected int numberOfNonNullValues(Object object) {
-    List<Object> list = new ArrayList<>();
-
-    for (Object fieldValue : valuesOfPropertyPaths) {
-      if (fieldValue != null) {
-        list.add(fieldValue);
-      }
-    }
-
-    return list.size();
+  protected int numberOfNonNullValues() {
+    return (int) Arrays.stream(valuesOfPropertyPaths).filter(v -> v != null).count();
   }
 }

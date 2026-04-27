@@ -34,12 +34,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** 
- * Stores {@code ConstraintViolation} info.
- * 
- * <p>The reason of the existence of the class is that the violations 
- *     which are not created by {@code Jakarta Validation} can also be treated
- *     just as the one created by {@code Jakarta Validation}.</p>
+/**
+ * Stores {@code ConstraintViolation} info normalized for the message-building pipeline.
+ *
+ * <p>This is an internal DTO used by {@code ExceptionUtil}
+ *     and {@code ValidatorMessageParameterCreator} implementations.
+ *     It augments {@link jakarta.validation.ConstraintViolation} with information
+ *     that is not directly available from the Jakarta API:</p>
+ *
+ * <ul>
+ *   <li>{@code itemList} expands a single violation into multiple property paths
+ *       for {@code MultiplePropertyPathsValidator} (class- / method-level validators).</li>
+ *   <li>{@code embeddedParamMap} is the constraint descriptor's attributes
+ *       cleaned of {@code groups}, {@code message}, {@code payload},
+ *       and augmented with {@code annotation}, {@code itemAttributes},
+ *       and {@code invalidValue} for use as message-template parameters.</li>
+ * </ul>
+ *
+ * <p>Instances are created via {@link #createConstraintViolationBean(ConstraintViolation)}.</p>
  */
 public class ConstraintViolationBean<T> extends ReflectionUtil {
 
@@ -75,43 +87,14 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
   // values needed for all the patterns
 
-  /**
-   * Validator kind of the validator.
-   * 
-   * <p>It is used when customized ConstraintViolation is created 
-   *     by calling the constructor in this class. Otherwise the value is {@code null}.</p>
-   */
-  private @Nullable ValidatorKindEnum validatorKind;
   private List<Item> itemList = new ArrayList<>();
 
-  /**
-   * Constructs a new instance.
-   */
-  public ConstraintViolationBean(String validatorClassName, @NonNull T rootBean,
-      String messageTemplate, String propertyPath) {
-    this(validatorClassName, rootBean, null, messageTemplate, propertyPath);
-  }
-
-  /**
-   * Constructs a new instance.
-   */
-  public ConstraintViolationBean(String validatorClassName, @NonNull T rootBean,
-      @Nullable Object invalidValue, String messageTemplate, String propertyPath) {
-    this(ValidatorKindEnum.OTHER, validatorClassName, rootBean, rootBean, invalidValue,
-        messageTemplate, new HashMap<>(), propertyPath, propertyPath);
-  }
-
-  /**
-   * Constructs a new instance with parameters, not a ConstraintViolation.
-   */
-  public ConstraintViolationBean(ValidatorKindEnum validatorKind, String validatorClassName,
+  private ConstraintViolationBean(String validatorClassName,
       @NonNull T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
       Map<@NonNull String, @Nullable Object> embeddedParameterMap,
       String constraintViolationPropertyPath,
       String... propertyPaths) {
 
-    // Needs to avoid static analysis warning.
-    this.validatorKind = validatorKind;
     this.rootBean = rootBean;
     this.leafBean = leafBean;
     this.validatorClass = validatorClassName;
@@ -131,7 +114,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
 
     // Put field in this instance to paramMap
     embeddedParamMap.put("annotation", validatorClass);
-    embeddedParamMap.put("itemAttributes", itemList.toArray(new Item[itemList.size()]));
+    embeddedParamMap.put("itemAttributes", itemList.toArray(Item[]::new));
 
     if (embeddedParameterMap != null) {
       this.embeddedParamMap.putAll(embeddedParameterMap);
@@ -161,13 +144,9 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     // validatorClass
     Class<?> validatorClass = cv.getConstraintDescriptor().getConstraintValidatorClasses().get(0);
 
-    // validatorKind
     boolean isMultiplePropertyPathsValidator =
         MultiplePropertyPathsValidator.class.isAssignableFrom(validatorClass);
     boolean isClassValidator = ClassValidator.class.isAssignableFrom(validatorClass);
-    ValidatorKindEnum validatorKind = isMultiplePropertyPathsValidator
-        ? (isClassValidator ? ValidatorKindEnum.CLASS : ValidatorKindEnum.METHOD)
-        : ValidatorKindEnum.OTHER;
 
     // propertyPathList
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
@@ -178,20 +157,20 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
           : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
       String cvPpPrefix = (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".");
 
-      ppList = (Arrays.asList((String[]) embeddedParamMap.get("propertyPath")).stream()
-          .map(p -> cvPpPrefix + p).toList());
+      ppList = Arrays.stream((String[]) embeddedParamMap.get("propertyPath"))
+          .map(p -> cvPpPrefix + p).toList();
 
     } else {
       ppList = new ArrayList<>();
       ppList.add(cvPp);
     }
 
-    ConstraintViolationBean<U> rtnCv = new ConstraintViolationBean<>(validatorKind,
+    ConstraintViolationBean<U> rtnCv = new ConstraintViolationBean<>(
         Objects.requireNonNull(Objects.requireNonNull(cv.getConstraintDescriptor()).getAnnotation())
             .annotationType().getName(),
         cv.getRootBean(), cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(),
         embeddedParamMap, cv.getPropertyPath().toString(),
-        ppList.toArray(new String[ppList.size()]));
+        ppList.toArray(String[]::new));
 
     return rtnCv;
   }
@@ -207,7 +186,7 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + Objects.requireNonNull(getRootBean()).getClass().getName() + "\n"
         + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getItemList().stream().map(b -> b.getPropertyPath()).toList()) + "\n"
+        + StringUtil.getCsv(getItemList().stream().map(Item::getPropertyPath).toList()) + "\n"
         + "invalidValue:" + getInvalidValue();
   }
 
@@ -254,26 +233,16 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
     return iv == null ? "null" : iv.toString();
   }
 
-  public @Nullable ValidatorKindEnum getValidatorKind() {
-    return validatorKind;
-  }
-
   public List<Item> getItemList() {
     return itemList;
   }
 
   public Item[] getItems() {
-    return itemList.toArray(new Item[itemList.size()]);
+    return itemList.toArray(Item[]::new);
   }
 
   public Map<@NonNull String, @Nullable Object> getEmbeddedParamMap() {
     return embeddedParamMap;
   }
 
-  /**
-   * Stores validation kind.
-   */
-  public static enum ValidatorKindEnum {
-    CLASS, METHOD, OTHER;
-  }
 }

@@ -26,36 +26,32 @@ import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+/** Tests for {@link ConstraintViolationBean}. */
+@DisplayName("ConstraintViolationBean")
+@SuppressWarnings({"SameNameButDifferent", "UnusedVariable"})
 public class ConstraintViolationBeanTest {
 
-  private static final String NOT_EMPTY = "jakarta.validation.constraints.NotEmpty";
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   //@formatter:off
-  /// 
+  ///
   ///Data patterns are as follows:
   ///
-  /// 1. container structure pattern: `record` / `record stored in form` / `other` 
-  /// 1. validator pattern: `no validator(not empty)` (*1) / `field validator` / `class validator`
+  /// 1. container structure pattern: `record` / `other`
+  /// 1. validator pattern: `field validator` / `class validator`
   /// 1. violation occurring path: `root` / `child` / `grandChild`
   ///
-  /// (*1) Constructing ConstraintViolationBean without ContraintViolation.
+  /// #1, 2 and 3 are not totally, but relatively independent,
+  /// so it seems too much to execute every combination.
   ///
-  /// Let's add conditions to reduce the number of tests without losing the quality of the test.
-  ///
-  /// 1. when 3. validator pattern == `no validator(not empty)`, 2. container
-  ///    structure pattern is `record stored in form` only.  
-  ///    (This is not a condition for test. `no
-  ///    validator(not empty)` can be used only for `record stored in form` in nature.) 
-  /// 1. #1, 2 and 3 are not totally, but relatively independent,
-  ///    so it seems too much to execute 3(#1) * 3(#2) * 3(#3) tests.
-  /// 
   /// So the test patterns will be:
   ///
-  /// 1. container structure pattern: `record stored in form` / validator pattern: `no validator(not empty)`
   /// 1. container structure pattern: `record` / (`root`, `child`, `grandChild`) = (`field validator`, `class validator`, `field validator`)
   /// 1. container structure pattern: `other` / (`root`, `child`, `grandChild`) = (`class validator`, `field validator`, `class validator`)
   ///
@@ -63,26 +59,11 @@ public class ConstraintViolationBeanTest {
   @SuppressWarnings("null")
   @Test
   public void dataPatternTest() {
-    ConstraintViolationBean<dataPatternTest.No1.Form> cvBean;
-    String msgId = "a";
-
-    // 1. container structure pattern: `record stored in form`
-    // / validator pattern: `no validator(not empty)`
-    cvBean = new ConstraintViolationBean<>(NOT_EMPTY, new dataPatternTest.No1.Form(), msgId,
-        "root.field");
-    checkForForm(cvBean, "field", "root.field");
-    cvBean = new ConstraintViolationBean<>(NOT_EMPTY, new dataPatternTest.No1.Form(), msgId,
-        "root.child.field");
-    checkForForm(cvBean, "child.field", "child.field");
-    cvBean = new ConstraintViolationBean<>(NOT_EMPTY, new dataPatternTest.No1.Form(), msgId,
-        "root.child.grandChild.field");
-    checkForForm(cvBean, "child.grandChild.field", "grandChild.field");
-
-    // 2. container structure pattern: `record` / (`root`, `child`, `grandChild`)
+    // 1. container structure pattern: `record` / (`root`, `child`, `grandChild`)
     // = (`field validator`, `class validator`, `field validator`)
     Set<ConstraintViolation<dataPatternTest.No2.Root>> set2 =
         validator.validate(new dataPatternTest.No2.Root());
-    Assertions.assertTrue(set2.size() > 0);
+    assertThat(set2).isNotEmpty();
     for (ConstraintViolation<?> cvBean2 : set2) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean2);
@@ -97,11 +78,11 @@ public class ConstraintViolationBeanTest {
         throw new RuntimeException();
     }
 
-    // 3. container structure pattern: `other` / (`root`, `child`, `grandChild`)
+    // 2. container structure pattern: `other` / (`root`, `child`, `grandChild`)
     // = (`class validator`, `field validator`, `class validator`)
     Set<ConstraintViolation<dataPatternTest.No3.Root>> set3 =
         validator.validate(new dataPatternTest.No3.Root());
-    Assertions.assertTrue(set3.size() > 0);
+    assertThat(set3).isNotEmpty();
     for (ConstraintViolation<?> cvBean3 : set3) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean3);
@@ -117,50 +98,11 @@ public class ConstraintViolationBeanTest {
     }
   }
 
-  private void checkForForm(ConstraintViolationBean<?> bean, String itemPropertyPath,
-      String itemNameKey) {
-    String pp = bean.getItems()[0].getPropertyPath();
-    Assertions.assertEquals(itemPropertyPath, pp.substring(pp.indexOf(".") + 1));
-    check(bean, itemNameKey);
-  }
-
   private void check(ConstraintViolationBean<?> bean, String itemNameKey) {
     Assertions.assertEquals(itemNameKey, bean.getItems()[0].getItemNameKey());
   }
 
   public static class dataPatternTest {
-    public static class No1 {
-
-      public static class Form {
-        @Valid
-        public Root root = new Root();
-      }
-
-      public static class Root implements ItemContainer {
-        @Override
-        public Item[] customizedItems() {
-          return new Item[] {};
-        }
-
-        public @Nullable String field;
-
-        @Valid
-        public Child child = new Child();
-
-      }
-
-      public static class Child {
-        public @Nullable String field;
-
-        @Valid
-        public GrandChild grandChild = new GrandChild();
-      }
-
-      public static class GrandChild {
-        public @Nullable String field;
-      }
-    }
-
     public static class No2 {
       public static class Root implements ItemContainer {
         @Override
@@ -231,7 +173,7 @@ public class ConstraintViolationBeanTest {
     // Record in Form
     Set<ConstraintViolation<eclibItem_itemNameKeyTest.Form>> setRif =
         validator.validate(new eclibItem_itemNameKeyTest.Form());
-    Assertions.assertTrue(setRif.size() > 0);
+    assertThat(setRif).isNotEmpty();
     for (ConstraintViolation<?> cvBean : setRif) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
@@ -256,7 +198,7 @@ public class ConstraintViolationBeanTest {
     // Record directly
     Set<ConstraintViolation<eclibItem_itemNameKeyTest.RootRecord>> setRd =
         validator.validate(new eclibItem_itemNameKeyTest.RootRecord());
-    Assertions.assertTrue(setRd.size() > 0);
+    assertThat(setRd).isNotEmpty();
     for (ConstraintViolation<?> cvBean : setRd) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
@@ -316,14 +258,13 @@ public class ConstraintViolationBeanTest {
   }
 
   //@formatter:off
-  /// 
+  ///
   ///`@ItemNameKeyClass` tests can be done together with other tests,
   /// but it was divided from them because by integrating them tests are too complicated to understand.
   ///
   /// Data patterns are as follows:
   ///
-  /// 1. itemNameKeyClass existence: `no` / `self` / `ancestor` 
-  /// 1. construction pattern: `created from ConstraintViolation` / `the other constructor` 
+  /// 1. itemNameKeyClass existence: `no` / `self` / `ancestor`
   /// 1. violation occuring path: `root` / `child` / `grandChild`
   ///
   /// Let's add conditions to reduce the number of tests without losing the quality of the test.
@@ -333,12 +274,8 @@ public class ConstraintViolationBeanTest {
   ///
   /// So the test patterns will be:
   ///
-  /// 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass existence:
-  /// `self` (*1) 
-  /// 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
-  /// existence: `ancestor` 
-  /// 1. construction pattern: `the other constructor` / itemNameKeyClass existence: `self` 
-  /// 1. construction pattern: `the other constructor` / itemNameKeyClass existence:` ancestor` (*1)
+  /// 1. itemNameKeyClass existence: `self` (*1)
+  /// 1. itemNameKeyClass existence: `ancestor`
   ///
   /// (*) Each test has a target object with `root` / `child` / `grandChild`.
   ///
@@ -349,13 +286,10 @@ public class ConstraintViolationBeanTest {
   @SuppressWarnings("null")
   @Test
   public void itemNameKeyClassAnnotationReadTest() {
-    String msgId = "a";
-
-    // 1. construction pattern: `created from ConstraintViolation` / itemNameKeyClass
-    // existence: `self` (*1)
+    // 1. itemNameKeyClass existence: `self` (*1)
     Set<ConstraintViolation<itemNameKeyClassAnnotationReadTest.No1.Root>> set1 =
         validator.validate(new itemNameKeyClassAnnotationReadTest.No1.Root());
-    Assertions.assertTrue(set1.size() > 0);
+    assertThat(set1).isNotEmpty();
     for (ConstraintViolation<?> cvBean : set1) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
@@ -374,7 +308,7 @@ public class ConstraintViolationBeanTest {
     /// existence: `ancestor`
     Set<ConstraintViolation<itemNameKeyClassAnnotationReadTest.No2.Root>> set2 =
         validator.validate(new itemNameKeyClassAnnotationReadTest.No2.Root());
-    Assertions.assertTrue(set2.size() > 0);
+    assertThat(set2).isNotEmpty();
     for (ConstraintViolation<?> cvBean : set2) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
@@ -388,33 +322,9 @@ public class ConstraintViolationBeanTest {
       else
         throw new RuntimeException();
     }
-
-    // 3. construction pattern: `the other constructor` / itemNameKeyClass existence: `self`
-    ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form> cvBean3;
-    cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No3.Form(), msgId, "root.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_Root", cvBean3);
-    cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No3.Form(), msgId, "root.child.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_Child", cvBean3);
-    cvBean3 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No3.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No3.Form(), msgId, "root.child.grandChild.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild", cvBean3);
-
-    /// 4. construction pattern: `the other constructor` / itemNameKeyClass existence:`
-    /// ancestor` (*1)
-    ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form> cvBean4;
-    cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No4.Form(), msgId, "root.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_Root_Parent", cvBean4);
-    cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No4.Form(), msgId, "root.child.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_Child_Parent", cvBean4);
-    cvBean4 = new ConstraintViolationBean<itemNameKeyClassAnnotationReadTest.No4.Form>(NOT_EMPTY,
-        new itemNameKeyClassAnnotationReadTest.No4.Form(), msgId, "root.child.grandChild.field");
-    assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild_Parent", cvBean4);
   }
 
+  @SuppressWarnings("StringSplitter")
   private <T> void assertEqualsItemNameKeyClass(String expected, ConstraintViolationBean<T> bean) {
     Assertions.assertEquals(expected, bean.getItems()[0].getItemNameKey().split("\\.")[0]);
   }
@@ -499,89 +409,6 @@ public class ConstraintViolationBeanTest {
       }
     }
 
-    public static class No3 {
-      public static class Form {
-        @SuppressWarnings("exports")
-        @Valid
-        public Root root = new Root();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root")
-      public static class Root {
-        public @Nullable String field;
-
-        @SuppressWarnings("exports")
-        @Valid
-        public Child child = new Child();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child")
-      public static class Child {
-        public @Nullable String field;
-
-        @SuppressWarnings("exports")
-        @Valid
-        public GrandChild grandChild = new GrandChild();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild")
-      public static class GrandChild {
-        public @Nullable String field;
-      }
-    }
-
-    public static class No4 {
-      public static class Form {
-        @SuppressWarnings("exports")
-        @Valid
-        public Root root = new Root();
-      }
-
-      public static class Root extends RootParent {
-        public @Nullable String field;
-
-        @SuppressWarnings("exports")
-        @Valid
-        public Child child = new Child();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root_Parent")
-      public static class RootParent extends RootGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Root_GrandParent")
-      public static class RootGrandParent {
-      }
-
-      public static class Child extends ChildParent {
-        public @Nullable String field;
-
-        @SuppressWarnings("exports")
-        @Valid
-        public GrandChild grandChild = new GrandChild();
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child_Parent")
-      public static class ChildParent extends ChildGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_Child_GrandParent")
-      public static class ChildGrandParent {
-      }
-
-      public static class GrandChild extends GrandChildParent {
-        public @Nullable String field;
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild_Parent")
-      public static class GrandChildParent extends GrandChildGrandParent {
-      }
-
-      @ItemNameKeyClass("ItemNameKeyClass_GrandChild_GrandParent")
-      public static class GrandChildGrandParent {
-      }
-    }
-
   }
 
   //@formatter:off
@@ -597,7 +424,7 @@ public class ConstraintViolationBeanTest {
     // Record in Form
     Set<ConstraintViolation<itemNameKeyClassAnnotationOverrideTest.Form>> setRif =
         validator.validate(new itemNameKeyClassAnnotationOverrideTest.Form());
-    Assertions.assertTrue(setRif.size() > 0);
+    assertThat(setRif).isNotEmpty();
     for (ConstraintViolation<?> cvBean : setRif) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);
@@ -624,7 +451,7 @@ public class ConstraintViolationBeanTest {
     // Record directly
     Set<ConstraintViolation<itemNameKeyClassAnnotationOverrideTest.RootRecord>> setRd =
         validator.validate(new itemNameKeyClassAnnotationOverrideTest.RootRecord());
-    Assertions.assertTrue(setRd.size() > 0);
+    assertThat(setRd).isNotEmpty();
     for (ConstraintViolation<?> cvBean : setRd) {
       ConstraintViolationBean<?> bean =
           ConstraintViolationBean.createConstraintViolationBean(cvBean);

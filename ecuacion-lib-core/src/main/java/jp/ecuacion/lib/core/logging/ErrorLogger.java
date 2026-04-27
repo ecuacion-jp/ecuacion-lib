@@ -99,10 +99,10 @@ public class ErrorLogger extends EclibLogger {
       throwableMessage = throwable.getClass().getName() + " - "
           + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
 
-      if (throwable instanceof ViolationException) {
+      if (throwable instanceof ViolationException ve) {
         StringBuilder sb = new StringBuilder(throwableMessage);
         for (ConstraintViolation<?> cv
-            : ((ViolationException) throwable).getViolations().getConstraintViolations()) {
+            : ve.getViolations().getConstraintViolations()) {
           sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
         }
         throwableMessage = sb.toString();

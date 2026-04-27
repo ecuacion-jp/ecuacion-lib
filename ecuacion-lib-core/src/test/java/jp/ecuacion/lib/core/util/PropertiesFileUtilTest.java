@@ -17,11 +17,14 @@ package jp.ecuacion.lib.core.util;
 
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class PropertiesFileUtilTest extends TestTools {
+/** Tests for {@link PropertiesFileUtil}. */
+@DisplayName("PropertiesFileUtil")
+public class PropertiesFileUtilTest {
 
   @BeforeAll
   public static void beforeAll() {
@@ -29,9 +32,10 @@ public class PropertiesFileUtilTest extends TestTools {
   }
 
   @Test
+  @DisplayName("getMessage with number format arg formats the number correctly")
   public void getMessage_objectArgs_numberFormat() {
     String result = PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_NUMBER_FORMAT",
-        new Object[] {1234567});
-    Assertions.assertEquals("formatted: 1,234,567", result);
+        new Object[]{1234567});
+    assertThat(result).isEqualTo("formatted: 1,234,567");
   }
 }

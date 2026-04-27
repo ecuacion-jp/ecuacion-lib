@@ -17,7 +17,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "JavaLangClash"})
 public class ValidateWhenTestBean {
 
   public static enum TestEnum {

@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
@@ -23,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 import jp.ecuacion.lib.validation.constraints.ConcreteComparisonValidator;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.Test;
  * But there are tests for LessThan, LessThanOrEqualTo, GreaterThan, GreaterThanOrEqualTo
  * to ensure the settings for each validator is correct.
  */
+@DisplayName("Comparison validators")
 public class ComparisonTest {
 
   private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -45,8 +48,8 @@ public class ComparisonTest {
     } catch (ValidationException ex) {
       Throwable cause =
           Objects.requireNonNull(Objects.requireNonNull(ex.getCause()).getCause());
-      Assertions.assertTrue(cause instanceof NoSuchFieldException);
-      Assertions.assertEquals("propertyPath2", cause.getMessage());
+      assertThat(cause).isInstanceOf(NoSuchFieldException.class);
+      assertThat(cause.getMessage()).isEqualTo("propertyPath2");
     }
 
     // basisPropertyPath not found
@@ -57,8 +60,8 @@ public class ComparisonTest {
     } catch (ValidationException ex) {
       Throwable cause =
           Objects.requireNonNull(Objects.requireNonNull(ex.getCause()).getCause());
-      Assertions.assertTrue(cause instanceof NoSuchFieldException);
-      Assertions.assertEquals("basisPropertyPath", cause.getMessage());
+      assertThat(cause).isInstanceOf(NoSuchFieldException.class);
+      assertThat(cause.getMessage()).isEqualTo("basisPropertyPath");
     }
 
     // types differ between propertyPath and basisPropertyPath
@@ -68,7 +71,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
     }
 
     // unsupported types
@@ -77,7 +80,7 @@ public class ComparisonTest {
       Assertions.fail();
 
     } catch (ValidationException ex) {
-      Assertions.assertTrue(ex.getCause() instanceof RuntimeException);
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
     }
   }
 
@@ -87,34 +90,34 @@ public class ComparisonTest {
     // all valid
     Set<ConstraintViolation<ComparisonTestBean.ValidCheck.ValidWhenLessThanBasisBean>> setValidWhenLessThanBasisBean =
         validator.validate(new ComparisonTestBean.ValidCheck.ValidWhenLessThanBasisBean());
-    Assertions.assertTrue(setValidWhenLessThanBasisBean.isEmpty());
+    assertThat(setValidWhenLessThanBasisBean).isEmpty();
 
     // all invalid
     Set<ConstraintViolation<ComparisonTestBean.ValidCheck.ValidWhenGreaterThanBasisBean>> setValidWhenGreaterThanBasisBean =
         validator.validate(new ComparisonTestBean.ValidCheck.ValidWhenGreaterThanBasisBean());
-    Assertions.assertEquals(13, setValidWhenGreaterThanBasisBean.size());
+    assertThat(setValidWhenGreaterThanBasisBean).hasSize(13);
 
     // all valid for equal values
     Set<ConstraintViolation<ComparisonTestBean.ValidCheck.EqualAllowedBean>> setEqualAllowedBean =
         validator.validate(new ComparisonTestBean.ValidCheck.EqualAllowedBean());
-    Assertions.assertTrue(setEqualAllowedBean.isEmpty());
+    assertThat(setEqualAllowedBean).isEmpty();
 
     // all invalid for equal values
     Set<ConstraintViolation<ComparisonTestBean.ValidCheck.EqualNotAllowedBean>> setEqualNotAllowedBean =
         validator.validate(new ComparisonTestBean.ValidCheck.EqualNotAllowedBean());
-    Assertions.assertEquals(5, setEqualNotAllowedBean.size());
+    assertThat(setEqualNotAllowedBean).hasSize(5);
   }
 
   @Test
   public void isStringValidWhenLessThanBasis() {
     ConcreteComparisonValidator obj = new ConcreteComparisonValidator();
-    Assertions.assertTrue(obj.isStringValidWhenLessThanBasis("a", "b"));
-    Assertions.assertTrue(obj.isStringValidWhenLessThanBasis("a", "ab"));
-    Assertions.assertFalse(obj.isStringValidWhenLessThanBasis("ab", "a"));
-    Assertions.assertTrue(obj.isStringValidWhenLessThanBasis("a", "bc"));
-    Assertions.assertFalse(obj.isStringValidWhenLessThanBasis("bc", "a"));
-    Assertions.assertTrue(obj.isStringValidWhenLessThanBasis("ab", "c"));
-    Assertions.assertFalse(obj.isStringValidWhenLessThanBasis("c", "ab"));
+    assertThat(obj.isStringValidWhenLessThanBasis("a", "b")).isTrue();
+    assertThat(obj.isStringValidWhenLessThanBasis("a", "ab")).isTrue();
+    assertThat(obj.isStringValidWhenLessThanBasis("ab", "a")).isFalse();
+    assertThat(obj.isStringValidWhenLessThanBasis("a", "bc")).isTrue();
+    assertThat(obj.isStringValidWhenLessThanBasis("bc", "a")).isFalse();
+    assertThat(obj.isStringValidWhenLessThanBasis("ab", "c")).isTrue();
+    assertThat(obj.isStringValidWhenLessThanBasis("c", "ab")).isFalse();
   }
 
   @SuppressWarnings("null")
@@ -123,12 +126,12 @@ public class ComparisonTest {
     // valid
     Set<ConstraintViolation<ComparisonTestBean.EachAnnotation.Valid>> setValid =
         validator.validate(new ComparisonTestBean.EachAnnotation.Valid());
-    Assertions.assertEquals(true, setValid.isEmpty());
+    assertThat(setValid).isEmpty();
 
     // invalid
     Set<ConstraintViolation<ComparisonTestBean.EachAnnotation.Invalid>> setInvalid =
         validator.validate(new ComparisonTestBean.EachAnnotation.Invalid());
-    Assertions.assertEquals(6, setInvalid.size());
+    assertThat(setInvalid).hasSize(6);
   }
 
   @SuppressWarnings("null")
@@ -136,6 +139,6 @@ public class ComparisonTest {
   public void dotContainingPropertyPaths() {
     Set<ConstraintViolation<ComparisonTestBean.DotContainingPropertyPaths.Bean>> setBean =
         validator.validate(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
-    Assertions.assertEquals(1, setBean.size());
+    assertThat(setBean).hasSize(1);
   }
 }

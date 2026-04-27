@@ -80,7 +80,7 @@ public class MailUtil {
     List<@NonNull String> errorMailAddressList = Arrays.asList(
         PropertiesFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
 
-    if (errorMailAddressList == null || errorMailAddressList.size() == 0) {
+    if (errorMailAddressList == null || errorMailAddressList.isEmpty()) {
       return;
     }
 
@@ -97,7 +97,7 @@ public class MailUtil {
   }
 
   private static String getErrorMailContent(Throwable e, @Nullable String additionalMessage) {
-    StringBuffer msgSb = new StringBuffer();
+    StringBuilder msgSb = new StringBuilder();
     msgSb
         .append(ExceptionLogUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
@@ -173,8 +173,8 @@ public class MailUtil {
     ObjectsUtil.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
-    if ((mailToList == null || mailToList.size() == 0)
-        && (mailCcList == null || mailCcList.size() == 0)) {
+    if ((mailToList == null || mailToList.isEmpty())
+        && (mailCcList == null || mailCcList.isEmpty())) {
       throw new RuntimeException(
           "Either mailToList or mailCcList need to have at least one element.");
     }
@@ -191,7 +191,7 @@ public class MailUtil {
             hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null);
 
     // javaMail settings
-    boolean debug = (hasApp("debug")) ? Boolean.valueOf(getApp("debug")) : false;
+    boolean debug = hasApp("debug") && Boolean.parseBoolean(getApp("debug"));
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
         new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
@@ -221,8 +221,8 @@ public class MailUtil {
       boolean throwsException) throws Exception {
     try {
       // Finish when the number of senders is zero.
-      if ((mailToList == null || mailToList.size() == 0)
-          && (mailCcList == null || mailCcList.size() == 0)) {
+      if ((mailToList == null || mailToList.isEmpty())
+          && (mailCcList == null || mailCcList.isEmpty())) {
         dtlLog.info("mail:no TO or CC specified.");
         return;
       }
@@ -247,10 +247,11 @@ public class MailUtil {
       }
 
       // Create message
-      Message msg = null;
-      msg = new MimeMessage(session);
+      Message msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(mailFrom));
-      msg.setSentDate(new Date());
+      @SuppressWarnings("JavaUtilDate")
+      var sentDate = new Date();
+      msg.setSentDate(sentDate);
       msg.setRecipients(Message.RecipientType.TO, addressTo);
       ((MimeMessage) msg).setSubject(title, "UTF-8");
       if (isHtmlFormat) {
@@ -330,6 +331,7 @@ public class MailUtil {
       this.pass = pass;
     }
 
+    @Override
     protected PasswordAuthentication getPasswordAuthentication() {
       return new PasswordAuthentication(mailFrom, pass);
     }

@@ -59,8 +59,6 @@ public class EmbeddedVariableUtil {
 
       if (indexOfSymbol > 0 && indexOfSymbolWithEscape == indexOfSymbol - 1) {
         ordinal++;
-        continue;
-
       } else {
         return indexOfSymbol;
       }
@@ -103,7 +101,7 @@ public class EmbeddedVariableUtil {
     }
 
     // incorrect format
-    if (startIndex < 0 && endIndex >= 0 || startIndex > endIndex) {
+    if ((startIndex < 0 && endIndex >= 0) || startIndex > endIndex) {
       if (options == null || !options.ignoresEmergenceOfEndSymbolOnly) {
         throw new StringFormatIncorrectException(string, startSymbol, endSymbol);
 
@@ -170,8 +168,8 @@ public class EmbeddedVariableUtil {
     List<Integer> firstFoundParamNameList =
         firstFoundParamNameMap.keySet().stream().sorted().toList();
 
-    if (firstFoundParamNameList.size() == 0) {
-      if (exList.size() == 0) {
+    if (firstFoundParamNameList.isEmpty()) {
+      if (exList.isEmpty()) {
         // simply no variable found.
         return null;
 
@@ -295,9 +293,7 @@ public class EmbeddedVariableUtil {
   }
 
   private static Function<String, String> getValueGetterFromKey(Map<String, String> parameterMap) {
-    return (key) -> {
-      return parameterMap.get(key);
-    };
+    return parameterMap::get;
   }
 
   /**
