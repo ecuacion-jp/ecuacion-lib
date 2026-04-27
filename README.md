@@ -8,10 +8,34 @@
 
 ## What is it?
 
-`ecuacion-lib` provides utilities for Jakarta Validation.
-It also provides some utilities used by other ecuacion modules and apps.
+Jakarta Validation is powerful — but it can't express conditional logic out of the box.
+"This field is required only when that field equals `CORPORATE`" typically means writing
+a custom class-level validator for every case.
 
-`ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`. `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
+`ecuacion-lib-validation` solves this with annotation-based validators:
+
+```java
+@NotEmptyWhen(
+    propertyPath = "companyName",
+    conditionPropertyPath = "type",
+    conditionValue = ConditionValue.STRING,
+    conditionValueString = "CORPORATE"
+)
+public class RegistrationForm {
+    private String type;
+    private String companyName;  // required only when type == "CORPORATE"
+}
+```
+
+**What's included in `ecuacion-lib-validation`:**
+
+- Conditional validators (`@NotEmptyWhen`, `@EmptyWhen`, `@TrueWhen`, ...)
+- Multi-field validators (`@AllEmptyOrAllNotEmpty`, `@AnyNotEmpty`, ...)
+- Numeric comparison validators (`@GreaterThan`, `@LessThan`, ...)
+- Additional Jakarta Validation constraints (`@PatternWithDescription`, `@ReturnTrue`, ...)
+
+`ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
+`Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
 
 ## System Requirements
 
@@ -24,12 +48,12 @@ It also provides some utilities used by other ecuacion modules and apps.
 ## Installation
 
 1. Add the required `ecuacion` modules to your `pom.xml`.
-   (The following is an example for the `ecuacion-lib-core` module. Check the `Installation` section of the `README` in the module you want to add to your project.)
+   (The following is an example for the `ecuacion-lib-validation` module. Check the `Installation` section of the `README` in the module you want to add to your project.)
 
     ```xml
     <dependency>
         <groupId>jp.ecuacion.lib</groupId>
-        <artifactId>ecuacion-lib-core</artifactId>
+        <artifactId>ecuacion-lib-validation</artifactId>
         <!-- Put the latest release version -->
         <version>x.x.x</version>
     </dependency>
