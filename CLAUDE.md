@@ -6,7 +6,7 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 
 - **Java**: 21
 - **Build tool**: Maven
-- **Main modules**: `ecuacion-lib-core`, `ecuacion-lib-validation`, `ecuacion-lib-jpa`
+- **Main modules**: `ecuacion-lib-core`, `ecuacion-lib-validation`
 
 ## Java Coding Rules
 

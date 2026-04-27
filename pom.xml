@@ -336,11 +336,6 @@
 			</dependency>
 			<dependency>
 				<groupId>jp.ecuacion.lib</groupId>
-				<artifactId>ecuacion-lib-jpa</artifactId>
-				<version>${ecuacion-lib.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jp.ecuacion.lib</groupId>
 				<artifactId>ecuacion-lib-validation</artifactId>
 				<version>${ecuacion-lib.version}</version>
 			</dependency>
@@ -360,7 +355,6 @@
 	<modules>
 		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
-		<module>ecuacion-lib-jpa</module>
 		<module>ecuacion-lib-validation</module>
 	</modules>
 		
