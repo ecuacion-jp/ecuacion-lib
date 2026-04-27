@@ -32,7 +32,7 @@ public class RegistrationForm {
 - Conditional validators (`@NotEmptyWhen`, `@EmptyWhen`, `@TrueWhen`, ...)
 - Multi-field validators (`@AllEmptyOrAllNotEmpty`, `@AnyNotEmpty`, ...)
 - Numeric comparison validators (`@GreaterThan`, `@LessThan`, ...)
-- Additional Jakarta Validation constraints (`@EnumElement`, `@PatternWithDescription`, ...)
+- Additional Jakarta Validation constraints (`@PatternWithDescription`, `@ReturnTrue`, ...)
 
 `ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
 `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
