@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import java.util.Objects;
+import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.internal.ComparisonValidator;
 import org.jspecify.annotations.Nullable;
 
@@ -28,8 +29,13 @@ public class ConcreteComparisonValidator extends ComparisonValidator<Comparison,
   @Override
   public void initialize(@Nullable Comparison annotation) {
     Objects.requireNonNull(annotation);
+    boolean isLess = annotation.isValidWhenLessThanBasis();
+    boolean allowsEqual = annotation.allowsEqual();
+    ComparisonType comparisonType = isLess
+        ? (allowsEqual ? ComparisonType.LESS_THAN_OR_EQUAL_TO : ComparisonType.LESS_THAN)
+        : (allowsEqual ? ComparisonType.GREATER_THAN_OR_EQUAL_TO : ComparisonType.GREATER_THAN);
     super.initialize(annotation.message(), annotation.propertyPath(),
-        annotation.basisPropertyPath(), annotation.isValidWhenLessThanBasis(),
-        annotation.allowsEqual(), annotation.typeConversionFromString(), "yyyy-MM-dd");
+        annotation.basisPropertyPath(), comparisonType,
+        annotation.typeConversionFromString(), "yyyy-MM-dd");
   }
 }

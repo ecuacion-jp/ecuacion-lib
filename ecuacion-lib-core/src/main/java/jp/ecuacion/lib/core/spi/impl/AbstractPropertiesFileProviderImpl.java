@@ -43,7 +43,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
     Locale specifiedLocale = PropertiesFileUtilValueGetter.specifiedLocale.get();
 
     // remove default locale if not specified.
-    if ((locale == null || (!locale.getLanguage().isEmpty())
+    if (locale == null || (!locale.getLanguage().isEmpty()
         && !specifiedLocale.getLanguage().equals(Locale.getDefault().getLanguage())
         && locale.getLanguage().equals(Locale.getDefault().getLanguage()))) {
       return null;
@@ -73,7 +73,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
   }
 
   private @Nullable String getModuleName(String filename) {
-    String[] parts = filename.split("_");
+    String[] parts = filename.split("_", -1);
 
     int len = parts.length;
 
@@ -84,7 +84,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
       // PropertiesFileUtil.addResourceBundlePostfix)
       // and you can see the module name from the 'lib-core' part.
       // If you want more postfixes, you can use 'lib-core-xxxtest'
-      String[] moduleNameParts = parts[len - 1].split("-");
+      String[] moduleNameParts = parts[len - 1].split("-", -1);
       return "jp.ecuacion." + moduleNameParts[0] + "." + moduleNameParts[1];
     }
 

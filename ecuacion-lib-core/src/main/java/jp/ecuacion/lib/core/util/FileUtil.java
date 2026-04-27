@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,6 +31,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -70,15 +72,7 @@ public class FileUtil {
     return rtn;
   }
 
-  /*
-   * Concatenates two paths.
-   * 
-   * @param path1 path1
-   * 
-   * @param path2 path2
-   * 
-   * @return
-   */
+  /* Concatenates two paths. */
   private static String concatTwoFilePaths(String path1, String path2) {
     ObjectsUtil.requireNonNull(path1, path2);
 
@@ -154,9 +148,8 @@ public class FileUtil {
   public static String cleanPathStrWithSlash(String path) {
     ObjectsUtil.requireNonNull(path);
 
-    String rtnStr = null;
     // At the same time, unify the delimiter to "/".
-    rtnStr = path.replaceAll("\\\\", "/");
+    String rtnStr = path.replaceAll("\\\\", "/");
     // When connecting paths into strings,
     // there may be consecutive path separators (/, \), so we need to clean them up.
     rtnStr = rtnStr.replaceAll("//", "/");
@@ -232,7 +225,8 @@ public class FileUtil {
           new Violations().add(new BusinessViolation("MSG_ERR_PATH_IS_NULL")));
     }
 
-    if (Objects.requireNonNull(System.getProperty("os.name")).toUpperCase().contains("WINDOWS")) {
+    if (Objects.requireNonNull(System.getProperty("os.name")).toUpperCase(Locale.ROOT)
+        .contains("WINDOWS")) {
       // In Windows, if the second character is ":", such as "c:\...", it is a full path.
       if (path.length() >= 2 && path.substring(1, 2).equals(":")) {
         return false;
@@ -435,14 +429,13 @@ public class FileUtil {
   public static Pair<FileChannel, FileLock> lock(File lockFile, @Nullable String version)
       throws IOException {
     ObjectsUtil.requireNonNull(lockFile);
-    FileLock lockedObject = null;
 
     FileChannel channel =
         FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 
     // Attempts to lock a file. If lockedObject is null instead of throwing an exception,
     // it may mean that the lock acquisition failed.
-    lockedObject = channel.tryLock();
+    FileLock lockedObject = channel.tryLock();
     if (lockedObject == null) {
       throw new OverlappingFileLockException();
     }
@@ -465,7 +458,7 @@ public class FileUtil {
    * @return {@code true} when file is locked.
    * @throws IOException IOException
    */
-  @SuppressWarnings("resource")
+  @SuppressWarnings({"resource", "Finally"})
   public static boolean isLocked(String path) throws IOException {
     ObjectsUtil.requireNonNull(path);
 
@@ -548,7 +541,8 @@ public class FileUtil {
 
     try {
       // Write timestamp string to update lockFile (which string is not used though).
-      byte[] bytes = LocalDateTime.now().toString().getBytes();
+      @SuppressWarnings("JavaTimeDefaultTimeZone")
+      byte[] bytes = LocalDateTime.now().toString().getBytes(StandardCharsets.UTF_8);
 
       ByteBuffer src = ByteBuffer.allocate(bytes.length);
       src.put(bytes);

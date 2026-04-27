@@ -141,8 +141,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     // conditionOperator then further modifies the direction.
     boolean patternMatchesNull = conditionPattern == NULL;
     boolean conditionSatisfied = patternMatchesNull ? isNull : !isNull;
-    return conditionSatisfied && conditionOperator == EQUAL_TO
-        || !conditionSatisfied && conditionOperator == NOT_EQUAL_TO;
+    return (conditionSatisfied && conditionOperator == EQUAL_TO)
+        || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkEmpty(@Nullable Object valueOfConditionPropertyPath) {
@@ -152,8 +152,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
 
-    return isEmpty && conditionOperator == EQUAL_TO
-        || !isEmpty && conditionOperator == NOT_EQUAL_TO;
+    return (isEmpty && conditionOperator == EQUAL_TO)
+        || (!isEmpty && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
@@ -190,8 +190,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
 
     boolean contains = Arrays.asList(conditionValueString).contains(conditionValue);
-    return contains && conditionOperator == EQUAL_TO
-        || !contains && conditionOperator == NOT_EQUAL_TO;
+    return (contains && conditionOperator == EQUAL_TO)
+        || (!contains && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
@@ -207,7 +207,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
 
     // datatype of valueOfConditionField must be String.
-    if (!(valueOfConditionPropertyPath instanceof String)) {
+    if (!(valueOfConditionPropertyPath instanceof String s)) {
       throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
     }
 
@@ -217,11 +217,11 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
 
     Pattern p = Pattern.compile(conditionValueRegexp);
-    Matcher m = p.matcher((String) valueOfConditionPropertyPath);
+    Matcher m = p.matcher(s);
 
     boolean satisfies = m.find();
-    return satisfies && conditionOperator == EQUAL_TO
-        || !satisfies && conditionOperator == NOT_EQUAL_TO;
+    return (satisfies && conditionOperator == EQUAL_TO)
+        || (!satisfies && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkValueOfPropertyPath(Object instance,
@@ -263,8 +263,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
         || (valueOfConditionPropertyPath != null
             && valueListOfConditionValueField.contains(valueOfConditionPropertyPath));
 
-    return contains && conditionOperator == EQUAL_TO
-        || !contains && conditionOperator == NOT_EQUAL_TO;
+    return (contains && conditionOperator == EQUAL_TO)
+        || (!contains && conditionOperator == NOT_EQUAL_TO);
   }
 
   /**

@@ -15,30 +15,28 @@
  */
 package jp.ecuacion.lib.core.item;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+/** Tests for {@link Item}. */
+@DisplayName("Item")
 public class ItemTest {
 
   @Test
+  @DisplayName("constructor throws when itemPropertyPath is empty")
   public void constructorTest() {
-
-    // itemPropertyPath is empty
-    try {
-      new Item("");
-      assertFalse(true);
-    } catch (RequireNonEmptyException ex) {
-      // okay
-    }
+    assertThatThrownBy(() -> new Item(""))
+        .isInstanceOf(RequireNonEmptyException.class);
   }
 
   private void checkWithClassName(String itemPropertyPath, String className,
       String resultItemNameKey) {
     Item item = new Item(itemPropertyPath);
     item.setItemNameKeyClassFromClassName(className);
-    String result = item.getItemNameKey();
-    Assertions.assertEquals(resultItemNameKey, result);
+    assertThat(item.getItemNameKey()).isEqualTo(resultItemNameKey);
   }
 
   private void checkWithItemNameKey(String itemPropertyPath, String itemNameKey, String className,
@@ -46,11 +44,11 @@ public class ItemTest {
     Item item = new Item(itemPropertyPath);
     item.itemNameKey(itemNameKey);
     item.setItemNameKeyClassFromClassName(className);
-    String result = item.getItemNameKey();
-    Assertions.assertEquals(resultItemNameKey, result);
+    assertThat(item.getItemNameKey()).isEqualTo(resultItemNameKey);
   }
 
   @Test
+  @DisplayName("itemNameKey is derived from className and propertyPath correctly")
   public void itemNameKeyTest() {
 
     // No itemNameKey settings / itemPropertyPath does not have "."
@@ -83,7 +81,7 @@ public class ItemTest {
         "itemNameKeyClass.itemNameKeyField");
 
     // full itemNameKey settings / itemPropertyPath has 2 "."
-    checkWithItemNameKey("item.Property.Path", "itemNameKeyClass.itemNameKeyField", "rootRecordName",
-        "itemNameKeyClass.itemNameKeyField");
+    checkWithItemNameKey("item.Property.Path", "itemNameKeyClass.itemNameKeyField",
+        "rootRecordName", "itemNameKeyClass.itemNameKeyField");
   }
 }

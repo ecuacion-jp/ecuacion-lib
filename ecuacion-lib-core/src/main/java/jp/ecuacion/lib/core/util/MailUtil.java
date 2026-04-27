@@ -97,7 +97,7 @@ public class MailUtil {
   }
 
   private static String getErrorMailContent(Throwable e, @Nullable String additionalMessage) {
-    StringBuffer msgSb = new StringBuffer();
+    StringBuilder msgSb = new StringBuilder();
     msgSb
         .append(ExceptionLogUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
 
@@ -191,7 +191,7 @@ public class MailUtil {
             hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null);
 
     // javaMail settings
-    boolean debug = (hasApp("debug")) ? Boolean.valueOf(getApp("debug")) : false;
+    boolean debug = hasApp("debug") && Boolean.parseBoolean(getApp("debug"));
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
         new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
@@ -247,10 +247,11 @@ public class MailUtil {
       }
 
       // Create message
-      Message msg = null;
-      msg = new MimeMessage(session);
+      Message msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(mailFrom));
-      msg.setSentDate(new Date());
+      @SuppressWarnings("JavaUtilDate")
+      var sentDate = new Date();
+      msg.setSentDate(sentDate);
       msg.setRecipients(Message.RecipientType.TO, addressTo);
       ((MimeMessage) msg).setSubject(title, "UTF-8");
       if (isHtmlFormat) {
@@ -330,6 +331,7 @@ public class MailUtil {
       this.pass = pass;
     }
 
+    @Override
     protected PasswordAuthentication getPasswordAuthentication() {
       return new PasswordAuthentication(mailFrom, pass);
     }

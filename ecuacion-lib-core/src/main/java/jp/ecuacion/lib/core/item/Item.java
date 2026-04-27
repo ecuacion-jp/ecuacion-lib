@@ -181,7 +181,7 @@ public class Item {
   /**
    * Sets itemNameKeyClass from {@code @ItemNameKeyClass} annotation.
    * 
-   * @param itemNameKeyClass argument {@code itemNameKeyClass} is @{code @NonNull} 
+   * @param itemNameKeyClass argument {@code itemNameKeyClass} is {@code @NonNull}
    *     but property {@code itemNameKeyClass} is {@code @Nullable} 
    *     because the method is not always called.
    */

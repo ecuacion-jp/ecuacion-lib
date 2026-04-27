@@ -16,11 +16,11 @@
 package jp.ecuacion.lib.validation.constraints.internal;
 
 import jakarta.validation.ConstraintValidatorContext;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -67,6 +67,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   /**
    * Executes validation check.
    */
+  @Override
   public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
 
     procedureBeforeLoopForEachPropertyPath(instance);
@@ -175,32 +176,27 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   }
 
   protected boolean isStringValidWhenLessThanBasis(String x1, String x2) {
-    try {
-      byte[] bytesPropertyPath = x1.getBytes("UTF-8");
-      byte[] bytesBasisPropertyPath = x2.getBytes("UTF-8");
+    byte[] bytesPropertyPath = x1.getBytes(StandardCharsets.UTF_8);
+    byte[] bytesBasisPropertyPath = x2.getBytes(StandardCharsets.UTF_8);
 
-      for (int i = 0; i < bytesPropertyPath.length; i++) {
-        byte bytePropertyPath = bytesPropertyPath[i];
+    for (int i = 0; i < bytesPropertyPath.length; i++) {
+      byte bytePropertyPath = bytesPropertyPath[i];
 
-        if (bytesBasisPropertyPath.length <= i) {
-          // It's the case when bytesPropertyPath = "ab" and bytesBasisPropertyPath = "a".
-          // Return NOT VALID in this case.
-          return false;
-        }
-
-        byte byteBasisPropertyPath = bytesBasisPropertyPath[i];
-
-        if (bytePropertyPath != byteBasisPropertyPath) {
-          return bytePropertyPath < byteBasisPropertyPath;
-        }
+      if (bytesBasisPropertyPath.length <= i) {
+        // It's the case when bytesPropertyPath = "ab" and bytesBasisPropertyPath = "a".
+        // Return NOT VALID in this case.
+        return false;
       }
 
-      // It's the case when bytesPropertyPath = "a" and bytesBasisPropertyPath = "ab".
-      // Return VALID in this case.
-      return true;
+      byte byteBasisPropertyPath = bytesBasisPropertyPath[i];
 
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
+      if (bytePropertyPath != byteBasisPropertyPath) {
+        return bytePropertyPath < byteBasisPropertyPath;
+      }
     }
+
+    // It's the case when bytesPropertyPath = "a" and bytesBasisPropertyPath = "ab".
+    // Return VALID in this case.
+    return true;
   }
 }

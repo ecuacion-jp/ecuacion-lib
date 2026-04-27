@@ -18,10 +18,13 @@ package jp.ecuacion.lib.core.util.internal;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import jp.ecuacion.lib.core.logging.DetailLogger;
 import org.jspecify.annotations.Nullable;
 
 /**
+ * Redirects JavaMail debug output to the logging framework.
+ *
  * @see <a href="https://stackoverflow.com/questions/2118370/how-to-redirect-javax-mail-session-setdebugout-to-log4j-logger">stackOverflow</a>
  */
 public class MailUtilLogOutputStream extends FilterOutputStream {
@@ -38,7 +41,7 @@ public class MailUtilLogOutputStream extends FilterOutputStream {
     // this was never called in my test
     bos.flush();
     if (bos.size() > 0) {
-      detailLog.info(bos.toString());
+      detailLog.info(bos.toString(StandardCharsets.UTF_8));
     }
 
     bos.reset();
@@ -52,14 +55,14 @@ public class MailUtilLogOutputStream extends FilterOutputStream {
   @Override
   public void write(byte @Nullable [] b) throws IOException {
     if (b != null) {
-      write(new String(b));
+      write(new String(b, StandardCharsets.UTF_8));
     }
   }
 
   @Override
   public void write(byte @Nullable [] b, int off, int len) throws IOException {
     if (b != null) {
-      write(new String(b, off, len));
+      write(new String(b, off, len, StandardCharsets.UTF_8));
     }
   }
 

@@ -15,48 +15,52 @@
  */
 package jp.ecuacion.lib.core.violation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.util.TestTools;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-public class ViolationsTest extends TestTools {
+
+/** Tests for {@link Violations}. */
+@DisplayName("Violations")
+public class ViolationsTest {
 
   @Test
-  public void test01_empty_violations_does_not_throw() {
+  @DisplayName("empty violations does not throw")
+  public void emptyViolationsDoesNotThrow() {
     new Violations().throwIfAny();
-    assertTrue(true);
   }
 
   @Test
-  public void test02_throwIfAny_throws_when_business_violation_present() {
-    Violations violations = new Violations()
-        .add(new BusinessViolation("TEST_KEY"));
-
+  @DisplayName("throwIfAny throws ViolationException when a violation is present")
+  public void throwIfAny() {
+    Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
     Assertions.assertThrows(ViolationException.class, violations::throwIfAny);
   }
 
   @Test
-  public void test03_business_violations_stored_correctly() {
+  @DisplayName("added violations are stored in order")
+  public void violationsStoredCorrectly() {
     Violations violations = new Violations()
         .add(new BusinessViolation("KEY_1"))
         .add(new BusinessViolation("KEY_2"))
         .add(new BusinessViolation("KEY_3"));
 
-    assertEquals(3, violations.getBusinessViolations().size());
-    assertEquals("KEY_1", violations.getBusinessViolations().get(0).getMessageId());
-    assertEquals("KEY_2", violations.getBusinessViolations().get(1).getMessageId());
-    assertEquals("KEY_3", violations.getBusinessViolations().get(2).getMessageId());
+    assertThat(violations.getBusinessViolations()).hasSize(3);
+    assertThat(violations.getBusinessViolations().get(0).getMessageId()).isEqualTo("KEY_1");
+    assertThat(violations.getBusinessViolations().get(1).getMessageId()).isEqualTo("KEY_2");
+    assertThat(violations.getBusinessViolations().get(2).getMessageId()).isEqualTo("KEY_3");
   }
 
   @Test
-  public void test04_thrown_violation_exception_holds_violations() {
-    Violations violations = new Violations()
-        .add(new BusinessViolation("TEST_KEY"));
+  @DisplayName("thrown ViolationException holds the violations")
+  public void thrownExceptionHoldsViolations() {
+    Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
 
     @SuppressWarnings("null")
     ViolationException ex =
         Assertions.assertThrows(ViolationException.class, violations::throwIfAny);
-    assertFalse(ex.getViolations() == null);
-    assertEquals(1, ex.getViolations().getBusinessViolations().size());
+    assertThat(ex.getViolations()).isNotNull();
+    assertThat(ex.getViolations().getBusinessViolations()).hasSize(1);
   }
 }

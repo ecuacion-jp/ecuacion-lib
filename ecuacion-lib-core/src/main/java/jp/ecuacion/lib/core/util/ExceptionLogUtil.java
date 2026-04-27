@@ -173,7 +173,7 @@ public class ExceptionLogUtil {
     }
 
     for (StackTraceElement ste : th.getStackTrace()) {
-      String[] spl = ste.getClassName().split("\\.");
+      String[] spl = ste.getClassName().split("\\.", -1);
       String packageAndClass = ste.getClassName();
       if (packagesShown != null) {
         String packages = "";
