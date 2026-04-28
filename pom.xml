@@ -92,6 +92,8 @@
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
 		<!-- allure -->
 		<io.qameta.allure.allure-maven.version>2.14.0</io.qameta.allure.allure-maven.version>
+		<!-- jacoco -->
+		<org.jacoco.jacoco-maven-plugin.version>0.8.13</org.jacoco.jacoco-maven-plugin.version>
 		<!-- surefire -->
 		<org.apache.maven.plugins.maven-surefire-plugin.version>3.2.5</org.apache.maven.plugins.maven-surefire-plugin.version>
 		<!-- gpg -->
@@ -285,6 +287,28 @@
 							</allure.results.directory>
 						</systemPropertyVariables>
 					</configuration>
+				</plugin>
+
+				<!-- jacoco -->
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${org.jacoco.jacoco-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>test</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 
 				<!-- spotbugs -->
