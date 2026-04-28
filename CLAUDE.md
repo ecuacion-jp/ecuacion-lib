@@ -45,20 +45,19 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 
 ```bash
 # Build all modules
-mvn compile
+mvn clean compile
 
 # Test a specific module
-mvn test -pl ecuacion-lib-validation -am
+mvn clean test -pl ecuacion-lib-validation -am
 
 # Checkstyle verification (run in CI)
-mvn checkstyle:check
+mvn clean checkstyle:check
 ```
 
 **Always run the following after editing Java files and fix any violations before finishing:**
 
 ```bash
-mvn checkstyle:check spotbugs:check
-mvn javadoc:javadoc
+mvn clean checkstyle:check spotbugs:check javadoc:javadoc
 ```
 
 The most common violations are:
