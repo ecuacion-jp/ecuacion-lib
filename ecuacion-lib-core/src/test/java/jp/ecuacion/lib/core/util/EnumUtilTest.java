@@ -79,11 +79,86 @@ public class EnumUtilTest {
   }
 
   // -------------------------------------------------------------------------
+  // getListForHtmlSelect
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getListForHtmlSelect")
+  class GetListForHtmlSelect {
+
+    @Test
+    @DisplayName("no options returns all elements")
+    void noOptions() {
+      var list = EnumUtil.getListForHtmlSelect(TestEnum.class, null, null);
+      assertThat(list).hasSize(3);
+      assertThat(list.get(0)[0]).isEqualTo("A");
+      assertThat(list.get(1)[0]).isEqualTo("B");
+      assertThat(list.get(2)[0]).isEqualTo("C");
+    }
+
+    @Test
+    @DisplayName("including filters to specified names")
+    void including() {
+      var list = EnumUtil.getListForHtmlSelect(TestEnum.class, null, "including=VALUE_A|VALUE_C");
+      assertThat(list).hasSize(2);
+      assertThat(list.get(0)[0]).isEqualTo("A");
+      assertThat(list.get(1)[0]).isEqualTo("C");
+    }
+
+    @Test
+    @DisplayName("excluding filters out specified names")
+    void excluding() {
+      var list = EnumUtil.getListForHtmlSelect(TestEnum.class, null, "excluding=VALUE_B");
+      assertThat(list).hasSize(2);
+      assertThat(list.get(0)[0]).isEqualTo("A");
+      assertThat(list.get(1)[0]).isEqualTo("C");
+    }
+
+    @Test
+    @DisplayName("firstCharOfCodeEqualTo filters by first char of code")
+    void firstCharOfCodeEqualTo() {
+      var list =
+          EnumUtil.getListForHtmlSelect(TestEnum.class, null, "firstCharOfCodeEqualTo=A|C");
+      assertThat(list).hasSize(2);
+      assertThat(list.get(0)[0]).isEqualTo("A");
+      assertThat(list.get(1)[0]).isEqualTo("C");
+    }
+
+    @Test
+    @DisplayName("firstCharOfCodeLessThanOrEqualTo filters correctly")
+    void firstCharOfCodeLessThanOrEqualTo() {
+      var list = EnumUtil.getListForHtmlSelect(
+          TestEnum.class, null, "firstCharOfCodeLessThanOrEqualTo=B");
+      assertThat(list).hasSize(2);
+      assertThat(list.get(0)[0]).isEqualTo("A");
+      assertThat(list.get(1)[0]).isEqualTo("B");
+    }
+
+    @Test
+    @DisplayName("firstCharOfCodeGreaterThanOrEqualTo filters correctly")
+    void firstCharOfCodeGreaterThanOrEqualTo() {
+      var list = EnumUtil.getListForHtmlSelect(
+          TestEnum.class, null, "firstCharOfCodeGreaterThanOrEqualTo=B");
+      assertThat(list).hasSize(2);
+      assertThat(list.get(0)[0]).isEqualTo("B");
+      assertThat(list.get(1)[0]).isEqualTo("C");
+    }
+
+    @Test
+    @DisplayName("multiple options throws RuntimeException")
+    void multipleOptionsThrows() {
+      assertThatThrownBy(() -> EnumUtil.getListForHtmlSelect(
+          TestEnum.class, null, "including=VALUE_A,excluding=VALUE_B"))
+          .isInstanceOf(RuntimeException.class);
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // Test enum (requires getCode() and getDisplayName(Locale) by EnumUtil contract)
   // -------------------------------------------------------------------------
 
   public enum TestEnum {
-    VALUE_A("A"), VALUE_B("B");
+    VALUE_A("A"), VALUE_B("B"), VALUE_C("C");
 
     private final String code;
 

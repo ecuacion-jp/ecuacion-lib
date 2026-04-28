@@ -84,4 +84,36 @@ public class ItemTest {
     checkWithItemNameKey("item.Property.Path", "itemNameKeyClass.itemNameKeyField",
         "rootRecordName", "itemNameKeyClass.itemNameKeyField");
   }
+
+  @Test
+  @DisplayName("setsItemNameKeyClassExplicitly: true when itemNameKey has class prefix")
+  public void setsItemNameKeyClassExplicitly_true() {
+    Item item = new Item("name").itemNameKey("cls.field");
+    assertThat(item.setsItemNameKeyClassExplicitly()).isTrue();
+  }
+
+  @Test
+  @DisplayName("setsItemNameKeyClassExplicitly: false when itemNameKey has no class prefix")
+  public void setsItemNameKeyClassExplicitly_false() {
+    Item item = new Item("name").itemNameKey("field");
+    assertThat(item.setsItemNameKeyClassExplicitly()).isFalse();
+  }
+
+  @Test
+  @DisplayName("hideValue: sets showsValue to false")
+  public void hideValue() {
+    Item item = new Item("password").hideValue();
+    assertThat(item.getShowsValue()).isFalse();
+  }
+
+  @Test
+  @DisplayName("getItemNameKey(Object): resolves class from rootBean")
+  public void getItemNameKeyWithRootBean() {
+    record SimpleBean(String name) {}
+    Item item = new Item("name");
+    item.setItemNameKeyClassFromClassName("simpleBean");
+    String key = item.getItemNameKey(new SimpleBean("test"));
+    assertThat(key).isNotNull();
+    assertThat(key).contains("name");
+  }
 }

@@ -257,7 +257,8 @@ public class PropertyPathUtil {
     // Remove element keywords.
     tmpPropertyPath = sb.toString();
     List<@NonNull String> list =
-        Arrays.asList(new String[] {".<list element>", ".<iterable element>", ".<map value>"});
+        Arrays.asList(
+            new String[] {".<list element>", ".<iterable element>", ".<map key>", ".<map value>"});
     for (String keyword : list) {
       while (true) {
         if (tmpPropertyPath.contains(keyword)) {

@@ -15,16 +15,22 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -191,4 +197,58 @@ public class ReflectionUtilTest {
 
     }
   }
+
+  @Test
+  public void classExistsTest() {
+    assertThat(ReflectionUtil.classExists("java.lang.String")).isTrue();
+    assertThat(ReflectionUtil.classExists("no.such.Class")).isFalse();
+  }
+
+  @Test
+  public void newInstanceTest() {
+    Object obj = ReflectionUtil.newInstance("java.util.ArrayList");
+    assertThat(obj).isInstanceOf(java.util.ArrayList.class);
+  }
+
+  @Test
+  public void searchAnnotationPlacedAtClassTest() {
+    // annotation on the class itself
+    Optional<@NonNull SampleAnnotation> found =
+        ReflectionUtil.searchAnnotationPlacedAtClass(AnnotatedClass.class, SampleAnnotation.class);
+    assertThat(found).isPresent();
+
+    // annotation inherited from superclass
+    found = ReflectionUtil.searchAnnotationPlacedAtClass(
+        AnnotatedSubClass.class, SampleAnnotation.class);
+    assertThat(found).isPresent();
+
+    // annotation not present anywhere in hierarchy
+    found = ReflectionUtil.searchAnnotationPlacedAtClass(
+        UnannotatedClass.class, SampleAnnotation.class);
+    assertThat(found).isEmpty();
+  }
+
+  @Test
+  public void getLeafBeanTest() {
+    FieldValueRoot root = new FieldValueRoot();
+
+    // no dot: returns root itself
+    Object leaf = ReflectionUtil.getLeafBean(root, "value");
+    assertThat(leaf).isSameAs(root);
+
+    // one dot: returns the parent object (child bean)
+    leaf = ReflectionUtil.getLeafBean(root, "child.value");
+    assertThat(leaf).isInstanceOf(getFieldValueTest.FieldValueChild.class);
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  public @interface SampleAnnotation {}
+
+  @SampleAnnotation
+  public static class AnnotatedClass {}
+
+  public static class AnnotatedSubClass extends AnnotatedClass {}
+
+  public static class UnannotatedClass {}
 }

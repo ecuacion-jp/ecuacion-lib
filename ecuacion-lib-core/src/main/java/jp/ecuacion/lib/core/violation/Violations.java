@@ -312,6 +312,7 @@ public class Violations {
     public MessageParameters(Boolean isMessageWithItemName, boolean showsItemNamePath,
         Arg messagePrefix, Arg messagePostfix) {
       this.isMessageWithItemName = isMessageWithItemName;
+      this.showsItemNamePath = showsItemNamePath;
       this.messagePrefix = messagePrefix;
       this.messagePostfix = messagePostfix;
     }

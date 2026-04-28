@@ -131,22 +131,22 @@ public class ObjectsUtil {
   }
 
   /**
-   * Validates the length of a collection is not zero 
-   *     and throws {@code RequireSizeNonZeroException} 
+   * Validates the length of a collection is not zero
+   *     and throws {@code RequireSizeNonZeroException}
    *     if the argument value does not match the condition.
-   * 
+   *
    * @param <T> The class of the argument collection
-   * @param collection Any collection, {@code null} is acceptable.
+   * @param collection Any collection.
    * @return the argument
    */
   public static <T extends @Nullable Object> Collection<T> requireSizeNonZero(
       Collection<T> collection) {
 
-    if (collection != null && collection.isEmpty()) {
+    if (collection.isEmpty()) {
       throw new RequireSizeNonZeroException();
     }
 
-    return (Collection<T>) collection;
+    return collection;
   }
 
   /**
@@ -154,7 +154,7 @@ public class ObjectsUtil {
    *     and throws {@code RequireElementNonNullException} if any element is.
    *
    * @param <T> The class of the argument array
-   * @param objects Any object, {@code null} is acceptable.
+   * @param objects Any object.
    * @return the argument
    */
   public static <T extends @Nullable Object> T[] requireElementNonNull(T[] objects) {
@@ -170,17 +170,15 @@ public class ObjectsUtil {
    *     and throws {@code RequireElementNonNullException} if any element is.
    *
    * @param <T> The class of the argument collection
-   * @param collection Any collection, {@code null} is acceptable.
+   * @param collection Any collection.
    * @return the argument
    */
   public static <T extends @Nullable Object> Collection<T> requireElementNonNull(
       Collection<T> collection) {
 
-    if (collection != null) {
-      for (T object : collection) {
-        if (object == null) {
-          throw new RequireElementNonNullException();
-        }
+    for (T object : collection) {
+      if (object == null) {
+        throw new RequireElementNonNullException();
       }
     }
 
@@ -192,16 +190,14 @@ public class ObjectsUtil {
    * Validates that elements of an array are not {@code null} or empty
    *     and throws {@code RequireElementNonEmptyException} if any element is.
    *
-   * @param strings Any strings, {@code null} is acceptable.
+   * @param strings Any strings.
    * @return the argument
    */
   public static String[] requireElementNonEmpty(@RequireElementNonEmpty String[] strings) {
 
-    if (strings != null) {
-      for (String string : strings) {
-        if (StringUtils.isEmpty(string)) {
-          throw new RequireElementNonEmptyException();
-        }
+    for (String string : strings) {
+      if (StringUtils.isEmpty(string)) {
+        throw new RequireElementNonEmptyException();
       }
     }
 
@@ -248,13 +244,11 @@ public class ObjectsUtil {
       @RequireElementNonNull Collection<T> collection) {
 
     Set<T> set = new HashSet<>();
-    if (collection != null) {
-      for (T object : collection) {
-        if (set.contains(object)) {
-          throw new RequireElementsNonDuplicatedException();
-        }
-        set.add(object);
+    for (T object : collection) {
+      if (set.contains(object)) {
+        throw new RequireElementsNonDuplicatedException();
       }
+      set.add(object);
     }
 
     return collection;

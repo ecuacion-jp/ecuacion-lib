@@ -776,7 +776,7 @@ public class PropertiesFileUtil {
       String argString = PropertiesFileUtil.analyzedValueString(locale,
           Objects.requireNonNull(arg.getArgString()), new HashMap<>());
 
-      Arg[] messageArgs = arg.getMessageArgs() == null ? new Arg[] {} : arg.getMessageArgs();
+      Arg[] messageArgs = arg.getMessageArgs();
       for (Arg tmpArg : messageArgs) {
         argStrList.add(getStringFromArg(locale, tmpArg));
       }

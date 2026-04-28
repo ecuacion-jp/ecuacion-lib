@@ -218,6 +218,7 @@
 									<exclude>**/*.css</exclude>
 									<exclude>**/*.txt</exclude>
 									<exclude>**/*.md</exclude>
+									<exclude>.allure/**</exclude>
 								</excludes>
 							</licenseSet>
 						</licenseSets>

@@ -16,7 +16,10 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link PropertyPathUtil#getRightMostNode}. */
@@ -116,5 +119,161 @@ public class PropertyPathUtilTest {
     String path = "listSetMap[0]." + L + "[]." + S + "[key]." + MV;
     assertThat(getRightMostNode(path)).isEqualTo(path);
     assertThat(getRightMostNode("bean." + path)).isEqualTo(path);
+  }
+
+  // -------------------------------------------------------------------------
+  // getPropertyPathWithoutRightMostNode
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getPropertyPathWithoutRightMostNode")
+  class GetPropertyPathWithoutRightMostNode {
+
+    @Test
+    @DisplayName("no dot returns empty string")
+    void noDot() {
+      assertThat(PropertyPathUtil.getPropertyPathWithoutRightMostNode("field")).isEqualTo("");
+    }
+
+    @Test
+    @DisplayName("one dot returns the parent segment")
+    void oneDot() {
+      assertThat(PropertyPathUtil.getPropertyPathWithoutRightMostNode("bean.field"))
+          .isEqualTo("bean");
+    }
+
+    @Test
+    @DisplayName("two dots returns everything except rightmost node")
+    void twoDots() {
+      assertThat(PropertyPathUtil.getPropertyPathWithoutRightMostNode("bean1.bean2.field"))
+          .isEqualTo("bean1.bean2");
+    }
+
+    @Test
+    @DisplayName("collection node is the rightmost - parent bean returned")
+    void collectionNode() {
+      assertThat(PropertyPathUtil
+          .getPropertyPathWithoutRightMostNode("bean.strList[0]." + L)).isEqualTo("bean");
+      assertThat(PropertyPathUtil
+          .getPropertyPathWithoutRightMostNode("strList[0]." + L)).isEqualTo("");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getNodeList
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getNodeList")
+  class GetNodeList {
+
+    @Test
+    @DisplayName("empty string returns empty list")
+    void emptyString() {
+      assertThat(PropertyPathUtil.getNodeList("")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("single field returns one-element list")
+    void singleField() {
+      assertThat(PropertyPathUtil.getNodeList("field")).containsExactly("field");
+    }
+
+    @Test
+    @DisplayName("dot-separated path returns nodes in order")
+    void dotSeparated() {
+      assertThat(PropertyPathUtil.getNodeList("bean.field")).containsExactly("bean", "field");
+      assertThat(PropertyPathUtil.getNodeList("bean1.bean2.field"))
+          .containsExactly("bean1", "bean2", "field");
+    }
+
+    @Test
+    @DisplayName("collection node is treated as a single node")
+    void collectionNode() {
+      List<@NonNull String> nodes = PropertyPathUtil.getNodeList("strList[0]." + L);
+      assertThat(nodes).containsExactly("strList[0]." + L);
+
+      nodes = PropertyPathUtil.getNodeList("bean.strList[0]." + L);
+      assertThat(nodes).containsExactly("bean", "strList[0]." + L);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // removeCollectionPart
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("removeCollectionPart")
+  class RemoveCollectionPart {
+
+    @Test
+    @DisplayName("plain field is unchanged")
+    void plainField() {
+      assertThat(PropertyPathUtil.removeCollectionPart("field")).isEqualTo("field");
+      assertThat(PropertyPathUtil.removeCollectionPart("bean.field")).isEqualTo("bean.field");
+    }
+
+    @Test
+    @DisplayName("list node strips index and element marker")
+    void listNode() {
+      assertThat(PropertyPathUtil.removeCollectionPart("strList[0]." + L)).isEqualTo("strList");
+      assertThat(PropertyPathUtil.removeCollectionPart("bean.strList[0]." + L))
+          .isEqualTo("bean.strList");
+    }
+
+    @Test
+    @DisplayName("bean list node strips only the index")
+    void beanListNode() {
+      assertThat(PropertyPathUtil.removeCollectionPart("userList[1].name"))
+          .isEqualTo("userList.name");
+    }
+
+    @Test
+    @DisplayName("map key node strips the key qualifier")
+    void mapKeyNode() {
+      assertThat(PropertyPathUtil.removeCollectionPart("strMap<K>[]." + MK)).isEqualTo("strMap");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // removeIndex
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("removeIndex")
+  class RemoveIndex {
+
+    @Test
+    @DisplayName("plain field is unchanged")
+    void plainField() {
+      assertThat(PropertyPathUtil.removeIndex("field")).isEqualTo("field");
+    }
+
+    @Test
+    @DisplayName("list: index removed and element marker stripped")
+    void list() {
+      assertThat(PropertyPathUtil.removeIndex("stringList[1]." + L)).isEqualTo("stringList[]");
+      assertThat(PropertyPathUtil.removeIndex("stringList[1]." + L + "[2]." + L))
+          .isEqualTo("stringList[][]");
+      assertThat(PropertyPathUtil.removeIndex("userList[1].name")).isEqualTo("userList[].name");
+    }
+
+    @Test
+    @DisplayName("set: element marker stripped")
+    void set() {
+      assertThat(PropertyPathUtil.removeIndex("stringSet[]." + S)).isEqualTo("stringSet[]");
+    }
+
+    @Test
+    @DisplayName("map value: index removed and element marker stripped")
+    void mapValue() {
+      assertThat(PropertyPathUtil.removeIndex("strMap[key1]." + MV)).isEqualTo("strMap[]");
+    }
+
+    @Test
+    @DisplayName("map key: element marker stripped")
+    void mapKey() {
+      assertThat(PropertyPathUtil.removeIndex("strMap<K>[]." + MK)).isEqualTo("strMap<K>[]");
+    }
   }
 }
