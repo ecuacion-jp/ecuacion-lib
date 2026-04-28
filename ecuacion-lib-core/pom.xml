@@ -61,6 +61,12 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 
+			<!-- jacoco -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+
 			<!-- checkstyle -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
