@@ -1149,6 +1149,7 @@ public class ExceptionUtilTest {
   // getMessageList from Throwable
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getMessageList from Throwable")
   class MessageListFromThrowable {
@@ -1187,7 +1188,6 @@ public class ExceptionUtilTest {
       assertThat(msgs.get(0)).contains("must not be null");
     }
 
-    @SuppressWarnings("unused")
     public static record SimpleNotNullBean(@NotNull @Nullable String value) {}
   }
 
@@ -1195,6 +1195,7 @@ public class ExceptionUtilTest {
   // getMessageList from Violations
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getMessageList from Violations")
   class MessageListFromViolations {
@@ -1230,6 +1231,7 @@ public class ExceptionUtilTest {
   // getMessageList from ViolationException
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getMessageList from ViolationException")
   class MessageListFromViolationException {
@@ -1266,11 +1268,11 @@ public class ExceptionUtilTest {
   // getMessageList delegate overloads (0% coverage)
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getMessageList delegate overloads")
   class MessageListDelegateOverloads {
 
-    @SuppressWarnings("unused")
     private static record DelegateBean(@NotNull @Nullable String value) {}
 
     private Set<ConstraintViolation<DelegateBean>> violations() {
@@ -1316,6 +1318,7 @@ public class ExceptionUtilTest {
   // getMessageFromBusinessViolation additional branches
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getMessageFromBusinessViolation - additional branches")
   class MessageFromBusinessViolationBranches {

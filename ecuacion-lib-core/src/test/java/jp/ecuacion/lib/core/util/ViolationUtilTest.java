@@ -47,12 +47,12 @@ public class ViolationUtilTest {
     assertThat(violations.getConstraintViolations()).hasSize(1);
   }
 
-  @SuppressWarnings("unused")
-  private static record SimpleBean(@NotNull @Nullable String value) {}
+  private static record SimpleBean(@NotNull @Nullable String value) {
+  }
 
-  @SuppressWarnings("unused")
-  private static record GroupBean(
-      @NotNull(groups = GroupA.class) @Nullable String value) {}
+  private static record GroupBean(@NotNull(groups = GroupA.class) @Nullable String value) {
+  }
 
-  private interface GroupA {}
+  private interface GroupA {
+  }
 }

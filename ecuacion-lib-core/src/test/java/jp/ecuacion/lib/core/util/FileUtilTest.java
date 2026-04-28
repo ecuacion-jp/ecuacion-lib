@@ -387,6 +387,7 @@ public class FileUtilTest {
   // getPathListFromPathWithWildcard
   // -------------------------------------------------------------------------
 
+  @SuppressWarnings("null")
   @Nested
   @DisplayName("getPathListFromPathWithWildcard")
   class GetPathListFromPathWithWildcard {
