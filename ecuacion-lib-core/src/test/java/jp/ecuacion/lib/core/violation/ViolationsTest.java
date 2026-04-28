@@ -146,7 +146,6 @@ public class ViolationsTest {
   @DisplayName("add overloads")
   class AddOverloads {
 
-    @SuppressWarnings("unused")
     private static record ValidatedBean(@NotNull @Nullable String value) {}
 
     private static final Validator validator =
