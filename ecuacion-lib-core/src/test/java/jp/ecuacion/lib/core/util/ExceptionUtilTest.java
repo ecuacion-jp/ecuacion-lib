@@ -16,6 +16,8 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -32,10 +34,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -1137,5 +1143,240 @@ public class ExceptionUtilTest {
     // for arrays per Jakarta Bean Validation. Hibernate Validator's message
     // applies generically to all containers, so the warning is unavoidable here.
     public static record SingleArray(@Valid TargetCls[] targetArray) {}
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageList from Throwable
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageList from Throwable")
+  class MessageListFromThrowable {
+
+    @Test
+    @DisplayName("RuntimeException: returns its message")
+    void runtimeException() {
+      List<String> msgs = ExceptionUtil.getMessageList(new RuntimeException("boom"));
+      assertThat(msgs).containsExactly("boom");
+    }
+
+    @Test
+    @DisplayName("RuntimeException with null message: returns empty list")
+    void runtimeExceptionNullMessage() {
+      List<String> msgs = ExceptionUtil.getMessageList(new RuntimeException());
+      assertThat(msgs).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ViolationException: returns resolved business violation message")
+    void violationException() {
+      ViolationException ve =
+          new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
+      List<String> msgs = ExceptionUtil.getMessageList(ve, Locale.ENGLISH, false);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("ConstraintViolationException: returns resolved constraint message")
+    void constraintViolationException() {
+      Set<ConstraintViolation<SimpleNotNullBean>> cvs =
+          validator.validate(new SimpleNotNullBean(null));
+      List<String> msgs =
+          ExceptionUtil.getMessageList(new ConstraintViolationException(cvs), Locale.ENGLISH, false);
+      assertThat(msgs).hasSize(1);
+      assertThat(msgs.get(0)).contains("must not be null");
+    }
+
+    @SuppressWarnings("unused")
+    public static record SimpleNotNullBean(@NotNull @Nullable String value) {}
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageList from Violations
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageList from Violations")
+  class MessageListFromViolations {
+
+    @Test
+    @DisplayName("single business violation: returns resolved message")
+    void singleBusinessViolation() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("multiple business violations: returns all messages")
+    void multipleBusinessViolations() {
+      Violations v = new Violations()
+          .add(new BusinessViolation("MSG1"))
+          .add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("no locale specified: defaults to ROOT locale")
+    void noLocale() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v);
+      assertThat(msgs).hasSize(1);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageList from ViolationException
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageList from ViolationException")
+  class MessageListFromViolationException {
+
+    @Test
+    @DisplayName("returns messages from the exception's violations")
+    void basic() {
+      ViolationException ve =
+          new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
+      List<String> msgs = ExceptionUtil.getMessageList(ve);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("with locale: message resolved for specified locale")
+    void withLocale() {
+      ViolationException ve =
+          new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
+      List<String> msgs = ExceptionUtil.getMessageList(ve, Locale.ENGLISH);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("with isMessagesWithItemNamesAsDefault flag: delegates correctly")
+    void withFlag() {
+      ViolationException ve =
+          new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
+      List<String> msgs = ExceptionUtil.getMessageList(ve, false);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageList delegate overloads (0% coverage)
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageList delegate overloads")
+  class MessageListDelegateOverloads {
+
+    @SuppressWarnings("unused")
+    private static record DelegateBean(@NotNull @Nullable String value) {}
+
+    private Set<ConstraintViolation<DelegateBean>> violations() {
+      return validator.validate(new DelegateBean(null));
+    }
+
+    @Test
+    @DisplayName("getMessageList(Set): delegates to locale-less overload")
+    void set() {
+      assertThat(ExceptionUtil.getMessageList(violations())).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("getMessageList(Set, boolean): delegates with isWithItemNames flag")
+    void setWithBoolean() {
+      assertThat(ExceptionUtil.getMessageList(violations(), false)).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("getMessageList(Set, boolean, MessageParameters): delegates with params")
+    void setWithBooleanAndParams() {
+      assertThat(ExceptionUtil.getMessageList(
+          violations(), false, Violations.newMessageParameters())).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("getMessageList(Throwable, Locale): delegates correctly")
+    void throwableWithLocale() {
+      List<String> msgs =
+          ExceptionUtil.getMessageList(new RuntimeException("boom"), Locale.ENGLISH);
+      assertThat(msgs).containsExactly("boom");
+    }
+
+    @Test
+    @DisplayName("getMessageList(Throwable, boolean): delegates correctly")
+    void throwableWithBoolean() {
+      List<String> msgs = ExceptionUtil.getMessageList(new RuntimeException("boom"), false);
+      assertThat(msgs).containsExactly("boom");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageFromBusinessViolation additional branches
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageFromBusinessViolation - additional branches")
+  class MessageFromBusinessViolationBranches {
+
+    @Test
+    @DisplayName("isMessagesWithItemNamesAsDefault=true: uses withItemName message lookup")
+    void isMessageWithItemNameTrue() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("explicit isMessageWithItemName(false): overrides default")
+    void explicitIsMessageWithItemNameFalse() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"))
+          .withMessageParameters(p -> p.isMessageWithItemName(false));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("message prefix is prepended")
+    void withPrefix() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"))
+          .withMessageParameters(p -> p.messagePrefix(Arg.string("[")));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs.get(0)).startsWith("[");
+    }
+
+    @Test
+    @DisplayName("message postfix is appended")
+    void withPostfix() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"))
+          .withMessageParameters(p -> p.messagePostfix(Arg.string("]")));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs.get(0)).endsWith("]");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // ExceptionUtil.LocalizedEmbeddedParameter
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("LocalizedEmbeddedParameter")
+  class LocalizedEmbeddedParameterTests {
+
+    @Test
+    @DisplayName("compact constructor sets defaults: isItemName=false, items=null, rootBean=null")
+    void compactConstructor() {
+      ExceptionUtil.LocalizedEmbeddedParameter p = new ExceptionUtil.LocalizedEmbeddedParameter(
+          "paramKey",
+          new PropertiesFileUtilFileKindEnum[]{PropertiesFileUtilFileKindEnum.MESSAGES},
+          "some.property.key");
+      assertThat(p.parameterKey()).isEqualTo("paramKey");
+      assertThat(p.fileKinds()).hasSize(1);
+      assertThat(p.isItemName()).isFalse();
+      assertThat(p.items()).isNull();
+      assertThat(p.rootBean()).isNull();
+      assertThat(p.propertyFileKey()).isEqualTo("some.property.key");
+    }
   }
 }

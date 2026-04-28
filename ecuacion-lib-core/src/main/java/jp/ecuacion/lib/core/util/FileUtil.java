@@ -392,8 +392,7 @@ public class FileUtil {
 
     double d = Double.valueOf(fileSize);
 
-    // Since we want to round to the second decimal place,
-    // we first divide by the digit that is one place less, then round it up and divide by 10.
+    // Round to 1 decimal place (0.1 MB precision): divide by 100,000, round, divide by 10.
     return Double.valueOf(Math.round(d / 100000.0) / 10.0).toString();
   }
 

@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,36 @@ import org.junit.jupiter.api.Test;
 /** Tests for {@link StringUtil}. */
 @DisplayName("StringUtil")
 public class StringUtilTest {
+
+  // -------------------------------------------------------------------------
+  // toCurrencyFormat
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("toCurrencyFormat")
+  class ToCurrencyFormat {
+
+    @Test
+    @DisplayName("integer string is formatted with comma separator (US locale)")
+    void basic() {
+      Locale prev = Locale.getDefault();
+      try {
+        Locale.setDefault(Locale.US);
+        assertThat(StringUtil.toCurrencyFormat("0")).isEqualTo("0");
+        assertThat(StringUtil.toCurrencyFormat("1234")).isEqualTo("1,234");
+        assertThat(StringUtil.toCurrencyFormat("1000000")).isEqualTo("1,000,000");
+      } finally {
+        Locale.setDefault(prev);
+      }
+    }
+
+    @Test
+    @DisplayName("non-numeric string throws NumberFormatException")
+    void nonNumericThrows() {
+      assertThatThrownBy(() -> StringUtil.toCurrencyFormat("abc"))
+          .isInstanceOf(NumberFormatException.class);
+    }
+  }
 
   // -------------------------------------------------------------------------
   // isObjectNullOrEmpty
