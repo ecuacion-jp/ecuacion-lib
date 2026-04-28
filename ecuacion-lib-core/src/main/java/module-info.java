@@ -45,6 +45,7 @@ module jp.ecuacion.lib.core {
   requires transitive org.jspecify;
 
   opens jp.ecuacion.lib.core.jakartavalidation.constraints to org.hibernate.validator;
+  opens jp.ecuacion.lib.core.violation to org.hibernate.validator;
 
   // apps: application
   uses jp.ecuacion.lib.core.spi.ApplicationProvider;
@@ -105,6 +106,10 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.test.spi.internal.ApplicationLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.MessagesLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.StringsLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.EnumNamesLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.ValidationMessagesLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider with
@@ -112,6 +117,8 @@ module jp.ecuacion.lib.core {
 
   uses jp.ecuacion.lib.core.test.spi.ApplicationLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider;
 

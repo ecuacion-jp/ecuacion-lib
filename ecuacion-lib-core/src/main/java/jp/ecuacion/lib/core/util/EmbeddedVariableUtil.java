@@ -115,8 +115,7 @@ public class EmbeddedVariableUtil {
     }
 
     // return "VAR"
-    String var =
-        string.substring(startIndex + startSymbol.length(), endIndex - 1 + endSymbol.length());
+    String var = string.substring(startIndex + startSymbol.length(), endIndex);
 
     return var;
   }
