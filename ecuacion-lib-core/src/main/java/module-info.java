@@ -70,8 +70,8 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
 
   // ecuacion lib / sutil / splib: messages
-  uses jp.ecuacion.lib.core.spi.MessagesUtilPoiProvider;
-  uses jp.ecuacion.lib.core.spi.MessagesUtilPdfboxProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilExcelTableProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilExcelReportToPdfProvider;
 
   // ecuacion-lib-core
   provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider
