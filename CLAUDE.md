@@ -40,6 +40,8 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
   - Module `README.md` files
   - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/SPEC.md`
   - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/decisions/` (ADR)
+- Cross-project guidelines (Eclipse project conventions, Javadoc rules, etc.):
+  `ecuacion-internal-docs` repository: `guidelines/`
 
 ## Work Style
 
