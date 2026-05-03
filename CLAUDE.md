@@ -34,6 +34,13 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 - Always refer to existing files in the same package before creating a new one
 - When adding to a package that has `package-info.java`, check its contents first
 
+## Documentation
+
+- After making changes to Java files, check whether the following documents need updating:
+  - Module `README.md` files
+  - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/SPEC.md`
+  - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/decisions/` (ADR)
+
 ## Work Style
 
 - **Commit only when explicitly instructed**
