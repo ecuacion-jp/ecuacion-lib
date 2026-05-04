@@ -16,9 +16,10 @@
 package jp.ecuacion.lib.core.test.spi.internal;
 
 import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
-import jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCore2ndTestProvider;
+import jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangAndLangCountryLibCoreTestProvider;
 
-public class Test92DuplicateInMultipleFilesCoreProviderImpl extends AbstractPropertiesFileProviderImpl
-    implements Test92DuplicateInMultipleFilesLibCore2ndTestProvider {
+public class PropsLocaleNoneAndLangAndLangCountryLibCoreTestProviderImpl
+    extends AbstractPropertiesFileProviderImpl
+    implements PropsLocaleNoneAndLangAndLangCountryLibCoreTestProvider {
 
 }
