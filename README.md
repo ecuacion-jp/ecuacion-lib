@@ -35,6 +35,11 @@ public class RegistrationForm {
 - Numeric comparison validators (`@GreaterThan`, `@LessThan`, ...)
 - Additional Jakarta Validation constraints (`@PatternWithDescription`, `@ReturnTrue`, ...)
 
+**Optional: `ecuacion-lib-validation-business-messages`**
+
+Adds business-friendly Japanese messages (e.g. `This field is required.`) for both Jakarta standard
+and ecuacion-lib-validation constraints. Without it, neutral HV-aligned messages are used.
+
 `ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
 `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
 
