@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
+public class ValidateWhenValidatorMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
@@ -53,7 +53,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
             : cv.getConstraintViolationPropertyPath() + ".")
         + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
     Item item = MessageUtil.getItem(conditionPropertyPath, cv.getRootBean(),
-        ConstraintViolationBean.getLeafBean(cv.getRootBean(), conditionPropertyPath));
+        ReflectionUtil.getLeafBean(cv.getRootBean(), conditionPropertyPath));
     messageParameterSet
         .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
             new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES}, true,
@@ -96,7 +96,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     Arg displayStringOfConditionValueArg = Arg.string("");
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
-      Object values = getValue(cv.getLeafBean(), (String) Objects
+      Object values = ReflectionUtil.getValue(cv.getLeafBean(), (String) Objects
           .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH)));
 
       displayStringOfConditionValueArg =
@@ -143,7 +143,7 @@ public class ValidateWhenValidatorMessageParameterCreator extends ReflectionUtil
     Objects.requireNonNull(displayStringPp);
     
     Object displayStringObj =  displayStringPp.isEmpty() ? values
-        : Objects.requireNonNull(getValue(cv.getLeafBean(), displayStringPp));
+        : Objects.requireNonNull(ReflectionUtil.getValue(cv.getLeafBean(), displayStringPp));
 
     List<@NonNull String> displayStringList = displayStringObj instanceof Object[] arr
         ? Arrays.stream(arr).map(Object::toString).toList()

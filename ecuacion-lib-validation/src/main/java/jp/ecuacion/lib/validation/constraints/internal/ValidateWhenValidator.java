@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
@@ -117,7 +118,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   }
 
   boolean getSatisfiesCondition(Object instance) {
-    Object valueOfConditionPropertyPath = getValue(instance, conditionPropertyPath);
+    Object valueOfConditionPropertyPath = ReflectionUtil.getValue(instance, conditionPropertyPath);
 
     return switch (conditionPattern) {
       case NULL, NOT_NULL -> checkNull(valueOfConditionPropertyPath);
@@ -125,8 +126,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       case TRUE, FALSE -> checkBoolean(valueOfConditionPropertyPath);
       case STRING -> checkString(valueOfConditionPropertyPath);
       case PATTERN -> checkPattern(valueOfConditionPropertyPath);
-      case VALUE_OF_PROPERTY_PATH ->
-          checkValueOfPropertyPath(instance, valueOfConditionPropertyPath);
+      case VALUE_OF_PROPERTY_PATH -> checkValueOfPropertyPath(instance,
+          valueOfConditionPropertyPath);
     };
   }
 
@@ -229,7 +230,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
 
-    Object valueOfConditionValueField = getValue(instance, conditionValuePropertyPath);
+    Object valueOfConditionValueField =
+        ReflectionUtil.getValue(instance, conditionValuePropertyPath);
 
     List<Object> valueListOfConditionValueField;
     if (valueOfConditionValueField instanceof Object[] arr) {

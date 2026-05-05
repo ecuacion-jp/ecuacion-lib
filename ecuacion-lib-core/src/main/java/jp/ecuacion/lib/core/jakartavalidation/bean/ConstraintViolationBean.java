@@ -29,7 +29,6 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -54,7 +53,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Instances are created via {@link #createConstraintViolationBean(ConstraintViolation)}.</p>
  */
-public class ConstraintViolationBean<T> extends ReflectionUtil {
+public class ConstraintViolationBean<T> {
 
   // properties in ConstraintViolation
 

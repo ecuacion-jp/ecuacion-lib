@@ -75,7 +75,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     // Return of getValue is @NonNull because null means path is wrong and it should be NPE.
     List<Pair<@NonNull String, @NonNull Object>> valueOfFieldList =
         Arrays.stream(propertyPaths)
-            .map(path -> Pair.of(path, Objects.requireNonNull(getValue(instance, path)))).toList();
+            .map(path -> Pair.of(path,
+                Objects.requireNonNull(ReflectionUtil.getValue(instance, path)))).toList();
 
     for (Pair<@NonNull String, @NonNull Object> pair : valueOfFieldList) {
       @SuppressWarnings("null")
@@ -91,7 +92,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
   protected void procedureBeforeLoopForEachPropertyPath(Object instance) {
     fieldOfBasisPropertyPath = ReflectionUtil.getField(instance.getClass(), baselinePropertyPath);
-    valueOfBasisPropertyPath = getValue(instance, baselinePropertyPath);
+    valueOfBasisPropertyPath = ReflectionUtil.getValue(instance, baselinePropertyPath);
   }
 
   protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
