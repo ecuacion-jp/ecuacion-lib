@@ -193,21 +193,16 @@ public class ReflectionUtil {
 
   /**
    * Obtains a field value with any scopes and searches fields in super classes.
-   * 
-   * <p>Since Class#getDeclaredField is used in the method, 
-   *     making its scope public causes a SpotBugs error.<br>
-   *     That's why its scope is protected
-   *     and you need to extend this class when you use it .</p>
-   * 
-   * <code>
-   * Public method 
-   * jp.ecuacion.lib.core.util.internal.PrivateFieldReadUtil.getFieldValue(String, Object, String) 
-   * uses reflection to modify a field it gets in its parameter 
-   * which could increase the accessibility of any class. 
-   * REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD
-   * </code>
+   *
+   * <p>Uses {@link Field#setAccessible(boolean)} internally to access private fields.
+   *     This triggers SpotBugs' {@code REFLF_REFLECTION_MAY_INCREASE_ACCESSIBILITY_OF_FIELD},
+   *     which is suppressed via the project-level SpotBugs exclude filter.</p>
+   *
+   * @param object the object to read the field from
+   * @param propertyPath the property path (e.g. {@code "name"} or {@code "address.city"})
+   * @return the field value, or {@code null} if the field holds {@code null}
    */
-  protected static @Nullable Object getValue(Object object, String propertyPath) {
+  public static @Nullable Object getValue(Object object, String propertyPath) {
     try {
 
       while (true) {

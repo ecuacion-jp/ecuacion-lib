@@ -18,6 +18,7 @@ package jp.ecuacion.lib.validation.constraints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
@@ -53,7 +54,7 @@ public class NotValueOfPropertyPathWhenValidator
   public void procedureBeforeLoopForEachPropertyPath(Object instance) {
     super.procedureBeforeLoopForEachPropertyPath(instance);
 
-    Object valueOfPropertyValuePath = getValue(instance, valuePropertyPath);
+    Object valueOfPropertyValuePath = ReflectionUtil.getValue(instance, valuePropertyPath);
 
     propertyValues = new ArrayList<>();
     if (valueOfPropertyValuePath instanceof Object[] arr) {

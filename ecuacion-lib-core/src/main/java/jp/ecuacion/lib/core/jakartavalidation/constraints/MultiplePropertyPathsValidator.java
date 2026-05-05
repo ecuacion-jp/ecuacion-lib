@@ -20,7 +20,6 @@ import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.ValidationException;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,7 +37,7 @@ import org.jspecify.annotations.Nullable;
  *     messages with the same string and so on. One ConstraintViolation 
  *     for one validator is easier to manipulate.</p>
  */
-public abstract class MultiplePropertyPathsValidator<A extends Annotation, T> extends ReflectionUtil
+public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
     implements ConstraintValidator<A, T> {
 
   /**
