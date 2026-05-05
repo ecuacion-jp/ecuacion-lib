@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "additionalDirectories": [
-      "/Users/yosuke.tanaka/Desktop/development/git/ecuacion-internal-docs/projects/ecuacion-lib",
-      "/Users/yosuke.tanaka/Desktop/development/git/ecuacion-internal-docs/docs/implementation",
-      "/Users/yosuke.tanaka/Desktop/development/git/ecuacion-internal-docs/guidelines"
-    ]
-  }
-}
