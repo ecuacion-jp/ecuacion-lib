@@ -87,7 +87,7 @@ public class SearchForm {
 
 ## Documentation
 
-- [javadoc](https://javadoc.ecuacion.jp/apidocs/ecuacion-lib-validation/)
+- [javadoc](https://docs.ecuacion.jp/javadoc/apidocs/ecuacion-lib-validation/)
 
 ## Installation
 
