@@ -46,10 +46,13 @@
 				</configuration>
 			</plugin>
 
-			<!-- wagon to upload javadoc.jar -->
+			<!-- wagon: skip because this module has no real javadoc/tests/coverage to upload -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>wagon-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 
 			<!-- mycila license-maven-plugin -->
