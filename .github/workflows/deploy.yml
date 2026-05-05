@@ -39,7 +39,7 @@ jobs:
           mvn versions:update-properties -Dincludes=jp.ecuacion.lib -DgenerateBackupPoms=false
 
       - name: Verify
-        run: mvn verify -Dwagon.skip=true
+        run: mvn verify -Dwagon.skip=true -Dantrun.skip=true
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
