@@ -195,7 +195,7 @@
 							</goals>
 							<configuration>
 								<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
-								<toDir>${project.artifactId}</toDir>
+								<toFile>${project.artifactId}/${project.build.finalName}-javadoc.jar</toFile>
 							</configuration>
 						</execution>
 						<execution>
@@ -206,7 +206,7 @@
 							</goals>
 							<configuration>
 								<fromFile>${project.build.directory}/${project.build.finalName}-allure-report.zip</fromFile>
-								<toDir>${project.artifactId}</toDir>
+								<toFile>${project.artifactId}/${project.build.finalName}-allure-report.zip</toFile>
 							</configuration>
 						</execution>
 						<execution>
@@ -217,7 +217,7 @@
 							</goals>
 							<configuration>
 								<fromFile>${project.build.directory}/${project.build.finalName}-jacoco-report.zip</fromFile>
-								<toDir>${project.artifactId}</toDir>
+								<toFile>${project.artifactId}/${project.build.finalName}-jacoco-report.zip</toFile>
 							</configuration>
 						</execution>
 					</executions>
