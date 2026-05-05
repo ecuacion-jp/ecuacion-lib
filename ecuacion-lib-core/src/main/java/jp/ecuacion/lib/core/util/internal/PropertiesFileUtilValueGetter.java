@@ -51,7 +51,8 @@ public class PropertiesFileUtilValueGetter {
    */
   private String[][] filePrefixes;
 
-  private static final String[] LIB_MODULES = new String[] {"core", "jpa", "validation"};
+  private static final String[] LIB_MODULES =
+      new String[] {"core", "jpa", "validation", "validation_business_messages"};
   private static final String[] SPLIB_MODULES = new String[] {"core", "web", "web_jpa"};
   private static final String[] UTIL_MODULES = new String[] {"jpa", "poi"};
 
@@ -211,6 +212,14 @@ public class PropertiesFileUtilValueGetter {
    *
    * <p>The duplicate check of the key is also executed here.</p>
    *
+   * <p>Key lookup priority (highest to lowest):
+   * <ol>
+   *   <li>{@code key} — application-level override</li>
+   *   <li>{@code key.default} — optional module override (e.g., business-messages module)</li>
+   *   <li>{@code key.base} — library-level fallback (e.g., ecuacion-lib-core)</li>
+   * </ol>
+   * </p>
+   *
    * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param key the key of the property
    * @param filePrefixesOfSamePriority filePrefixesOfSamePriority
@@ -234,8 +243,11 @@ public class PropertiesFileUtilValueGetter {
 
     String valueNonDefault = getValueAndDuplicationCheck(rbMap, key);
     String valueDefault = getValueAndDuplicationCheck(rbMap, key + ".default");
+    String valueBase = getValueAndDuplicationCheck(rbMap, key + ".base");
 
-    return valueNonDefault != null ? valueNonDefault : valueDefault;
+    return valueNonDefault != null ? valueNonDefault
+        : valueDefault != null ? valueDefault
+        : valueBase;
   }
 
   /**

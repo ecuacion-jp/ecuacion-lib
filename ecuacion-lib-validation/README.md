@@ -64,6 +64,12 @@ public class SearchForm {
 
 (none)
 
+### Optional Libraries
+
+- `ecuacion-lib-validation-business-messages` — adds business-friendly Japanese messages
+  (e.g. `This field is required.`) for both Jakarta standard constraints and ecuacion-lib-validation
+  constraints. Without it, neutral HV-aligned messages are used.
+
 ## Dependent External Libraries
 
 ### Automatically Loaded Libraries
@@ -81,7 +87,7 @@ public class SearchForm {
 
 ## Documentation
 
-- [javadoc](https://javadoc.ecuacion.jp/apidocs/ecuacion-lib-validation/)
+- [javadoc](https://docs.ecuacion.jp/javadoc/apidocs/ecuacion-lib-validation/)
 
 ## Installation
 

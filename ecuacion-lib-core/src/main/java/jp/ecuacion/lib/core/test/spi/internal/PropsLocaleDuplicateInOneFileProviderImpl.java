@@ -16,9 +16,9 @@
 package jp.ecuacion.lib.core.test.spi.internal;
 
 import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
-import jp.ecuacion.lib.core.test.spi.Test92DuplicateInOneFileLibCoreTestProvider;
+import jp.ecuacion.lib.core.test.spi.PropsLocaleDuplicateInOneFileLibCoreTestProvider;
 
-public class Test92DuplicateInOneFileProviderImpl extends AbstractPropertiesFileProviderImpl
-    implements Test92DuplicateInOneFileLibCoreTestProvider {
+public class PropsLocaleDuplicateInOneFileProviderImpl extends AbstractPropertiesFileProviderImpl
+    implements PropsLocaleDuplicateInOneFileLibCoreTestProvider {
 
 }

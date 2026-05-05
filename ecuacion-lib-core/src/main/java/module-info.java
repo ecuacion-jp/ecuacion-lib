@@ -97,6 +97,19 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.ValidationMessagesLibValidationProvider;
   uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibValidationProvider;
 
+  // ecuacion-lib-validation-business-messages
+  provides jp.ecuacion.lib.core.spi.ValidationMessagesLibValidationBusinessMessagesProvider
+      with jp.ecuacion.lib.core.spi.impl.internal
+      .ValidationMessagesLibValidationBusinessMessagesProviderImpl;
+  provides jp.ecuacion.lib.core.spi
+      .ValidationMessagesWithItemNamesLibValidationBusinessMessagesProvider with
+      jp.ecuacion.lib.core.spi.impl.internal
+      .ValidationMessagesWithItemNamesLibValidationBusinessMessagesProviderImpl;
+
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesLibValidationBusinessMessagesProvider;
+  uses jp.ecuacion.lib.core.spi
+      .ValidationMessagesWithItemNamesLibValidationBusinessMessagesProvider;
+
   // for test below
 
   opens jp.ecuacion.lib.core.util to org.hibernate.validator;
@@ -123,31 +136,36 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider;
 
   // lib-core : customized
-  provides jp.ecuacion.lib.core.test.spi.Test92NoneLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92NoneLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92LangLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92LangLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangCountryLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangCountryLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92NoneAndLangAndLangCountryLibCoreTestProvider with
-      jp.ecuacion.lib.core.test.spi.internal.Test92NoneAndLangAndLangCountryLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92DuplicateInOneFileLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92DuplicateInOneFileProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92DuplicateInMultipleFilesProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCore2ndTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.Test92DuplicateInMultipleFilesCoreProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.PropsLocaleNoneLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.PropsLocaleNoneLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.PropsLocaleLangLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.PropsLocaleLangLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal.PropsLocaleNoneAndLangLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangCountryLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal.PropsLocaleNoneAndLangCountryLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi
+      .PropsLocaleNoneAndLangAndLangCountryLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal
+      .PropsLocaleNoneAndLangAndLangCountryLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.PropsLocaleDuplicateInOneFileLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.PropsLocaleDuplicateInOneFileProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi
+      .PropsLocaleDuplicateInMultipleFilesLibCoreTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal.PropsLocaleDuplicateInMultipleFilesProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi
+      .PropsLocaleDuplicateInMultipleFilesLibCore2ndTestProvider with
+      jp.ecuacion.lib.core.test.spi.internal
+      .PropsLocaleDuplicateInMultipleFilesCoreProviderImpl;
 
-  uses jp.ecuacion.lib.core.test.spi.Test92NoneLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92LangLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92NoneAndLangLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92NoneAndLangCountryLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92NoneAndLangAndLangCountryLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92DuplicateInOneFileLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.Test92DuplicateInMultipleFilesLibCore2ndTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleNoneLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleLangLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangCountryLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangAndLangCountryLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleDuplicateInOneFileLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleDuplicateInMultipleFilesLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.PropsLocaleDuplicateInMultipleFilesLibCore2ndTestProvider;
 
   // lib-validation
   provides jp.ecuacion.lib.core.test.spi.MessagesLibValidationTestProvider

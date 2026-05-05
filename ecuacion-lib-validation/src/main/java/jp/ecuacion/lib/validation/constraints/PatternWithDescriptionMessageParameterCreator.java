@@ -23,7 +23,6 @@ import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -32,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * Is a LocalizedMessageParameter creator for PatternWithDescription.
  */
-public class PatternWithDescriptionMessageParameterCreator extends ReflectionUtil
+public class PatternWithDescriptionMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override

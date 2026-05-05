@@ -47,9 +47,11 @@ public class ViolationUtilTest {
     assertThat(violations.getConstraintViolations()).hasSize(1);
   }
 
+  @SuppressWarnings("MultipleNullnessAnnotations")
   private static record SimpleBean(@NotNull @Nullable String value) {
   }
 
+  @SuppressWarnings("MultipleNullnessAnnotations")
   private static record GroupBean(@NotNull(groups = GroupA.class) @Nullable String value) {
   }
 

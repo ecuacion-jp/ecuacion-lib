@@ -63,7 +63,8 @@
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
 		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
 		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
-		<remote-location.javadoc>sftp://javadoc.ecuacion.jp/home/ytbiz/www/javadoc.ecuacion.jp</remote-location.javadoc>
+		<remote-location.javadoc>sftp://docs.ecuacion.jp/home/ytbiz/www/docs.ecuacion.jp/javadoc</remote-location.javadoc>
+		<remote-location.docs-work>sftp://docs.ecuacion.jp/my-data/scripts/work</remote-location.docs-work>
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
 
 		<!--                 -->
@@ -87,6 +88,8 @@
 		<!-- wagon -->
 		<org.codehaus.mojo.wagon-maven-plugin.version>2.0.2</org.codehaus.mojo.wagon-maven-plugin.version>
 		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
+		<!-- antrun -->
+		<org.apache.maven.plugins.maven-antrun-plugin.version>3.1.0</org.apache.maven.plugins.maven-antrun-plugin.version>
 		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.9.8.3</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
@@ -103,6 +106,9 @@
 
 		<!-- module versions (ecuacion-lib depends on them) -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
+
+		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
+		<wagon.skip>true</wagon.skip>
 
 	</properties>
 	
@@ -167,16 +173,15 @@
 					</executions>
 				</plugin>
 
-				<!-- wagon to upload javadoc.jar -->
+				<!-- wagon to upload docs (javadoc, allure, jacoco) -->
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>wagon-maven-plugin</artifactId>
 					<version>${org.codehaus.mojo.wagon-maven-plugin.version}</version>
 					<configuration>
 						<skip>${wagon.skip}</skip>
-						<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
-						<url>${remote-location.javadoc}/work</url>
 						<serverId>ecuacion-repo-sftp</serverId>
+						<url>${remote-location.docs-work}</url>
 					</configuration>
 					<executions>
 						<execution>
@@ -185,6 +190,29 @@
 							<goals>
 								<goal>upload-single</goal>
 							</goals>
+							<configuration>
+								<fromFile>${project.build.directory}/${project.build.finalName}-javadoc.jar</fromFile>
+							</configuration>
+						</execution>
+						<execution>
+							<id>upload-allure-to-server</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>upload-single</goal>
+							</goals>
+							<configuration>
+								<fromFile>${project.build.directory}/${project.build.finalName}-allure-report.zip</fromFile>
+							</configuration>
+						</execution>
+						<execution>
+							<id>upload-jacoco-to-server</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>upload-single</goal>
+							</goals>
+							<configuration>
+								<fromFile>${project.build.directory}/${project.build.finalName}-jacoco-report.zip</fromFile>
+							</configuration>
 						</execution>
 					</executions>
 				</plugin>
@@ -264,6 +292,18 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+					<executions>
+						<!-- javadoc:javadoc forks lifecycle only up to generate-sources,
+						     so named-module detection fails without compiled classes.
+						     Compiling here ensures module-info.class exists before javadoc runs. -->
+						<execution>
+							<id>compile-for-javadoc</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 
 				<!-- allure -->
@@ -274,6 +314,15 @@
 					<configuration>
 						<resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
 					</configuration>
+					<executions>
+						<execution>
+							<id>allure-report</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 
 				<!-- maven-surefire-plugin: redirect allure results to target/ -->
@@ -336,6 +385,51 @@
 						<excludeFilterFile>https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml</excludeFilterFile>
 						<failOnError>true</failOnError>
 					</configuration>
+				</plugin>
+
+				<!-- maven-antrun-plugin: zip allure and jacoco reports -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>${org.apache.maven.plugins.maven-antrun-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>zip-allure-report</id>
+							<phase>package</phase>
+							<goals>
+								<goal>run</goal>
+							</goals>
+							<configuration>
+								<target>
+									<available
+										file="${project.build.directory}/site/allure-maven-plugin"
+										type="dir" property="allure.report.dir.exists"/>
+									<zip
+										destfile="${project.build.directory}/${project.build.finalName}-allure-report.zip"
+										basedir="${project.build.directory}/site/allure-maven-plugin"
+										if="allure.report.dir.exists"/>
+								</target>
+							</configuration>
+						</execution>
+						<execution>
+							<id>zip-jacoco-report</id>
+							<phase>package</phase>
+							<goals>
+								<goal>run</goal>
+							</goals>
+							<configuration>
+								<target>
+									<available
+										file="${project.build.directory}/site/jacoco"
+										type="dir" property="jacoco.report.dir.exists"/>
+									<zip
+										destfile="${project.build.directory}/${project.build.finalName}-jacoco-report.zip"
+										basedir="${project.build.directory}/site/jacoco"
+										if="jacoco.report.dir.exists"/>
+								</target>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -409,6 +503,7 @@
 		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-validation</module>
+		<module>ecuacion-lib-validation-business-messages</module>
 	</modules>
 		
 	<profiles>
@@ -416,6 +511,7 @@
 			<id>ecuacion-repository</id>
 			<properties>
 				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
+				<wagon.skip>false</wagon.skip>
 			</properties>
 		</profile>
 		

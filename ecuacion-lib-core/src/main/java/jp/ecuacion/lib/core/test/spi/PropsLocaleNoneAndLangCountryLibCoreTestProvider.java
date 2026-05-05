@@ -20,5 +20,5 @@ import java.util.spi.ResourceBundleProvider;
 /**
  * Is a {@code ResourceBundleProvider} for messages in {@code ecuacion-lib-core}.
  */
-public interface Test92DuplicateInOneFileLibCoreTestProvider extends ResourceBundleProvider {
+public interface PropsLocaleNoneAndLangCountryLibCoreTestProvider extends ResourceBundleProvider {
 }

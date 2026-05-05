@@ -17,6 +17,9 @@ package jp.ecuacion.lib.core.util;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.MessageInterpolator;
+import jakarta.validation.Validation;
+import jakarta.validation.metadata.ConstraintDescriptor;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,10 +52,48 @@ public class ExceptionUtil {
   public static final String SYSTEM_ERROR_OCCURED_SIGN =
       "=============== system error occurred ===============";
 
+  private static volatile @Nullable MessageInterpolator defaultInterpolator;
+
   /**
    * Prevents other classes from instantiating it.
    */
   private ExceptionUtil() {}
+
+  private static MessageInterpolator getDefaultInterpolator() {
+    if (defaultInterpolator == null) {
+      synchronized (ExceptionUtil.class) {
+        if (defaultInterpolator == null) {
+          defaultInterpolator = Validation.buildDefaultValidatorFactory().getMessageInterpolator();
+        }
+      }
+    }
+    return Objects.requireNonNull(defaultInterpolator);
+  }
+
+  private static class DefaultMessageContext implements MessageInterpolator.Context {
+    private final ConstraintDescriptor<?> descriptor;
+    private final @Nullable Object value;
+
+    DefaultMessageContext(ConstraintDescriptor<?> descriptor, @Nullable Object value) {
+      this.descriptor = descriptor;
+      this.value = value;
+    }
+
+    @Override
+    public ConstraintDescriptor<?> getConstraintDescriptor() {
+      return descriptor;
+    }
+
+    @Override
+    public @Nullable Object getValidatedValue() {
+      return value;
+    }
+
+    @Override
+    public <T> T unwrap(@Nullable Class<T> type) {
+      throw new jakarta.validation.ValidationException("Unwrapping is not supported.");
+    }
+  }
 
   /**
    * Returns Exception message list.
@@ -424,7 +465,10 @@ public class ExceptionUtil {
             ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
             : PropertiesFileUtil.getValidationMessage(locale, messageKey, map);
       } else {
-        message = bean.getMessageTemplate();
+        // No entry in ecuacion-lib properties files; re-interpolate for the target locale.
+        message = getDefaultInterpolator().interpolate(bean.getMessageTemplate(),
+            new DefaultMessageContext(bean.getConstraintDescriptor(), bean.getInvalidValueObject()),
+            locale != null ? locale : Locale.getDefault());
       }
 
       // Replace {0} to itemName.

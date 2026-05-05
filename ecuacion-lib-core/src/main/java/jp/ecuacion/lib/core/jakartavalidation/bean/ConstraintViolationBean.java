@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.jakartavalidation.bean;
 
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.metadata.ConstraintDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,7 +29,6 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -53,7 +53,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Instances are created via {@link #createConstraintViolationBean(ConstraintViolation)}.</p>
  */
-public class ConstraintViolationBean<T> extends ReflectionUtil {
+public class ConstraintViolationBean<T> {
 
   // properties in ConstraintViolation
 
@@ -78,6 +78,11 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   private @Nullable Object invalidValue;
   private String messageTemplate;
   private String message;
+  /** Message already resolved by the Jakarta Validation implementation 
+   * ({@code cv.getMessage()}). */
+  private String resolvedMessage;
+  /** Original constraint descriptor, used for locale-aware re-interpolation. */
+  private ConstraintDescriptor<?> constraintDescriptor;
   /**
    * The value of the map is {@code @Nullable} 
    *     because this map stores {@code invalidValue} parameter 
@@ -92,18 +97,20 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
   private ConstraintViolationBean(String validatorClassName,
       @NonNull T rootBean, Object leafBean, @Nullable Object invalidValue, String messageTemplate,
       Map<@NonNull String, @Nullable Object> embeddedParameterMap,
-      String constraintViolationPropertyPath,
-      String... propertyPaths) {
+      String constraintViolationPropertyPath, String resolvedMessage,
+      ConstraintDescriptor<?> constraintDescriptor, String... propertyPaths) {
 
     this.rootBean = rootBean;
     this.leafBean = leafBean;
     this.validatorClass = validatorClassName;
     this.constraintViolationPropertyPath = constraintViolationPropertyPath;
     this.invalidValue = invalidValue;
+    this.constraintDescriptor = constraintDescriptor;
     String msg = PropertiesFileUtil.getValidationMessage(Locale.ENGLISH,
         messageTemplate.replace("{", "").replace("}", ""), new HashMap<>());
     this.message = msg;
     this.messageTemplate = messageTemplate;
+    this.resolvedMessage = resolvedMessage;
 
     List<@NonNull String> propertyPathList = List.of(propertyPaths);
     for (String fullPropertyPath : propertyPathList) {
@@ -169,8 +176,8 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
         Objects.requireNonNull(Objects.requireNonNull(cv.getConstraintDescriptor()).getAnnotation())
             .annotationType().getName(),
         cv.getRootBean(), cv.getLeafBean(), cv.getInvalidValue(), cv.getMessageTemplate(),
-        embeddedParamMap, cv.getPropertyPath().toString(),
-        ppList.toArray(String[]::new));
+        embeddedParamMap, cv.getPropertyPath().toString(), cv.getMessage(),
+        cv.getConstraintDescriptor(), ppList.toArray(String[]::new));
 
     return rtnCv;
   }
@@ -217,6 +224,30 @@ public class ConstraintViolationBean<T> extends ReflectionUtil {
    */
   public String getMessageTemplate() {
     return messageTemplate;
+  }
+
+  /**
+   * Returns the message already resolved by the Jakarta Validation implementation
+   *     ({@code cv.getMessage()}).
+   *
+   * <p>Used as fallback when no entry is found in ecuacion-lib properties files.</p>
+   */
+  public String getResolvedMessage() {
+    return resolvedMessage;
+  }
+
+  /**
+   * Returns the constraint descriptor, used for locale-aware re-interpolation.
+   */
+  public ConstraintDescriptor<?> getConstraintDescriptor() {
+    return constraintDescriptor;
+  }
+
+  /**
+   * Returns the raw invalid value object (may be {@code null}).
+   */
+  public @Nullable Object getInvalidValueObject() {
+    return invalidValue;
   }
 
   public String getValidatorClass() {

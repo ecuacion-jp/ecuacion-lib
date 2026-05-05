@@ -16,9 +16,10 @@
 package jp.ecuacion.lib.core.test.spi.internal;
 
 import jp.ecuacion.lib.core.spi.impl.AbstractPropertiesFileProviderImpl;
-import jp.ecuacion.lib.core.test.spi.Test92NoneAndLangCountryLibCoreTestProvider;
+import jp.ecuacion.lib.core.test.spi.PropsLocaleNoneAndLangLibCoreTestProvider;
 
-public class Test92NoneAndLangCountryLibCoreTestProviderImpl extends AbstractPropertiesFileProviderImpl
-    implements Test92NoneAndLangCountryLibCoreTestProvider {
+public class PropsLocaleNoneAndLangLibCoreTestProviderImpl
+    extends AbstractPropertiesFileProviderImpl
+    implements PropsLocaleNoneAndLangLibCoreTestProvider {
 
 }

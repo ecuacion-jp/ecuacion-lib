@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.util.internal;
 
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.APPLICATION;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES;
+import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Locale;
@@ -99,7 +100,7 @@ public class PropertiesFileUtilValueGetterTest {
   public void duplicatedKeyTest() {
     // By the specification of "ResourceBundle", it's not an error.
     PropertiesFileUtilValueGetter store = new PropertiesFileUtilValueGetter(
-        new String[][]{new String[]{"test92-duplicate-in-one-file"}});
+        new String[][]{new String[]{"propsLocale-duplicate-in-one-file"}});
     store.getProp("KEY2", new HashMap<>());
   }
 
@@ -110,7 +111,7 @@ public class PropertiesFileUtilValueGetterTest {
     // properties file: non-locale only
 
     PropertiesFileUtilValueGetter none =
-        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-none"}});
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-none"}});
     assertThat(none.getProp(Locale.ROOT, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
     assertThat(none.getProp(Locale.JAPANESE, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
     assertThat(none.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
@@ -118,7 +119,7 @@ public class PropertiesFileUtilValueGetterTest {
     // properties file: lang
 
     PropertiesFileUtilValueGetter lang =
-        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-lang"}});
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-lang"}});
     assertThat(none.getProp(Locale.ENGLISH, "TEST_KEY", new HashMap<>())).isEqualTo("TEST_VALUE");
     Assertions.assertThrows(NO_KEY_EX,
         () -> lang.getProp(Locale.JAPAN, "TEST_KEY", new HashMap<>()));
@@ -126,7 +127,7 @@ public class PropertiesFileUtilValueGetterTest {
     // properties file: none-and-lang
 
     PropertiesFileUtilValueGetter noneAndLang =
-        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-none-and-lang"}});
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-none-and-lang"}});
     assertThat(noneAndLang.getProp(Locale.ITALY, "FILE_LOCALE", new HashMap<>())).isEqualTo("it");
     assertThat(noneAndLang.getProp(Locale.ITALIAN, "FILE_LOCALE", new HashMap<>()))
         .isEqualTo("it");
@@ -138,7 +139,7 @@ public class PropertiesFileUtilValueGetterTest {
     // properties file: none-and-langCountry
 
     PropertiesFileUtilValueGetter noneAndLangCountry = new PropertiesFileUtilValueGetter(
-        new String[][]{new String[]{"test92-none-and-lang-country_lib-core-test"}});
+        new String[][]{new String[]{"propsLocale-none-and-lang-country_lib-core-test"}});
     assertThat(noneAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()))
         .isEqualTo("none");
     assertThat(noneAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()))
@@ -155,7 +156,7 @@ public class PropertiesFileUtilValueGetterTest {
     // properties file: none-and-lang-and-langCountry
 
     PropertiesFileUtilValueGetter noneAndLangAndLangCountry = new PropertiesFileUtilValueGetter(
-        new String[][]{new String[]{"test92-none-and-lang-and-lang-country"}});
+        new String[][]{new String[]{"propsLocale-none-and-lang-and-lang-country"}});
     assertThat(noneAndLangAndLangCountry.getProp(Locale.FRENCH, "FILE_LOCALE", new HashMap<>()))
         .isEqualTo("fr");
     assertThat(noneAndLangAndLangCountry.getProp(Locale.JAPANESE, "FILE_LOCALE", new HashMap<>()))
@@ -174,28 +175,28 @@ public class PropertiesFileUtilValueGetterTest {
   @Test
   @DisplayName("fileKind postfix detection covers all expected patterns")
   public void fileKindTest() {
-    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_lib_core");
 
-    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_splib_web");
 
-    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("");
 
-    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("_base");
 
-    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+    obj = new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(Objects.requireNonNull(obj).getPostfixes()).contains("-profile");
 
     PropertiesFileUtilValueGetter store =
-        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"test92-12-11"}});
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-fileKind"}});
     assertThat(store.getPostfixes()).contains("_core-profile");
 
     // inter-file key duplication throws
     PropertiesFileUtilValueGetter dup = new PropertiesFileUtilValueGetter(
-        new String[][]{new String[]{"test92-duplicate-in-multiple-files"}});
+        new String[][]{new String[]{"propsLocale-duplicate-in-multiple-files"}});
     Assertions.assertThrows(KeyDupliccatedException.class,
         () -> dup.getProp("KEY1", new HashMap<>()));
   }
@@ -211,5 +212,37 @@ public class PropertiesFileUtilValueGetterTest {
   @DisplayName("property keys in obtained value are resolved recursively")
   public void resolvePropertyKeysInObtainedValueTest() {
     assertThat(OBJ_MSG.getProp("KEY_IN_MSG", new HashMap<>())).isEqualTo("Hi, John.");
+  }
+
+  @Test
+  @DisplayName("three-level priority: plain key > key.default > key.base")
+  public void baseKeyFallbackPriorityTest() {
+    PropertiesFileUtilValueGetter getter =
+        new PropertiesFileUtilValueGetter(new String[][]{new String[]{"propsLocale-none"}});
+    // .base is the fallback when neither plain key nor .default exists
+    assertThat(getter.getProp("BASE_ONLY_KEY", new HashMap<>())).isEqualTo("base value");
+    // .default takes precedence over .base
+    assertThat(getter.getProp("DEFAULT_WINS_KEY", new HashMap<>())).isEqualTo("default value");
+    // plain key takes precedence over both .default and .base
+    assertThat(getter.getProp("KEY_WINS_KEY", new HashMap<>())).isEqualTo("key value");
+  }
+
+  @Test
+  @DisplayName("ValidationMessages: standard Jakarta constraint key delegates to HV; unknown key also delegates")
+  public void validationMessagesKeyResolutionTest() {
+    PropertiesFileUtilValueGetter validationGetter =
+        new PropertiesFileUtilValueGetter(VALIDATION_MESSAGES);
+
+    // Standard Jakarta constraint key: not in any ValidationMessages file (ValidationMessages_lib_core
+    // was removed so HV delegation handles these). getProp returns the key string.
+    String knownKey = "jakarta.validation.constraints.NotNull.message";
+    assertThat(validationGetter.hasProp(knownKey)).isFalse();
+    assertThat(validationGetter.getProp(knownKey, new HashMap<>())).isEqualTo(knownKey);
+
+    // Unknown key: not in any ValidationMessages file; getProp returns the key string so that
+    // HV's MessageInterpolator can resolve it downstream (HV delegation).
+    String unknownKey = "some.unknown.constraint.message";
+    assertThat(validationGetter.hasProp(unknownKey)).isFalse();
+    assertThat(validationGetter.getProp(unknownKey, new HashMap<>())).isEqualTo(unknownKey);
   }
 }

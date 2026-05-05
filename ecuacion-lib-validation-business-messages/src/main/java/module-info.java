@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.test.spi;
-
-import java.util.spi.ResourceBundleProvider;
-
-/**
- * Is a {@code ResourceBundleProvider} for messages in {@code ecuacion-lib-core}.
+/*
+ * Provides business-friendly validation messages that override the neutral defaults from
+ * ecuacion-lib-core. Properties files must be accessible via the module layer, so this
+ * module is declared open.
  */
-public interface Test92LangLibCoreTestProvider extends ResourceBundleProvider {
+open module jp.ecuacion.lib.validation.business.messages {
+  requires transitive jp.ecuacion.lib.core;
 }
