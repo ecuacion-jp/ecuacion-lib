@@ -264,6 +264,18 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+					<executions>
+						<!-- javadoc:javadoc forks lifecycle only up to generate-sources,
+						     so named-module detection fails without compiled classes.
+						     Compiling here ensures module-info.class exists before javadoc runs. -->
+						<execution>
+							<id>compile-for-javadoc</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>compile</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 
 				<!-- allure -->
@@ -409,6 +421,7 @@
 		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-validation</module>
+		<module>ecuacion-lib-validation-business-messages</module>
 	</modules>
 		
 	<profiles>
