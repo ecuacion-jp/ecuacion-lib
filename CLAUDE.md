@@ -1,5 +1,10 @@
 # ecuacion-lib - Claude Code Guidelines
 
+## Internal Documentation
+
+Read `ecuacion-internal-docs` repository: `CLAUDE.md` before working in this project.
+It covers common guidelines, project-specific SPEC.md, and local setup checks.
+
 ## Project Overview
 
 An OSS Java library providing utilities including Jakarta Validation support. Multi-module Maven project.
@@ -33,15 +38,6 @@ An OSS Java library providing utilities including Jakarta Validation support. Mu
 ### Creating New Files
 - Always refer to existing files in the same package before creating a new one
 - When adding to a package that has `package-info.java`, check its contents first
-
-## Documentation
-
-- After making changes to Java files, check whether the following documents need updating:
-  - Module `README.md` files
-  - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/SPEC.md`
-  - `ecuacion-internal-docs` repository: `projects/ecuacion-lib/decisions/` (ADR)
-- Cross-project guidelines (Eclipse project conventions, Javadoc rules, etc.):
-  `ecuacion-internal-docs` repository: `guidelines/`
 
 ## Work Style
 
