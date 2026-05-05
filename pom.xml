@@ -110,6 +110,9 @@
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
 		<wagon.skip>true</wagon.skip>
 
+		<!-- antrun (zip reports) is off by default; enabled only via ecuacion-repository profile -->
+		<antrun.skip>true</antrun.skip>
+
 	</properties>
 	
 	<distributionManagement>
@@ -392,6 +395,9 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>${org.apache.maven.plugins.maven-antrun-plugin.version}</version>
+					<configuration>
+						<skip>${antrun.skip}</skip>
+					</configuration>
 					<executions>
 						<execution>
 							<id>zip-allure-report</id>
@@ -512,6 +518,7 @@
 			<properties>
 				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
 				<wagon.skip>false</wagon.skip>
+				<antrun.skip>false</antrun.skip>
 			</properties>
 		</profile>
 		
