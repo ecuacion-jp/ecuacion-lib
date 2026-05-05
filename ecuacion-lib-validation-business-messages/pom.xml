@@ -37,10 +37,35 @@
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 
-			<!-- maven-javadoc-plugin (outputs a jar of javadocs) -->
+			<!-- maven-javadoc-plugin: skip because this module contains no public classes -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+
+			<!-- generate a placeholder javadoc.jar (required by Sonatype Central) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>placeholder-javadoc-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classifier>javadoc</classifier>
+							<classesDirectory>${project.basedir}</classesDirectory>
+							<includes>
+								<include>README.md</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<!-- wagon to upload javadoc.jar -->
