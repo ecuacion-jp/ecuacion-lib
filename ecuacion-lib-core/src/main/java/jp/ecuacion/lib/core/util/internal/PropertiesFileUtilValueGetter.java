@@ -54,7 +54,7 @@ public class PropertiesFileUtilValueGetter {
   private static final String[] LIB_MODULES =
       new String[] {"core", "jpa", "validation", "validation_business_messages"};
   private static final String[] SPLIB_MODULES = new String[] {"core", "web", "web_jpa"};
-  private static final String[] UTIL_MODULES = new String[] {"jpa", "poi"};
+  private static final String[] UTIL_MODULES = new String[] {"excel_table", "excel_report_to_pdf"};
 
   private static final String[] APP_MODULES =
       new String[] {"", "base", "core", "core_web", "core_batch"};
