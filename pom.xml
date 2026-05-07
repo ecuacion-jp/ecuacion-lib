@@ -313,6 +313,7 @@
 					<version>${io.qameta.allure.allure-maven.version}</version>
 					<configuration>
 						<resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+						<skip>${skipTests}</skip>
 					</configuration>
 					<executions>
 						<execution>
