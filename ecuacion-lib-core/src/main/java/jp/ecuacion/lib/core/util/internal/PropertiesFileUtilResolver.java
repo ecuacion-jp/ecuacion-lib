@@ -67,7 +67,8 @@ public class PropertiesFileUtilResolver {
 
   private static final List<PropertiesFileUtilFileKindEnum> FILE_KINDS_FOR_KEY_ONLY_SEARCH =
       List.of(PropertiesFileUtilFileKindEnum.MESSAGES, PropertiesFileUtilFileKindEnum.ITEM_NAMES,
-          PropertiesFileUtilFileKindEnum.CONSTANTS, PropertiesFileUtilFileKindEnum.ENUM_NAMES);
+          PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS,
+          PropertiesFileUtilFileKindEnum.APPLICATION);
 
   /**
    * Returns the processed property value for the given file kind and key.
@@ -104,7 +105,7 @@ public class PropertiesFileUtilResolver {
   }
 
   /**
-   * Returns whether the given key exists in the specified file kind.
+   * Returns whether the given key exists in the specified file kind (locale-independent).
    *
    * @param fileKind the file kind
    * @param key the key of the property
@@ -115,18 +116,27 @@ public class PropertiesFileUtilResolver {
   }
 
   /**
-   * Resolves {@code Arg} to its value, preserving the original {@code Object} type
-   * for {@link ArgKind#OBJECT} args.
+   * Returns whether the given key exists in the specified file kind for the given locale.
    *
-   * <p>{@link ArgKind#OBJECT} args return the raw value, enabling type-aware
-   *     {@link java.text.MessageFormat} patterns (e.g., {@code {0,number,#,###}}).
-   *     {@link ArgKind#MESSAGE_ID} and {@link ArgKind#FORMATTED_STRING} args resolve
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}
+   * @param fileKind the file kind
+   * @param key the key of the property
+   * @return {@code true} if the key exists for the given locale
+   */
+  public static boolean hasProp(@Nullable Locale locale, PropertiesFileUtilFileKindEnum fileKind,
+      String key) {
+    return obtainBundleReader(fileKind).hasProp(locale, key);
+  }
+
+  /**
+   * Resolves {@code Arg} to its value.
+   *
+   * <p>{@link ArgKind#MESSAGE_ID} and {@link ArgKind#FORMATTED_STRING} args resolve
    *     to {@code String}.</p>
    *
    * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param arg message argument
-   * @return resolved value; {@code Object} for OBJECT kind, {@code String} for others;
-   *     may be {@code null} if {@link Arg#object(Object)} was called with {@code null}
+   * @return resolved value as {@code String}
    */
   public static @Nullable Object resolveArgAsObject(@Nullable Locale locale, Arg arg) {
 
@@ -153,16 +163,15 @@ public class PropertiesFileUtilResolver {
           Objects.requireNonNull((String) arg.getArgValue()), new HashMap<>());
 
       for (Object tmpObj : arg.getMessageArgs()) {
-        Arg tmpArg = tmpObj instanceof Arg a ? a : Arg.object(tmpObj);
-        argStrList.add(resolveArgAsString(locale, tmpArg));
+        String resolved = tmpObj instanceof Arg a
+            ? resolveArgAsString(locale, a)
+            : PropertiesFileUtilFormatter.formatWithArgs(locale, "{0}", new Object[] {tmpObj});
+        argStrList.add(resolved);
       }
 
       // replace ' to '' because MessageFormat removes single '.
       return MessageFormat.format(argString.replace("'", "''"),
           (Object[]) argStrList.toArray(String[]::new));
-
-    } else if (arg.getArgKind() == ArgKind.OBJECT) {
-      return arg.getArgValue();
 
     } else {
       throw new RuntimeException("Unexpected.");

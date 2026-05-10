@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
@@ -39,10 +40,8 @@ import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +65,7 @@ public class ExceptionUtilTest {
   // shared helper used by BasicCollectionTypes and CustomObjectsInCollections
   private static String validateCollection(Object object, boolean isMsgWithItemName,
       boolean showsItemNamePath) {
-    Violations violations = ViolationUtil.validate(object).withMessageParameters(
+    Violations violations = new Violations().validate(object).withMessageParameters(
         p -> p.isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath));
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
@@ -156,7 +155,7 @@ public class ExceptionUtilTest {
 
     public static record InsideChildNode(@Valid Child myChild) {}
 
-    public static record InsideChildNodeInList(List<@Valid @NonNull Child> myChildList) {}
+    public static record InsideChildNodeInList(@Valid List<Child> myChildList) {}
 
     public static record Child(@NotNull @Nullable String name) {}
   }
@@ -171,7 +170,7 @@ public class ExceptionUtilTest {
 
     private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemNamePath) {
       return ExceptionUtil.getMessageList(
-          (ViolationUtil.validate(obj)
+          (new Violations().validate(obj)
               .withMessageParameters(p -> p.showsItemNamePath(showsItemNamePath))),
           Locale.ENGLISH, isMsgWithItemName).get(0);
     }
@@ -1001,33 +1000,35 @@ public class ExceptionUtilTest {
       assertThat(msg).isEqualTo(
           "'ItemContainer considered field' at element 2 contained by 'target list'" + MSG);
       SingleListConChild.Child child =
-          new SingleListConChild.Child(List.of(List.of(new SingleListConChild.GrandChild(null))));
-      String expected = "'sample field in grandChild' at element 1 > element 1 "
+          new SingleListConChild.Child(new SingleListConChild.GrandChild[]{
+              new SingleListConChild.GrandChild(null)});
+      String expected = "'sample field in grandChild' at element 1 "
           + "contained by 'grand child list list'" + MSG;
       msg = validateCollection(child, true, true);
       assertThat(msg).isEqualTo(expected);
 
       // Multiple layer - Multiple collection
       MulList mulListList =
-          new MulList(new MulList.Child(List.of(List.of(new MulList.GrandChild(null)))));
+          new MulList(new MulList.Child(new MulList.GrandChild[]{new MulList.GrandChild(null)}));
       msg = validateCollection(mulListList, false, false);
       assertThat(msg).isEqualTo("must not be null");
       msg = validateCollection(mulListList, true, false);
       assertThat(msg).isEqualTo("'sample field in grandChild'" + MSG);
       expected = "'sample field in grandChild' at 'child field' "
-          + "> element 1 > element 1 contained by 'grand child field'" + MSG;
+          + "> element 1 contained by 'grand child field'" + MSG;
       msg = validateCollection(mulListList, true, true);
       assertThat(msg).isEqualTo(expected);
-      MulListInkc mulListListInkc =
-          new MulListInkc(new MulListInkc.Child(List.of(List.of(new MulListInkc.GrandChild(null)))));
-      expected = "'ItemNameKeyClass considered field' at 'child field' > element 1 > element 1"
+      MulListInkc mulListListInkc = new MulListInkc(
+          new MulListInkc.Child(new MulListInkc.GrandChild[]{new MulListInkc.GrandChild(null)}));
+      expected = "'ItemNameKeyClass considered field' at 'child field' > element 1"
           + " contained by 'grand child field'" + MSG;
       msg = validateCollection(mulListListInkc, true, true);
       assertThat(msg).isEqualTo(expected);
       MulListConRoot mulListListConRoot = new MulListConRoot(
-          new MulListConRoot.Child(List.of(List.of(new MulListConRoot.GrandChild(null)))));
+          new MulListConRoot.Child(
+              new MulListConRoot.GrandChild[]{new MulListConRoot.GrandChild(null)}));
       expected = "'ItemContainer considered field' at 'child field' "
-          + "> element 1 > element 1 contained by 'grand child list list'" + MSG;
+          + "> element 1 contained by 'grand child list list'" + MSG;
       msg = validateCollection(mulListListConRoot, true, true);
       assertThat(msg).isEqualTo(expected);
     }
@@ -1083,11 +1084,11 @@ public class ExceptionUtilTest {
     @ItemNameKeyClass("itemNameKeyClass")
     public static record TargetClsInkc(@NotNull @Nullable String field) {}
 
-    public static record SingleList(List<@Valid TargetCls> targetList) {}
+    public static record SingleList(@Valid List<TargetCls> targetList) {}
 
-    public static record SingleListInkc(List<@Valid TargetClsInkc> targetList) {}
+    public static record SingleListInkc(@Valid List<TargetClsInkc> targetList) {}
 
-    public static record SingleListConRoot(List<@Valid TargetCls> targetList)
+    public static record SingleListConRoot(@Valid List<TargetCls> targetList)
         implements ItemContainer {
       @Override
       public Item[] customizedItems() {
@@ -1096,8 +1097,14 @@ public class ExceptionUtilTest {
     }
 
     public static record SingleListConChild(@Valid Child child) {
-      private static record Child(List<List<@Valid @NonNull GrandChild>> grandChildListList)
-          implements ItemContainer {
+      private static class Child implements ItemContainer {
+        @Valid
+        final GrandChild[] grandChildListList;
+
+        Child(GrandChild[] grandChildListList) {
+          this.grandChildListList = grandChildListList;
+        }
+
         @Override
         public Item[] customizedItems() {
           return new Item[]{new Item("field").itemNameKey("icField")};
@@ -1108,13 +1115,27 @@ public class ExceptionUtilTest {
     }
 
     public static record MulList(@Valid Child child) {
-      private static record Child(List<List<@Valid @Nullable GrandChild>> grandChild) {}
+      private static class Child {
+        @Valid
+        final GrandChild[] grandChild;
+
+        Child(GrandChild[] grandChild) {
+          this.grandChild = grandChild;
+        }
+      }
 
       private static record GrandChild(@NotNull @Nullable String field) {}
     }
 
     public static record MulListInkc(@Valid Child child) {
-      private static record Child(List<List<@Valid @NonNull GrandChild>> grandChild) {}
+      private static class Child {
+        @Valid
+        final GrandChild[] grandChild;
+
+        Child(GrandChild[] grandChild) {
+          this.grandChild = grandChild;
+        }
+      }
 
       @ItemNameKeyClass("itemNameKeyClass")
       private static record GrandChild(@NotNull @Nullable String field) {}
@@ -1123,17 +1144,24 @@ public class ExceptionUtilTest {
     public static record MulListConRoot(@Valid Child child) implements ItemContainer {
       @Override
       public Item[] customizedItems() {
-        return new Item[]{new Item("child.grandChildListList[][].field").itemNameKey("icField")};
+        return new Item[]{new Item("child.grandChildListList[].field").itemNameKey("icField")};
       }
 
-      private static record Child(List<List<@Valid @NonNull GrandChild>> grandChildListList) {}
+      private static class Child {
+        @Valid
+        final GrandChild[] grandChildListList;
+
+        Child(GrandChild[] grandChildListList) {
+          this.grandChildListList = grandChildListList;
+        }
+      }
 
       private static record GrandChild(@NotNull @Nullable String field) {}
     }
 
-    public static record SingleSet(Set<@Valid TargetCls> targetSet) {}
+    public static record SingleSet(@Valid Set<TargetCls> targetSet) {}
 
-    public static record SingleMapValue(Map<String, @Valid TargetCls> targetMapValue) {}
+    public static record SingleMapValue(@Valid Map<String, TargetCls> targetMapValue) {}
 
     // Hibernate Validator emits HV000271 ("@Valid on a container is deprecated;
     // use type argument") for the field/accessor/constructor of this record.
@@ -1343,7 +1371,7 @@ public class ExceptionUtilTest {
     @DisplayName("message prefix is prepended")
     void withPrefix() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.messagePrefix(Arg.object("[")));
+          .withMessageParameters(p -> p.messagePrefix("["));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs.get(0)).startsWith("[");
     }
@@ -1352,7 +1380,7 @@ public class ExceptionUtilTest {
     @DisplayName("message postfix is appended")
     void withPostfix() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.messagePostfix(Arg.object("]")));
+          .withMessageParameters(p -> p.messagePostfix("]"));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs.get(0)).endsWith("]");
     }

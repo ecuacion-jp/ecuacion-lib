@@ -16,8 +16,9 @@
 package jp.ecuacion.lib.core.violation;
 
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -40,6 +41,9 @@ import org.jspecify.annotations.Nullable;
  * }</pre>
  */
 public class Violations {
+
+  private static final Validator validator =
+      Validation.buildDefaultValidatorFactory().getValidator();
 
   private List<@NonNull ConstraintViolation<?>> constraintViolations = new ArrayList<>();
   private List<@NonNull BusinessViolation> businessViolations = new ArrayList<>();
@@ -71,9 +75,10 @@ public class Violations {
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
-  public Violations add(String messageId, @Nullable String... messageArgs) {
+  public Violations add(String messageId, @Nullable Object... messageArgs) {
     return add(new String[] {}, messageId, messageArgs);
   }
 
@@ -83,63 +88,27 @@ public class Violations {
    *
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
   public Violations add(@NonNull String[] itemPropertyPaths, String messageId,
-      @Nullable String... messageArgs) {
-    return add(null, itemPropertyPaths, messageId, messageArgs);
+      @Nullable Object... messageArgs) {
+    return add(new String[] {}, itemPropertyPaths, messageId, messageArgs);
   }
 
   /**
-   * Constructs a new instance with {@code itemPropertyPaths},
+   * Constructs a new instance with {@code itemNameKeys}, {@code itemPropertyPaths},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param rootBean rootBean
+   * @param itemNameKeys keys to look up item display names from {@code item_names.properties}
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
-  public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
-      String messageId, @Nullable String... messageArgs) {
-    return add(rootBean, itemPropertyPaths, messageId,
-        Arrays.stream(messageArgs).map(arg -> Arg.object(arg)).toArray(Arg[]::new));
-  }
-
-  /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
-   *
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public Violations add(String messageId, @NonNull Arg[] messageArgs) {
-    return add(new @NonNull String[] {}, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPaths},
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param itemPropertyPaths the itemPropertyPaths related to the violation
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public Violations add(@NonNull String[] itemPropertyPaths, String messageId,
-      @NonNull Arg[] messageArgs) {
-    return add(null, itemPropertyPaths, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPaths},
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param rootBean rootBean
-   * @param itemPropertyPaths the itemPropertyPaths related to the violation
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
-      String messageId, @NonNull Arg[] messageArgs) {
-    return add(new BusinessViolation(rootBean, itemPropertyPaths, messageId, messageArgs));
+  public Violations add(@NonNull String[] itemNameKeys, @NonNull String[] itemPropertyPaths,
+      String messageId, @Nullable Object... messageArgs) {
+    return add(new BusinessViolation(itemNameKeys, itemPropertyPaths, messageId, messageArgs));
   }
 
   /**
@@ -162,6 +131,34 @@ public class Violations {
   public Violations addAll(List<BusinessViolation> violationList) {
     businessViolations.addAll(violationList);
     return this;
+  }
+
+  /**
+   * Validates {@code object} using Jakarta Validation and adds any resulting
+   * {@link ConstraintViolation}s to this instance.
+   *
+   * @param <T> any class
+   * @param object object to validate
+   * @return this instance for method chaining
+   */
+  public <T> Violations validate(T object) {
+    return addAll(validator.validate(object));
+  }
+
+  /**
+   * Validates {@code object} using Jakarta Validation with the specified groups
+   * and adds any resulting {@link ConstraintViolation}s to this instance.
+   *
+   * @param <T> any class
+   * @param object object to validate
+   * @param groups validation groups
+   * @return this instance for method chaining
+   */
+  public <T> Violations validate(T object, Class<?>... groups) {
+    Set<ConstraintViolation<T>> set =
+        groups == null || groups.length == 0 ? validator.validate(object)
+            : validator.validate(object, groups);
+    return addAll(set);
   }
 
   /**
@@ -302,8 +299,8 @@ public class Violations {
         String messagePostfix, boolean showsItemNamePath) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix == null ? null : Arg.object(messagePrefix);
-      this.messagePostfix = messagePostfix == null ? null : Arg.object(messagePostfix);
+      this.messagePrefix = messagePrefix == null ? null : Arg.message(messagePrefix);
+      this.messagePostfix = messagePostfix == null ? null : Arg.message(messagePostfix);
     }
 
     /**

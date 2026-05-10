@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.violation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -24,7 +25,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.exception.ViolationWarningException;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -178,7 +178,7 @@ public class ViolationsTest {
     @Test
     @DisplayName("add(String, Arg[]): stores business violation with Arg args")
     void addStringWithArgArray() {
-      Violations v = new Violations().add("MSG_ID", new Arg[]{Arg.object("arg1")});
+      Violations v = new Violations().add("MSG_ID", new Object[]{"arg1"});
       assertThat(v.getBusinessViolations()).hasSize(1);
     }
 
@@ -186,27 +186,28 @@ public class ViolationsTest {
     @DisplayName("add(String[], String, Arg[]): stores with property paths and Arg args")
     void addWithPathsAndArgArray() {
       Violations v =
-          new Violations().add(new String[]{"field"}, "MSG_ID", new Arg[]{Arg.object("x")});
+          new Violations().add(new String[]{"field"}, "MSG_ID", new Object[]{"x"});
       assertThat(v.getBusinessViolations()).hasSize(1);
     }
 
     @Test
-    @DisplayName("add(Object, String[], String, String[]): stores with rootBean and string args")
-    void addWithRootBeanAndStringArgs() {
-      Object rootBean = new Object();
-      Violations v = new Violations().add(rootBean, new String[]{"field"}, "MSG_ID", "arg1");
+    @DisplayName("add(String[], String[], String, String[]): stores with itemNameKeys and string args")
+    void addWithItemNameKeysAndStringArgs() {
+      Violations v = new Violations().add(new String[]{"customer.name"}, new String[]{"name"},
+          "MSG_ID", "arg1");
       assertThat(v.getBusinessViolations()).hasSize(1);
-      assertThat(v.getBusinessViolations().get(0).getRootBean()).isSameAs(rootBean);
+      assertThat(v.getBusinessViolations().get(0).getItemNameKeys())
+          .containsExactly("customer.name");
     }
 
     @Test
-    @DisplayName("add(Object, String[], String, Arg[]): stores with rootBean and Arg args")
-    void addWithRootBeanAndArgArray() {
-      Object rootBean = new Object();
-      Violations v = new Violations().add(rootBean, new String[]{"field"}, "MSG_ID",
-          new Arg[]{Arg.object("x")});
+    @DisplayName("add(String[], String[], String, Object[]): stores with itemNameKeys and Object args")
+    void addWithItemNameKeysAndArgArray() {
+      Violations v = new Violations().add(new String[]{"customer.name"}, new String[]{"name"},
+          "MSG_ID", new Object[]{"x"});
       assertThat(v.getBusinessViolations()).hasSize(1);
-      assertThat(v.getBusinessViolations().get(0).getRootBean()).isSameAs(rootBean);
+      assertThat(v.getBusinessViolations().get(0).getItemNameKeys())
+          .containsExactly("customer.name");
     }
 
     @Test
@@ -237,9 +238,9 @@ public class ViolationsTest {
     }
 
     @Test
-    @DisplayName("4-arg constructor (Arg prefix/postfix): sets all fields including showsItemNamePath")
+    @DisplayName("4-arg constructor (String prefix/postfix): sets all fields including showsItemNamePath")
     void constructorWithArgs() {
-      MessageParameters mp = new MessageParameters(false, true, Arg.object("["), Arg.object("]"));
+      MessageParameters mp = new MessageParameters(false, "[", "]", true);
       assertThat(mp.isMessageWithItemName()).isFalse();
       assertThat(mp.showsItemNamePath()).isTrue();
       assertThat(mp.getMessagePrefix()).isNotNull();

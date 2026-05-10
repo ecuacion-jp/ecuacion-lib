@@ -22,7 +22,18 @@ import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides {@code ConstraintViolationException} with meta data.
+ * Provides {@code ConstraintViolationException} with {@link MessageParameters}.
+ *
+ * <p>This class was originally introduced to carry {@link MessageParameters} alongside
+ * a {@link ConstraintViolationException}. However, {@link MessageParameters} can now be held
+ * directly within {@code Violations}, so this class has little practical purpose in current
+ * designs.</p>
+ *
+ * <p>It is retained primarily as a conceptual bridge for developers learning the framework.
+ * Going directly from the standard {@code ConstraintViolationException} to {@code Violations}
+ * can be a large conceptual leap; this class serves as an intermediate step — a familiar
+ * {@code ConstraintViolationException} variant that also carries {@link MessageParameters} —
+ * making the transition to {@code Violations} easier to follow.</p>
  */
 public class ConstraintViolationExceptionWithParameters extends ConstraintViolationException {
 
@@ -30,6 +41,7 @@ public class ConstraintViolationExceptionWithParameters extends ConstraintViolat
 
   private MessageParameters messageParameters;
 
+  /** Returns the {@link MessageParameters} associated with this exception. */
   public MessageParameters getMessageParameters() {
     return messageParameters;
   }

@@ -114,20 +114,6 @@ public class PropertiesFileUtilResolverTest {
   class ResolveArgAsObject {
 
     @Test
-    @DisplayName("OBJECT kind: returns raw value preserving type")
-    void objectKind() {
-      assertThat(PropertiesFileUtilResolver.resolveArgAsObject(null, Arg.object(1234567)))
-          .isEqualTo(1234567);
-    }
-
-    @Test
-    @DisplayName("OBJECT kind: null input returns null")
-    void objectKindNull() {
-      assertThat(PropertiesFileUtilResolver.resolveArgAsObject(null, Arg.object(null)))
-          .isNull();
-    }
-
-    @Test
     @DisplayName("MESSAGE_ID kind: resolves message key to string")
     void messageIdKind() {
       assertThat(PropertiesFileUtilResolver.resolveArgAsObject(Locale.ENGLISH, Arg.message("MSG1")))
@@ -146,7 +132,7 @@ public class PropertiesFileUtilResolverTest {
     @Test
     @DisplayName("FORMATTED_STRING kind: formats with nested args")
     void formattedStringKind() {
-      Arg arg = Arg.formattedString("{0} / {1}", Arg.object("A"), Arg.object("B"));
+      Arg arg = Arg.formattedString("{0} / {1}", "A", "B");
       assertThat(PropertiesFileUtilResolver.resolveArgAsObject(null, arg))
           .isEqualTo("A / B");
     }
@@ -180,7 +166,7 @@ public class PropertiesFileUtilResolverTest {
     @DisplayName("Arg instances are resolved, plain Objects unchanged")
     void mixedArray() {
       Object[] result = PropertiesFileUtilResolver.resolveArgElements(
-          Locale.ENGLISH, new Object[] {Arg.message("MSG1"), "plain", Arg.object(99)});
+          Locale.ENGLISH, new Object[] {Arg.message("MSG1"), "plain", 99});
       assertThat(result).containsExactly("message 1.", "plain", 99);
     }
 

@@ -124,13 +124,12 @@ public class ItemUtil {
   /**
    * Returns {@code itemNameKey} value.
    *
-   * <p>Priority order for itemNameKeyClass (first non-empty wins):
+   * <p>Priority order for itemNameKeyClass (first non-empty wins):</p>
    * <ol>
    *   <li>explicitly set via {@code itemNameKey(itemNameKey)}</li>
    *   <li>from {@code @ItemNameKeyClass} annotation</li>
    *   <li>uncapitalized class name (set by {@code ItemContainer#getItem(String)})</li>
    * </ol>
-   * </p>
    *
    * @param explicitlySetItemNameKeyClass explicitly set itemNameKeyClass
    * @param itemNameKeyClassFromAnnotation itemNameKeyClass from {@code @ItemNameKeyClass}

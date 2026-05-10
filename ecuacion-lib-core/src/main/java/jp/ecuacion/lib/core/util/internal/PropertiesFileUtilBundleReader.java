@@ -331,6 +331,25 @@ public class PropertiesFileUtilBundleReader {
   }
 
   /**
+   * Returns {@code true} when the key exists in a properties file for the given locale.
+   *
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}
+   * @param key the key to check
+   * @return {@code true} if the key exists for the given locale
+   */
+  public boolean hasProp(@Nullable Locale locale, String key) {
+    Objects.requireNonNull(key);
+
+    try {
+      getValue(locale, key);
+      return true;
+
+    } catch (NoKeyInPropertiesFileException ex) {
+      return false;
+    }
+  }
+
+  /**
    * Obtains raw value from a key using the default locale
    * (no {@code #{...}} or {@code ${...}} processing).
    *
