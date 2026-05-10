@@ -100,7 +100,7 @@ public class BusinessViolation {
   public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
       String messageId, @Nullable String... messageArgs) {
     this(rootBean, itemPropertyPaths, messageId,
-        Arrays.stream(messageArgs).map(arg -> Arg.string(arg)).toArray(Arg[]::new));
+        Arrays.stream(messageArgs).map(arg -> Arg.object(arg)).toArray(Arg[]::new));
   }
 
   /**
@@ -145,10 +145,10 @@ public class BusinessViolation {
 
   @Override
   public String toString() {
-    return "{" + "message : \"" + PropertiesFileUtil.getMessage(Locale.ROOT, messageId, messageArgs)
-        + "\", " + "messageId : \"" + messageId + "\", " + "messageArgs : \""
-        + Arrays.toString(messageArgs) + "\", " + "itemPropertyPaths : \""
-        + Arrays.toString(itemPropertyPaths) + "\"}";
+    return "{" + "message : \""
+        + PropertiesFileUtil.getMessage(Locale.ROOT, messageId, (Object[]) messageArgs) + "\", "
+        + "messageId : \"" + messageId + "\", " + "messageArgs : \"" + Arrays.toString(messageArgs)
+        + "\", " + "itemPropertyPaths : \"" + Arrays.toString(itemPropertyPaths) + "\"}";
   }
 
   /**

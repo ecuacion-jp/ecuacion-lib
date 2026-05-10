@@ -21,7 +21,7 @@ import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
-import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -33,7 +33,7 @@ public class ExceptionLogUtilTest {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertiesFileUtilValueGetter.addToDynamicPostfixList("lib-core-test");
+    PropertiesFileUtilBundleReader.addToDynamicPostfixList("lib-core-test");
   }
 
   @Nested

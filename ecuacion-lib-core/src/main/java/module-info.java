@@ -119,8 +119,8 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.test.spi.internal.ApplicationLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.MessagesLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.StringsLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.ConstantsLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.ConstantsLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.EnumNamesLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider
@@ -130,7 +130,7 @@ module jp.ecuacion.lib.core {
 
   uses jp.ecuacion.lib.core.test.spi.ApplicationLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.ConstantsLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider;

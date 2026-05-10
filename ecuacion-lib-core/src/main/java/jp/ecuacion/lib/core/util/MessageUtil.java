@@ -20,11 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -43,80 +40,9 @@ public class MessageUtil {
   private static final String ppf = "jp.ecuacion.lib.core.common.itemNamePath.";
 
   /**
-   * Returns {@code itemNameKey} value.
-   *     It resolves itemNameKeyClassFromAnnotation by leaBeanClass and propertyPath.
-   */
-  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
-      Object rootBean, Object leafBeanFromConstraintViolation,
-      @Nullable String defaultItemNameKeyClass, @Nullable String itemNameKeyField,
-      String propertyPath) {
-
-    Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
-        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
-    // Set finalDefaultItemNameKeyClass.
-
-    String itemNameKeyClassFromAnnotation =
-        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
-            .map(ItemNameKeyClass::value).orElse(null);
-
-    return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
-        leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   * 
-   * <p>There can be 5 candidates for itemNameKeyClass. Candidates are ordered by their priority.
-   *     They are adopted only when they are not empty. The last one is never null.<br>
-   *     1: itemNameKeyClass part of itemNameKey set by itemNameKey(itemNameKey)<br>
-   *     2: itemNameKeyClass part of itemPropertyPath set by constructor<br>
-   *        (This is needed when 2 variables with same data type exists in a validated object,
-   *         like "mobilePhoneNumber" and "homePhoneNumber" with PhoneNumber object.
-   *         It's such an important information 
-   *         that {@code @ItemNameKeyClass} should not be able to override.<br>
-   *         Only the explicit setting of itemNameKeyClass can override it.<br>
-   *         This rule is not applied when itemNameKeyClass part of itemPropertyPath contains "[",
-   *         because when parent node of the field is a collection or an array, 
-   *         itemNameKeyClass obtained from propertyPath (like accountList[0]) 
-   *         is mostly inappropriate.
-   *     3: itemNameKeyClassFromAnnotation set by setItemNameKeyClassFromAnnotation(String)<br>
-   *     4: uncapitalized className (always set by ItemContainer#getItem(String))
-   * </p>
-   */
-  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
-      @Nullable String itemNameKeyClassFromAnnotation,
-      @Nullable String itemNameKeyClassFromClassName, @Nullable String itemNameKeyField,
-      String propertyPath) {
-    @Nullable
-    String tmpItemNameKeyClass;
-    String tmpItemNameKeyField;
-
-    if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
-      tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
-
-    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
-      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
-
-    } else {
-      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
-    }
-
-    // tmpItemNameKeyField
-    if (!StringUtils.isEmpty(itemNameKeyField)) {
-      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
-
-    } else {
-      tmpItemNameKeyField =
-          PropertyPathUtil.removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
-    }
-
-    return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;
-  }
-
-  /**
    * Returns an array of item names considering prependSymbol, appendSymbol and separator.
    */
-  public static String getItemNames(Locale locale, List<@NonNull Item> itemList,
+  public static String getItemNames(@Nullable Locale locale, List<@NonNull Item> itemList,
       boolean showsItemNamePath, Object rootBean) {
     final String separator = PropertiesFileUtil.getMessage(locale, ipf + "separator");
     final String prependSymbol = PropertiesFileUtil.getMessage(locale, ipf + "prependSymbol");
@@ -140,7 +66,7 @@ public class MessageUtil {
     return StringUtils.capitalize(rtn);
   }
 
-  private static String getItemName(Locale locale, Item item, final String prependSymbol,
+  private static String getItemName(@Nullable Locale locale, Item item, final String prependSymbol,
       final String appendSymbol) {
 
     String itemNameKey = item.getItemNameKey();
@@ -228,8 +154,8 @@ public class MessageUtil {
     }
   }
 
-  private static String addItemNamePath(Locale locale, Object rootBean, Item item, String itemName,
-      final String prependSymbol, final String appendSymbol) {
+  private static String addItemNamePath(@Nullable Locale locale, Object rootBean, Item item,
+      String itemName, final String prependSymbol, final String appendSymbol) {
 
     final String pstring = PropertiesFileUtil.getMessage(locale, ppf + "string");
     final String pseparator = PropertiesFileUtil.getMessage(locale, ppf + "separator");
@@ -251,76 +177,16 @@ public class MessageUtil {
 
     // The following is when itemNamePath exists.
 
-    List<@NonNull String> modifiedPathItemNameList = itemNamePathList.stream()
-        .map(path -> getItemName(locale, getItem(path, rootBean, rootBean),
-            prependSymbol, appendSymbol))
-        .toList();
+    List<@NonNull String> modifiedPathItemNameList =
+        itemNamePathList
+            .stream().map(path -> getItemName(locale,
+                ItemUtil.resolveItem(path, rootBean, rootBean), prependSymbol, appendSymbol))
+            .toList();
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
     itemName = PropertiesFileUtil.getMessage(locale, pstring, itemName, pathString);
 
     return itemName;
-  }
-
-  /**
-   * Sets {@code itemNameKey} and {@code showsValue}.
-   * 
-   * <p>It does not consider {@code @ItemNameKeyClass}. In order to consider it,
-   *     {@code getRootRecordNameConsideringItemNameKeyClass(itemPropertyPath)} 
-   *     needs to be used together.</p>
-   * 
-   * @param propertyPath itemPropertyPath
-   * @return itemNameKey
-   */
-  public static Item getItem(String propertyPath, Object rootBean, Object leafBean) {
-
-    String fullPropertyPath1stPart =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.indexOf(".")) : null;
-
-    // firstChild cannot be obtained when the firstChild is Set or Map key.
-    Object firstChild = null;
-    try {
-      firstChild = fullPropertyPath1stPart == null ? null
-          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
-
-    } catch (ElementOfCollectionCannotBeObtainedException ex) {
-      // Do nothing.
-    }
-
-    Item item = null;
-    // boolean setsItemNameKeyClassExplicitly = false;
-
-    String itemNameKey = null;
-    boolean showsValue = true;
-
-    // Get item if exists.
-
-    // Remove collection part from rightmost node.
-    String rightMostRemoved = PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath);
-    String collectionPartRemovedPropertyPath =
-        (rightMostRemoved.isEmpty() ? "" : rightMostRemoved + ".") + PropertyPathUtil
-            .removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
-    if (rootBean instanceof ItemContainer ic) {
-      // the case that rootBean is an EclibRecord
-      item = ic.getItem(collectionPartRemovedPropertyPath);
-
-    } else if (fullPropertyPath1stPart != null && firstChild instanceof ItemContainer ic) {
-
-      // the case that EclibRecord is stored in form or something
-      String substr =
-          collectionPartRemovedPropertyPath.substring(fullPropertyPath1stPart.length() + 1);
-      item = ic.getItem(substr);
-    }
-
-    if (item == null) {
-      itemNameKey = MessageUtil.getItemNameKey(null, rootBean, leafBean, null, null, propertyPath);
-
-    } else {
-      itemNameKey = item.getItemNameKey();
-      showsValue = item.getShowsValue();
-    }
-
-    return new Item(propertyPath).itemNameKey(itemNameKey).showsValue(showsValue);
   }
 
   /**
@@ -349,11 +215,11 @@ public class MessageUtil {
    */
   public static Arg getValuesArg(String[] values) {
     // Get a list of Args from values
-    String[] fileKinds = new String[] {PropertiesFileUtilFileKindEnum.MESSAGES.toString(),
-        PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString(),
-        PropertiesFileUtilFileKindEnum.ENUM_NAMES.toString()};
+    PropertiesFileUtilFileKindEnum[] fileKinds =
+        new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES,
+            PropertiesFileUtilFileKindEnum.ITEM_NAMES, PropertiesFileUtilFileKindEnum.ENUM_NAMES};
     List<@NonNull Arg> argList =
-        Arrays.stream(values).map(str -> Arg.get(fileKinds, str)).toList();
+        Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
 
     List<@NonNull String> itemNameList = new ArrayList<>();
     for (int i = 0; i < argList.size(); i++) {
@@ -361,7 +227,7 @@ public class MessageUtil {
     }
 
     return Arg.formattedString(StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR),
-        argList.toArray(Arg[]::new));
+        (Object[]) argList.toArray(Arg[]::new));
   }
 
   /**

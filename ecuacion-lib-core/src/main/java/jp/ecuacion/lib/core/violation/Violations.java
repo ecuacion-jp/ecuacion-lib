@@ -102,7 +102,7 @@ public class Violations {
   public Violations add(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
       String messageId, @Nullable String... messageArgs) {
     return add(rootBean, itemPropertyPaths, messageId,
-        Arrays.stream(messageArgs).map(arg -> Arg.string(arg)).toArray(Arg[]::new));
+        Arrays.stream(messageArgs).map(arg -> Arg.object(arg)).toArray(Arg[]::new));
   }
 
   /**
@@ -302,8 +302,8 @@ public class Violations {
         String messagePostfix, boolean showsItemNamePath) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix == null ? null : Arg.string(messagePrefix);
-      this.messagePostfix = messagePostfix == null ? null : Arg.string(messagePostfix);
+      this.messagePrefix = messagePrefix == null ? null : Arg.object(messagePrefix);
+      this.messagePostfix = messagePostfix == null ? null : Arg.object(messagePostfix);
     }
 
     /**
