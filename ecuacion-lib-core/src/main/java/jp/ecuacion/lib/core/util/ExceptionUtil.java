@@ -36,7 +36,6 @@ import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
@@ -304,7 +303,8 @@ public class ExceptionUtil {
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
     // In that case messages are built directly from ConstraintViolation.
     if (throwable instanceof ConstraintViolationException cve) {
-      MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters cvewp
+      MessageParameters params =
+          cve instanceof ConstraintViolationExceptionWithParameters cvewp
           ? cvewp.getMessageParameters()
           : Violations.newMessageParameters();
 
@@ -460,7 +460,7 @@ public class ExceptionUtil {
       String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
       boolean isMessageDefined =
           isMessageWithItemName ? PropertiesFileUtil.hasValidationMessageWithItemName(messageKey)
-              : PropertiesFileUtil.hasValidationMessage(messageKey);
+              : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
       if (isMessageDefined) {
         message = isMessageWithItemName
             ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
@@ -502,8 +502,7 @@ public class ExceptionUtil {
 
     if (!beanList.get(0).getShowsValue()) {
       String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
-      map.put("invalidValue", Arg.fromFileKinds(
-          new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, key));
+      map.put("invalidValue", Arg.message(key));
     }
   }
 
@@ -550,25 +549,23 @@ public class ExceptionUtil {
     String message = null;
     String messageKey = violation.getMessageId();
     if (isMessageWithItemName) {
+      Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
+      String[] itemNameKeys = violation.getItemNameKeys();
+      if (itemNameKeys.length > 0) {
+        List<@NonNull Item> itemList = Arrays.stream(itemNameKeys)
+            .map(key -> new Item(key).itemNameKey(key)).toList();
+        String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
+        namedArgs.put("item_name", itemName);
+        namedArgs.put("0", itemName);
+      }
       message = PropertiesFileUtil.hasMessageWithItemName(messageKey)
-          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey,
+          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey, namedArgs,
               (Object[]) violation.getMessageArgs())
-          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey,
-              new HashMap<>());
+          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, namedArgs);
     } else {
       message = PropertiesFileUtil.hasMessage(messageKey)
           ? PropertiesFileUtil.getMessage(locale, messageKey, (Object[]) violation.getMessageArgs())
           : PropertiesFileUtil.getValidationMessage(locale, messageKey, new HashMap<>());
-    }
-
-    // Replace {0} to itemName.
-    if (message.contains("{0}") && violation.getRootBean() != null) {
-      Object rootBean = Objects.requireNonNull(violation.getRootBean());
-      List<@NonNull Item> itemList = Arrays.stream(violation.getItemPropertyPaths())
-          .map(path -> ItemUtil.resolveItem(path, rootBean, rootBean)).toList();
-
-      message = MessageFormat.format(message,
-          MessageUtil.getItemNames(locale, itemList, false, rootBean));
     }
 
     // add prefix and postfix messages.

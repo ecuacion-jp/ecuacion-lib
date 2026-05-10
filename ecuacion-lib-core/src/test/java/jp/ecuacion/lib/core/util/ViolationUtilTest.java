@@ -22,28 +22,28 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link ViolationUtil}. */
-@DisplayName("ViolationUtil")
+/** Tests for {@link Violations#validate(Object)}. */
+@DisplayName("Violations.validate")
 public class ViolationUtilTest {
 
   @Test
   @DisplayName("validate(T): returns empty violations for valid object")
   void validateValid() {
-    Violations violations = ViolationUtil.validate(new SimpleBean("ok"));
+    Violations violations = new Violations().validate(new SimpleBean("ok"));
     assertThat(violations.getConstraintViolations()).isEmpty();
   }
 
   @Test
   @DisplayName("validate(T): returns violations for invalid object")
   void validateInvalid() {
-    Violations violations = ViolationUtil.validate(new SimpleBean(null));
+    Violations violations = new Violations().validate(new SimpleBean(null));
     assertThat(violations.getConstraintViolations()).hasSize(1);
   }
 
   @Test
   @DisplayName("validate(T, Class<?>...): runs validation with specified group")
   void validateWithGroups() {
-    Violations violations = ViolationUtil.validate(new GroupBean(null), GroupA.class);
+    Violations violations = new Violations().validate(new GroupBean(null), GroupA.class);
     assertThat(violations.getConstraintViolations()).hasSize(1);
   }
 

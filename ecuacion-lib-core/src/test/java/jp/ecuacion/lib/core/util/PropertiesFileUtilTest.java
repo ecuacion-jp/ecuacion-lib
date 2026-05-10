@@ -102,11 +102,10 @@ public class PropertiesFileUtilTest {
   class GetMessageWithArgArray {
 
     @Test
-    @DisplayName("Arg.object substituted into {0} placeholder")
-    void argObject() {
-      Arg[] args = new Arg[] {Arg.object("hello")};
+    @DisplayName("plain Object substituted into {0} placeholder")
+    void plainObject() {
       assertThat(
-          PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", (Object[]) args))
+          PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", "hello"))
               .isEqualTo("value=hello");
     }
 
@@ -129,18 +128,6 @@ public class PropertiesFileUtilTest {
   class ResolveAsString {
 
     @Test
-    @DisplayName("OBJECT kind: returns the string value")
-    void object() {
-      assertThat(Arg.object("hello").resolveAsString(Locale.ENGLISH)).isEqualTo("hello");
-    }
-
-    @Test
-    @DisplayName("OBJECT kind: null input returns literal string 'null'")
-    void objectNull() {
-      assertThat(Arg.object(null).resolveAsString(Locale.ENGLISH)).isEqualTo("null");
-    }
-
-    @Test
     @DisplayName("MESSAGE_ID kind: resolves message from properties")
     void messageId() {
       assertThat(Arg.message("MSG1").resolveAsString(Locale.ENGLISH)).isEqualTo("message 1.");
@@ -149,7 +136,7 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("FORMATTED_STRING kind: substitutes args into format string")
     void formattedString() {
-      assertThat(Arg.formattedString("Hello {0}!", Arg.object("world"))
+      assertThat(Arg.formattedString("Hello {0}!", "world")
           .resolveAsString(Locale.ENGLISH)).isEqualTo("Hello world!");
     }
 
@@ -276,7 +263,6 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("getArgKind: returns correct kind for each factory")
     void getArgKind() {
-      assertThat(Arg.object("x").getArgKind()).isEqualTo(ArgKind.OBJECT);
       assertThat(Arg.message("x").getArgKind()).isEqualTo(ArgKind.MESSAGE_ID);
       assertThat(Arg.formattedString("x").getArgKind()).isEqualTo(ArgKind.FORMATTED_STRING);
     }
@@ -298,9 +284,9 @@ public class PropertiesFileUtilTest {
     }
 
     @Test
-    @DisplayName("message(String, Arg[]): resolves with Arg args")
+    @DisplayName("message(String, Object...): resolves with plain Object arg")
     void messageWithArgArray() {
-      Arg arg = Arg.message("MSG_WITH_STRING_ARG", Arg.object("world"));
+      Arg arg = Arg.message("MSG_WITH_STRING_ARG", "world");
       assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("value=world");
     }
@@ -325,11 +311,11 @@ public class PropertiesFileUtilTest {
     }
 
     @Test
-    @DisplayName("get(Enum[], String, Arg[]): resolves with Arg args")
+    @DisplayName("get(Enum[], String, Object...): resolves with plain Object arg")
     void getWithFileKindsAndArgArray() {
       Arg arg =
           Arg.fromFileKinds(new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
-              "MSG_WITH_STRING_ARG", Arg.object("ok"));
+              "MSG_WITH_STRING_ARG", "ok");
       assertThat(arg.resolveAsString(Locale.ENGLISH)).isEqualTo("value=ok");
     }
   }

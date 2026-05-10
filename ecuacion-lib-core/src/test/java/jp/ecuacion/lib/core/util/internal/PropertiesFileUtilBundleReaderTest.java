@@ -211,7 +211,7 @@ public class PropertiesFileUtilBundleReaderTest {
   @Test
   @DisplayName("property keys in obtained value are resolved recursively")
   public void resolvePropertyKeysInObtainedValueTest() {
-    assertThat(OBJ_MSG.getProp("KEY_IN_MSG")).isEqualTo("Hi, John.");
+    assertThat(PropertiesFileUtilResolver.getProp(null, MESSAGES, "KEY_IN_MSG")).isEqualTo("Hi, John.");
   }
 
   @Test

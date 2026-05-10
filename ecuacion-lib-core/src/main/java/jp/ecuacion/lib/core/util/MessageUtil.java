@@ -217,7 +217,8 @@ public class MessageUtil {
     // Get a list of Args from values
     PropertiesFileUtilFileKindEnum[] fileKinds =
         new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES,
-            PropertiesFileUtilFileKindEnum.ITEM_NAMES, PropertiesFileUtilFileKindEnum.ENUM_NAMES};
+            PropertiesFileUtilFileKindEnum.ITEM_NAMES, PropertiesFileUtilFileKindEnum.ENUM_NAMES,
+            PropertiesFileUtilFileKindEnum.CONSTANTS, PropertiesFileUtilFileKindEnum.APPLICATION};
     List<@NonNull Arg> argList =
         Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
 

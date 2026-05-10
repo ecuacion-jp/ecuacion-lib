@@ -31,7 +31,6 @@ import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
@@ -70,12 +69,10 @@ public class ValidateWhenValidatorMessageParameterCreator
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
       result.put(paramKey,
-          Arg.fromFileKinds(
-              new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
-              paramMap.get("annotation") + ".messagePart."
-                  + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
+          Arg.message(paramMap.get("annotation") + ".messagePart."
+              + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
     } else {
-      result.put(paramKey, Arg.object(""));
+      result.put(paramKey, "");
     }
 
     return result;
@@ -86,7 +83,7 @@ public class ValidateWhenValidatorMessageParameterCreator
       Map<@NonNull String, @Nullable Object> result) {
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
-    Arg displayStringOfConditionValueArg = Arg.object("");
+    Object displayStringOfConditionValueArg = "";
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
       Object values = ReflectionUtil.getValue(cv.getLeafBean(), (String) Objects
@@ -109,12 +106,10 @@ public class ValidateWhenValidatorMessageParameterCreator
 
       if (description.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
           || description.isEmpty()) {
-        displayStringOfConditionValueArg = Arg.object(regExp);
+        displayStringOfConditionValueArg = regExp;
 
       } else {
-        displayStringOfConditionValueArg = Arg.fromFileKinds(
-            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
-            description);
+        displayStringOfConditionValueArg = Arg.itemName(description);
       }
     }
 
@@ -124,9 +119,7 @@ public class ValidateWhenValidatorMessageParameterCreator
         + "." + StringUtil.getLowerCamelFromSnake(Objects
             .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR)).toString());
     result.put(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
-        Arg.fromFileKinds(
-            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, propKey,
-            displayStringOfConditionValueArg));
+        Arg.message(propKey, displayStringOfConditionValueArg));
   }
 
   private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolationBean<?> cv,

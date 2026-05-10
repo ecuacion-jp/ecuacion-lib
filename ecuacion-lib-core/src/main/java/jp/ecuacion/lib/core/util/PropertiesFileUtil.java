@@ -56,9 +56,7 @@ import org.jspecify.annotations.Nullable;
  *     {@code #{key}} searches across messages, item_names, constants, and enum_names.</li>
  * <li><b>{@link Arg} for typed arguments</b> — methods that accept {@code Object... args}
  *     allow plain {@code Object} values and {@link Arg} instances to be freely mixed.
- *     {@link Arg#object(Object)} preserves the original type for type-aware
- *     {@link java.text.MessageFormat} patterns (e.g., {@code {0,number,#,###}});
- *     {@link Arg#message(String)} resolves a message key at render time so that
+ *     {@link Arg#message(String, Object...)} resolves a message key at render time so that
  *     arguments themselves can be localized.</li>
  * <li><b>EL expression support</b> — {@code ${1 + 1}} in a value is evaluated via
  *     the Jakarta Expression Language processor.</li>
@@ -177,6 +175,33 @@ public class PropertiesFileUtil {
   }
 
   /**
+   * Returns the localized value in messagesWithItemNames_xxx.properties,
+   * resolving named placeholders (e.g., {@code {item_name}}) before applying
+   * {@link java.text.MessageFormat} for positional placeholders ({@code {0}}, {@code {1}}, ...).
+   *
+   * <p>Named placeholders in {@code namedArgs} are substituted first via string replacement,
+   *     so they do not conflict with positional placeholders processed by
+   *     {@link java.text.MessageFormat}.</p>
+   *
+   * <p>Falls back to {@code messages.properties} when the key is not found
+   *     in {@code messages_with_item_names.properties}.</p>
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param namedArgs named placeholder map (e.g., {@code "item_name"} to item display name)
+   * @param positionalArgs positional arguments for {@link java.text.MessageFormat};
+   *     {@link Arg} instances and plain {@code Object}s may be mixed
+   * @return the value (message) of the property key (message ID)
+   */
+  public static String getMessageWithItemName(@Nullable Locale locale, String key,
+      Map<@NonNull String, @Nullable Object> namedArgs, @Nullable Object... positionalArgs) {
+    String template = PropertiesFileUtilResolver.getProp(locale, MESSAGES_WITH_ITEM_NAMES, key);
+    template = PropertiesFileUtilFormatter.formatWithArgs(template, namedArgs);
+    return PropertiesFileUtilFormatter.formatWithArgs(locale, template,
+        PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs));
+  }
+
+  /**
    * Returns the existence of the key in messagesWithItemNames_xxx.properties.
    *
    * @param key the key of the property
@@ -251,8 +276,11 @@ public class PropertiesFileUtil {
 
   /**
    * Returns the localized enum name in enum_names_xxx.properties.
-   * 
-   * @param locale locale, may be {@code null} 
+   *
+   * <p>Falls back to {@code messages.properties} when the key is not found
+   *     in {@code enum_names.properties}.</p>
+   *
+   * @param locale locale, may be {@code null}
    *     which is treated as {@code Locale.ROOT}.
    * @param key the key of the property
    * @return the value of the property
@@ -313,13 +341,24 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns true when the key exists in ValidationMessages[_xx].properties.
+   * Returns true when the key exists in ValidationMessages[_xx].properties (locale-independent).
    *
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
    */
   public static boolean hasValidationMessage(String key) {
     return PropertiesFileUtilResolver.hasProp(VALIDATION_MESSAGES, key);
+  }
+
+  /**
+   * Returns true when the key exists in ValidationMessages[_xx].properties for the given locale.
+   *
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}
+   * @param key the key of the property
+   * @return boolean value that shows whether properties has the key for the given locale
+   */
+  public static boolean hasValidationMessage(@Nullable Locale locale, String key) {
+    return PropertiesFileUtilResolver.hasProp(locale, VALIDATION_MESSAGES, key);
   }
 
   // === ValidationMessagesWithItemNames ===
@@ -329,6 +368,9 @@ public class PropertiesFileUtil {
    *
    * <p>ValidationMessagesWithItemNames[_xx].properties stores messages with {@code {0}},
    *     which is a placeholder for item names.</p>
+   *
+   * <p>Falls back to {@code ValidationMessages.properties} when the key is not found
+   *     in {@code ValidationMessagesWithItemNames.properties}.</p>
    *
    * @param locale locale, may be {@code null}
    *     which is treated as {@code Locale.ROOT}.
@@ -426,12 +468,10 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Represents a message argument that can carry an arbitrary {@link Object} value or refer to
-   * a message key to be resolved at rendering time.
+   * Represents a message argument that refers to a message key or a formatted string
+   * to be resolved at rendering time.
    *
-   * <p>{@link ArgKind#OBJECT} args preserve the original type so that type-aware
-   * {@link java.text.MessageFormat} patterns (e.g., {@code {0,number,#,###}}) work correctly.
-   * {@link ArgKind#MESSAGE_ID} and {@link ArgKind#FORMATTED_STRING} args resolve to
+   * <p>{@link ArgKind#MESSAGE_ID} and {@link ArgKind#FORMATTED_STRING} args resolve to
    * {@link String} via the properties files.</p>
    */
   public static class Arg {
@@ -442,7 +482,7 @@ public class PropertiesFileUtil {
      * <p>{@code FORMATTED_STRING} is like {@code "item name is: #{item_names:xxx}"}.</p>
      */
     public enum ArgKind {
-      OBJECT, FORMATTED_STRING, MESSAGE_ID
+      FORMATTED_STRING, MESSAGE_ID
     }
 
     private final ArgKind argKind;
@@ -467,25 +507,9 @@ public class PropertiesFileUtil {
     }
 
     /**
-     * Constructs an {@link ArgKind#OBJECT} arg that holds {@code argObject} as-is.
-     *
-     * <p>The original type is preserved so that type-aware
-     * {@link java.text.MessageFormat} patterns work correctly.
-     * If {@code argObject} is {@code null}, the string {@code "null"} is displayed.</p>
-     *
-     * @param argObject the argument value, may be {@code null}
-     * @return Arg
-     */
-    public static Arg object(@Nullable Object argObject) {
-      return new Arg(ArgKind.OBJECT, argObject);
-    }
-
-    /**
      * Constructs a {@link ArgKind#FORMATTED_STRING} arg with arguments.
      *
-     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.
-     * Plain objects are wrapped with {@link #object(Object)} automatically
-     * when the template is resolved.</p>
+     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.</p>
      *
      * @param formattedString format template
      * @param args arguments to substitute into the template;
@@ -500,14 +524,7 @@ public class PropertiesFileUtil {
      * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
      * {@code messages.properties}.
      *
-     * <p>Shorthand for
-     * {@link #fromFileKinds(PropertiesFileUtilFileKindEnum[], String, Object...)}
-     * with {@code fileKinds} set to {@code [MESSAGES]}.
-     * To search other file kinds, use {@link #fromFileKinds} directly.</p>
-     *
-     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.
-     * Plain objects are wrapped with {@link #object(Object)} automatically
-     * when the message is resolved.</p>
+     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.</p>
      *
      * @param messageId the message key to resolve from {@code messages.properties}
      * @param args arguments substituted into the resolved message;
@@ -521,11 +538,66 @@ public class PropertiesFileUtil {
     }
 
     /**
+     * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
+     * {@code item_names.properties}.
+     *
+     * @param key the item name key to resolve from {@code item_names.properties}
+     * @return Arg
+     */
+    public static Arg itemName(String key) {
+      return fromFileKinds(
+          new @NonNull PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES},
+          key);
+    }
+
+    /**
+     * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
+     * {@code constants.properties}.
+     *
+     * @param key the key to resolve from {@code constants.properties}
+     * @return Arg
+     */
+    public static Arg constant(String key) {
+      return fromFileKinds(
+          new @NonNull PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.CONSTANTS},
+          key);
+    }
+
+    /**
+     * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
+     * {@code enum_names.properties}.
+     *
+     * @param key the key to resolve from {@code enum_names.properties}
+     * @return Arg
+     */
+    public static Arg enumName(String key) {
+      return fromFileKinds(
+          new @NonNull PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ENUM_NAMES},
+          key);
+    }
+
+    /**
+     * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
+     * {@code application.properties}.
+     *
+     * @param key the key to resolve from {@code application.properties}
+     * @return Arg
+     */
+    public static Arg application(String key) {
+      return fromFileKinds(
+          new @NonNull PropertiesFileUtilFileKindEnum[] {
+              PropertiesFileUtilFileKindEnum.APPLICATION},
+          key);
+    }
+
+    /**
      * Constructs a {@link ArgKind#MESSAGE_ID} arg with arguments.
      *
-     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.
-     * Plain objects are wrapped with {@link #object(Object)} automatically
-     * when the message is resolved.</p>
+     * <p>This method is intended for internal use within ecuacion-lib.
+     * Application code should use the named factory methods instead:
+     * {@link #message}, {@link #itemName}, {@link #constant}, {@link #enumName}.</p>
+     *
+     * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.</p>
      *
      * @param fileKinds file kinds to search
      * @param messageId the key to resolve
@@ -553,11 +625,10 @@ public class PropertiesFileUtil {
     }
 
     /**
-     * Returns the raw argument value, preserving the original type.
+     * Returns the internal argument value.
      *
-     * <p>Meaningful only for {@link ArgKind#OBJECT} args;
-     * for other kinds, the stored value is an internal representation.
-     * May be {@code null} if {@link #object(Object)} was called with {@code null}.</p>
+     * <p>For {@link ArgKind#MESSAGE_ID} args, this is the message key string.
+     * For {@link ArgKind#FORMATTED_STRING} args, this is the format template string.</p>
      */
     public @Nullable Object getArgValue() {
       return argObject;
@@ -568,8 +639,7 @@ public class PropertiesFileUtil {
      * Elements may be {@link Arg} instances or plain {@code Object}s.
      *
      * <p>Meaningful only for {@link ArgKind#MESSAGE_ID} and
-     * {@link ArgKind#FORMATTED_STRING} args;
-     * returns an empty array for {@link ArgKind#OBJECT} args.</p>
+     * {@link ArgKind#FORMATTED_STRING} args.</p>
      */
     public @Nullable Object[] getMessageArgs() {
       return messageArgs;

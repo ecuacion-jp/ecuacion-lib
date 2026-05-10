@@ -71,19 +71,24 @@ public enum PropertiesFileUtilFileKindEnum {
   /** item_names. */
   ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}}, false),
 
-  /** enum_names. */
-  ENUM_NAMES(new String[][] {new String[] {"enum_names"}}, false),
+  /** enum_names. Falls back to {@code messages.properties} when the key is not found. */
+  ENUM_NAMES(new String[][] {new String[] {"enum_names"}, new String[] {"messages"}}, false),
 
   /** ValidationMessags. */
   VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}}, false),
 
-  /** ValidationMessagsWithField. */
+  /**
+   * ValidationMessagesWithItemNames.
+   * Falls back to {@code ValidationMessages.properties} when the key is not found.
+   */
   VALIDATION_MESSAGES_WITH_ITEM_NAMES(
-      new String[][] {new String[] {"ValidationMessagesWithItemNames"}}, false),
-
-  VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
-      new String[][] {new String[] {"ValidationMessagesPatternDescriptions"},
+      new String[][] {new String[] {"ValidationMessagesWithItemNames"},
           new String[] {"ValidationMessages"}},
+      false),
+
+  /** ValidationMessagesPatternDescriptions. */
+  VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
+      new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}},
       false);
 
   @SuppressWarnings("ImmutableEnumChecker")
