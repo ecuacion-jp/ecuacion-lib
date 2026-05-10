@@ -27,7 +27,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
-import jp.ecuacion.lib.core.util.MessageUtil;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -114,7 +114,7 @@ public class ConstraintViolationBean<T> {
 
     List<@NonNull String> propertyPathList = List.of(propertyPaths);
     for (String fullPropertyPath : propertyPathList) {
-      itemList.add(MessageUtil.getItem(fullPropertyPath, rootBean, leafBean));
+      itemList.add(ItemUtil.resolveItem(fullPropertyPath, rootBean, leafBean));
     }
 
     embeddedParamMap.put("invalidValue", invalidValue);

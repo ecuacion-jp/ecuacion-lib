@@ -64,9 +64,9 @@ public enum PropertiesFileUtilFileKindEnum {
       false),
 
   /**
-   * strings.properties.
+   * constants.properties.
    */
-  STRINGS(new String[][] {new String[] {"strings"}}, false),
+  CONSTANTS(new String[][] {new String[] {"constants"}}, false),
 
   /** item_names. */
   ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}}, false),

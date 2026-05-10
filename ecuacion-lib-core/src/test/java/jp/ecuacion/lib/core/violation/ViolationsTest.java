@@ -178,7 +178,7 @@ public class ViolationsTest {
     @Test
     @DisplayName("add(String, Arg[]): stores business violation with Arg args")
     void addStringWithArgArray() {
-      Violations v = new Violations().add("MSG_ID", new Arg[]{Arg.string("arg1")});
+      Violations v = new Violations().add("MSG_ID", new Arg[]{Arg.object("arg1")});
       assertThat(v.getBusinessViolations()).hasSize(1);
     }
 
@@ -186,7 +186,7 @@ public class ViolationsTest {
     @DisplayName("add(String[], String, Arg[]): stores with property paths and Arg args")
     void addWithPathsAndArgArray() {
       Violations v =
-          new Violations().add(new String[]{"field"}, "MSG_ID", new Arg[]{Arg.string("x")});
+          new Violations().add(new String[]{"field"}, "MSG_ID", new Arg[]{Arg.object("x")});
       assertThat(v.getBusinessViolations()).hasSize(1);
     }
 
@@ -204,7 +204,7 @@ public class ViolationsTest {
     void addWithRootBeanAndArgArray() {
       Object rootBean = new Object();
       Violations v = new Violations().add(rootBean, new String[]{"field"}, "MSG_ID",
-          new Arg[]{Arg.string("x")});
+          new Arg[]{Arg.object("x")});
       assertThat(v.getBusinessViolations()).hasSize(1);
       assertThat(v.getBusinessViolations().get(0).getRootBean()).isSameAs(rootBean);
     }
@@ -239,7 +239,7 @@ public class ViolationsTest {
     @Test
     @DisplayName("4-arg constructor (Arg prefix/postfix): sets all fields including showsItemNamePath")
     void constructorWithArgs() {
-      MessageParameters mp = new MessageParameters(false, true, Arg.string("["), Arg.string("]"));
+      MessageParameters mp = new MessageParameters(false, true, Arg.object("["), Arg.object("]"));
       assertThat(mp.isMessageWithItemName()).isFalse();
       assertThat(mp.showsItemNamePath()).isTrue();
       assertThat(mp.getMessagePrefix()).isNotNull();

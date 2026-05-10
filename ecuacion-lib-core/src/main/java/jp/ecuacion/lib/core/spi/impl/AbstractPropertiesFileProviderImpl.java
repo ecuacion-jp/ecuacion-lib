@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.spi.AbstractResourceBundleProvider;
-import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -40,7 +40,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
    */
   @Override
   public @Nullable ResourceBundle getBundle(@Nullable String baseName, @Nullable Locale locale) {
-    Locale specifiedLocale = PropertiesFileUtilValueGetter.specifiedLocale.get();
+    Locale specifiedLocale = PropertiesFileUtilBundleReader.specifiedLocale.get();
 
     // remove default locale if not specified.
     if (locale == null || (!locale.getLanguage().isEmpty()
@@ -50,7 +50,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
     }
 
     // Obtain resource from module.
-    String baseFilename = PropertiesFileUtilValueGetter.bundleNameForModule.get();
+    String baseFilename = PropertiesFileUtilBundleReader.bundleNameForModule.get();
     String moduleName = getModuleName(baseFilename);
     Module module = Objects.requireNonNull(ModuleLayer.boot())
         .findModule(Objects.requireNonNull(moduleName)).orElse(null);
@@ -69,7 +69,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
       }
     }
 
-    return super.getBundle(PropertiesFileUtilValueGetter.bundleNameForModule.get(), locale);
+    return super.getBundle(PropertiesFileUtilBundleReader.bundleNameForModule.get(), locale);
   }
 
   private @Nullable String getModuleName(String filename) {

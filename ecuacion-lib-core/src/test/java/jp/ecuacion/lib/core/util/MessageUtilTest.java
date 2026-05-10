@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +31,7 @@ public class MessageUtilTest {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertiesFileUtilValueGetter.addToDynamicPostfixList("lib-core-test");
+    PropertiesFileUtilBundleReader.addToDynamicPostfixList("lib-core-test");
   }
 
   @Nested
@@ -64,8 +64,8 @@ public class MessageUtilTest {
     void array() {
       Arg arg = MessageUtil.getValuesArg(new String[]{"MSG1"});
       assertThat(arg).isNotNull();
-      assertThat(arg.getArgKind()).isEqualTo(PropertiesFileUtil.ArgKind.FORMATTED_STRING);
-      String resolved = PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg);
+      assertThat(arg.getArgKind()).isEqualTo(PropertiesFileUtil.Arg.ArgKind.FORMATTED_STRING);
+      String resolved = arg.resolveAsString(Locale.ENGLISH);
       assertThat(resolved).contains("message 1.");
     }
 
@@ -74,8 +74,8 @@ public class MessageUtilTest {
     void list() {
       Arg arrayArg = MessageUtil.getValuesArg(new String[]{"MSG1"});
       Arg listArg = MessageUtil.getValuesArg(List.of("MSG1"));
-      String arrayResolved = PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arrayArg);
-      String listResolved = PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, listArg);
+      String arrayResolved = arrayArg.resolveAsString(Locale.ENGLISH);
+      String listResolved = listArg.resolveAsString(Locale.ENGLISH);
       assertThat(listResolved).isEqualTo(arrayResolved);
     }
   }

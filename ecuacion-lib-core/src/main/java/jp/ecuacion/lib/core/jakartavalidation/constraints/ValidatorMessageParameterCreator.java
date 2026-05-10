@@ -16,26 +16,47 @@
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import java.util.Map;
-import java.util.Set;
+import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
-import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides message parameter set used in ValidationMessages.properties as "{param}".
+ * Provides message parameters used in ValidationMessages.properties as "{param}".
  *
- * <p>Parameters defined in an annotation is automatically added to the parameter set
- *     which is referred when the message is built,
- *     but it's not enough when you want to create user-friendly messages.</p>
+ * <p>Parameters defined in an annotation are automatically added to the parameter map,
+ *     but this interface allows adding further parameters for user-friendly messages.</p>
  *
- * <p>Using this you can create flexible messages for each validator.</p>
+ * <p>Map values may be {@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg} instances
+ *     (resolved at render time), {@link ItemNameParam} (for item-name resolution),
+ *     or plain {@code Object}s.</p>
  */
 public interface ValidatorMessageParameterCreator {
 
   /**
-   * Creates and returns message parameter set.
+   * Creates and returns named message parameters.
+   *
+   * @param cv the constraint violation bean
+   * @param paramMap annotation attribute map
+   * @return map of parameter name to value 
+   *     ({@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg},
+   *     {@link ItemNameParam}, or plain object)
    */
-  Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
+  Map<@NonNull String, @Nullable Object> create(ConstraintViolationBean<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap);
+
+  /**
+   * Represents an item-name parameter to be resolved at render time.
+   *
+   * <p>Place an instance of this class as a map value returned from {@link #create}
+   *     when the named placeholder should be filled with the item's display name.
+   *     {@link jp.ecuacion.lib.core.util.ExceptionUtil} will resolve it before the map
+   *     is passed to the message formatter.</p>
+   *
+   * <p>For property-file-lookup parameters, put an
+   *     {@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg} instance directly
+   *     in the map instead.</p>
+   */
+  record ItemNameParam(Item[] items, Object rootBean) {
+  }
 }

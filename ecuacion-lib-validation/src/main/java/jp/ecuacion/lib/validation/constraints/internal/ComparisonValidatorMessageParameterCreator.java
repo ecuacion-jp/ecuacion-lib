@@ -15,40 +15,34 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
-import jp.ecuacion.lib.core.util.MessageUtil;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Is a LocalizedMessageParameter creator for PatternWithDescription.
+ * Is a LocalizedMessageParameter creator for Comparison validators.
  */
 public class ComparisonValidatorMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
+  public Map<@NonNull String, @Nullable Object> create(ConstraintViolationBean<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
 
-    Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
+    Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
-    // Comparison validators
     String bpp =
         Objects.requireNonNull((String) cv.getEmbeddedParamMap().get("baselinePropertyPath"));
-    Item item = MessageUtil.getItem(bpp, cv.getRootBean(), cv.getLeafBean());
-    messageParameterSet.add(new LocalizedEmbeddedParameter("baselinePropertyPathItemName",
-        new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES}, true,
-        new Item[] {item}, cv.getRootBean(), item.getItemNameKey(), new Arg[] {}));
+    Item item = ItemUtil.resolveItem(bpp, cv.getRootBean(), cv.getLeafBean());
+    result.put("baselinePropertyPathItemName",
+        new ItemNameParam(new Item[] {item}, cv.getRootBean()));
 
-    return messageParameterSet;
+    return result;
   }
 }

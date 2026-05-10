@@ -16,7 +16,7 @@
 package jp.ecuacion.lib.core.item;
 
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.util.MessageUtil;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.ReflectionUtil;
 import org.jspecify.annotations.Nullable;
@@ -132,27 +132,25 @@ public class Item {
 
   /**
    * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
-   *     with {@code defaultItemNameKeyClass = null}.</p>
+   *
+   * <p>See {@link ItemUtil#getItemNameKey(String, String, String, String, String)}.</p>
    */
   public String getItemNameKey() {
-    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
+    return ItemUtil.getItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
         itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
   /**
    * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
-   *     with {@code defaultItemNameKeyClass = null}.</p>
+   *
+   * <p>See {@link ItemUtil#getItemNameKey(String, Object, Object, String, String, String)}.</p>
    */
   public String getItemNameKey(Object rootBean) {
     String leafBeanPropertyPath =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
     Object leafBean = ReflectionUtil.getLeafBean(rootBean, leafBeanPropertyPath);
 
-    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
+    return ItemUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
         leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
   }
 

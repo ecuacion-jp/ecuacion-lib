@@ -40,7 +40,6 @@ import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import org.jspecify.annotations.NonNull;
@@ -1344,7 +1343,7 @@ public class ExceptionUtilTest {
     @DisplayName("message prefix is prepended")
     void withPrefix() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.messagePrefix(Arg.string("[")));
+          .withMessageParameters(p -> p.messagePrefix(Arg.object("[")));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs.get(0)).startsWith("[");
     }
@@ -1353,33 +1352,10 @@ public class ExceptionUtilTest {
     @DisplayName("message postfix is appended")
     void withPostfix() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.messagePostfix(Arg.string("]")));
+          .withMessageParameters(p -> p.messagePostfix(Arg.object("]")));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs.get(0)).endsWith("]");
     }
   }
 
-  // -------------------------------------------------------------------------
-  // ExceptionUtil.LocalizedEmbeddedParameter
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("LocalizedEmbeddedParameter")
-  class LocalizedEmbeddedParameterTests {
-
-    @Test
-    @DisplayName("compact constructor sets defaults: isItemName=false, items=null, rootBean=null")
-    void compactConstructor() {
-      ExceptionUtil.LocalizedEmbeddedParameter p = new ExceptionUtil.LocalizedEmbeddedParameter(
-          "paramKey",
-          new PropertiesFileUtilFileKindEnum[]{PropertiesFileUtilFileKindEnum.MESSAGES},
-          "some.property.key");
-      assertThat(p.parameterKey()).isEqualTo("paramKey");
-      assertThat(p.fileKinds()).hasSize(1);
-      assertThat(p.isItemName()).isFalse();
-      assertThat(p.items()).isNull();
-      assertThat(p.rootBean()).isNull();
-      assertThat(p.propertyFileKey()).isEqualTo("some.property.key");
-    }
-  }
 }

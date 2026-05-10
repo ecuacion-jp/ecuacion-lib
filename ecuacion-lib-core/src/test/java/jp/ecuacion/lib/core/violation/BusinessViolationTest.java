@@ -48,7 +48,7 @@ public class BusinessViolationTest {
     BusinessViolation v = new BusinessViolation(SAMPLE_MSG_ID, "abc");
     assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     assertThat(v.getMessageArgs()).hasSize(1);
-    assertThat(v.getMessageArgs()[0].getArgString()).isEqualTo("abc");
+    assertThat(v.getMessageArgs()[0].resolveAsString(null)).isEqualTo("abc");
   }
 
   @Test
@@ -64,7 +64,7 @@ public class BusinessViolationTest {
   @DisplayName("constructor(String, Arg[]): stores message args as Arg array")
   public void constructorWithArgArray() {
     BusinessViolation v =
-        new BusinessViolation(SAMPLE_MSG_ID, new Arg[]{Arg.string("x"), Arg.string("y")});
+        new BusinessViolation(SAMPLE_MSG_ID, new Arg[]{Arg.object("x"), Arg.object("y")});
     assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     assertThat(v.getMessageArgs()).hasSize(2);
   }
@@ -73,7 +73,7 @@ public class BusinessViolationTest {
   @DisplayName("constructor(String[], String, Arg[]): stores paths and Arg args")
   public void constructorWithPathsAndArgArray() {
     BusinessViolation v =
-        new BusinessViolation(new String[]{"field1"}, SAMPLE_MSG_ID, new Arg[]{Arg.string("x")});
+        new BusinessViolation(new String[]{"field1"}, SAMPLE_MSG_ID, new Arg[]{Arg.object("x")});
     assertThat(v.getMessageId()).isEqualTo(SAMPLE_MSG_ID);
     assertThat(v.getItemPropertyPaths()).containsExactly("field1");
   }
