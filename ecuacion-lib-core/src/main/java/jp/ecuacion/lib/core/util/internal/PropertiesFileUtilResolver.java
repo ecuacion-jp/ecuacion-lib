@@ -67,8 +67,7 @@ public class PropertiesFileUtilResolver {
 
   private static final List<PropertiesFileUtilFileKindEnum> FILE_KINDS_FOR_KEY_ONLY_SEARCH =
       List.of(PropertiesFileUtilFileKindEnum.MESSAGES, PropertiesFileUtilFileKindEnum.ITEM_NAMES,
-          PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS,
-          PropertiesFileUtilFileKindEnum.APPLICATION);
+          PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS);
 
   /**
    * Returns the processed property value for the given file kind and key.

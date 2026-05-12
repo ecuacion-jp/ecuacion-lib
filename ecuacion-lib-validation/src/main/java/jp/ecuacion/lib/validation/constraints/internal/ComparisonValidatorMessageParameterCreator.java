@@ -15,11 +15,11 @@
  */
 package jp.ecuacion.lib.validation.constraints.internal;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ItemUtil;
 import org.jspecify.annotations.NonNull;
@@ -32,13 +32,13 @@ public class ComparisonValidatorMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Map<@NonNull String, @Nullable Object> create(ConstraintViolationBean<?> cv,
+  public Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
     String bpp =
-        Objects.requireNonNull((String) cv.getEmbeddedParamMap().get("baselinePropertyPath"));
+        Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
     Item item = ItemUtil.resolveItem(bpp, cv.getRootBean(), cv.getLeafBean());
     result.put("baselinePropertyPathItemName",
         new ItemNameParam(new Item[] {item}, cv.getRootBean()));

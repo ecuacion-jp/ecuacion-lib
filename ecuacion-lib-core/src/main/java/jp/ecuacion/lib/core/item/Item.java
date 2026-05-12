@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.item;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -83,14 +83,21 @@ public class Item {
 
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
-   * 
+   *
    * <p>You cannot set recordPropertyPath here.
    *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
-   * 
+   *
+   * <p>The given {@code propertyPath} is normalized by
+   *     {@link PropertyPathUtil#removeIndex(String)} when stored.
+   *     Both the runtime propertyPath form (e.g., {@code bookList[1].title}) and the
+   *     simplified form (e.g., {@code bookList[].title}) are therefore equivalent
+   *     and can be used interchangeably.</p>
+   *
    * @param propertyPath itemPropertyPath
    */
   public Item(@RequireNonEmpty String propertyPath) {
-    this.propertyPath = ObjectsUtil.requireNonEmpty(propertyPath);
+    this.propertyPath =
+        PropertyPathUtil.removeIndex(ObjectsUtil.requireNonEmpty(propertyPath));
   }
 
   /**
@@ -148,7 +155,7 @@ public class Item {
   public String getItemNameKey(Object rootBean) {
     String leafBeanPropertyPath =
         propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
-    Object leafBean = ReflectionUtil.getLeafBean(rootBean, leafBeanPropertyPath);
+    Object leafBean = PropertyPathUtil.getLeafBean(rootBean, leafBeanPropertyPath);
 
     return ItemUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
         leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);

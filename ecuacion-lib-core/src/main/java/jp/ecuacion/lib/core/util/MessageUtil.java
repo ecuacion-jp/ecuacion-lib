@@ -215,10 +215,12 @@ public class MessageUtil {
    */
   public static Arg getValuesArg(String[] values) {
     // Get a list of Args from values
+    // APPLICATION is excluded: its throwsExceptionWhenKeyDoesNotExist=true causes an exception
+    // when a literal string (not a property key) is passed.
     PropertiesFileUtilFileKindEnum[] fileKinds =
         new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES,
             PropertiesFileUtilFileKindEnum.ITEM_NAMES, PropertiesFileUtilFileKindEnum.ENUM_NAMES,
-            PropertiesFileUtilFileKindEnum.CONSTANTS, PropertiesFileUtilFileKindEnum.APPLICATION};
+            PropertiesFileUtilFileKindEnum.CONSTANTS};
     List<@NonNull Arg> argList =
         Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
 

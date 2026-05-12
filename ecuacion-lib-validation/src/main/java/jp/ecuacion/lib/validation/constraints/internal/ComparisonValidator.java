@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
@@ -76,7 +76,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     List<Pair<@NonNull String, @NonNull Object>> valueOfFieldList =
         Arrays.stream(propertyPaths)
             .map(path -> Pair.of(path,
-                Objects.requireNonNull(ReflectionUtil.getValue(instance, path)))).toList();
+                Objects.requireNonNull(PropertyPathUtil.getValue(instance, path)))).toList();
 
     for (Pair<@NonNull String, @NonNull Object> pair : valueOfFieldList) {
       @SuppressWarnings("null")
@@ -91,14 +91,14 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   }
 
   protected void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    fieldOfBasisPropertyPath = ReflectionUtil.getField(instance.getClass(), baselinePropertyPath);
-    valueOfBasisPropertyPath = ReflectionUtil.getValue(instance, baselinePropertyPath);
+    fieldOfBasisPropertyPath = PropertyPathUtil.getField(instance.getClass(), baselinePropertyPath);
+    valueOfBasisPropertyPath = PropertyPathUtil.getValue(instance, baselinePropertyPath);
   }
 
   protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
       Object valueOfPropertyPath) {
 
-    Field fieldOfPropertyPath = ReflectionUtil.getField(instance.getClass(), propertyPath);
+    Field fieldOfPropertyPath = PropertyPathUtil.getField(instance.getClass(), propertyPath);
     @NonNull
     Field nonNullFieldOfBasisPropertyPath = Objects.requireNonNull(fieldOfBasisPropertyPath);
 

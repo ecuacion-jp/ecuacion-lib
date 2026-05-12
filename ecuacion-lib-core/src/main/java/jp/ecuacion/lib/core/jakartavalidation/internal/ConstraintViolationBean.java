@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.internal;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.metadata.ConstraintDescriptor;

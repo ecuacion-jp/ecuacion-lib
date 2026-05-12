@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
+import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Tests for {@link ReflectionUtil}. */
+/** Tests for {@link ReflectionUtil} and related {@link PropertyPathUtil} bean-navigation methods. */
 @DisplayName("ReflectionUtil")
 @SuppressWarnings("EmptyCatch")
 public class ReflectionUtilTest {
@@ -44,28 +44,28 @@ public class ReflectionUtilTest {
   @Test
   public void getFieldValueTest() {
     // fieldName without dot
-    Object o = ReflectionUtil.getValue(new FieldValueRoot(), "value");
+    Object o = PropertyPathUtil.getValue(new FieldValueRoot(), "value");
     assertThat(o).isInstanceOf(String.class);
     assertThat((String) o).isEqualTo("root");
 
     // fieldName with dot
-    o = ReflectionUtil.getValue(new FieldValueRoot(), "child.value");
+    o = PropertyPathUtil.getValue(new FieldValueRoot(), "child.value");
     assertThat(o).isInstanceOf(String.class);
     assertThat((String) o).isEqualTo("child");
 
     // fieldName with array
-    o = ReflectionUtil.getValue(new FieldValueRoot(), "childs[0].value");
+    o = PropertyPathUtil.getValue(new FieldValueRoot(), "childs[0].value");
     assertThat(o).isInstanceOf(String.class);
     assertThat((String) o).isEqualTo("child");
 
     // fieldName with List
-    o = ReflectionUtil.getValue(new FieldValueRoot(), "childList[0].value");
+    o = PropertyPathUtil.getValue(new FieldValueRoot(), "childList[0].value");
     assertThat(o).isInstanceOf(String.class);
     assertThat((String) o).isEqualTo("child");
 
     // fieldName with Set
     try {
-      o = ReflectionUtil.getValue(new FieldValueRoot(), "childSet[0].value");
+      o = PropertyPathUtil.getValue(new FieldValueRoot(), "childSet[0].value");
       Assertions.fail();
 
     } catch (ElementOfCollectionCannotBeObtainedException ex) {
@@ -74,7 +74,7 @@ public class ReflectionUtilTest {
 
     // non-existent field throws RuntimeException wrapping NoSuchFieldException
     try {
-      ReflectionUtil.getValue(new FieldValueRoot(), "nonExistent");
+      PropertyPathUtil.getValue(new FieldValueRoot(), "nonExistent");
       Assertions.fail();
     } catch (RuntimeException ex) {
       assertThat(ex.getCause()).isInstanceOf(NoSuchFieldException.class);
@@ -99,46 +99,46 @@ public class ReflectionUtilTest {
   }
 
   //@formatter:off
-  /// 
-  /// Tests getField().
+  ///
+  /// Tests getDeclaredField() (simple field lookup) and PropertyPathUtil.getField() (path lookup).
   ///
   //@formatter:on
   @Test
   public void getFieldTest() {
     Field f;
 
-    // fieldName with dot
+    // getDeclaredField: fieldName with "["
     try {
-      f = ReflectionUtil.getField(SimpleClass.class, "a.b");
-      Assertions.fail();
-    } catch (RuntimeException ex) {
-      assertThat(ex.getCause()).isInstanceOf(NoSuchFieldException.class);
-    }
-
-    // fieldName with "["
-    try {
-      f = ReflectionUtil.getField(SimpleClass.class, "values[]");
+      f = ReflectionUtil.getDeclaredField(SimpleClass.class, "values[]");
       Assertions.fail();
     } catch (RuntimeException ignored) {
       // OK
     }
 
-    // normal fields
-    f = ReflectionUtil.getField(SimpleClass.class, "value");
+    // getDeclaredField: normal fields
+    f = ReflectionUtil.getDeclaredField(SimpleClass.class, "value");
     assertThat(f.getType().getSimpleName()).isEqualTo("String");
 
-    f = ReflectionUtil.getField(SimpleClass.class, "object");
+    f = ReflectionUtil.getDeclaredField(SimpleClass.class, "object");
     assertThat(f.getType().getSimpleName()).isEqualTo("ChildClass");
 
-    f = ReflectionUtil.getField(SimpleClass.class, "values");
+    f = ReflectionUtil.getDeclaredField(SimpleClass.class, "values");
     assertThat(f.getType().getSimpleName()).isEqualTo("String[]");
 
-    f = ReflectionUtil.getField(SimpleClass.class, "objectList");
+    f = ReflectionUtil.getDeclaredField(SimpleClass.class, "objectList");
     assertThat(f.getType().getSimpleName()).isEqualTo("List");
 
-    // fieldName in superClass
-    f = ReflectionUtil.getField(SecondExtendedClass.class, "value");
+    // getDeclaredField: fieldName in superClass
+    f = ReflectionUtil.getDeclaredField(SecondExtendedClass.class, "value");
     assertThat(f.getType().getSimpleName()).isEqualTo("String");
+
+    // PropertyPathUtil.getField: fieldName with dot — non-existent throws RuntimeException
+    try {
+      f = PropertyPathUtil.getField(SimpleClass.class, "a.b");
+      Assertions.fail();
+    } catch (RuntimeException ex) {
+      assertThat(ex.getCause()).isInstanceOf(NoSuchFieldException.class);
+    }
   }
 
   public static class getFieldTest {
@@ -168,20 +168,20 @@ public class ReflectionUtilTest {
     Class<?> cls;
 
     // 1.list with generic type of basic object
-    cls = ReflectionUtil.getClass(GetClass.class, "strList[0].<list element>");
+    cls = PropertyPathUtil.getClass(GetClass.class, "strList[0].<list element>");
     assertThat(String.class.isAssignableFrom(cls)).isTrue();
 
     // 2.lists with generic type of basic object
-    cls =
-        ReflectionUtil.getClass(GetClass.class, "strListList[0].<list element>[0].<list element>");
+    cls = PropertyPathUtil.getClass(
+        GetClass.class, "strListList[0].<list element>[0].<list element>");
     assertThat(String.class.isAssignableFrom(cls)).isTrue();
 
     // 3.list with generic type of customized object
-    cls = ReflectionUtil.getClass(GetClass.class, "childList[0]");
+    cls = PropertyPathUtil.getClass(GetClass.class, "childList[0]");
     assertThat(GetClass.Child.class.isAssignableFrom(cls)).isTrue();
 
     // 4.lists with generic type of customized object
-    cls = ReflectionUtil.getClass(GetClass.class, "childListList[0].<list element>[0]");
+    cls = PropertyPathUtil.getClass(GetClass.class, "childListList[0].<list element>[0]");
     assertThat(GetClass.Child.class.isAssignableFrom(cls)).isTrue();
   }
 
@@ -233,11 +233,11 @@ public class ReflectionUtilTest {
     FieldValueRoot root = new FieldValueRoot();
 
     // no dot: returns root itself
-    Object leaf = ReflectionUtil.getLeafBean(root, "value");
+    Object leaf = PropertyPathUtil.getLeafBean(root, "value");
     assertThat(leaf).isSameAs(root);
 
     // one dot: returns the parent object (child bean)
-    leaf = ReflectionUtil.getLeafBean(root, "child.value");
+    leaf = PropertyPathUtil.getLeafBean(root, "child.value");
     assertThat(leaf).isInstanceOf(getFieldValueTest.FieldValueChild.class);
   }
 

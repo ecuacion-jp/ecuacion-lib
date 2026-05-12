@@ -58,7 +58,7 @@ public interface ItemContainer {
     // Since what we want to know is class, instance is not needed.
     @NonNull
     Optional<@NonNull ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
-        ReflectionUtil.getClass(this.getClass(),
+        PropertyPathUtil.getClass(this.getClass(),
             PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath)),
         ItemNameKeyClass.class);
 
@@ -73,7 +73,7 @@ public interface ItemContainer {
         itemPropertyPath = itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
       }
 
-      leafBeanClass = ReflectionUtil.getClass(this.getClass(),
+      leafBeanClass = PropertyPathUtil.getClass(this.getClass(),
           PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath));
     }
 

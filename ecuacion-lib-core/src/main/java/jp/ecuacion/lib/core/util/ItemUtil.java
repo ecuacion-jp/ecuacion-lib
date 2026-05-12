@@ -19,7 +19,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
+import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class ItemUtil {
     Object firstChild = null;
     try {
       firstChild = fullPropertyPath1stPart == null ? null
-          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+          : PropertyPathUtil.getValue(rootBean, fullPropertyPath1stPart);
     } catch (ElementOfCollectionCannotBeObtainedException ex) {
       // Do nothing.
     }
@@ -110,7 +110,7 @@ public class ItemUtil {
       @Nullable String defaultItemNameKeyClass, @Nullable String itemNameKeyField,
       String propertyPath) {
 
-    Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
+    Class<?> leafBeanClass = PropertyPathUtil.getClass(rootBean.getClass(),
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
 
     String itemNameKeyClassFromAnnotation =
