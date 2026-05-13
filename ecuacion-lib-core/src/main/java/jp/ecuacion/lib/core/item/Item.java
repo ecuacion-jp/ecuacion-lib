@@ -16,9 +16,9 @@
 package jp.ecuacion.lib.core.item;
 
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -139,26 +139,35 @@ public class Item {
 
   /**
    * Returns {@code itemNameKey} value.
-   *
-   * <p>See {@link ItemUtil#getItemNameKey(String, String, String, String, String)}.</p>
    */
   public String getItemNameKey() {
-    return ItemUtil.getItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
+    return computeItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
         itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
   }
 
-  /**
-   * Returns {@code itemNameKey} value.
-   *
-   * <p>See {@link ItemUtil#getItemNameKey(String, Object, Object, String, String, String)}.</p>
-   */
-  public String getItemNameKey(Object rootBean) {
-    String leafBeanPropertyPath =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
-    Object leafBean = PropertyPathUtil.getLeafBean(rootBean, leafBeanPropertyPath);
+  private static String computeItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
+      @Nullable String itemNameKeyClassFromAnnotation,
+      @Nullable String itemNameKeyClassFromClassName, @Nullable String itemNameKeyField,
+      String propertyPath) {
+    @Nullable String tmpItemNameKeyClass;
+    String tmpItemNameKeyField;
 
-    return ItemUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
-        leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
+    if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
+      tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
+    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
+      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
+    } else {
+      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
+    }
+
+    if (!StringUtils.isEmpty(itemNameKeyField)) {
+      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
+    } else {
+      tmpItemNameKeyField =
+          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));
+    }
+
+    return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;
   }
 
   /**

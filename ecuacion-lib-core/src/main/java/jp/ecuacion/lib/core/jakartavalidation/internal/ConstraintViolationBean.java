@@ -114,7 +114,7 @@ public class ConstraintViolationBean<T> {
 
     List<@NonNull String> propertyPathList = List.of(propertyPaths);
     for (String fullPropertyPath : propertyPathList) {
-      itemList.add(ItemUtil.resolveItem(fullPropertyPath, rootBean, leafBean));
+      itemList.add(ItemUtil.resolveItem(fullPropertyPath, rootBean));
     }
 
     embeddedParamMap.put("invalidValue", invalidValue);

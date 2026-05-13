@@ -39,7 +39,7 @@ public class ComparisonValidatorMessageParameterCreator
 
     String bpp =
         Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
-    Item item = ItemUtil.resolveItem(bpp, cv.getRootBean(), cv.getLeafBean());
+    Item item = ItemUtil.resolveItem(bpp, cv.getRootBean());
     result.put("baselinePropertyPathItemName",
         new ItemNameParam(new Item[] {item}, cv.getRootBean()));
 

@@ -67,10 +67,9 @@ public class ItemUtil {
    *
    * @param fullPropertyPath property path relative to rootBean
    * @param rootBean root bean
-   * @param leafBean leaf bean
    * @return Item
    */
-  public static Item resolveItem(String fullPropertyPath, Object rootBean, Object leafBean) {
+  public static Item resolveItem(String fullPropertyPath, Object rootBean) {
     ItemContext ctx = resolveItemContext(rootBean, fullPropertyPath);
 
     Item item = null;
@@ -82,85 +81,22 @@ public class ItemUtil {
     boolean showsValue = true;
 
     if (item == null) {
-      itemNameKey = getItemNameKey(null, rootBean, leafBean, null, null, fullPropertyPath);
+      Class<?> leafBeanClass = PropertyPathUtil.getClass(rootBean.getClass(),
+          PropertyPathUtil.getPropertyPathWithoutRightMostNode(fullPropertyPath));
+      String itemNameKeyClassFromAnnotation =
+          ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
+              .map(ItemNameKeyClass::value).orElse(null);
+      String itemNameKeyClass = StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)
+          ? itemNameKeyClassFromAnnotation
+          : leafBeanClass.getSimpleName();
+      String itemNameKeyField =
+          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(fullPropertyPath));
+      itemNameKey = StringUtils.uncapitalize(itemNameKeyClass) + "." + itemNameKeyField;
     } else {
       itemNameKey = item.getItemNameKey();
       showsValue = item.getShowsValue();
     }
 
     return new Item(fullPropertyPath).itemNameKey(itemNameKey).showsValue(showsValue);
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   *
-   * <p>Resolves {@code itemNameKeyClassFromAnnotation} by {@code leafBeanClass} derived
-   * from {@code rootBean} and {@code propertyPath}.</p>
-   *
-   * @param explicitlySetItemNameKeyClass explicitly set itemNameKeyClass
-   * @param rootBean root bean
-   * @param leafBeanFromConstraintViolation leaf bean (unused; kept for API compatibility)
-   * @param defaultItemNameKeyClass default itemNameKeyClass (unused; kept for API compatibility)
-   * @param itemNameKeyField field part of itemNameKey
-   * @param propertyPath itemPropertyPath
-   * @return itemNameKey
-   */
-  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
-      Object rootBean, Object leafBeanFromConstraintViolation,
-      @Nullable String defaultItemNameKeyClass, @Nullable String itemNameKeyField,
-      String propertyPath) {
-
-    Class<?> leafBeanClass = PropertyPathUtil.getClass(rootBean.getClass(),
-        PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
-
-    String itemNameKeyClassFromAnnotation =
-        ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
-            .map(ItemNameKeyClass::value).orElse(null);
-
-    return getItemNameKey(explicitlySetItemNameKeyClass, itemNameKeyClassFromAnnotation,
-        leafBeanClass.getSimpleName(), itemNameKeyField, propertyPath);
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   *
-   * <p>Priority order for itemNameKeyClass (first non-empty wins):</p>
-   * <ol>
-   *   <li>explicitly set via {@code itemNameKey(itemNameKey)}</li>
-   *   <li>from {@code @ItemNameKeyClass} annotation</li>
-   *   <li>uncapitalized class name (set by {@code ItemContainer#getItem(String)})</li>
-   * </ol>
-   *
-   * @param explicitlySetItemNameKeyClass explicitly set itemNameKeyClass
-   * @param itemNameKeyClassFromAnnotation itemNameKeyClass from {@code @ItemNameKeyClass}
-   * @param itemNameKeyClassFromClassName itemNameKeyClass derived from class name
-   * @param itemNameKeyField field part of itemNameKey
-   * @param propertyPath itemPropertyPath
-   * @return itemNameKey
-   */
-  public static String getItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
-      @Nullable String itemNameKeyClassFromAnnotation,
-      @Nullable String itemNameKeyClassFromClassName, @Nullable String itemNameKeyField,
-      String propertyPath) {
-    @Nullable
-    String tmpItemNameKeyClass;
-    String tmpItemNameKeyField;
-
-    if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
-      tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
-    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
-      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
-    } else {
-      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
-    }
-
-    if (!StringUtils.isEmpty(itemNameKeyField)) {
-      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
-    } else {
-      tmpItemNameKeyField =
-          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));
-    }
-
-    return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;
   }
 }

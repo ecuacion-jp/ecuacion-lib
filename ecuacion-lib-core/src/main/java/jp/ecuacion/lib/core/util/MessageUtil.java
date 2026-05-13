@@ -178,10 +178,8 @@ public class MessageUtil {
     // The following is when itemNamePath exists.
 
     List<@NonNull String> modifiedPathItemNameList =
-        itemNamePathList
-            .stream().map(path -> getItemName(locale,
-                ItemUtil.resolveItem(path, rootBean, rootBean), prependSymbol, appendSymbol))
-            .toList();
+        itemNamePathList.stream().map(path -> getItemName(locale,
+            ItemUtil.resolveItem(path, rootBean), prependSymbol, appendSymbol)).toList();
 
     String pathString = StringUtil.getSeparatedValuesString(modifiedPathItemNameList, pseparator);
     itemName = PropertiesFileUtil.getMessage(locale, pstring, itemName, pathString);
@@ -194,47 +192,42 @@ public class MessageUtil {
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static String getValuesOfFormattedString(String[] values) {
-
-    List<@NonNull String> itemNameList = Arrays.stream(ObjectsUtil.requireNonNull(values))
-        .map(name -> VALUE_PREPEND_SYMBOL + name + VALUE_APPEND_SYMBOL).toList();
-
-    return StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR);
+    return getValuesOfFormattedString(Arrays.asList(ObjectsUtil.requireNonNull(values)));
   }
 
   /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
+   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static String getValuesOfFormattedString(List<@NonNull String> valueList) {
-    return getValuesOfFormattedString(valueList.toArray(String[]::new));
+    return StringUtil.getSeparatedValuesString(valueList.toArray(String[]::new), VALUE_SEPARATOR,
+        VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
   }
 
   /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
+   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static Arg getValuesArg(String[] values) {
-    // Get a list of Args from values
     // APPLICATION is excluded: its throwsExceptionWhenKeyDoesNotExist=true causes an exception
     // when a literal string (not a property key) is passed.
-    PropertiesFileUtilFileKindEnum[] fileKinds =
-        new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES,
-            PropertiesFileUtilFileKindEnum.ITEM_NAMES, PropertiesFileUtilFileKindEnum.ENUM_NAMES,
-            PropertiesFileUtilFileKindEnum.CONSTANTS};
+    PropertiesFileUtilFileKindEnum[] fileKinds = new PropertiesFileUtilFileKindEnum[] {
+        PropertiesFileUtilFileKindEnum.MESSAGES, PropertiesFileUtilFileKindEnum.ITEM_NAMES,
+        PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS};
     List<@NonNull Arg> argList =
         Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
 
-    List<@NonNull String> itemNameList = new ArrayList<>();
+    List<@NonNull String> placeholders = new ArrayList<>();
     for (int i = 0; i < argList.size(); i++) {
-      itemNameList.add(VALUE_PREPEND_SYMBOL + "{" + i + "}" + VALUE_APPEND_SYMBOL);
+      placeholders.add("{" + i + "}");
     }
 
-    return Arg.formattedString(StringUtil.getSeparatedValuesString(itemNameList, VALUE_SEPARATOR),
+    return Arg.formattedString(getValuesOfFormattedString(placeholders),
         (Object[]) argList.toArray(Arg[]::new));
   }
 
   /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
+   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
    *     considering the prependSymbol, appendSymbol and the separator.
    */
   public static Arg getValuesArg(List<@NonNull String> valueList) {

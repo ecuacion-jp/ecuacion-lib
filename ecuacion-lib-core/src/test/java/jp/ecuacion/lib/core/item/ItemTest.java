@@ -105,15 +105,4 @@ public class ItemTest {
     Item item = new Item("password").hideValue();
     assertThat(item.getShowsValue()).isFalse();
   }
-
-  @Test
-  @DisplayName("getItemNameKey(Object): resolves class from rootBean")
-  public void getItemNameKeyWithRootBean() {
-    record SimpleBean(String name) {}
-    Item item = new Item("name");
-    item.setItemNameKeyClassFromClassName("simpleBean");
-    String key = item.getItemNameKey(new SimpleBean("test"));
-    assertThat(key).isNotNull();
-    assertThat(key).contains("name");
-  }
 }
