@@ -44,7 +44,7 @@ public interface ItemContainer {
    */
   public default Item getItem(String itemPropertyPath) {
     @NonNull
-    String noIndexPropertyPath = PropertyPathUtil.removeIndex(itemPropertyPath);
+    String noIndexPropertyPath = PropertyPathUtil.toIndexlessPath(itemPropertyPath);
 
     Map<@NonNull String, Item> map =
         Arrays.stream(customizedItems() == null ? new Item[] {} : customizedItems())

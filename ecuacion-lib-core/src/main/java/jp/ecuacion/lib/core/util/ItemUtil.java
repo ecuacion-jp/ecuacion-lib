@@ -48,7 +48,7 @@ public class ItemUtil {
     String rightMostRemoved =
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(fullPropertyPath);
     String itemPropertyPath = (rightMostRemoved.isEmpty() ? "" : rightMostRemoved + ".")
-        + PropertyPathUtil.removeCollectionPart(rightMostNode);
+        + PropertyPathUtil.toFieldPath(rightMostNode);
 
     if (rootBean instanceof ItemContainer ic) {
       return new ItemContext(ic, itemPropertyPath);
@@ -158,7 +158,7 @@ public class ItemUtil {
       tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
     } else {
       tmpItemNameKeyField =
-          PropertyPathUtil.removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
+          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));
     }
 
     return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;

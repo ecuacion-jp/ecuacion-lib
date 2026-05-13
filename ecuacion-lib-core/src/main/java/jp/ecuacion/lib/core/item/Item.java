@@ -88,7 +88,7 @@ public class Item {
    *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
    *
    * <p>The given {@code propertyPath} is normalized by
-   *     {@link PropertyPathUtil#removeIndex(String)} when stored.
+   *     {@link PropertyPathUtil#toIndexlessPath(String)} when stored.
    *     Both the runtime propertyPath form (e.g., {@code bookList[1].title}) and the
    *     simplified form (e.g., {@code bookList[].title}) are therefore equivalent
    *     and can be used interchangeably.</p>
@@ -97,7 +97,7 @@ public class Item {
    */
   public Item(@RequireNonEmpty String propertyPath) {
     this.propertyPath =
-        PropertyPathUtil.removeIndex(ObjectsUtil.requireNonEmpty(propertyPath));
+        PropertyPathUtil.toIndexlessPath(ObjectsUtil.requireNonEmpty(propertyPath));
   }
 
   /**

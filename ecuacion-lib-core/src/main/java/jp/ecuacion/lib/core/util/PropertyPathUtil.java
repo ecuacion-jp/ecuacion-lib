@@ -175,24 +175,46 @@ public class PropertyPathUtil {
     }
   }
 
-  private static String removeCollectionPartFromNode(String node) {
+  private static String toFieldPathFromNode(String node) {
     node = node.contains("<K>") ? node.substring(0, node.indexOf("<K>")) : node;
     node = node.contains("[") ? node.substring(0, node.indexOf("[")) : node;
 
     return node;
   }
 
+  private static String extractIndex(String node) {
+    return node.substring(node.indexOf("[") + 1, node.indexOf("]"));
+  }
+
   /**
-   * Removes Collection related part from the given propertyPath node.
+   * Converts a propertyPath to a plain field path by removing all collection notation
+   * ({@code [index]}, {@code <list element>}, etc.).
+   *
+   * <p>Used to obtain the field path for {@code itemNameKey} resolution.</p>
+   *
+   * <table border="1">
+   * <caption>Examples</caption>
+   * <tr><th>argument</th><th>return</th></tr>
+   * <tr><td>{@code field}</td><td>{@code field}</td></tr>
+   * <tr><td>{@code bean.field}</td><td>{@code bean.field}</td></tr>
+   * <tr><td>{@code strList[0].<list element>}</td><td>{@code strList}</td></tr>
+   * <tr><td>{@code bean.strList[0].<list element>}</td><td>{@code bean.strList}</td></tr>
+   * <tr><td>{@code userList[1].name}</td><td>{@code userList.name}</td></tr>
+   * </table>
    */
-  public static String removeCollectionPart(String propertyPath) {
+  public static String toFieldPath(String propertyPath) {
     List<@NonNull String> nodeList = getNodeList(propertyPath).stream()
-        .map(PropertyPathUtil::removeCollectionPartFromNode).toList();
+        .map(PropertyPathUtil::toFieldPathFromNode).toList();
     return String.join(".", nodeList);
   }
 
   /**
-   * Remove index from propertyPath with list and key string from propertyPath with Map.
+   * Converts a propertyPath to an index-less canonical form by removing specific indices
+   * and element-type markers while keeping the {@code []} bracket structure.
+   *
+   * <p>Used to normalize a propertyPath so that it can be matched against
+   *     item definitions registered in {@code customizedItems()},
+   *     which use {@code []} without specific indices.</p>
    *
    * <p>As an implementation, it removes string enclosed in "[" and "]",
    *     and also removes string expresses an element, like {@code <list element>}.</p>
@@ -246,7 +268,7 @@ public class PropertyPathUtil {
    * <p>This method is idempotent: applying it to an already-normalized path
    *     (e.g., {@code bookList[].title}) returns the path unchanged.</p>
    */
-  public static String removeIndex(String propertyPath) {
+  public static String toIndexlessPath(String propertyPath) {
     StringBuilder sb = new StringBuilder();
     String tmpPropertyPath = propertyPath;
 
@@ -319,7 +341,7 @@ public class PropertyPathUtil {
   public static Class<?> getClass(Class<?> rootBeanClass, String propertyPath) {
     Class<?> tmpClass = rootBeanClass;
     for (String node : getNodeList(propertyPath)) {
-      String nodeWithoutCollectionPart = removeCollectionPart(node);
+      String nodeWithoutCollectionPart = toFieldPath(node);
 
       try {
         Field tmpField = ReflectionUtil.getDeclaredField(tmpClass, nodeWithoutCollectionPart);
@@ -382,20 +404,12 @@ public class PropertyPathUtil {
 
       } else {
         if (propertyPath.contains("[")) {
-          String propertyPathWithoutIndex =
-              propertyPath.substring(0, propertyPath.indexOf("["));
-          String tmpSerial = propertyPath.substring(propertyPath.indexOf("[") + 1);
+          String fieldName = toFieldPathFromNode(propertyPath);
           // It's string because it can be non-number value when the validated object is Map.
-          String index = tmpSerial.substring(0, tmpSerial.indexOf("]"));
-
-          // Handle Map key (propertyPath: field<K>[].<map key>)
-          if (propertyPathWithoutIndex.contains("<")) {
-            propertyPathWithoutIndex =
-                propertyPathWithoutIndex.substring(0, propertyPathWithoutIndex.indexOf("<"));
-          }
+          String index = extractIndex(propertyPath);
 
           Field rootField =
-              ReflectionUtil.getDeclaredField(object.getClass(), propertyPathWithoutIndex);
+              ReflectionUtil.getDeclaredField(object.getClass(), fieldName);
           Object objs = ReflectionUtil.getFieldValue(object, rootField);
 
           // Resolve the field for array or List.
