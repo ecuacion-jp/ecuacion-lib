@@ -15,9 +15,9 @@
  */
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.Map;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -36,13 +36,14 @@ public interface ValidatorMessageParameterCreator {
   /**
    * Creates and returns named message parameters.
    *
-   * @param cv the constraint violation bean
-   * @param paramMap annotation attribute map
-   * @return map of parameter name to value 
+   * @param cv the constraint violation from Jakarta Validation
+   * @param paramMap annotation attribute map (pre-cleaned: groups/message/payload removed;
+   *     augmented with annotation, itemAttributes, invalidValue)
+   * @return map of parameter name to value
    *     ({@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg},
    *     {@link ItemNameParam}, or plain object)
    */
-  Map<@NonNull String, @Nullable Object> create(ConstraintViolationBean<?> cv,
+  Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap);
 
   /**

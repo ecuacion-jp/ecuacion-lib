@@ -17,6 +17,8 @@ package jp.ecuacion.lib.core.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,27 @@ public class ItemContainerTest {
     @Override
     public Item[] customizedItems() {
       return new Item[]{};
+    }
+  }
+
+  private static class User {
+    @SuppressWarnings("unused")
+    private @Nullable String name;
+  }
+
+  private static class UserListContainer implements ItemContainer {
+    @SuppressWarnings("unused")
+    private @Nullable List<User> userList;
+
+    private final Item[] items;
+
+    UserListContainer(Item... items) {
+      this.items = items;
+    }
+
+    @Override
+    public Item[] customizedItems() {
+      return items;
     }
   }
 
@@ -88,6 +111,33 @@ public class ItemContainerTest {
     void listElementPath() {
       Item item = new SimpleContainer().getItem("myList.<list element>");
       assertThat(item).isNotNull();
+    }
+
+    @Test
+    @DisplayName("simplified form [] still matches runtime path with index")
+    void simplifiedFormMatchesRuntimeIndex() {
+      UserListContainer c =
+          new UserListContainer(new Item("userList[].name").itemNameKey("cls.name"));
+      assertThat(c.getItem("userList[2].name").setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("full propertyPath form with index matches any index at runtime")
+    void fullIndexFormMatchesAnyIndex() {
+      UserListContainer c =
+          new UserListContainer(new Item("userList[1].name").itemNameKey("cls.name"));
+      assertThat(c.getItem("userList[1].name").setsItemNameKeyClassExplicitly()).isTrue();
+      assertThat(c.getItem("userList[3].name").setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("two full-index forms that normalize to the same path are treated as duplicate")
+    void fullFormDuplicatesDetected() {
+      UserListContainer c = new UserListContainer(
+          new Item("userList[1].name"),
+          new Item("userList[2].name"));
+      assertThatThrownBy(() -> c.getItem("userList[1].name"))
+          .isInstanceOf(IllegalStateException.class);
     }
   }
 }

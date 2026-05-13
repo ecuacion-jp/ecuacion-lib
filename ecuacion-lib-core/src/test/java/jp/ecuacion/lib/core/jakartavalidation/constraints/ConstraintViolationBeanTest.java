@@ -25,7 +25,7 @@ import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;

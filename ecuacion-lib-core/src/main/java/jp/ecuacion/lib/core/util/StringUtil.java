@@ -302,30 +302,4 @@ public class StringUtil {
   public static boolean isObjectNullOrEmpty(@Nullable Object value) {
     return value == null || (value instanceof String s && StringUtils.isEmpty(s));
   }
-
-  /* ■□■□ html escape ■□■□ */
-
-  /**
-   * Returns html-escaped strings.
-   * 
-   * @param str string.
-   * @return html-escaped strings.
-   */
-  public static String escapeHtml(String str) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < str.length(); i++) {
-      char c = str.charAt(i);
-      switch (c) {
-        case '&' -> result.append("&amp;");
-        case '<' -> result.append("&lt;");
-        case '>' -> result.append("&gt;");
-        case '"' -> result.append("&quot;");
-        case '\'' -> result.append("&#39;");
-        case ' ' -> result.append("&nbsp;");
-        default -> result.append(c);
-      }
-    }
-
-    return result.toString();
-  }
 }

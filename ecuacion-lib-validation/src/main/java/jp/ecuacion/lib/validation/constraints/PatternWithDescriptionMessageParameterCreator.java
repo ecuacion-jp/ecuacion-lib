@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
@@ -33,7 +33,7 @@ public class PatternWithDescriptionMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Map<@NonNull String, @Nullable Object> create(ConstraintViolationBean<?> cv,
+  public Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();

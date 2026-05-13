@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.logging;
 import jakarta.validation.ConstraintViolation;
 import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
+import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import org.jspecify.annotations.Nullable;

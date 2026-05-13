@@ -19,7 +19,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
-import jp.ecuacion.lib.core.util.ReflectionUtil.ElementOfCollectionCannotBeObtainedException;
+import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public class ItemUtil {
     Object firstChild = null;
     try {
       firstChild = fullPropertyPath1stPart == null ? null
-          : ReflectionUtil.getValue(rootBean, fullPropertyPath1stPart);
+          : PropertyPathUtil.getValue(rootBean, fullPropertyPath1stPart);
     } catch (ElementOfCollectionCannotBeObtainedException ex) {
       // Do nothing.
     }
@@ -48,7 +48,7 @@ public class ItemUtil {
     String rightMostRemoved =
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(fullPropertyPath);
     String itemPropertyPath = (rightMostRemoved.isEmpty() ? "" : rightMostRemoved + ".")
-        + PropertyPathUtil.removeCollectionPart(rightMostNode);
+        + PropertyPathUtil.toFieldPath(rightMostNode);
 
     if (rootBean instanceof ItemContainer ic) {
       return new ItemContext(ic, itemPropertyPath);
@@ -110,7 +110,7 @@ public class ItemUtil {
       @Nullable String defaultItemNameKeyClass, @Nullable String itemNameKeyField,
       String propertyPath) {
 
-    Class<?> leafBeanClass = ReflectionUtil.getClass(rootBean.getClass(),
+    Class<?> leafBeanClass = PropertyPathUtil.getClass(rootBean.getClass(),
         PropertyPathUtil.getPropertyPathWithoutRightMostNode(propertyPath));
 
     String itemNameKeyClassFromAnnotation =
@@ -158,7 +158,7 @@ public class ItemUtil {
       tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
     } else {
       tmpItemNameKeyField =
-          PropertyPathUtil.removeCollectionPart(PropertyPathUtil.getRightMostNode(propertyPath));
+          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));
     }
 
     return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;

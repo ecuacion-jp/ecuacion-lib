@@ -33,8 +33,8 @@ import java.util.Set;
 import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
@@ -188,7 +188,7 @@ public class ExceptionUtil {
     for (ConstraintViolation<T> cv : constraintViolations) {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-              ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
+              cv, ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
     }
     return result;
   }
@@ -303,14 +303,13 @@ public class ExceptionUtil {
     // jakarta.validation.ConstraintViolationException can be thrown from unassumed locations.
     // In that case messages are built directly from ConstraintViolation.
     if (throwable instanceof ConstraintViolationException cve) {
-      MessageParameters params =
-          cve instanceof ConstraintViolationExceptionWithParameters cvewp
+      MessageParameters params = cve instanceof ConstraintViolationExceptionWithParameters cvewp
           ? cvewp.getMessageParameters()
           : Violations.newMessageParameters();
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
-            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, cv,
                 ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
@@ -376,7 +375,7 @@ public class ExceptionUtil {
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-              ConstraintViolationBean.createConstraintViolationBean(cv),
+              cv, ConstraintViolationBean.createConstraintViolationBean(cv),
               violations.messageParameters()));
     }
 
@@ -436,8 +435,8 @@ public class ExceptionUtil {
   }
 
   private static String buildMessageFromConstraintViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, ConstraintViolationBean<?> bean,
-      MessageParameters messageParameters) {
+      boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
+      ConstraintViolationBean<?> bean, MessageParameters messageParameters) {
     String message = null;
     try {
       final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
@@ -446,7 +445,7 @@ public class ExceptionUtil {
       addArgBasedParamsToMap(bean, map);
 
       // Merge external validator params (Arg and ItemNameParam values).
-      map.putAll(getExternalMessageParams(bean));
+      map.putAll(getExternalMessageParams(cv, bean));
 
       // Resolve ItemNameParam (item names) before formatWithArgs.
       resolveItemNameParams(locale, map, messageParameters.showsItemNamePath());
@@ -507,13 +506,13 @@ public class ExceptionUtil {
   }
 
   private static Map<@NonNull String, @Nullable Object> getExternalMessageParams(
-      ConstraintViolationBean<?> cvBean) {
+      ConstraintViolation<?> cv, ConstraintViolationBean<?> cvBean) {
     Map<@NonNull String, @Nullable Object> rtnMap = new HashMap<>();
 
     String className = cvBean.getValidatorClass() + "MessageParameterCreator";
     if (ReflectionUtil.classExists(className)) {
       rtnMap.putAll(((ValidatorMessageParameterCreator) ReflectionUtil.newInstance(className))
-          .create(cvBean, cvBean.getEmbeddedParamMap()));
+          .create(cv, cvBean.getEmbeddedParamMap()));
     }
 
     return rtnMap;
@@ -552,8 +551,8 @@ public class ExceptionUtil {
       Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
       String[] itemNameKeys = violation.getItemNameKeys();
       if (itemNameKeys.length > 0) {
-        List<@NonNull Item> itemList = Arrays.stream(itemNameKeys)
-            .map(key -> new Item(key).itemNameKey(key)).toList();
+        List<@NonNull Item> itemList =
+            Arrays.stream(itemNameKeys).map(key -> new Item(key).itemNameKey(key)).toList();
         String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
         namedArgs.put("item_name", itemName);
         namedArgs.put("0", itemName);
