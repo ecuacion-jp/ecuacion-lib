@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import java.util.List;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
@@ -35,48 +34,33 @@ public class MessageUtilTest {
   }
 
   @Nested
-  @DisplayName("getValuesOfFormattedString")
+  @DisplayName("formatValues")
   class GetValuesOfFormattedString {
 
     @Test
-    @DisplayName("array: returns string containing each value")
+    @DisplayName("array: returns Arg that resolves to string containing each value")
     void array() {
-      String result = MessageUtil.getValuesOfFormattedString(new String[]{"hello", "world"});
-      assertThat(result).contains("hello");
-      assertThat(result).contains("world");
+      Arg result = MessageUtil.formatValues(new String[]{"hello", "world"});
+      String resolved = result.resolveAsString(Locale.ENGLISH);
+      assertThat(resolved).contains("hello");
+      assertThat(resolved).contains("world");
     }
 
-    @Test
-    @DisplayName("list: delegates to array variant and returns same result")
-    void list() {
-      String arrayResult = MessageUtil.getValuesOfFormattedString(new String[]{"a", "b"});
-      String listResult = MessageUtil.getValuesOfFormattedString(List.of("a", "b"));
-      assertThat(listResult).isEqualTo(arrayResult);
-    }
   }
 
   @Nested
-  @DisplayName("getValuesArg")
+  @DisplayName("formatValuesWithResolution")
   class GetValuesArg {
 
     @Test
     @DisplayName("array: returns FORMATTED_STRING Arg that resolves to value with symbols")
     void array() {
-      Arg arg = MessageUtil.getValuesArg(new String[]{"MSG1"});
+      Arg arg = MessageUtil.formatValuesWithResolution(new String[]{"MSG1"});
       assertThat(arg).isNotNull();
       assertThat(arg.getArgKind()).isEqualTo(PropertiesFileUtil.Arg.ArgKind.FORMATTED_STRING);
       String resolved = arg.resolveAsString(Locale.ENGLISH);
       assertThat(resolved).contains("message 1.");
     }
 
-    @Test
-    @DisplayName("list: delegates to array variant and produces same result")
-    void list() {
-      Arg arrayArg = MessageUtil.getValuesArg(new String[]{"MSG1"});
-      Arg listArg = MessageUtil.getValuesArg(List.of("MSG1"));
-      String arrayResolved = arrayArg.resolveAsString(Locale.ENGLISH);
-      String listResolved = listArg.resolveAsString(Locale.ENGLISH);
-      assertThat(listResolved).isEqualTo(arrayResolved);
-    }
   }
 }

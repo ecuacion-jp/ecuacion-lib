@@ -18,7 +18,6 @@ package jp.ecuacion.lib.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Locale;
 import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
@@ -45,7 +44,7 @@ public class ExceptionLogUtilTest {
     void nullThrowable() {
       String result = ExceptionLogUtil.getErrLogString(null, null, null);
       assertThat(result).contains(ExceptionUtil.SYSTEM_ERROR_OCCURED_SIGN);
-      assertThat(result).contains(EclibLogger.NULL_THROWABLE_MESSAGE);
+      assertThat(result).contains(ExceptionLogUtil.NULL_THROWABLE_MESSAGE);
     }
 
     @Test
@@ -116,7 +115,7 @@ public class ExceptionLogUtilTest {
     void nullThrowable() {
       StringBuilder sb = new StringBuilder();
       ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, null, null);
-      assertThat(sb.toString()).contains(EclibLogger.NULL_THROWABLE_MESSAGE);
+      assertThat(sb.toString()).contains(ExceptionLogUtil.NULL_THROWABLE_MESSAGE);
     }
 
     @Test

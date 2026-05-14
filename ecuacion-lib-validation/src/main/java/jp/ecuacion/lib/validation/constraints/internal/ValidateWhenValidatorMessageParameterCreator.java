@@ -51,7 +51,7 @@ public class ValidateWhenValidatorMessageParameterCreator
     String conditionPropertyPath =
         (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".")
             + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getRootBean(), cv.getLeafBean());
+    Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getRootBean());
     result.put(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
         new ItemNameParam(new Item[] {item}, cv.getRootBean()));
 
@@ -136,15 +136,11 @@ public class ValidateWhenValidatorMessageParameterCreator
             : List.of(Objects.requireNonNull(displayStringObj).toString());
 
     Arg valueArg = displayStringPp.isEmpty()
-        ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(displayStringList))
-        : MessageUtil.getValuesArg(displayStringList);
+        ? MessageUtil.formatValues(displayStringList.toArray(String[]::new))
+        : MessageUtil.formatValuesWithResolution(displayStringList.toArray(String[]::new));
 
-    String[] strs = displayStringList.toArray(String[]::new);
-
-    Arg displayStringOfConditionValueArg;
-    displayStringOfConditionValueArg = strs.length > 1
+    return displayStringList.size() > 1
         ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
         : valueArg;
-    return displayStringOfConditionValueArg;
   }
 }

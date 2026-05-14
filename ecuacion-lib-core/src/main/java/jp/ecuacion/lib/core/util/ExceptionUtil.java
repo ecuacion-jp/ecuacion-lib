@@ -387,53 +387,6 @@ public class ExceptionUtil {
     return result;
   }
 
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex) {
-    return getMessageList(ex.getViolations());
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex,
-      @Nullable Locale locale) {
-    return getMessageList(ex.getViolations(), locale);
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(ex.getViolations(), isMessagesWithItemNamesAsDefault);
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(ex.getViolations(), locale, isMessagesWithItemNamesAsDefault);
-  }
-
   private static String buildMessageFromConstraintViolation(Locale locale,
       boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
       ConstraintViolationBean<?> bean, MessageParameters messageParameters) {
@@ -580,6 +533,4 @@ public class ExceptionUtil {
 
     return message;
   }
-
-
 }
