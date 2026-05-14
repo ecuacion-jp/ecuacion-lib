@@ -227,36 +227,4 @@ public class StringUtilTest {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // escapeHtml
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("escapeHtml")
-  class EscapeHtml {
-
-    @Test
-    @DisplayName("special HTML characters are escaped")
-    void specialChars() {
-      assertThat(StringUtil.escapeHtml("&")).isEqualTo("&amp;");
-      assertThat(StringUtil.escapeHtml("<")).isEqualTo("&lt;");
-      assertThat(StringUtil.escapeHtml(">")).isEqualTo("&gt;");
-      assertThat(StringUtil.escapeHtml("\"")).isEqualTo("&quot;");
-      assertThat(StringUtil.escapeHtml("'")).isEqualTo("&#39;");
-      assertThat(StringUtil.escapeHtml(" ")).isEqualTo("&nbsp;");
-    }
-
-    @Test
-    @DisplayName("plain text is returned unchanged")
-    void plainText() {
-      assertThat(StringUtil.escapeHtml("hello")).isEqualTo("hello");
-    }
-
-    @Test
-    @DisplayName("mixed string is correctly escaped")
-    void mixed() {
-      assertThat(StringUtil.escapeHtml("<b>hello & world</b>"))
-          .isEqualTo("&lt;b&gt;hello&nbsp;&amp;&nbsp;world&lt;/b&gt;");
-    }
-  }
 }

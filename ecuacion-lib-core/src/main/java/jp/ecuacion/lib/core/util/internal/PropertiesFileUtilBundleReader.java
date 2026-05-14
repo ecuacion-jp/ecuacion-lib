@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -35,26 +34,27 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Stores properties extracted from .properties files.
- * 
- * <ul>
- * <li>One instance stores one kind (like "messages") with multiple locales.<br>
- *     It also stores messages files in multiple modules.</li>
- * </ul>
+ * Reads raw property values from {@code *.properties} files, wrapping
+ * {@link java.util.ResourceBundle}.
+ *
+ * <p>One instance covers one file kind (e.g., {@code messages}) across all locales
+ * and all modules. Returned values are raw strings — no {@code #{...}} or
+ * {@code ${...}} processing is applied here.</p>
  */
-public class PropertiesFileUtilValueGetter {
+public class PropertiesFileUtilBundleReader {
 
-  private boolean throwsExceptionWhenKeyDoesNotExist;
+  private final boolean throwsExceptionWhenKeyDoesNotExist;
 
   /**
-   * Is used for test to use filePrefix which is not included in PropertiesFileUtilPropFileKindEnum.
+   * Is used for test to use filePrefix which is not included in
+   * PropertiesFileUtilPropFileKindEnum.
    */
-  private String[][] filePrefixes;
+  private final String[][] filePrefixes;
 
   private static final String[] LIB_MODULES =
       new String[] {"core", "jpa", "validation", "validation_business_messages"};
   private static final String[] SPLIB_MODULES = new String[] {"core", "web", "web_jpa"};
-  private static final String[] UTIL_MODULES = new String[] {"jpa", "poi"};
+  private static final String[] UTIL_MODULES = new String[] {"excel_table", "excel_report_to_pdf"};
 
   private static final String[] APP_MODULES =
       new String[] {"", "base", "core", "core_web", "core_batch"};
@@ -64,10 +64,10 @@ public class PropertiesFileUtilValueGetter {
 
   /**
    * Offers a way to add postfixes dynamically.
-   * 
-   * <p>By adding "postfix" using this method, 
+   *
+   * <p>By adding "postfix" using this method,
    *     "application_postfix.properties" are added to the file list.</p>
-   * 
+   *
    * @param postfix postfix
    */
   public static void addToDynamicPostfixList(String postfix) {
@@ -85,16 +85,16 @@ public class PropertiesFileUtilValueGetter {
 
   /**
    * Provides bundle name in the case that the application is executed with a Jigsaw module.
-   * 
+   *
    * <p>In a java 9 module system, ResourceBundle.Control cannot be used.<br>
    *     https://docs.oracle.com/javase/jp/21/docs/api/java.base/java/util/ResourceBundle.html<br>
    *     {@code ResourceBundle.Control is designed for an application deployed in an unnamed module,
-   *     for example to support resource bundles 
-   *     in non-standard formats or package localized resources in a non-traditional convention. 
-   *     ResourceBundleProvider is the replacement for ResourceBundle.Control 
-   *     when migrating to modules. UnsupportedOperationException will be thrown 
+   *     for example to support resource bundles
+   *     in non-standard formats or package localized resources in a non-traditional convention.
+   *     ResourceBundleProvider is the replacement for ResourceBundle.Control
+   *     when migrating to modules. UnsupportedOperationException will be thrown
    *     when a factory method that takes the ResourceBundle.Control parameter is called.}<br><br>
-   * 
+   *
    *     https://www.morling.dev/blog/resource-bundle-lookups-in-modular-java-applications/
    * </p>
    */
@@ -107,10 +107,10 @@ public class PropertiesFileUtilValueGetter {
 
   /**
    * Constructs a new instance with {@code PropertiesFileUtilPropFileKindEnum}.
-   * 
+   *
    * @param fileKindEnum fileKindEnum
    */
-  public PropertiesFileUtilValueGetter(PropertiesFileUtilFileKindEnum fileKindEnum) {
+  public PropertiesFileUtilBundleReader(PropertiesFileUtilFileKindEnum fileKindEnum) {
     this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
   }
@@ -119,22 +119,20 @@ public class PropertiesFileUtilValueGetter {
    * Is used for test. It can be accessed from the same package.
    * It is used to accept non-PropFileKindEnum file prefix.
    */
-  PropertiesFileUtilValueGetter(String[][] filePrefixes) {
+  PropertiesFileUtilBundleReader(String[][] filePrefixes) {
     this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
   }
 
   /**
    * Obtains a list of postfixes.
-   * 
+   *
    * @return postfix list
    */
   List<@NonNull String> getPostfixes() {
     List<@NonNull String> rtnList = new ArrayList<>();
-    rtnList.addAll(
-        Arrays.stream(LIB_MODULES).map(str -> "_lib_" + str).toList());
-    rtnList.addAll(Arrays.stream(SPLIB_MODULES).map(str -> "_splib_" + str)
-        .toList());
+    rtnList.addAll(Arrays.stream(LIB_MODULES).map(str -> "_lib_" + str).toList());
+    rtnList.addAll(Arrays.stream(SPLIB_MODULES).map(str -> "_splib_" + str).toList());
     rtnList.addAll(Arrays.stream(UTIL_MODULES).map(str -> "_util_" + str).toList());
     rtnList.addAll(dynamicPostfixList.stream().map(str -> "_" + str).toList());
 
@@ -151,34 +149,17 @@ public class PropertiesFileUtilValueGetter {
   }
 
   /**
-   * Obtains value from key.
-   *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
-   * @param key the key of the property
-   * @param elParameterMap elParameterMap
-   * @return value
-   */
-  private String getValue(@Nullable Locale locale, String key,
-      Map<@NonNull String, @Nullable Object> elParameterMap) {
-    ObjectsUtil.requireNonNull(key);
-
-    String str = getRawValue(locale, key);
-
-    return PropertiesFileUtil.analyzedValueString(locale, str, elParameterMap);
-  }
-
-  /**
    * Obtains data from properties file or environment variable if exists.
-   * 
+   *
    * <p>Raw means return data is not processed after obtained from properties file.</p>
-   * 
+   *
    * <p>This is also used to find out whether the key exists.</p>
-   * 
+   *
    * @param locale locale
    * @param key key
    * @return raw value
    */
-  private String getRawValue(@Nullable Locale locale, String key) {
+  String getValue(@Nullable Locale locale, String key) {
     String value;
     if (System.getProperties().keySet().contains(key)) {
       // If the key is in System.getProperties(), just return it.
@@ -215,7 +196,8 @@ public class PropertiesFileUtilValueGetter {
    * <p>Key lookup priority (highest to lowest):
    * <ol>
    *   <li>{@code key} — application-level override</li>
-   *   <li>{@code key.default} — optional module override (e.g., business-messages module)</li>
+   *   <li>{@code key.default} — optional module override
+   *       (e.g., business-messages module)</li>
    *   <li>{@code key.base} — library-level fallback (e.g., ecuacion-lib-core)</li>
    * </ol>
    * </p>
@@ -253,9 +235,9 @@ public class PropertiesFileUtilValueGetter {
   /**
    * Reads a property file and returns its {@code ResourceBundle}.<br>
    * Returns {@code null} when a resource bundle is not found.
-   * 
+   *
    * @param bundleId resource bundle's bundle ID
-   * @param locale locale, may be {@code null} 
+   * @param locale locale, may be {@code null}
    *     which means no {@code Locale} specified.
    */
   private @Nullable ResourceBundle getResourceBundle(String bundleId, @Nullable Locale locale) {
@@ -266,56 +248,61 @@ public class PropertiesFileUtilValueGetter {
       locale = Locale.ROOT;
     }
 
-    // java 9 module system
     try {
       bundleNameForModule.set(bundleId);
       specifiedLocale.set(locale);
 
-      String bundle = "jp.ecuacion.lib.core."
-          + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
-      return ResourceBundle.getBundle(bundle, locale);
+      // java 9 module system
+      try {
+        String bundle = "jp.ecuacion.lib.core."
+            + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
+        return ResourceBundle.getBundle(bundle, locale);
 
-    } catch (MissingResourceException ex) {
-      // do nothing.
+      } catch (MissingResourceException ex) {
+        // do nothing.
+      }
+
+      // java 9 module system for test
+      try {
+        String bundle = "jp.ecuacion.lib.core.test."
+            + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
+        return ResourceBundle.getBundle(bundle, locale);
+
+      } catch (MissingResourceException ex) {
+        // do nothing.
+      }
+
+      // non-module apps
+      try {
+        return ResourceBundle.getBundle(bundleId, locale,
+            ResourceBundle.Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
+
+      } catch (MissingResourceException | UnsupportedOperationException e) {
+        // do nothing.
+      }
+
+      return null;
+
+    } finally {
+      bundleNameForModule.remove();
+      specifiedLocale.remove();
     }
-
-    // java 9 module system for test
-    try {
-      String bundle = "jp.ecuacion.lib.core.test."
-          + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
-      return ResourceBundle.getBundle(bundle, locale);
-
-    } catch (MissingResourceException ex) {
-      // do nothing.
-    }
-
-    // non-module apps
-    try {
-
-      return ResourceBundle.getBundle(bundleId, locale,
-          ResourceBundle.Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
-
-    } catch (MissingResourceException | UnsupportedOperationException e) {
-      // do nothing.
-    }
-
-    return null;
   }
 
   private @Nullable String getValueAndDuplicationCheck(
       Map<String, @Nullable ResourceBundle> resourceBundleMap, String key) {
     String messageString = null;
     for (Entry<String, @Nullable ResourceBundle> entry : resourceBundleMap.entrySet()) {
-      
+
       if (entry.getValue() == null) {
         continue;
       }
-      
+
       ResourceBundle nonNullRb = Objects.requireNonNull(entry.getValue());
-      
+
       if (nonNullRb.containsKey(key)) {
         if (messageString != null) {
-          throw new KeyDupliccatedException(key);
+          throw new KeyDuplicatedException(key);
         }
 
         messageString = nonNullRb.getString(key);
@@ -325,14 +312,17 @@ public class PropertiesFileUtilValueGetter {
     return messageString;
   }
 
-  /*
-   * Checks if the properties file has the key.
+  /**
+   * Returns {@code true} when the key exists in any properties file (locale-independent).
+   *
+   * @param key the key to check
+   * @return {@code true} if the key exists
    */
   public boolean hasProp(String key) {
     Objects.requireNonNull(key);
 
     try {
-      getRawValue(null, key);
+      getValue(null, key);
       return true;
 
     } catch (NoKeyInPropertiesFileException ex) {
@@ -340,14 +330,18 @@ public class PropertiesFileUtilValueGetter {
     }
   }
 
-  /*
-   * Checks if the properties file has the key.
+  /**
+   * Returns {@code true} when the key exists in a properties file for the given locale.
+   *
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}
+   * @param key the key to check
+   * @return {@code true} if the key exists for the given locale
    */
   public boolean hasProp(@Nullable Locale locale, String key) {
     Objects.requireNonNull(key);
 
     try {
-      getRawValue(locale, key);
+      getValue(locale, key);
       return true;
 
     } catch (NoKeyInPropertiesFileException ex) {
@@ -355,33 +349,33 @@ public class PropertiesFileUtilValueGetter {
     }
   }
 
-  /*
-   * Obtains value from a key. 
+  /**
+   * Obtains raw value from a key using the default locale
+   * (no {@code #{...}} or {@code ${...}} processing).
+   *
+   * @param key the key of the property
+   * @return raw value
    */
-  public String getProp(String key,
-      Map<@NonNull String, @Nullable Object> elParameterMap) {
-    return getProp(null, key, elParameterMap);
+  public String getProp(String key) {
+    return getProp(null, key);
   }
 
   /**
-   * Obtains value from a key.
+   * Obtains raw value from a key (no {@code #{...}} or {@code ${...}} processing).
    *
    * @param locale locale, may be {@code null} which means no {@code Locale} specified.
    * @param key the key of the property
-   * @param elParameterMap elParameterMap
-   * @return value
+   * @return raw value
    */
-  public String getProp(@Nullable Locale locale, String key,
-      Map<@NonNull String, @Nullable Object> elParameterMap) {
+  public String getProp(@Nullable Locale locale, String key) {
     ObjectsUtil.requireNonNull(key);
 
-    // Throw an exception when msgId is empty.
     if (StringUtils.isEmpty(key)) {
       throw new RuntimeException("Message ID is blank.");
     }
 
     try {
-      return getValue(locale, key, elParameterMap);
+      return getValue(locale, key);
 
     } catch (NoKeyInPropertiesFileException ex) {
       if (throwsExceptionWhenKeyDoesNotExist) {
@@ -393,20 +387,24 @@ public class PropertiesFileUtilValueGetter {
     }
   }
 
+  /** Thrown when the requested key is not found in any properties file. */
   public static class NoKeyInPropertiesFileException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    /** Constructs the exception with the missing key name. */
     public NoKeyInPropertiesFileException(String key) {
       super("No key in .properties. key: " + key);
     }
   }
 
-  public static class KeyDupliccatedException extends RuntimeException {
+  /** Thrown when the same key appears in more than one properties file. */
+  public static class KeyDuplicatedException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public KeyDupliccatedException(String key) {
+    /** Constructs the exception with the duplicated key name. */
+    public KeyDuplicatedException(String key) {
       super("Duplicated key in .properties. key: " + key);
     }
   }

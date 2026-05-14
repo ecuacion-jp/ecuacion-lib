@@ -18,21 +18,19 @@ package jp.ecuacion.lib.validation.constraints.internal;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.STRING;
 import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_OF_PROPERTY_PATH;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import org.apache.commons.lang3.StringUtils;
@@ -43,24 +41,22 @@ public class ValidateWhenValidatorMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
+  public Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
     final String commonMessagePrefix = "jp.ecuacion.lib.validation.constraints.ValidateWhen";
-    Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
-    // conditionFieldItemNameKey
+    Map<@NonNull String, @Nullable Object> result = new HashMap<>();
+
+    // conditionFieldItemNameKey — resolved as item name (needs locale at render time)
+    String cvPropertyPath = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
     String conditionPropertyPath =
-        (StringUtils.isEmpty(cv.getConstraintViolationPropertyPath()) ? ""
-            : cv.getConstraintViolationPropertyPath() + ".")
-        + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    Item item = MessageUtil.getItem(conditionPropertyPath, cv.getRootBean(),
-        ReflectionUtil.getLeafBean(cv.getRootBean(), conditionPropertyPath));
-    messageParameterSet
-        .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES}, true,
-            new Item[] {item}, cv.getRootBean(), item.getItemNameKey(), new Arg[] {}));
+        (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".")
+            + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
+    Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getRootBean());
+    result.put(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
+        new ItemNameParam(new Item[] {item}, cv.getRootBean()));
 
     // displayStringOfConditionValue
-    displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, messageParameterSet);
+    displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, result);
 
     // validatesWhenConditionNotSatisfied
     // Each When-validator annotation must have exactly one parameter whose name ends with
@@ -71,32 +67,25 @@ public class ValidateWhenValidatorMessageParameterCreator
 
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
-      messageParameterSet
-          .add(
-              new LocalizedEmbeddedParameter(paramKey,
-                  new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
-                  paramMap.get("annotation") + ".messagePart."
-                      + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED,
-                  new Arg[] {}));
-
+      result.put(paramKey,
+          Arg.message(paramMap.get("annotation") + ".messagePart."
+              + ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED));
     } else {
-      // Add blank ("") value by designating empty PropertiesFileUtilFileKindEnum array.
-      messageParameterSet.add(new LocalizedEmbeddedParameter(paramKey,
-          new PropertiesFileUtilFileKindEnum[] {}, "", new Arg[] {}));
+      result.put(paramKey, "");
     }
 
-    return messageParameterSet;
+    return result;
   }
 
-  private void displayStringOfConditionValue(ConstraintViolationBean<?> cv,
+  private void displayStringOfConditionValue(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap, final String commonMessagePrefix,
-      Set<LocalizedEmbeddedParameter> messageParameterSet) {
+      Map<@NonNull String, @Nullable Object> result) {
     ConditionValue conditionPtn =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
-    Arg displayStringOfConditionValueArg = Arg.string("");
+    Object displayStringOfConditionValueArg = "";
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
-      Object values = ReflectionUtil.getValue(cv.getLeafBean(), (String) Objects
+      Object values = PropertyPathUtil.getValue(cv.getLeafBean(), (String) Objects
           .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH)));
 
       displayStringOfConditionValueArg =
@@ -116,11 +105,10 @@ public class ValidateWhenValidatorMessageParameterCreator
 
       if (description.equals(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
           || description.isEmpty()) {
-        displayStringOfConditionValueArg = Arg.string(regExp);
+        displayStringOfConditionValueArg = regExp;
 
       } else {
-        displayStringOfConditionValueArg = Arg
-            .get(new String[] {PropertiesFileUtilFileKindEnum.ITEM_NAMES.toString()}, description);
+        displayStringOfConditionValueArg = Arg.itemName(description);
       }
     }
 
@@ -129,36 +117,30 @@ public class ValidateWhenValidatorMessageParameterCreator
             Objects.requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE)).toString())
         + "." + StringUtil.getLowerCamelFromSnake(Objects
             .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR)).toString());
-    messageParameterSet
-        .add(new LocalizedEmbeddedParameter(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
-            new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, propKey,
-            new Arg[] {displayStringOfConditionValueArg}));
+    result.put(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,
+        Arg.message(propKey, displayStringOfConditionValueArg));
   }
 
-  private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolationBean<?> cv,
+  private Arg displayStringCommon(final String commonMessagePrefix, ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap, Object values) {
     String displayStringPp = (String) paramMap
         .get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH);
 
     Objects.requireNonNull(displayStringPp);
-    
-    Object displayStringObj =  displayStringPp.isEmpty() ? values
-        : Objects.requireNonNull(ReflectionUtil.getValue(cv.getLeafBean(), displayStringPp));
 
-    List<@NonNull String> displayStringList = displayStringObj instanceof Object[] arr
-        ? Arrays.stream(arr).map(Object::toString).toList()
-        : List.of(Objects.requireNonNull(displayStringObj).toString());
+    Object displayStringObj = displayStringPp.isEmpty() ? values
+        : Objects.requireNonNull(PropertyPathUtil.getValue(cv.getLeafBean(), displayStringPp));
+
+    List<@NonNull String> displayStringList =
+        displayStringObj instanceof Object[] arr ? Arrays.stream(arr).map(Object::toString).toList()
+            : List.of(Objects.requireNonNull(displayStringObj).toString());
 
     Arg valueArg = displayStringPp.isEmpty()
-        ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(displayStringList))
-        : MessageUtil.getValuesArg(displayStringList);
+        ? MessageUtil.formatValues(displayStringList.toArray(String[]::new))
+        : MessageUtil.formatValuesWithResolution(displayStringList.toArray(String[]::new));
 
-    String[] strs = displayStringList.toArray(String[]::new);
-
-    Arg displayStringOfConditionValueArg;
-    displayStringOfConditionValueArg = strs.length > 1
+    return displayStringList.size() > 1
         ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
         : valueArg;
-    return displayStringOfConditionValueArg;
   }
 }

@@ -17,6 +17,8 @@ package jp.ecuacion.lib.core.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,60 @@ public class ItemContainerTest {
     @Override
     public Item[] customizedItems() {
       return new Item[]{};
+    }
+  }
+
+  private static class ParentContainer implements ItemContainer {
+    @SuppressWarnings("unused")
+    private @Nullable String name;
+    @SuppressWarnings("unused")
+    private @Nullable String password;
+
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name").itemNameKey("parent.name"),
+          new Item("password").itemNameKey("parent.password").hideValue(),
+      };
+    }
+  }
+
+  private static class ChildContainer extends ParentContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name").itemNameKey("child.name"),
+      };
+    }
+  }
+
+  private static class ChildContainerWithoutItemNameKey extends ParentContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name"),
+      };
+    }
+  }
+
+  private static class User {
+    @SuppressWarnings("unused")
+    private @Nullable String name;
+  }
+
+  private static class UserListContainer implements ItemContainer {
+    @SuppressWarnings("unused")
+    private @Nullable List<User> userList;
+
+    private final Item[] items;
+
+    UserListContainer(Item... items) {
+      this.items = items;
+    }
+
+    @Override
+    public Item[] customizedItems() {
+      return items;
     }
   }
 
@@ -88,6 +144,113 @@ public class ItemContainerTest {
     void listElementPath() {
       Item item = new SimpleContainer().getItem("myList.<list element>");
       assertThat(item).isNotNull();
+    }
+
+    @Test
+    @DisplayName("simplified form [] still matches runtime path with index")
+    void simplifiedFormMatchesRuntimeIndex() {
+      UserListContainer c =
+          new UserListContainer(new Item("userList[].name").itemNameKey("cls.name"));
+      assertThat(c.getItem("userList[2].name").setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("full propertyPath form with index matches any index at runtime")
+    void fullIndexFormMatchesAnyIndex() {
+      UserListContainer c =
+          new UserListContainer(new Item("userList[1].name").itemNameKey("cls.name"));
+      assertThat(c.getItem("userList[1].name").setsItemNameKeyClassExplicitly()).isTrue();
+      assertThat(c.getItem("userList[3].name").setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Nested
+    @DisplayName("parent class inheritance")
+    class Inheritance {
+
+      @Test
+      @DisplayName("child's explicit itemNameKey overrides parent's")
+      void childOverridesItemNameKey() {
+        Item item = new ChildContainer().getItem("name");
+        assertThat(item.getItemNameKey()).isEqualTo("child.name");
+      }
+
+      @Test
+      @DisplayName("child inherits itemNameKey from parent when not set in child")
+      void childInheritsItemNameKey() {
+        Item item = new ChildContainerWithoutItemNameKey().getItem("name");
+        assertThat(item.getItemNameKey()).isEqualTo("parent.name");
+      }
+
+      @Test
+      @DisplayName("child inherits item from parent when not present in child at all")
+      void childInheritsEntireItemFromParent() {
+        Item item = new ChildContainerWithoutItemNameKey().getItem("password");
+        assertThat(item.getItemNameKey()).isEqualTo("parent.password");
+        assertThat(item.getShowsValue()).isFalse();
+      }
+
+      @Test
+      @DisplayName("child inherits hideValue from parent when not set in child")
+      void childInheritsShowsValue() {
+        // ChildContainerWithoutItemNameKey has Item("name") with no hideValue - parent has hideValue on password
+        // Create a case where child redefines password without hideValue
+        ItemContainer child = new ParentContainer() {
+          @Override
+          public Item[] customizedItems() {
+            return new Item[]{new Item("password").itemNameKey("child.password")};
+          }
+        };
+        Item item = child.getItem("password");
+        assertThat(item.getItemNameKey()).isEqualTo("child.password");
+        assertThat(item.getShowsValue()).isFalse(); // inherited from parent
+      }
+    }
+
+    @Nested
+    @DisplayName("allCustomizedPropertyPaths")
+    class AllCustomizedPropertyPaths {
+
+      @Test
+      @DisplayName("returns paths declared at this level")
+      void singleLevel() {
+        ItemContainer c = new ItemContainer() {
+          @Override
+          public Item[] customizedItems() {
+            return new Item[]{new Item("alpha"), new Item("beta")};
+          }
+        };
+        assertThat(c.allCustomizedPropertyPaths()).containsExactlyInAnyOrder("alpha", "beta");
+      }
+
+      @Test
+      @DisplayName("returns empty list when customizedItems is empty")
+      void emptyCustomizedItems() {
+        assertThat(new SimpleContainer().allCustomizedPropertyPaths()).isEmpty();
+      }
+
+      @Test
+      @DisplayName("aggregates paths from all hierarchy levels without duplicates")
+      void multiLevelDeduplication() {
+        assertThat(new ChildContainer().allCustomizedPropertyPaths())
+            .containsExactlyInAnyOrder("name", "password");
+      }
+
+      @Test
+      @DisplayName("child-level paths appear before parent-level paths")
+      void childPathsFirst() {
+        java.util.List<String> paths = new ChildContainer().allCustomizedPropertyPaths();
+        assertThat(paths.indexOf("name")).isLessThan(paths.indexOf("password"));
+      }
+    }
+
+    @Test
+    @DisplayName("two full-index forms that normalize to the same path are treated as duplicate")
+    void fullFormDuplicatesDetected() {
+      UserListContainer c = new UserListContainer(
+          new Item("userList[1].name"),
+          new Item("userList[2].name"));
+      assertThatThrownBy(() -> c.getItem("userList[1].name"))
+          .isInstanceOf(IllegalStateException.class);
     }
   }
 }

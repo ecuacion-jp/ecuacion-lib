@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.core.jakartavalidation.bean;
+package jp.ecuacion.lib.core.jakartavalidation.internal;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.metadata.ConstraintDescriptor;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
-import jp.ecuacion.lib.core.util.MessageUtil;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -114,7 +114,7 @@ public class ConstraintViolationBean<T> {
 
     List<@NonNull String> propertyPathList = List.of(propertyPaths);
     for (String fullPropertyPath : propertyPathList) {
-      itemList.add(MessageUtil.getItem(fullPropertyPath, rootBean, leafBean));
+      itemList.add(ItemUtil.resolveItem(fullPropertyPath, rootBean));
     }
 
     embeddedParamMap.put("invalidValue", invalidValue);

@@ -25,7 +25,6 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.constant;
   exports jp.ecuacion.lib.core.exception;
   exports jp.ecuacion.lib.core.item;
-  exports jp.ecuacion.lib.core.jakartavalidation.bean;
   exports jp.ecuacion.lib.core.jakartavalidation.constraints;
   exports jp.ecuacion.lib.core.jakartavalidation.constraintvalidator;
   exports jp.ecuacion.lib.core.logging;
@@ -68,6 +67,19 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.EnumNamesProvider;
   uses jp.ecuacion.lib.core.spi.EnumNamesBaseProvider;
   uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
+
+  // apps: constants
+  uses jp.ecuacion.lib.core.spi.ConstantsProvider;
+  uses jp.ecuacion.lib.core.spi.ConstantsBaseProvider;
+  uses jp.ecuacion.lib.core.spi.ConstantsCoreProvider;
+
+  // apps: messages_with_item_names
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesBaseProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesCoreProvider;
+
+  // apps: ValidationMessagesPatternDescriptions
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsProvider;
 
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesUtilExcelTableProvider;
@@ -119,8 +131,8 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.test.spi.internal.ApplicationLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.MessagesLibCoreTestProviderImpl;
-  provides jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider
-      with jp.ecuacion.lib.core.test.spi.internal.StringsLibCoreTestProviderImpl;
+  provides jp.ecuacion.lib.core.test.spi.ConstantsLibCoreTestProvider
+      with jp.ecuacion.lib.core.test.spi.internal.ConstantsLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider
       with jp.ecuacion.lib.core.test.spi.internal.EnumNamesLibCoreTestProviderImpl;
   provides jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider
@@ -130,7 +142,7 @@ module jp.ecuacion.lib.core {
 
   uses jp.ecuacion.lib.core.test.spi.ApplicationLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.MessagesLibCoreTestProvider;
-  uses jp.ecuacion.lib.core.test.spi.StringsLibCoreTestProvider;
+  uses jp.ecuacion.lib.core.test.spi.ConstantsLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.EnumNamesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesLibCoreTestProvider;
   uses jp.ecuacion.lib.core.test.spi.ValidationMessagesWithItemNamesLibCoreTestProvider;

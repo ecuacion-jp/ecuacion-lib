@@ -21,9 +21,10 @@ jobs:
           distribution: 'temurin'
 
       - name: Verify
-        run: mvn verify -Dwagon.skip=true -Dantrun.skip=true
+        run: mvn verify -Dwagon.skip=true
 
       - name: Upload coverage to Codecov
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main')
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

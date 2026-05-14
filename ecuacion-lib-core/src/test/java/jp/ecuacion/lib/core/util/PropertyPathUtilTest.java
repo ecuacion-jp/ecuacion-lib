@@ -199,81 +199,81 @@ public class PropertyPathUtilTest {
   }
 
   // -------------------------------------------------------------------------
-  // removeCollectionPart
+  // toFieldPath
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("removeCollectionPart")
+  @DisplayName("toFieldPath")
   class RemoveCollectionPart {
 
     @Test
     @DisplayName("plain field is unchanged")
     void plainField() {
-      assertThat(PropertyPathUtil.removeCollectionPart("field")).isEqualTo("field");
-      assertThat(PropertyPathUtil.removeCollectionPart("bean.field")).isEqualTo("bean.field");
+      assertThat(PropertyPathUtil.toFieldPath("field")).isEqualTo("field");
+      assertThat(PropertyPathUtil.toFieldPath("bean.field")).isEqualTo("bean.field");
     }
 
     @Test
     @DisplayName("list node strips index and element marker")
     void listNode() {
-      assertThat(PropertyPathUtil.removeCollectionPart("strList[0]." + L)).isEqualTo("strList");
-      assertThat(PropertyPathUtil.removeCollectionPart("bean.strList[0]." + L))
+      assertThat(PropertyPathUtil.toFieldPath("strList[0]." + L)).isEqualTo("strList");
+      assertThat(PropertyPathUtil.toFieldPath("bean.strList[0]." + L))
           .isEqualTo("bean.strList");
     }
 
     @Test
     @DisplayName("bean list node strips only the index")
     void beanListNode() {
-      assertThat(PropertyPathUtil.removeCollectionPart("userList[1].name"))
+      assertThat(PropertyPathUtil.toFieldPath("userList[1].name"))
           .isEqualTo("userList.name");
     }
 
     @Test
     @DisplayName("map key node strips the key qualifier")
     void mapKeyNode() {
-      assertThat(PropertyPathUtil.removeCollectionPart("strMap<K>[]." + MK)).isEqualTo("strMap");
+      assertThat(PropertyPathUtil.toFieldPath("strMap<K>[]." + MK)).isEqualTo("strMap");
     }
   }
 
   // -------------------------------------------------------------------------
-  // removeIndex
+  // toIndexlessPath
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("removeIndex")
+  @DisplayName("toIndexlessPath")
   class RemoveIndex {
 
     @Test
     @DisplayName("plain field is unchanged")
     void plainField() {
-      assertThat(PropertyPathUtil.removeIndex("field")).isEqualTo("field");
+      assertThat(PropertyPathUtil.toIndexlessPath("field")).isEqualTo("field");
     }
 
     @Test
     @DisplayName("list: index removed and element marker stripped")
     void list() {
-      assertThat(PropertyPathUtil.removeIndex("stringList[1]." + L)).isEqualTo("stringList[]");
-      assertThat(PropertyPathUtil.removeIndex("stringList[1]." + L + "[2]." + L))
+      assertThat(PropertyPathUtil.toIndexlessPath("stringList[1]." + L)).isEqualTo("stringList[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("stringList[1]." + L + "[2]." + L))
           .isEqualTo("stringList[][]");
-      assertThat(PropertyPathUtil.removeIndex("userList[1].name")).isEqualTo("userList[].name");
+      assertThat(PropertyPathUtil.toIndexlessPath("userList[1].name")).isEqualTo("userList[].name");
     }
 
     @Test
     @DisplayName("set: element marker stripped")
     void set() {
-      assertThat(PropertyPathUtil.removeIndex("stringSet[]." + S)).isEqualTo("stringSet[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("stringSet[]." + S)).isEqualTo("stringSet[]");
     }
 
     @Test
     @DisplayName("map value: index removed and element marker stripped")
     void mapValue() {
-      assertThat(PropertyPathUtil.removeIndex("strMap[key1]." + MV)).isEqualTo("strMap[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("strMap[key1]." + MV)).isEqualTo("strMap[]");
     }
 
     @Test
     @DisplayName("map key: element marker stripped")
     void mapKey() {
-      assertThat(PropertyPathUtil.removeIndex("strMap<K>[]." + MK)).isEqualTo("strMap<K>[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("strMap<K>[]." + MK)).isEqualTo("strMap<K>[]");
     }
   }
 }

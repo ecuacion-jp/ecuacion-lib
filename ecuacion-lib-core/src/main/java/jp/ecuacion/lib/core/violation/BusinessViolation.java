@@ -40,19 +40,18 @@ public class BusinessViolation {
   private String messageId;
 
   /**
-   * message Arguments.
-   *
-   * <p>{@code null} is not allowed for the value of each element
-   *     because if you want to hold {@code null}, put it in {@code Arg},
-   *     {@code Arg} doesn't have to be {@code null}.
-   *     And an array itself cannot be {@code null}.</p>
+   * message Arguments. Elements may be plain {@code Object}s or {@link Arg} instances,
+   *     and each element can be {@code null}.
    */
-  private @NonNull Arg[] messageArgs;
+  private @Nullable Object[] messageArgs;
 
   /**
-   * RootBean. Put the object field with {@code itemPropertyPath} has.
+   * Keys used to look up item display names from {@code item_names.properties}.
+   *
+   * <p>These keys are used to resolve {@code {item_name}} placeholders in
+   *     {@code messages_with_item_names.properties} at message rendering time.</p>
    */
-  private @Nullable Object rootBean;
+  private @NonNull String[] itemNameKeys;
 
   /**
    * An array of item propertyPath.
@@ -69,9 +68,10 @@ public class BusinessViolation {
    * Constructs a new instance with {@code messageId} and {@code messageArgs}.
    *
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
-  public BusinessViolation(String messageId, @Nullable String... messageArgs) {
+  public BusinessViolation(String messageId, @Nullable Object... messageArgs) {
     this(new String[] {}, messageId, messageArgs);
   }
 
@@ -81,63 +81,28 @@ public class BusinessViolation {
    *
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
   public BusinessViolation(@NonNull String[] itemPropertyPaths, String messageId,
-      @Nullable String... messageArgs) {
-    this(null, itemPropertyPaths, messageId, messageArgs);
+      @Nullable Object... messageArgs) {
+    this(new String[] {}, itemPropertyPaths, messageId, messageArgs);
   }
 
   /**
-   * Constructs a new instance with {@code itemPropertyPaths},
+   * Constructs a new instance with {@code itemNameKeys}, {@code itemPropertyPaths},
    *     {@code messageId} and {@code messageArgs}.
    *
-   * @param rootBean rootBean
+   * @param itemNameKeys keys to look up item display names from {@code item_names.properties};
+   *     used to resolve {@code {item_name}} in messages
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
+   * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
+   *     may be mixed. Each element can be {@code null}.
    */
-  public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
-      String messageId, @Nullable String... messageArgs) {
-    this(rootBean, itemPropertyPaths, messageId,
-        Arrays.stream(messageArgs).map(arg -> Arg.string(arg)).toArray(Arg[]::new));
-  }
-
-  /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
-   *
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public BusinessViolation(String messageId, @NonNull Arg[] messageArgs) {
-    this(new @NonNull String[] {}, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPaths},
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param itemPropertyPaths the itemPropertyPaths related to the violation
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public BusinessViolation(@NonNull String[] itemPropertyPaths, String messageId,
-      @NonNull Arg[] messageArgs) {
-    this(null, itemPropertyPaths, messageId, messageArgs);
-  }
-
-  /**
-   * Constructs a new instance with {@code itemPropertyPaths},
-   *     {@code messageId} and {@code messageArgs}.
-   *
-   * @param rootBean rootBean
-   * @param itemPropertyPaths the itemPropertyPaths related to the violation
-   * @param messageId message ID
-   * @param messageArgs message Arguments. Each element can be {@code null}.
-   */
-  public BusinessViolation(@Nullable Object rootBean, @NonNull String[] itemPropertyPaths,
-      String messageId, @NonNull Arg[] messageArgs) {
-    this.rootBean = rootBean;
+  public BusinessViolation(@NonNull String[] itemNameKeys, @NonNull String[] itemPropertyPaths,
+      String messageId, @Nullable Object... messageArgs) {
+    this.itemNameKeys = itemNameKeys;
     this.itemPropertyPaths = itemPropertyPaths;
     this.messageId = ObjectsUtil.requireNonNull(messageId);
     this.messageArgs = messageArgs;
@@ -145,10 +110,10 @@ public class BusinessViolation {
 
   @Override
   public String toString() {
-    return "{" + "message : \"" + PropertiesFileUtil.getMessage(Locale.ROOT, messageId, messageArgs)
-        + "\", " + "messageId : \"" + messageId + "\", " + "messageArgs : \""
-        + Arrays.toString(messageArgs) + "\", " + "itemPropertyPaths : \""
-        + Arrays.toString(itemPropertyPaths) + "\"}";
+    return "{" + "message : \""
+        + PropertiesFileUtil.getMessage(Locale.ROOT, messageId, messageArgs) + "\", "
+        + "messageId : \"" + messageId + "\", " + "messageArgs : \"" + Arrays.toString(messageArgs)
+        + "\", " + "itemPropertyPaths : \"" + Arrays.toString(itemPropertyPaths) + "\"}";
   }
 
   /**
@@ -165,17 +130,17 @@ public class BusinessViolation {
    *
    * @return messageArgs
    */
-  public @NonNull Arg[] getMessageArgs() {
+  public @Nullable Object[] getMessageArgs() {
     return messageArgs;
   }
 
   /**
-   * Gets rootBean.
-   * 
-   * @return rootBean
+   * Gets itemNameKeys.
+   *
+   * @return itemNameKeys
    */
-  public @Nullable Object getRootBean() {
-    return rootBean;
+  public @NonNull String[] getItemNameKeys() {
+    return itemNameKeys;
   }
 
   /**

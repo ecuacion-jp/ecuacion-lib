@@ -16,9 +16,9 @@
 package jp.ecuacion.lib.core.item;
 
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
-import jp.ecuacion.lib.core.util.MessageUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -37,6 +37,12 @@ public class Item {
    *     It can be 'dept.name' when the field is in {@code dept} object.</p>
    */
   protected String propertyPath;
+
+  /**
+   * The original property path before index normalization.
+   * Used for display purposes (e.g., collection element index in item names).
+   */
+  private String displayPropertyPath;
 
   /**
    * A class part (= left part) of {@code itemNameKey}. 
@@ -76,21 +82,38 @@ public class Item {
 
   /**
    * False when the value should not be open to public (like password).
-   * 
+   *
    * <p>Default value is {@code true}.</p>
    */
   protected boolean showsValue = true;
 
+  /** Tracks whether {@code itemNameKey()} was explicitly called. */
+  private boolean itemNameKeyExplicitlySet = false;
+
+  /** Tracks whether {@code hideValue()} or {@code showsValue(boolean)} was explicitly called. */
+  private boolean showsValueExplicitlySet = false;
+
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
-   * 
-   * <p>You cannot set recordPropertyPath here.
-   *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
-   * 
+   *
+   * <p>Application code should not call this constructor directly in most cases.
+   *     Use {@link jp.ecuacion.lib.core.util.ItemUtil#resolveItem(String, Object)} or
+   *     {@code ItemContainer#getItem(String)} to obtain an {@code Item} instance.
+   *     Direct construction is intended only when implementing
+   *     {@code ItemContainer#customizedItems()}.</p>
+   *
+   * <p>The given {@code propertyPath} is normalized by
+   *     {@link PropertyPathUtil#toIndexlessPath(String)} when stored.
+   *     Both the runtime propertyPath form (e.g., {@code bookList[1].title}) and the
+   *     simplified form (e.g., {@code bookList[].title}) are therefore equivalent
+   *     and can be used interchangeably.</p>
+   *
    * @param propertyPath itemPropertyPath
    */
   public Item(@RequireNonEmpty String propertyPath) {
-    this.propertyPath = ObjectsUtil.requireNonEmpty(propertyPath);
+    String validated = ObjectsUtil.requireNonEmpty(propertyPath);
+    this.displayPropertyPath = validated;
+    this.propertyPath = PropertyPathUtil.toIndexlessPath(validated);
   }
 
   /**
@@ -113,12 +136,17 @@ public class Item {
     this.itemNameKeyField =
         itemNameKey.contains(".") ? itemNameKey.substring(itemNameKey.lastIndexOf(".") + 1)
             : itemNameKey;
+    this.itemNameKeyExplicitlySet = true;
 
     return this;
   }
 
   public String getPropertyPath() {
     return propertyPath;
+  }
+
+  public String getDisplayPropertyPath() {
+    return displayPropertyPath;
   }
 
   /**
@@ -128,54 +156,6 @@ public class Item {
    */
   public boolean setsItemNameKeyClassExplicitly() {
     return itemNameKeyClassSetExplicitly != null;
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
-   *     with {@code defaultItemNameKeyClass = null}.</p>
-   */
-  public String getItemNameKey() {
-    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
-        itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
-  }
-
-  /**
-   * Returns {@code itemNameKey} value.
-   * 
-   * <p>See {@code MessageUtil.getItemNameKey(@Nullable String defaultItemNameKeyClass)} 
-   *     with {@code defaultItemNameKeyClass = null}.</p>
-   */
-  public String getItemNameKey(Object rootBean) {
-    String leafBeanPropertyPath =
-        propertyPath.contains(".") ? propertyPath.substring(0, propertyPath.lastIndexOf(".")) : "";
-    Object leafBean = ReflectionUtil.getLeafBean(rootBean, leafBeanPropertyPath);
-
-    return MessageUtil.getItemNameKey(itemNameKeyClassSetExplicitly, rootBean, leafBean.getClass(),
-        leafBean.getClass().getSimpleName(), itemNameKeyField, propertyPath);
-  }
-
-  /**
-   * Hides value from error messages and so on.
-   */
-  public Item hideValue() {
-    showsValue = false;
-
-    return this;
-  }
-
-  /**
-   * Shows value.
-   */
-  public Item showsValue(boolean showsValue) {
-    this.showsValue = showsValue;
-
-    return this;
-  }
-
-  public boolean getShowsValue() {
-    return showsValue;
   }
 
   /**
@@ -191,5 +171,80 @@ public class Item {
 
   public void setItemNameKeyClassFromClassName(String itemNameKeyClassFromClassName) {
     this.itemNameKeyClassFromClassName = itemNameKeyClassFromClassName;
+  }
+
+  /**
+   * Returns {@code itemNameKey} value.
+   */
+  public String getItemNameKey() {
+    return computeItemNameKey(itemNameKeyClassSetExplicitly, itemNameKeyClassFromAnnotation,
+        itemNameKeyClassFromClassName, itemNameKeyField, propertyPath);
+  }
+
+  private static String computeItemNameKey(@Nullable String explicitlySetItemNameKeyClass,
+      @Nullable String itemNameKeyClassFromAnnotation,
+      @Nullable String itemNameKeyClassFromClassName, @Nullable String itemNameKeyField,
+      String propertyPath) {
+    @Nullable String tmpItemNameKeyClass;
+    String tmpItemNameKeyField;
+
+    if (StringUtils.isNotEmpty(explicitlySetItemNameKeyClass)) {
+      tmpItemNameKeyClass = explicitlySetItemNameKeyClass;
+    } else if (StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)) {
+      tmpItemNameKeyClass = itemNameKeyClassFromAnnotation;
+    } else {
+      tmpItemNameKeyClass = itemNameKeyClassFromClassName;
+    }
+
+    if (!StringUtils.isEmpty(itemNameKeyField)) {
+      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
+    } else {
+      tmpItemNameKeyField =
+          PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));
+    }
+
+    return StringUtils.uncapitalize(tmpItemNameKeyClass) + "." + tmpItemNameKeyField;
+  }
+
+  /**
+   * Hides value from error messages and so on.
+   */
+  public Item hideValue() {
+    showsValue = false;
+    showsValueExplicitlySet = true;
+
+    return this;
+  }
+
+  /**
+   * Shows value.
+   */
+  public Item showsValue(boolean showsValue) {
+    this.showsValue = showsValue;
+    showsValueExplicitlySet = true;
+
+    return this;
+  }
+
+  /**
+   * Copies unset properties from {@code parent}.
+   *
+   * <p>Only properties not explicitly set on this item are inherited.
+   *     Called by {@link ItemContainer#getItem(String)} when walking the class hierarchy.</p>
+   */
+  protected void mergeFromParent(Item parent) {
+    if (!itemNameKeyExplicitlySet && parent.itemNameKeyExplicitlySet) {
+      this.itemNameKeyClassSetExplicitly = parent.itemNameKeyClassSetExplicitly;
+      this.itemNameKeyField = parent.itemNameKeyField;
+      this.itemNameKeyExplicitlySet = true;
+    }
+    if (!showsValueExplicitlySet && parent.showsValueExplicitlySet) {
+      this.showsValue = parent.showsValue;
+      this.showsValueExplicitlySet = true;
+    }
+  }
+
+  public boolean getShowsValue() {
+    return showsValue;
   }
 }

@@ -19,8 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.ArgKind;
-import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilValueGetter;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg.ArgKind;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,14 +33,14 @@ public class PropertiesFileUtilTest {
 
   @BeforeAll
   public static void beforeAll() {
-    PropertiesFileUtilValueGetter.addToDynamicPostfixList("lib-core-test");
+    PropertiesFileUtilBundleReader.addToDynamicPostfixList("lib-core-test");
   }
 
   @Test
   @DisplayName("getMessage with number format arg formats the number correctly")
   public void getMessage_objectArgs_numberFormat() {
     String result = PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_NUMBER_FORMAT",
-        new Object[]{1234567});
+        new Object[] {1234567});
     assertThat(result).isEqualTo("formatted: 1,234,567");
   }
 
@@ -101,93 +102,77 @@ public class PropertiesFileUtilTest {
   class GetMessageWithArgArray {
 
     @Test
-    @DisplayName("Arg.string substituted into {0} placeholder")
-    void argString() {
-      Arg[] args = new Arg[]{Arg.string("hello")};
-      assertThat(PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", args))
-          .isEqualTo("value=hello");
+    @DisplayName("plain Object substituted into {0} placeholder")
+    void plainObject() {
+      assertThat(
+          PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", "hello"))
+              .isEqualTo("value=hello");
     }
 
     @Test
     @DisplayName("Arg.message resolves message ID then substitutes")
     void argMessage() {
-      Arg[] args = new Arg[]{Arg.message("MSG1")};
-      assertThat(PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", args))
-          .isEqualTo("value=message 1.");
+      Arg[] args = new Arg[] {Arg.message("MSG1")};
+      assertThat(
+          PropertiesFileUtil.getMessage(Locale.ENGLISH, "MSG_WITH_STRING_ARG", (Object[]) args))
+              .isEqualTo("value=message 1.");
     }
   }
 
   // -------------------------------------------------------------------------
-  // getStringFromArg
+  // Arg#resolveAsString
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("getStringFromArg")
-  class GetStringFromArg {
-
-    @Test
-    @DisplayName("STRING kind: returns the string as-is")
-    void string() {
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, Arg.string("hello")))
-          .isEqualTo("hello");
-    }
-
-    @Test
-    @DisplayName("STRING kind: null input stored as literal string 'null'")
-    void stringNull() {
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, Arg.string(null)))
-          .isEqualTo("null");
-    }
+  @DisplayName("Arg#resolveAsString")
+  class ResolveAsString {
 
     @Test
     @DisplayName("MESSAGE_ID kind: resolves message from properties")
     void messageId() {
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, Arg.message("MSG1")))
-          .isEqualTo("message 1.");
+      assertThat(Arg.message("MSG1").resolveAsString(Locale.ENGLISH)).isEqualTo("message 1.");
     }
 
     @Test
     @DisplayName("FORMATTED_STRING kind: substitutes args into format string")
     void formattedString() {
-      Arg formatted = Arg.formattedString("Hello {0}!", Arg.string("world"));
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, formatted))
-          .isEqualTo("Hello world!");
+      assertThat(Arg.formattedString("Hello {0}!", "world")
+          .resolveAsString(Locale.ENGLISH)).isEqualTo("Hello world!");
     }
 
     @Test
     @DisplayName("FORMATTED_STRING with message arg: resolves inner message then formats")
     void formattedStringWithMessageArg() {
-      Arg formatted = Arg.formattedString("value is {0}", Arg.message("MSG1"));
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, formatted))
-          .isEqualTo("value is message 1.");
+      assertThat(Arg.formattedString("value is {0}", Arg.message("MSG1"))
+          .resolveAsString(Locale.ENGLISH)).isEqualTo("value is message 1.");
     }
   }
 
   // -------------------------------------------------------------------------
-  // getString / hasString
+  // getConstant / hasConstant
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("getString / hasString")
-  class Strings {
+  @DisplayName("getConstant / hasConstant")
+  class Constants {
 
     @Test
-    @DisplayName("getString: returns value from strings.properties")
-    void getString() {
-      assertThat(PropertiesFileUtil.getString("TEST_STRINGS_KEY"))
-          .isEqualTo("test strings value");
+    @DisplayName("getConstant: returns value from constants.properties")
+    void getConstant() {
+      assertThat(PropertiesFileUtil.getConstant("TEST_CONSTANTS_KEY"))
+          .isEqualTo("test constants value");
     }
 
     @Test
-    @DisplayName("hasString: true for existing key")
-    void hasString_existing() {
-      assertThat(PropertiesFileUtil.hasString("TEST_STRINGS_KEY")).isTrue();
+    @DisplayName("hasConstant: true for existing key")
+    void hasConstant_existing() {
+      assertThat(PropertiesFileUtil.hasConstant("TEST_CONSTANTS_KEY")).isTrue();
     }
 
     @Test
-    @DisplayName("hasString: false for non-existing key")
-    void hasString_missing() {
-      assertThat(PropertiesFileUtil.hasString("NO_SUCH_STRINGS_KEY")).isFalse();
+    @DisplayName("hasConstant: false for non-existing key")
+    void hasConstant_missing() {
+      assertThat(PropertiesFileUtil.hasConstant("NO_SUCH_CONSTANTS_KEY")).isFalse();
     }
   }
 
@@ -230,8 +215,7 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("getEnumName: returns value from enum_names.properties")
     void getEnumName() {
-      assertThat(PropertiesFileUtil.getEnumName(null, "TEST_ENUM.A"))
-          .isEqualTo("Enum Value A");
+      assertThat(PropertiesFileUtil.getEnumName("TEST_ENUM.A")).isEqualTo("Enum Value A");
     }
 
     @Test
@@ -244,40 +228,6 @@ public class PropertiesFileUtilTest {
     @DisplayName("hasEnumName: false for non-existing key")
     void hasEnumName_missing() {
       assertThat(PropertiesFileUtil.hasEnumName("NO_SUCH_ENUM_KEY")).isFalse();
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // get(fileKind, ...) / has(fileKind, ...)
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("get and has with fileKind string")
-  class AbstractProperty {
-
-    @Test
-    @DisplayName("get(fileKind, key): returns value for messages kind")
-    void get_messages() {
-      assertThat(PropertiesFileUtil.get("messages", "MSG1")).isEqualTo("message 1.");
-    }
-
-    @Test
-    @DisplayName("get(fileKind, locale, key): returns localized value")
-    void get_messages_withLocale() {
-      assertThat(PropertiesFileUtil.get("messages", Locale.ENGLISH, "MSG1"))
-          .isEqualTo("message 1.");
-    }
-
-    @Test
-    @DisplayName("has(fileKind, key): true for existing key")
-    void has_existing() {
-      assertThat(PropertiesFileUtil.has("messages", "MSG1")).isTrue();
-    }
-
-    @Test
-    @DisplayName("has(fileKind, key): false for non-existing key")
-    void has_missing() {
-      assertThat(PropertiesFileUtil.has("messages", "NO_SUCH_KEY")).isFalse();
     }
   }
 
@@ -300,12 +250,6 @@ public class PropertiesFileUtilTest {
     void missing() {
       assertThat(PropertiesFileUtil.hasMessage("NO_SUCH_KEY")).isFalse();
     }
-
-    @Test
-    @DisplayName("with locale: true for existing key")
-    void existingWithLocale() {
-      assertThat(PropertiesFileUtil.hasMessage(Locale.ENGLISH, "MSG1")).isTrue();
-    }
   }
 
   // -------------------------------------------------------------------------
@@ -319,25 +263,15 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("getArgKind: returns correct kind for each factory")
     void getArgKind() {
-      assertThat(Arg.string("x").getArgKind()).isEqualTo(ArgKind.STRING);
       assertThat(Arg.message("x").getArgKind()).isEqualTo(ArgKind.MESSAGE_ID);
       assertThat(Arg.formattedString("x").getArgKind()).isEqualTo(ArgKind.FORMATTED_STRING);
-    }
-
-    @Test
-    @DisplayName("strings(String...): creates array of STRING args")
-    void strings() {
-      Arg[] args = Arg.strings("hello", "world");
-      assertThat(args).hasSize(2);
-      assertThat(args[0].getArgString()).isEqualTo("hello");
-      assertThat(args[1].getArgString()).isEqualTo("world");
     }
 
     @Test
     @DisplayName("formattedString(String): no-arg version returns the string as-is")
     void formattedStringNoArgs() {
       Arg arg = Arg.formattedString("plain text");
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
+      assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("plain text");
     }
 
@@ -345,41 +279,44 @@ public class PropertiesFileUtilTest {
     @DisplayName("message(String, String[]): resolves with string args")
     void messageWithStringArgs() {
       Arg arg = Arg.message("MSG_WITH_STRING_ARG", "hello");
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
+      assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("value=hello");
     }
 
     @Test
-    @DisplayName("message(String, Arg[]): resolves with Arg args")
+    @DisplayName("message(String, Object...): resolves with plain Object arg")
     void messageWithArgArray() {
-      Arg arg = Arg.message("MSG_WITH_STRING_ARG", new Arg[]{Arg.string("world")});
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
+      Arg arg = Arg.message("MSG_WITH_STRING_ARG", "world");
+      assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("value=world");
     }
 
     @Test
-    @DisplayName("get(String[], String): resolves message from specified file kinds")
+    @DisplayName("get(Enum[], String): resolves message from specified file kinds")
     void getWithFileKinds() {
-      Arg arg = Arg.get(new String[]{"MESSAGES"}, "MSG1");
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
+      Arg arg = Arg.fromFileKinds(
+          new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, "MSG1");
+      assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("message 1.");
     }
 
     @Test
-    @DisplayName("get(String[], String, String[]): resolves with string args")
+    @DisplayName("get(Enum[], String, String[]): resolves with string args")
     void getWithFileKindsAndStringArgs() {
-      Arg arg = Arg.get(new String[]{"MESSAGES"}, "MSG_WITH_STRING_ARG", "test");
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
+      Arg arg =
+          Arg.fromFileKinds(new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
+              "MSG_WITH_STRING_ARG", "test");
+      assertThat(arg.resolveAsString(Locale.ENGLISH))
           .isEqualTo("value=test");
     }
 
     @Test
-    @DisplayName("get(String[], String, Arg[]): resolves with Arg args")
+    @DisplayName("get(Enum[], String, Object...): resolves with plain Object arg")
     void getWithFileKindsAndArgArray() {
       Arg arg =
-          Arg.get(new String[]{"MESSAGES"}, "MSG_WITH_STRING_ARG", new Arg[]{Arg.string("ok")});
-      assertThat(PropertiesFileUtil.getStringFromArg(Locale.ENGLISH, arg))
-          .isEqualTo("value=ok");
+          Arg.fromFileKinds(new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
+              "MSG_WITH_STRING_ARG", "ok");
+      assertThat(arg.resolveAsString(Locale.ENGLISH)).isEqualTo("value=ok");
     }
   }
 }

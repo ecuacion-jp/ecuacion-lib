@@ -24,7 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,10 +33,9 @@ import java.util.Set;
 import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
+import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.violation.BusinessViolation;
 import jp.ecuacion.lib.core.violation.Violations;
 import jp.ecuacion.lib.core.violation.Violations.MessageParameters;
@@ -190,7 +188,7 @@ public class ExceptionUtil {
     for (ConstraintViolation<T> cv : constraintViolations) {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-              ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
+              cv, ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
     }
     return result;
   }
@@ -311,7 +309,7 @@ public class ExceptionUtil {
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
-            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, cv,
                 ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
@@ -377,7 +375,7 @@ public class ExceptionUtil {
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
       result
           .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-              ConstraintViolationBean.createConstraintViolationBean(cv),
+              cv, ConstraintViolationBean.createConstraintViolationBean(cv),
               violations.messageParameters()));
     }
 
@@ -389,66 +387,21 @@ public class ExceptionUtil {
     return result;
   }
 
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex) {
-    return getMessageList(ex.getViolations());
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex,
-      @Nullable Locale locale) {
-    return getMessageList(ex.getViolations(), locale);
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(ex.getViolations(), isMessagesWithItemNamesAsDefault);
-  }
-
-  /**
-   * Returns message list from {@link ViolationException}.
-   *
-   * @param ex violation exception
-   * @param locale locale, may be {@code null} which is treated as {@code Locale.ROOT}.
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
-   * @return a list of messages
-   */
-  public static List<@NonNull String> getMessageList(ViolationException ex, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(ex.getViolations(), locale, isMessagesWithItemNamesAsDefault);
-  }
-
   private static String buildMessageFromConstraintViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, ConstraintViolationBean<?> bean,
-      MessageParameters messageParameters) {
+      boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
+      ConstraintViolationBean<?> bean, MessageParameters messageParameters) {
     String message = null;
     try {
       final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
 
-      // Get localize-needed message embedded parameters
-      Set<LocalizedEmbeddedParameter> embeddedParameterSet = getMessageParameterSet(bean);
+      // Put Arg-based parameters directly into the map (resolved by getValidationMessage).
+      addArgBasedParamsToMap(bean, map);
 
-      // Add parameters from messageParameterSet.
-      putMesageParameterSetToParamMap(locale, map, embeddedParameterSet,
-          messageParameters.showsItemNamePath());
+      // Merge external validator params (Arg and ItemNameParam values).
+      map.putAll(getExternalMessageParams(cv, bean));
+
+      // Resolve ItemNameParam (item names) before formatWithArgs.
+      resolveItemNameParams(locale, map, messageParameters.showsItemNamePath());
 
       // If messageParameters.isMessageWithItemName() is not null (= explicitly specified),
       // it's prioritized over isMessagesWithItemNamesAsDefault.
@@ -457,9 +410,9 @@ public class ExceptionUtil {
           : isMessagesWithItemNamesAsDefault;
 
       String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
-      boolean isMessageDefined = isMessageWithItemName
-          ? PropertiesFileUtil.hasValidationMessageWithItemName(locale, messageKey)
-          : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
+      boolean isMessageDefined =
+          isMessageWithItemName ? PropertiesFileUtil.hasValidationMessageWithItemName(messageKey)
+              : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
       if (isMessageDefined) {
         message = isMessageWithItemName
             ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
@@ -479,13 +432,14 @@ public class ExceptionUtil {
 
       // add prefix and postfix messages.
       if (messageParameters.getMessagePrefix() != null) {
-        message = PropertiesFileUtil.getStringFromArg(locale,
-            Objects.requireNonNull(messageParameters.getMessagePrefix())) + message;
+        message =
+            Objects.requireNonNull(messageParameters.getMessagePrefix()).resolveAsString(locale)
+                + message;
       }
 
       if (messageParameters.getMessagePostfix() != null) {
-        message = message + PropertiesFileUtil.getStringFromArg(locale,
-            Objects.requireNonNull(messageParameters.getMessagePostfix()));
+        message = message
+            + Objects.requireNonNull(messageParameters.getMessagePostfix()).resolveAsString(locale);
       }
 
     } catch (MissingResourceException ignored) {
@@ -494,27 +448,39 @@ public class ExceptionUtil {
     return message;
   }
 
-  private static Set<LocalizedEmbeddedParameter> getMessageParameterSet(
-      ConstraintViolationBean<?> cvBean) {
-    Set<LocalizedEmbeddedParameter> rtnSet = new HashSet<>();
+  private static void addArgBasedParamsToMap(ConstraintViolationBean<?> cvBean,
+      Map<@NonNull String, @Nullable Object> map) {
     List<Item> beanList = cvBean.getItemList();
 
-    // invalidValue
     if (!beanList.get(0).getShowsValue()) {
       String key = "jp.ecuacion.lib.core.jakartavalidation.validator.displayStringForHiddenValue";
-      rtnSet.add(new LocalizedEmbeddedParameter("invalidValue",
-          new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES}, key));
-      // argMap.put(, PropertiesFileUtil.getMessage(locale, key));
+      map.put("invalidValue", Arg.message(key));
     }
+  }
 
-    // Obtain and put additional parameters for its violation message to messageParameterSet.
+  private static Map<@NonNull String, @Nullable Object> getExternalMessageParams(
+      ConstraintViolation<?> cv, ConstraintViolationBean<?> cvBean) {
+    Map<@NonNull String, @Nullable Object> rtnMap = new HashMap<>();
+
     String className = cvBean.getValidatorClass() + "MessageParameterCreator";
     if (ReflectionUtil.classExists(className)) {
-      rtnSet.addAll(((ValidatorMessageParameterCreator) ReflectionUtil.newInstance(className))
-          .create(cvBean, cvBean.getEmbeddedParamMap()));
+      rtnMap.putAll(((ValidatorMessageParameterCreator) ReflectionUtil.newInstance(className))
+          .create(cv, cvBean.getEmbeddedParamMap()));
     }
 
-    return rtnSet;
+    return rtnMap;
+  }
+
+  private static void resolveItemNameParams(@Nullable Locale locale,
+      final Map<@NonNull String, @Nullable Object> map, boolean showsItemNamePath) {
+    Map<@NonNull String, @Nullable Object> updates = new HashMap<>();
+    for (Map.Entry<@NonNull String, @Nullable Object> entry : map.entrySet()) {
+      if (entry.getValue() instanceof ValidatorMessageParameterCreator.ItemNameParam lep) {
+        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, Arrays.asList(lep.items()),
+            showsItemNamePath, Objects.requireNonNull(lep.rootBean())));
+      }
+    }
+    map.putAll(updates);
   }
 
   private static String getMessageFromBusinessViolation(Locale locale,
@@ -535,97 +501,36 @@ public class ExceptionUtil {
     String message = null;
     String messageKey = violation.getMessageId();
     if (isMessageWithItemName) {
+      Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
+      String[] itemNameKeys = violation.getItemNameKeys();
+      if (itemNameKeys.length > 0) {
+        List<@NonNull Item> itemList =
+            Arrays.stream(itemNameKeys).map(key -> new Item(key).itemNameKey(key)).toList();
+        String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
+        namedArgs.put("item_name", itemName);
+        namedArgs.put("0", itemName);
+      }
       message = PropertiesFileUtil.hasMessageWithItemName(messageKey)
-          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey,
-              violation.getMessageArgs())
-          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey,
-              new HashMap<>());
+          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey, namedArgs,
+              (Object[]) violation.getMessageArgs())
+          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, namedArgs);
     } else {
       message = PropertiesFileUtil.hasMessage(messageKey)
-          ? PropertiesFileUtil.getMessage(locale, messageKey, violation.getMessageArgs())
+          ? PropertiesFileUtil.getMessage(locale, messageKey, (Object[]) violation.getMessageArgs())
           : PropertiesFileUtil.getValidationMessage(locale, messageKey, new HashMap<>());
-    }
-
-    // Replace {0} to itemName.
-    if (message.contains("{0}") && violation.getRootBean() != null) {
-      Object rootBean = Objects.requireNonNull(violation.getRootBean());
-      List<@NonNull Item> itemList = Arrays.stream(violation.getItemPropertyPaths())
-          .map(path -> MessageUtil.getItem(path, rootBean, rootBean)).toList();
-
-      message = MessageFormat.format(message,
-          MessageUtil.getItemNames(locale, itemList, false, rootBean));
     }
 
     // add prefix and postfix messages.
     if (messageParameters.getMessagePrefix() != null) {
-      message = PropertiesFileUtil.getStringFromArg(locale,
-          Objects.requireNonNull(messageParameters.getMessagePrefix())) + message;
+      message = Objects.requireNonNull(messageParameters.getMessagePrefix()).resolveAsString(locale)
+          + message;
     }
 
     if (messageParameters.getMessagePostfix() != null) {
-      message = message + PropertiesFileUtil.getStringFromArg(locale,
-          Objects.requireNonNull(messageParameters.getMessagePostfix()));
+      message = message
+          + Objects.requireNonNull(messageParameters.getMessagePostfix()).resolveAsString(locale);
     }
 
     return message;
   }
-
-  private static void putMesageParameterSetToParamMap(Locale locale,
-      final Map<@NonNull String, @Nullable Object> map,
-      Set<LocalizedEmbeddedParameter> embeddedParameterSet, boolean showsItemNamePath) {
-    for (LocalizedEmbeddedParameter paramBean : embeddedParameterSet) {
-
-      // Put propertyFileKey as value when paramBean.fileKinds().length == 0.
-      if (paramBean.fileKinds().length == 0) {
-        map.put(paramBean.parameterKey(), paramBean.propertyFileKey());
-        continue;
-      }
-
-      String value = "";
-      for (PropertiesFileUtilFileKindEnum fileKind : paramBean.fileKinds()) {
-        if (paramBean.isItemName()) {
-          value =
-              MessageUtil.getItemNames(locale, Arrays.asList(paramBean.items()), showsItemNamePath,
-                  // always nonnull when paramBean.isItemName() == true
-                  Objects.requireNonNull(paramBean.rootBean()));
-
-        } else {
-          // Put return value of PropertiesFileUtil.get() even when key does not exist.
-          value = PropertiesFileUtil.get(fileKind.toString(), locale, paramBean.propertyFileKey(),
-              paramBean.args());
-
-        }
-
-        if (PropertiesFileUtil.has(fileKind.toString(), paramBean.propertyFileKey())) {
-          break;
-        }
-      }
-
-      map.put(paramBean.parameterKey(), value);
-    }
-  }
-
-  /**
-   * Stores parameters of information on a message for ValidationAppException.
-   * 
-   * <p>It is resolved to message value at ExceptionHandler
-   *     Because there is a locale there.</p>
-   *     
-   * <p>When you designate fileKinds = new PropertiesFileUtilFileKindEnum[] {} (length is zero),
-   *     propertyPathKey is set as the value.</p>
-   */
-  @SuppressWarnings("ArrayRecordComponent")
-  public static record LocalizedEmbeddedParameter(String parameterKey,
-      PropertiesFileUtilFileKindEnum[] fileKinds, boolean isItemName, Item @Nullable [] items,
-      @Nullable Object rootBean, String propertyFileKey, Arg... args) {
-
-    /**
-     * Constructs a new instance without itemName info.
-     */
-    public LocalizedEmbeddedParameter(String parameterKey,
-        PropertiesFileUtilFileKindEnum[] fileKinds, String propertyFileKey, Arg... args) {
-      this(parameterKey, fileKinds, false, null, null, propertyFileKey, args);
-    }
-  }
-
 }

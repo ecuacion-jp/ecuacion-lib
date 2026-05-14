@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
@@ -118,7 +118,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   }
 
   boolean getSatisfiesCondition(Object instance) {
-    Object valueOfConditionPropertyPath = ReflectionUtil.getValue(instance, conditionPropertyPath);
+    Object valueOfConditionPropertyPath =
+        PropertyPathUtil.getValue(instance, conditionPropertyPath);
 
     return switch (conditionPattern) {
       case NULL, NOT_NULL -> checkNull(valueOfConditionPropertyPath);
@@ -231,7 +232,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     conditionValueRegexpMustNotSet();
 
     Object valueOfConditionValueField =
-        ReflectionUtil.getValue(instance, conditionValuePropertyPath);
+        PropertyPathUtil.getValue(instance, conditionValuePropertyPath);
 
     List<Object> valueListOfConditionValueField;
     if (valueOfConditionValueField instanceof Object[] arr) {

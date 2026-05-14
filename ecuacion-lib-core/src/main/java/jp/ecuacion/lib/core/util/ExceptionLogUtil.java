@@ -16,8 +16,6 @@
 package jp.ecuacion.lib.core.util;
 
 import java.util.Locale;
-import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.logging.internal.EclibLogger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -26,6 +24,9 @@ import org.jspecify.annotations.Nullable;
 public class ExceptionLogUtil {
 
   private static final String RT = "\n";
+
+  /** Message used when a throwable argument is {@code null}. */
+  public static final String NULL_THROWABLE_MESSAGE = "(throwable argument is null)";
 
   /**
    * Returns strings or error log. All packages are shown in stack traces.
@@ -142,11 +143,7 @@ public class ExceptionLogUtil {
 
     String errMsg;
     if (th == null) {
-      errMsg = EclibLogger.NULL_THROWABLE_MESSAGE;
-
-    } else if (th instanceof ViolationException ve) {
-      errMsg = th.getClass().getCanonicalName()
-          + ExceptionUtil.getMessageList(ve, locale, true).toString();
+      errMsg = NULL_THROWABLE_MESSAGE;
 
     } else {
       errMsg = th.getClass().getCanonicalName()

@@ -20,7 +20,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
+import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -55,7 +55,7 @@ public abstract class ClassValidator<A extends Annotation, T>
 
   private Object[] setValuesOfPropertyPaths(T object) {
     List<Object> list =
-        Arrays.stream(propertyPaths).map(path -> ReflectionUtil.getValue(object, path)).toList();
+        Arrays.stream(propertyPaths).map(path -> PropertyPathUtil.getValue(object, path)).toList();
 
     Object[] rtn = list.toArray(Object[]::new);
     return rtn;

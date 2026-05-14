@@ -15,13 +15,11 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
-import java.util.HashSet;
+import jakarta.validation.ConstraintViolation;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import jp.ecuacion.lib.core.jakartavalidation.bean.ConstraintViolationBean;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.ExceptionUtil.LocalizedEmbeddedParameter;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +33,10 @@ public class PatternWithDescriptionMessageParameterCreator
     implements ValidatorMessageParameterCreator {
 
   @Override
-  public Set<LocalizedEmbeddedParameter> create(ConstraintViolationBean<?> cv,
+  public Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap) {
 
-    Set<LocalizedEmbeddedParameter> messageParameterSet = new HashSet<>();
+    Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
     final String key = "description";
     String description = (String) paramMap.get(key);
@@ -47,11 +45,11 @@ public class PatternWithDescriptionMessageParameterCreator
       throw new RuntimeException("@PatternWithDescription needs " + key + " value.");
     }
 
-    messageParameterSet.add(new LocalizedEmbeddedParameter("description",
+    result.put("description", Arg.fromFileKinds(
         new PropertiesFileUtilFileKindEnum[] {
             PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-        Objects.requireNonNull((String) paramMap.get("description")), new Arg[] {}));
+        Objects.requireNonNull(description)));
 
-    return messageParameterSet;
+    return result;
   }
 }

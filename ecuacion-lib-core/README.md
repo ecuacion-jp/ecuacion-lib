@@ -30,7 +30,7 @@ It also provides some utilities used by other ecuacion modules and apps.
 
 ## Documentation
 
-- [javadoc](https://docs.ecuacion.jp/javadoc/apidocs/ecuacion-lib-core/)
+- [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-core/latest/index.html)
 
 ## Installation
 
