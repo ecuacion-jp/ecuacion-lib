@@ -81,6 +81,19 @@ public class ItemUtilTest {
     }
   }
 
+  private static class RootWithCustomChild {
+    private final ContainerWithCustomItem order;
+
+    RootWithCustomChild(ContainerWithCustomItem order) {
+      this.order = order;
+    }
+
+    @SuppressWarnings("unused")
+    public ContainerWithCustomItem getOrder() {
+      return order;
+    }
+  }
+
   // --- Tests ---
 
   @Nested
@@ -131,14 +144,10 @@ public class ItemUtilTest {
     }
 
     @Test
-    @DisplayName("first child implements ItemContainer: item resolved from child")
+    @DisplayName("rootBean is not ItemContainer but first child is: item resolved from child")
     void firstChildIsItemContainer() {
-      ContainerWithCustomItem child = new ContainerWithCustomItem();
-      RootWithContainerChild root = new RootWithContainerChild(
-          new SimpleContainer()) {
-      };
-      // Use ContainerWithCustomItem directly as child for itemNameKey resolution
-      Item item = ItemUtil.resolveItem("email", child);
+      RootWithCustomChild root = new RootWithCustomChild(new ContainerWithCustomItem());
+      Item item = ItemUtil.resolveItem("order.email", root);
       assertThat(item.getItemNameKey()).isEqualTo("custom.email");
     }
   }
