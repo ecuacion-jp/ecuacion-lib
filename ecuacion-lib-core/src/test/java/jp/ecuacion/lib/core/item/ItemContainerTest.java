@@ -206,6 +206,43 @@ public class ItemContainerTest {
       }
     }
 
+    @Nested
+    @DisplayName("allCustomizedPropertyPaths")
+    class AllCustomizedPropertyPaths {
+
+      @Test
+      @DisplayName("returns paths declared at this level")
+      void singleLevel() {
+        ItemContainer c = new ItemContainer() {
+          @Override
+          public Item[] customizedItems() {
+            return new Item[]{new Item("alpha"), new Item("beta")};
+          }
+        };
+        assertThat(c.allCustomizedPropertyPaths()).containsExactlyInAnyOrder("alpha", "beta");
+      }
+
+      @Test
+      @DisplayName("returns empty list when customizedItems is empty")
+      void emptyCustomizedItems() {
+        assertThat(new SimpleContainer().allCustomizedPropertyPaths()).isEmpty();
+      }
+
+      @Test
+      @DisplayName("aggregates paths from all hierarchy levels without duplicates")
+      void multiLevelDeduplication() {
+        assertThat(new ChildContainer().allCustomizedPropertyPaths())
+            .containsExactlyInAnyOrder("name", "password");
+      }
+
+      @Test
+      @DisplayName("child-level paths appear before parent-level paths")
+      void childPathsFirst() {
+        java.util.List<String> paths = new ChildContainer().allCustomizedPropertyPaths();
+        assertThat(paths.indexOf("name")).isLessThan(paths.indexOf("password"));
+      }
+    }
+
     @Test
     @DisplayName("two full-index forms that normalize to the same path are treated as duplicate")
     void fullFormDuplicatesDetected() {
