@@ -136,15 +136,11 @@ public class ValidateWhenValidatorMessageParameterCreator
             : List.of(Objects.requireNonNull(displayStringObj).toString());
 
     Arg valueArg = displayStringPp.isEmpty()
-        ? Arg.formattedString(MessageUtil.getValuesOfFormattedString(displayStringList))
-        : MessageUtil.getValuesArg(displayStringList);
+        ? MessageUtil.formatValues(displayStringList.toArray(String[]::new))
+        : MessageUtil.formatValuesWithResolution(displayStringList.toArray(String[]::new));
 
-    String[] strs = displayStringList.toArray(String[]::new);
-
-    Arg displayStringOfConditionValueArg;
-    displayStringOfConditionValueArg = strs.length > 1
+    return displayStringList.size() > 1
         ? Arg.message(commonMessagePrefix + ".messagePart.string.multiple", valueArg)
         : valueArg;
-    return displayStringOfConditionValueArg;
   }
 }

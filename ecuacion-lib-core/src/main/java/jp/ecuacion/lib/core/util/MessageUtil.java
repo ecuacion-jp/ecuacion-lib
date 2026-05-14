@@ -71,7 +71,7 @@ public class MessageUtil {
 
     String itemNameKey = item.getItemNameKey();
     List<@NonNull String> collectionLayerList =
-        extractCollectionLayers(PropertyPathUtil.getRightMostNode(item.getPropertyPath()));
+        extractCollectionLayers(PropertyPathUtil.getRightMostNode(item.getDisplayPropertyPath()));
 
     String itemName =
         prependSymbol + PropertiesFileUtil.getItemName(locale, itemNameKey) + appendSymbol;
@@ -162,7 +162,7 @@ public class MessageUtil {
 
     // Cut each itemNamePath and put them into a list.
     String leafBeanPropertyPath =
-        PropertyPathUtil.getPropertyPathWithoutRightMostNode(item.getPropertyPath());
+        PropertyPathUtil.getPropertyPathWithoutRightMostNode(item.getDisplayPropertyPath());
     List<@NonNull String> itemNamePathList = new ArrayList<>();
     String prefix = "";
     for (String node : PropertyPathUtil.getNodeList(leafBeanPropertyPath)) {
@@ -188,27 +188,41 @@ public class MessageUtil {
   }
 
   /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString) 
-   *     considering the prependSymbol, appendSymbol and the separator.
+   * Wraps each value with display symbols and joins them with a separator.
+   *
+   * <p>Values are treated as literal strings without any property-key resolution.
+   * Use this when the values themselves are already the final display strings.</p>
+   *
+   * <p>Example (with English default symbols {@code '...'} and separator {@code ", "}):</p>
+   * <pre>
+   * formatValues(new String[]{"ACTIVE", "INACTIVE"})
+   *   // resolves to "'ACTIVE', 'INACTIVE'"
+   * </pre>
    */
-  public static String getValuesOfFormattedString(String[] values) {
-    return getValuesOfFormattedString(Arrays.asList(ObjectsUtil.requireNonNull(values)));
+  public static Arg formatValues(String[] values) {
+    return Arg
+        .formattedString(StringUtil.getSeparatedValuesString(ObjectsUtil.requireNonNull(values),
+            VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL));
   }
 
   /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
-   *     considering the prependSymbol, appendSymbol and the separator.
+   * Resolves each value as a property key, then wraps with display symbols and joins with
+   * a separator. If a value is not found as a property key, it is used as a literal string.
+   *
+   * <p>Searches across messages, item_names, enum_names, and constants (in that order).</p>
+   *
+   * <p>Example (with English default symbols {@code '...'} and separator {@code ", "}):</p>
+   * <pre>
+   * // enum_names.properties: status.active=Active, status.inactive=Inactive
+   * formatValuesWithResolution(new String[]{"status.active", "status.inactive"})
+   *   // resolves to "'Active', 'Inactive'"
+   *
+   * // key not found: used as-is
+   * formatValuesWithResolution(new String[]{"ACTIVE", "INACTIVE"})
+   *   // resolves to "'ACTIVE', 'INACTIVE'"
+   * </pre>
    */
-  public static String getValuesOfFormattedString(List<@NonNull String> valueList) {
-    return StringUtil.getSeparatedValuesString(valueList.toArray(String[]::new), VALUE_SEPARATOR,
-        VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
-  }
-
-  /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
-   *     considering the prependSymbol, appendSymbol and the separator.
-   */
-  public static Arg getValuesArg(String[] values) {
+  public static Arg formatValuesWithResolution(String[] values) {
     // APPLICATION is excluded: its throwsExceptionWhenKeyDoesNotExist=true causes an exception
     // when a literal string (not a property key) is passed.
     PropertiesFileUtilFileKindEnum[] fileKinds = new PropertiesFileUtilFileKindEnum[] {
@@ -222,15 +236,9 @@ public class MessageUtil {
       placeholders.add("{" + i + "}");
     }
 
-    return Arg.formattedString(getValuesOfFormattedString(placeholders),
-        (Object[]) argList.toArray(Arg[]::new));
+    String template = StringUtil.getSeparatedValuesString(placeholders.toArray(String[]::new),
+        VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
+    return Arg.formattedString(template, (Object[]) argList.toArray(Arg[]::new));
   }
 
-  /**
-   * Returns an array of values of formattedString(resolved to message by Arg.formattedString)
-   *     considering the prependSymbol, appendSymbol and the separator.
-   */
-  public static Arg getValuesArg(List<@NonNull String> valueList) {
-    return getValuesArg(valueList.toArray(String[]::new));
-  }
 }

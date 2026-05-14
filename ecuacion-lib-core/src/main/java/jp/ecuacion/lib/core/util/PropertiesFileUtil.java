@@ -576,19 +576,6 @@ public class PropertiesFileUtil {
           key);
     }
 
-    /**
-     * Constructs a {@link ArgKind#MESSAGE_ID} arg that resolves from
-     * {@code application.properties}.
-     *
-     * @param key the key to resolve from {@code application.properties}
-     * @return Arg
-     */
-    public static Arg application(String key) {
-      return fromFileKinds(
-          new @NonNull PropertiesFileUtilFileKindEnum[] {
-              PropertiesFileUtilFileKindEnum.APPLICATION},
-          key);
-    }
 
     /**
      * Constructs a {@link ArgKind#MESSAGE_ID} arg with arguments.

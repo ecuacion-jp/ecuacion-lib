@@ -34,6 +34,39 @@ public class ItemContainerTest {
     }
   }
 
+  private static class ParentContainer implements ItemContainer {
+    @SuppressWarnings("unused")
+    private @Nullable String name;
+    @SuppressWarnings("unused")
+    private @Nullable String password;
+
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name").itemNameKey("parent.name"),
+          new Item("password").itemNameKey("parent.password").hideValue(),
+      };
+    }
+  }
+
+  private static class ChildContainer extends ParentContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name").itemNameKey("child.name"),
+      };
+    }
+  }
+
+  private static class ChildContainerWithoutItemNameKey extends ParentContainer {
+    @Override
+    public Item[] customizedItems() {
+      return new Item[]{
+          new Item("name"),
+      };
+    }
+  }
+
   private static class User {
     @SuppressWarnings("unused")
     private @Nullable String name;
@@ -128,6 +161,49 @@ public class ItemContainerTest {
           new UserListContainer(new Item("userList[1].name").itemNameKey("cls.name"));
       assertThat(c.getItem("userList[1].name").setsItemNameKeyClassExplicitly()).isTrue();
       assertThat(c.getItem("userList[3].name").setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Nested
+    @DisplayName("parent class inheritance")
+    class Inheritance {
+
+      @Test
+      @DisplayName("child's explicit itemNameKey overrides parent's")
+      void childOverridesItemNameKey() {
+        Item item = new ChildContainer().getItem("name");
+        assertThat(item.getItemNameKey()).isEqualTo("child.name");
+      }
+
+      @Test
+      @DisplayName("child inherits itemNameKey from parent when not set in child")
+      void childInheritsItemNameKey() {
+        Item item = new ChildContainerWithoutItemNameKey().getItem("name");
+        assertThat(item.getItemNameKey()).isEqualTo("parent.name");
+      }
+
+      @Test
+      @DisplayName("child inherits item from parent when not present in child at all")
+      void childInheritsEntireItemFromParent() {
+        Item item = new ChildContainerWithoutItemNameKey().getItem("password");
+        assertThat(item.getItemNameKey()).isEqualTo("parent.password");
+        assertThat(item.getShowsValue()).isFalse();
+      }
+
+      @Test
+      @DisplayName("child inherits hideValue from parent when not set in child")
+      void childInheritsShowsValue() {
+        // ChildContainerWithoutItemNameKey has Item("name") with no hideValue - parent has hideValue on password
+        // Create a case where child redefines password without hideValue
+        ItemContainer child = new ParentContainer() {
+          @Override
+          public Item[] customizedItems() {
+            return new Item[]{new Item("password").itemNameKey("child.password")};
+          }
+        };
+        Item item = child.getItem("password");
+        assertThat(item.getItemNameKey()).isEqualTo("child.password");
+        assertThat(item.getShowsValue()).isFalse(); // inherited from parent
+      }
     }
 
     @Test

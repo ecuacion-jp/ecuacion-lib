@@ -68,6 +68,19 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.EnumNamesBaseProvider;
   uses jp.ecuacion.lib.core.spi.EnumNamesCoreProvider;
 
+  // apps: constants
+  uses jp.ecuacion.lib.core.spi.ConstantsProvider;
+  uses jp.ecuacion.lib.core.spi.ConstantsBaseProvider;
+  uses jp.ecuacion.lib.core.spi.ConstantsCoreProvider;
+
+  // apps: messages_with_item_names
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesBaseProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesCoreProvider;
+
+  // apps: ValidationMessagesPatternDescriptions
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsProvider;
+
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesUtilExcelTableProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilExcelReportToPdfProvider;

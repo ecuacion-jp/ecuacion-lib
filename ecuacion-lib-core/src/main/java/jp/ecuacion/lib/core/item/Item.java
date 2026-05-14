@@ -39,6 +39,12 @@ public class Item {
   protected String propertyPath;
 
   /**
+   * The original property path before index normalization.
+   * Used for display purposes (e.g., collection element index in item names).
+   */
+  private String displayPropertyPath;
+
+  /**
    * A class part (= left part) of {@code itemNameKey}. 
    * (like "acc" from itemNameKey: "acc.name")
    * 
@@ -76,16 +82,25 @@ public class Item {
 
   /**
    * False when the value should not be open to public (like password).
-   * 
+   *
    * <p>Default value is {@code true}.</p>
    */
   protected boolean showsValue = true;
 
+  /** Tracks whether {@code itemNameKey()} was explicitly called. */
+  private boolean itemNameKeyExplicitlySet = false;
+
+  /** Tracks whether {@code hideValue()} or {@code showsValue(boolean)} was explicitly called. */
+  private boolean showsValueExplicitlySet = false;
+
   /**
    * Constructs a new instance with {@code itemPropertyPath}.
    *
-   * <p>You cannot set recordPropertyPath here.
-   *     Setting it causes a duplication of rootRecordName and it cannot be found.</p>
+   * <p>Application code should not call this constructor directly in most cases.
+   *     Use {@link jp.ecuacion.lib.core.util.ItemUtil#resolveItem(String, Object)} or
+   *     {@code ItemContainer#getItem(String)} to obtain an {@code Item} instance.
+   *     Direct construction is intended only when implementing
+   *     {@code ItemContainer#customizedItems()}.</p>
    *
    * <p>The given {@code propertyPath} is normalized by
    *     {@link PropertyPathUtil#toIndexlessPath(String)} when stored.
@@ -96,8 +111,9 @@ public class Item {
    * @param propertyPath itemPropertyPath
    */
   public Item(@RequireNonEmpty String propertyPath) {
-    this.propertyPath =
-        PropertyPathUtil.toIndexlessPath(ObjectsUtil.requireNonEmpty(propertyPath));
+    String validated = ObjectsUtil.requireNonEmpty(propertyPath);
+    this.displayPropertyPath = validated;
+    this.propertyPath = PropertyPathUtil.toIndexlessPath(validated);
   }
 
   /**
@@ -120,12 +136,17 @@ public class Item {
     this.itemNameKeyField =
         itemNameKey.contains(".") ? itemNameKey.substring(itemNameKey.lastIndexOf(".") + 1)
             : itemNameKey;
+    this.itemNameKeyExplicitlySet = true;
 
     return this;
   }
 
   public String getPropertyPath() {
     return propertyPath;
+  }
+
+  public String getDisplayPropertyPath() {
+    return displayPropertyPath;
   }
 
   /**
@@ -135,6 +156,21 @@ public class Item {
    */
   public boolean setsItemNameKeyClassExplicitly() {
     return itemNameKeyClassSetExplicitly != null;
+  }
+
+  /**
+   * Sets itemNameKeyClass from {@code @ItemNameKeyClass} annotation.
+   * 
+   * @param itemNameKeyClass argument {@code itemNameKeyClass} is {@code @NonNull}
+   *     but property {@code itemNameKeyClass} is {@code @Nullable} 
+   *     because the method is not always called.
+   */
+  public void setItemNameKeyClassFromAnnotation(String itemNameKeyClass) {
+    this.itemNameKeyClassFromAnnotation = itemNameKeyClass;
+  }
+
+  public void setItemNameKeyClassFromClassName(String itemNameKeyClassFromClassName) {
+    this.itemNameKeyClassFromClassName = itemNameKeyClassFromClassName;
   }
 
   /**
@@ -175,6 +211,7 @@ public class Item {
    */
   public Item hideValue() {
     showsValue = false;
+    showsValueExplicitlySet = true;
 
     return this;
   }
@@ -184,26 +221,30 @@ public class Item {
    */
   public Item showsValue(boolean showsValue) {
     this.showsValue = showsValue;
+    showsValueExplicitlySet = true;
 
     return this;
   }
 
+  /**
+   * Copies unset properties from {@code parent}.
+   *
+   * <p>Only properties not explicitly set on this item are inherited.
+   *     Called by {@link ItemContainer#getItem(String)} when walking the class hierarchy.</p>
+   */
+  protected void mergeFromParent(Item parent) {
+    if (!itemNameKeyExplicitlySet && parent.itemNameKeyExplicitlySet) {
+      this.itemNameKeyClassSetExplicitly = parent.itemNameKeyClassSetExplicitly;
+      this.itemNameKeyField = parent.itemNameKeyField;
+      this.itemNameKeyExplicitlySet = true;
+    }
+    if (!showsValueExplicitlySet && parent.showsValueExplicitlySet) {
+      this.showsValue = parent.showsValue;
+      this.showsValueExplicitlySet = true;
+    }
+  }
+
   public boolean getShowsValue() {
     return showsValue;
-  }
-
-  /**
-   * Sets itemNameKeyClass from {@code @ItemNameKeyClass} annotation.
-   * 
-   * @param itemNameKeyClass argument {@code itemNameKeyClass} is {@code @NonNull}
-   *     but property {@code itemNameKeyClass} is {@code @Nullable} 
-   *     because the method is not always called.
-   */
-  public void setItemNameKeyClassFromAnnotation(String itemNameKeyClass) {
-    this.itemNameKeyClassFromAnnotation = itemNameKeyClass;
-  }
-
-  public void setItemNameKeyClassFromClassName(String itemNameKeyClassFromClassName) {
-    this.itemNameKeyClassFromClassName = itemNameKeyClassFromClassName;
   }
 }

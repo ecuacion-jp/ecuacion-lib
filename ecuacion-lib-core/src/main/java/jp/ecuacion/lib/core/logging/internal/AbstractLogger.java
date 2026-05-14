@@ -24,38 +24,36 @@ import org.slf4j.event.Level;
 /**
  * Has common methods for concrete loggers.
  */
-public abstract class EclibLogger {
+public abstract class AbstractLogger {
 
   /** internalLogger. */
   protected Logger internalLogger;
-  
-  public static final String NULL_THROWABLE_MESSAGE = "(throwable argument is null)";
 
-  /** 
+  /**
    * Constructs a new instance with a logger name.
-   * 
+   *
    * @param loggerName loggerName. Cannot be {@code null}.
    */
-  public EclibLogger(String loggerName) {
+  public AbstractLogger(String loggerName) {
     internalLogger = LoggerFactory.getLogger(loggerName);
   }
 
-  /** 
-   * Constructs a new instance with a caller class. 
+  /**
+   * Constructs a new instance with a caller class.
    * Used when logging is executed from static method.
    *
    * @param cls class. Cannot be {@code null}.
    */
-  public EclibLogger(Class<?> cls) {
+  public AbstractLogger(Class<?> cls) {
     internalLogger = LoggerFactory.getLogger(cls.getName());
   }
 
-  /** 
+  /**
    * Logs message with logLevel.
-   * 
+   *
    * @param logLevel logLevel. Cannot be {@code null}.
    * @param message message.
-   *     Log messages are usually not {@code null}, 
+   *     Log messages are usually not {@code null},
    *     but when someone wants to log the value of some variable and its value is {@code null},
    *     it's not good for the logging procedure to throw an exception.
    *     It seems that loggers are supposed to log whatever the logged string is.
