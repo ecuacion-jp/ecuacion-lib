@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link Item}. */
@@ -104,5 +105,57 @@ public class ItemTest {
   public void hideValue() {
     Item item = new Item("password").hideValue();
     assertThat(item.getShowsValue()).isFalse();
+  }
+
+  @Nested
+  @DisplayName("mergeFromParent")
+  class MergeFromParent {
+
+    @Test
+    @DisplayName("inherits itemNameKey from parent when not set in child")
+    void inheritsItemNameKeyFromParent() {
+      Item child = new Item("name");
+      Item parent = new Item("name").itemNameKey("parent.name");
+      child.mergeFromParent(parent);
+      assertThat(child.getItemNameKey()).endsWith(".name");
+      assertThat(child.setsItemNameKeyClassExplicitly()).isTrue();
+    }
+
+    @Test
+    @DisplayName("child's explicit itemNameKey is not overwritten by parent")
+    void childItemNameKeyNotOverwritten() {
+      Item child = new Item("name").itemNameKey("child.name");
+      Item parent = new Item("name").itemNameKey("parent.name");
+      child.mergeFromParent(parent);
+      assertThat(child.getItemNameKey()).isEqualTo("child.name");
+    }
+
+    @Test
+    @DisplayName("inherits showsValue=false from parent when not set in child")
+    void inheritsShowsValueFromParent() {
+      Item child = new Item("password");
+      Item parent = new Item("password").hideValue();
+      child.mergeFromParent(parent);
+      assertThat(child.getShowsValue()).isFalse();
+    }
+
+    @Test
+    @DisplayName("child's explicit showsValue is not overwritten by parent")
+    void childShowsValueNotOverwritten() {
+      Item child = new Item("password").showsValue(true);
+      Item parent = new Item("password").hideValue();
+      child.mergeFromParent(parent);
+      assertThat(child.getShowsValue()).isTrue();
+    }
+
+    @Test
+    @DisplayName("nothing inherited when parent has no explicit settings")
+    void nothingInheritedWhenParentHasNoSettings() {
+      Item child = new Item("name");
+      Item parent = new Item("name");
+      child.mergeFromParent(parent);
+      assertThat(child.setsItemNameKeyClassExplicitly()).isFalse();
+      assertThat(child.getShowsValue()).isTrue();
+    }
   }
 }
