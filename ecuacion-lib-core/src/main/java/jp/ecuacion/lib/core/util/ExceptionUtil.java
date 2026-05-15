@@ -476,7 +476,7 @@ public class ExceptionUtil {
     Map<@NonNull String, @Nullable Object> updates = new HashMap<>();
     for (Map.Entry<@NonNull String, @Nullable Object> entry : map.entrySet()) {
       if (entry.getValue() instanceof ValidatorMessageParameterCreator.ItemNameParam lep) {
-        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, Arrays.asList(lep.items()),
+        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, lep.items(),
             showsItemNamePath, Objects.requireNonNull(lep.rootBean())));
       }
     }

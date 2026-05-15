@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
@@ -41,7 +42,7 @@ public class ComparisonValidatorMessageParameterCreator
         Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
     Item item = ItemUtil.resolveItem(bpp, cv.getRootBean());
     result.put("baselinePropertyPathItemName",
-        new ItemNameParam(new Item[] {item}, cv.getRootBean()));
+        new ItemNameParam(List.of(item), cv.getRootBean()));
 
     return result;
   }
