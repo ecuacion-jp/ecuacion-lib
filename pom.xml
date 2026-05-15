@@ -23,7 +23,7 @@
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>${project.artifactId}</name>
-	<description>It is a base library which contains basic features.</description>
+	<description>Jakarta Validation extension library providing conditional validators, multi-field validators, and business-friendly validation messages.</description>
 	<url>https://github.com/ecuacion-jp/ecuacion-lib</url>
 	<organization>
 		<name>ecuacion.jp</name>
