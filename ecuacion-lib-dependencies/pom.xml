@@ -50,7 +50,7 @@
 		<org.junit.platform.junit-platform-engine.version>1.13.4</org.junit.platform.junit-platform-engine.version>
 		<org.junit.platform.junit-platform-commons.version>1.13.4</org.junit.platform.junit-platform-commons.version>
 		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
-		<io.qameta.allure.allure-junit5.version>2.29.0</io.qameta.allure.allure-junit5.version>
+		<io.qameta.allure.allure-junit5.version>2.34.0</io.qameta.allure.allure-junit5.version>
 
 		<!-- jspecify -->
 		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
