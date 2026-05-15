@@ -43,13 +43,18 @@ and ecuacion-lib-validation constraints. Without it, neutral HV-aligned messages
 `ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
 `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
 
+## Versioning
+
+This project follows the spirit of [Semantic Versioning](https://semver.org/). Major version increments indicate breaking changes.
+
 ## System Requirements
 
 - JDK 21 or above.
 
 ## Documentation
 
-(See `Documentation` part of the `README` in each module)
+- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/en/article?id=home) — Official reference documentation
+- See also the `Documentation` section of the `README` in each module
 
 ## Installation
 
@@ -67,3 +72,7 @@ and ecuacion-lib-validation constraints. Without it, neutral HV-aligned messages
 
 2. Add the required external modules to your `pom.xml`.
    (Check the `Dependent External Libraries > Manual Load Needed Libraries` section of the `README` in the module you want to add to your project.)
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to report bugs, suggest features, and submit pull requests.

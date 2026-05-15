@@ -29,19 +29,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.violation.BusinessViolation;
-import jp.ecuacion.lib.core.violation.Violations;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -107,35 +97,6 @@ public class FileUtil {
     return concatPath;
   }
 
-  /*
-   * Returns the leftmost separator position of the path in the path string. 
-   * Supports both slash (/) and backslash (\).<br>
-   * Returns -1 if there is no separator position.
-   */
-  private static int getFirstPathSeparatorIndex(String path) {
-    ObjectsUtil.requireNonNull(path);
-
-    int firstSlashIndex = path.indexOf("/");
-    int firstBackSlashIndex = path.indexOf("\\");
-
-    if (firstSlashIndex == -1 && firstBackSlashIndex == -1) {
-      // Return -1 when separator string not found.
-      return -1;
-
-    } else if (firstSlashIndex == -1) {
-      // the case that only firstSlashIndex is -1
-      return firstBackSlashIndex;
-
-    } else if (firstBackSlashIndex == -1) {
-      // the case that only firstBackSlashIndex is -1
-      return firstSlashIndex;
-
-    } else {
-      // Reaching here means both "/" and "\" exists. Return smaller value in this case.
-      return (firstSlashIndex < firstBackSlashIndex) ? firstSlashIndex : firstBackSlashIndex;
-    }
-  }
-
   /**
    * Cleans a path string.
    * 
@@ -173,182 +134,6 @@ public class FileUtil {
     }
 
     return rtnStr;
-  }
-
-  /**
-   * Returns true if the argument path contains wildcard strings.
-   */
-  public static boolean containsWildCard(String path) {
-    return (path.contains("?") || path.contains("*"));
-  }
-
-  /**
-   * Returns a list of paths which match the path passed by the argument path with wildcards.
-   * 
-   * <p>"*", "?" are supported, but "**" not supported.<br>
-   * The separator of returning Paths is "/"</p>
-   */
-  public static List<@NonNull String> getPathListFromPathWithWildcard(String path) {
-
-    final List<@NonNull String> fullPathList = new ArrayList<>();
-    // Clean the path string.
-    path = cleanPathStrWithSlash(path);
-    // If the path ends with a path separator,
-    // it will make the subsequent processing complicated, so remove it first.
-    if (path.endsWith("/") || path.endsWith("\\")) {
-      path = path.substring(0, path.length() - 1);
-    }
-
-    // Change relative paths to absolute paths
-    if (isRelativePath(path)) {
-      path = changeRelPathToFullPath(path);
-    }
-
-    // Clean the path string.
-    path = cleanPathStrWithSlash(path);
-    // Expand the wildcard.
-    getPathListFromPathWithWildcardRecursively(path, "", fullPathList);
-
-    return fullPathList;
-  }
-
-  /**
-   * Returns true if the path is relative.
-   * 
-   * @param path path
-   * @return true if the path is relative
-   */
-  public static boolean isRelativePath(String path) {
-    // If no value is set for path, an error occurs.
-    if (StringUtils.isEmpty(path)) {
-      throw new ViolationException(
-          new Violations().add(new BusinessViolation("MSG_ERR_PATH_IS_NULL")));
-    }
-
-    if (Objects.requireNonNull(System.getProperty("os.name")).toUpperCase(Locale.ROOT)
-        .contains("WINDOWS")) {
-      // In Windows, if the second character is ":", such as "c:\...", it is a full path.
-      if (path.length() >= 2 && path.substring(1, 2).equals(":")) {
-        return false;
-      }
-
-    } else {
-      // For the time being, we have no choice but to assume that it is a Linux system,
-      // but if the first character is "/", then the full path
-      if (path.length() >= 1 && path.substring(0, 1).equals("/")) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private static String changeRelPathToFullPath(String path) {
-    String curPath = new File(".").getAbsolutePath();
-    String fullPath = concatFilePaths(curPath, path);
-    // Replace them so that no strange "./" or ".\" remains.
-    fullPath = fullPath.replaceAll("\\.\\\\", "").replaceAll("\\./", "");
-    return fullPath;
-  }
-
-  private static void getPathListFromPathWithWildcardRecursively(String fullPath, String parentPath,
-      List<@NonNull String> rtnFullPathList) {
-    ObjectsUtil.requireNonNull(fullPath, parentPath, rtnFullPathList);
-
-    String myFileOrDirnameWithWildcard = null;
-    boolean hasReachedFullPathDirDepth = false;
-
-    if (parentPath.isEmpty()) {
-      String myPathWithWildcard = fullPath.substring(0, getFirstPathSeparatorIndex(fullPath) + 1);
-      // For the first path ("C:\" or "/") only, it is impossible for myPathWithWildcard
-      // to contain a wildcard, so if it does, an error will occur.
-      if (myPathWithWildcard.contains("*") || myPathWithWildcard.contains("?")) {
-        throw new ViolationException(new Violations().add(
-            new BusinessViolation("MSG_ERR_1ST_LEVEL_CANNOT_HAVE_WILDCARD", fullPath)));
-      }
-
-      getPathListFromPathWithWildcardRecursively(fullPath, myPathWithWildcard, rtnFullPathList);
-
-    } else {
-      // ### Below is what I want as a whole.
-      // ### Get the path one level below parentPath, match it with the list of files
-      // ### and folders under parentPath, and if the target list is found,
-      // ### recursively call this method with the directory one level lower.
-
-      // First, get the fullPath (A) by removing the parentPath string.
-      // Strictly speaking, because there is a wildcard in the middle,
-      // even if you remove the same number of characters,
-      // it will not match. You need to count the number of delimiters to match.
-      int numOfSeparatorOfParentPath = StringUtils.countMatches(parentPath, "/");
-      String fullPathMinusParentPath = fullPath
-          .substring(StringUtils.ordinalIndexOf(fullPath, "/", numOfSeparatorOfParentPath) + 1);
-      // Check if A contains a path separator
-      int ind = getFirstPathSeparatorIndex(fullPathMinusParentPath);
-      // Depending on whether there is a delimiter or not,
-      // the string to put in myFileOrDirnameWithWildcard is classified into cases.
-      if (ind >= 0) {
-        // If there is a delimiter, put the string up to the delimiter into myFileOrDirname
-        myFileOrDirnameWithWildcard = fullPathMinusParentPath.substring(0, ind + 1);
-      } else {
-        // If there is no delimiter, it will be set to the last character.
-        myFileOrDirnameWithWildcard = fullPathMinusParentPath;
-
-        // In the case of directory specification, there may be a pattern
-        // where the delimiter character is the last character,
-        // but this is not possible because it is removed
-        // in the getPathListFromPathWithWildcard method.
-        // Therefore, if we reach this else side,
-        // it means that we have descended to the fullPath directory depth,
-        // so we set hasReachedFullPathDirDepth to true.
-        hasReachedFullPathDirDepth = true;
-      }
-
-      // If myFileOrDirname contains a wildcard,
-      // it must be compared with the list of files and directories under parentPath.
-      if (myFileOrDirnameWithWildcard.contains("?") || myFileOrDirnameWithWildcard.contains("*")) {
-        // The "." in the file name will be mistaken for a regular expression,
-        // so change it to "\\." first.
-        String myFileOrDirnameWithRegEx = myFileOrDirnameWithWildcard.replaceAll("\\.", "\\\\.");
-        // Replace wildcards with regular expressions
-        myFileOrDirnameWithRegEx =
-            myFileOrDirnameWithRegEx.replaceAll("\\?", ".").replaceAll("\\*", ".*");
-        Pattern pattern1 = Pattern.compile(parentPath + myFileOrDirnameWithRegEx);
-
-        // Loop through directories and files under parentPath
-        String[] arr = new File(parentPath).list();
-        if (arr == null) {
-          throw new RuntimeException("arr cannot be null.");
-        }
-
-        for (String path : arr) {
-          String myFullPath = parentPath + path;
-
-          // Since the source of comparison is adopted cleanPathString,
-          // so we will also do this so that we can compare it.
-          myFullPath = cleanPathStrWithSlash(myFullPath);
-
-          // If it matches, recursively call
-          Matcher matcher = pattern1.matcher(myFullPath);
-          if (matcher.matches()) {
-            if (hasReachedFullPathDirDepth) {
-              rtnFullPathList.add(myFullPath);
-
-            } else {
-              getPathListFromPathWithWildcardRecursively(fullPath, myFullPath, rtnFullPathList);
-            }
-          }
-        }
-      } else {
-        String myFullPath = parentPath + myFileOrDirnameWithWildcard;
-        if (new File(myFullPath).exists()) {
-          if (hasReachedFullPathDirDepth) {
-            rtnFullPathList.add(myFullPath);
-          } else {
-            getPathListFromPathWithWildcardRecursively(fullPath, myFullPath, rtnFullPathList);
-          }
-        }
-      }
-    }
   }
 
   /**
@@ -487,7 +272,7 @@ public class FileUtil {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream(file, true);
-    } catch (Exception e) {
+    } catch (Exception ignored) {
       // In this case, the lock is considered to be acquired.
       return true;
     }
@@ -536,24 +321,19 @@ public class FileUtil {
    */
   public static void release(Pair<FileChannel, FileLock> channelAndLock) throws IOException {
     FileChannel channel = channelAndLock.getLeft();
-    FileLock lockedObject = channelAndLock.getRight();
+    final FileLock lockedObject = channelAndLock.getRight();
 
-    try {
-      // Write timestamp string to update lockFile (which string is not used though).
-      @SuppressWarnings("JavaTimeDefaultTimeZone")
-      byte[] bytes = LocalDateTime.now().toString().getBytes(StandardCharsets.UTF_8);
+    // Write timestamp string to update lockFile (which string is not used though).
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
+    byte[] bytes = LocalDateTime.now().toString().getBytes(StandardCharsets.UTF_8);
 
-      ByteBuffer src = ByteBuffer.allocate(bytes.length);
-      src.put(bytes);
-      src.position(0);
+    ByteBuffer src = ByteBuffer.allocate(bytes.length);
+    src.put(bytes);
+    src.position(0);
 
-      channel.write(src);
+    channel.write(src);
 
-      lockedObject.release();
-
-    } catch (OverlappingFileLockException ex) {
-      throw new OverlappingFileLockException();
-    }
+    lockedObject.release();
   }
 
   /**
