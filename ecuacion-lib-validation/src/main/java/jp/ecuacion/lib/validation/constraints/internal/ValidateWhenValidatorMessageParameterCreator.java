@@ -53,7 +53,7 @@ public class ValidateWhenValidatorMessageParameterCreator
             + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
     Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getRootBean());
     result.put(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
-        new ItemNameParam(new Item[] {item}, cv.getRootBean()));
+        new ItemNameParam(List.of(item), cv.getRootBean()));
 
     // displayStringOfConditionValue
     displayStringOfConditionValue(cv, paramMap, commonMessagePrefix, result);

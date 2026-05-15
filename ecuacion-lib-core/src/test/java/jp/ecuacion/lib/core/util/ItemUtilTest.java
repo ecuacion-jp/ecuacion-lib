@@ -68,7 +68,7 @@ public class ItemUtilTest {
     }
   }
 
-  private static class RootWithContainerChild {
+  static class RootWithContainerChild {
     private final SimpleContainer child;
 
     RootWithContainerChild(SimpleContainer child) {
@@ -81,7 +81,7 @@ public class ItemUtilTest {
     }
   }
 
-  private static class RootWithCustomChild {
+  static class RootWithCustomChild {
     private final ContainerWithCustomItem order;
 
     RootWithCustomChild(ContainerWithCustomItem order) {
