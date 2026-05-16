@@ -39,6 +39,8 @@
 		<!-- jakarta-el -->
 		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
+		<!-- jakarta annotation -->
+		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
 		<!-- jakarta validation -->
 		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
 		<org.hibernate.validator.hibernate-validator.version>9.1.0.Final</org.hibernate.validator.hibernate-validator.version>
@@ -165,6 +167,11 @@
 				<groupId>org.glassfish</groupId>
 				<artifactId>jakarta.el</artifactId>
 				<version>${org.glassfish.jakarta.el.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>${jakarta.annotation.jakarta.annotation-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.validation</groupId>

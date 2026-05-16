@@ -155,7 +155,7 @@ public class ExceptionUtilTest {
 
     public static record InsideChildNode(@Valid Child myChild) {}
 
-    public static record InsideChildNodeInList(@Valid List<Child> myChildList) {}
+    public static record InsideChildNodeInList(List<@Valid Child> myChildList) {}
 
     public static record Child(@NotNull @Nullable String name) {}
   }
@@ -1084,11 +1084,11 @@ public class ExceptionUtilTest {
     @ItemNameKeyClass("itemNameKeyClass")
     public static record TargetClsInkc(@NotNull @Nullable String field) {}
 
-    public static record SingleList(@Valid List<TargetCls> targetList) {}
+    public static record SingleList(List<@Valid TargetCls> targetList) {}
 
-    public static record SingleListInkc(@Valid List<TargetClsInkc> targetList) {}
+    public static record SingleListInkc(List<@Valid TargetClsInkc> targetList) {}
 
-    public static record SingleListConRoot(@Valid List<TargetCls> targetList)
+    public static record SingleListConRoot(List<@Valid TargetCls> targetList)
         implements ItemContainer {
       @Override
       public Item[] customizedItems() {
@@ -1159,9 +1159,9 @@ public class ExceptionUtilTest {
       private static record GrandChild(@NotNull @Nullable String field) {}
     }
 
-    public static record SingleSet(@Valid Set<TargetCls> targetSet) {}
+    public static record SingleSet(Set<@Valid TargetCls> targetSet) {}
 
-    public static record SingleMapValue(@Valid Map<String, TargetCls> targetMapValue) {}
+    public static record SingleMapValue(Map<String, @Valid TargetCls> targetMapValue) {}
 
     // Hibernate Validator emits HV000271 ("@Valid on a container is deprecated;
     // use type argument") for the field/accessor/constructor of this record.

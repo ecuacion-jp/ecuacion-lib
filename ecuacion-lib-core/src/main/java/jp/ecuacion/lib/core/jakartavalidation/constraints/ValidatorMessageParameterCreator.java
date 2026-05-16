@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintViolation;
+import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.item.Item;
 import org.jspecify.annotations.NonNull;
@@ -58,6 +59,6 @@ public interface ValidatorMessageParameterCreator {
    *     {@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg} instance directly
    *     in the map instead.</p>
    */
-  record ItemNameParam(Item[] items, Object rootBean) {
+  record ItemNameParam(List<@NonNull Item> items, Object rootBean) {
   }
 }
