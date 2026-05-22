@@ -486,6 +486,11 @@
 				<artifactId>ecuacion-lib-validation</artifactId>
 				<version>${ecuacion-lib.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>jp.ecuacion.lib</groupId>
+				<artifactId>ecuacion-lib-validation-business-messages</artifactId>
+				<version>${ecuacion-lib.version}</version>
+			</dependency>
 
 			<!-- other -->
 
@@ -505,7 +510,7 @@
 		<module>ecuacion-lib-validation</module>
 		<module>ecuacion-lib-validation-business-messages</module>
 	</modules>
-		
+
 	<profiles>
 		<profile>
 			<id>ecuacion-repository</id>
@@ -513,6 +518,13 @@
 				<mvn.prof-id>ecuacion-repository</mvn.prof-id>
 				<wagon.skip>false</wagon.skip>
 			</properties>
+			<repositories>
+				<repository>
+					<id>ecuacion-repo-http</id>
+					<name>ecuacion-repo-http</name>
+					<url>https://maven-repo.ecuacion.jp/public</url>
+				</repository>
+			</repositories>
 		</profile>
 		
 		<profile>
