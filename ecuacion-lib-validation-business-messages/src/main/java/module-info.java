@@ -19,5 +19,4 @@
  * module is declared open.
  */
 open module jp.ecuacion.lib.validation.business.messages {
-  requires transitive jp.ecuacion.lib.core;
 }
