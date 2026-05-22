@@ -101,9 +101,6 @@
 		<!-- central publishing -->
 		<org.sonatype.central.central-publishing-maven-plugin.version>0.10.0</org.sonatype.central.central-publishing-maven-plugin.version>
 
-		<!-- module versions (ecuacion-lib depends on them) -->
-		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
-
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
 		<wagon.skip>true</wagon.skip>
 
@@ -422,10 +419,12 @@
 									<available
 										file="${project.build.directory}/site/jacoco"
 										type="dir" property="jacoco.report.dir.exists"/>
+									<mkdir dir="${project.build.directory}/site/jacoco"
+										unless:set="jacoco.report.dir.exists"/>
 									<zip
 										destfile="${project.build.directory}/${project.build.finalName}-jacoco-report.zip"
 										basedir="${project.build.directory}/site/jacoco"
-										if:set="jacoco.report.dir.exists"/>
+										whenempty="create"/>
 								</target>
 							</configuration>
 						</execution>
@@ -490,15 +489,6 @@
 				<groupId>jp.ecuacion.lib</groupId>
 				<artifactId>ecuacion-lib-validation-business-messages</artifactId>
 				<version>${ecuacion-lib.version}</version>
-			</dependency>
-
-			<!-- other -->
-
-			<!-- apache commons -->
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
 
 		</dependencies>
