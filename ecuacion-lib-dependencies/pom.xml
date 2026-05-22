@@ -64,6 +64,9 @@
 		<com.uber.nullaway.version>0.13.4</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
 
+		<!-- apache commons -->
+		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
+
 	</properties>
 	
 	<build>
@@ -229,6 +232,13 @@
 				<groupId>com.google.errorprone</groupId>
 				<artifactId>error_prone_core</artifactId>
 				<version>${com.google.errorprone.error_prone_core.version}</version>
+			</dependency>
+
+			<!-- apache commons -->
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
 
 		</dependencies>
