@@ -111,18 +111,19 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.el</groupId>
+			<artifactId>jakarta.el-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>jakarta.el</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- not used in ecuacion-lib-validation, but needed for test (since ecuacion-lib-core requires it) -->
 		<dependency>
 			<groupId>jakarta.mail</groupId>
 			<artifactId>jakarta.mail-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>jakarta.el</groupId>
-			<artifactId>jakarta.el-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
@@ -133,12 +134,6 @@
 		</dependency>
 
 		<!-- other -->
-
-		<!-- apache commons -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
 
 		<!-- logging -->
 		<dependency>
