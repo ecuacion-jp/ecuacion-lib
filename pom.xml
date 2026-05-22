@@ -551,6 +551,7 @@
 						<configuration>
 							<publishingServerId>central</publishingServerId>
 							<autoPublish>false</autoPublish>
+							<deploymentName>ecuacion-lib-${project.version}</deploymentName>
 						</configuration>
 					</plugin>
  
