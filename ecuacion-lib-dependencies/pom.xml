@@ -52,11 +52,6 @@
 		<org.junit.platform.junit-platform-engine.version>1.13.4</org.junit.platform.junit-platform-engine.version>
 		<org.junit.platform.junit-platform-commons.version>1.13.4</org.junit.platform.junit-platform-commons.version>
 		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
-		<io.qameta.allure.allure-junit5.version>2.29.0</io.qameta.allure.allure-junit5.version>
-
-		<!-- jspecify -->
-		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
-
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
@@ -114,13 +109,6 @@
 	</build>
 
 	<dependencies>
-
-		<!-- jspecify -->
-		<dependency>
-			<groupId>org.jspecify</groupId>
-			<artifactId>jspecify</artifactId>
-			<version>${org.jspecify.jspecify.version}</version>
-		</dependency>
 
 		<!-- eclipse null analysis -->
 		<dependency>
@@ -216,11 +204,6 @@
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-commons</artifactId>
 				<version>${org.junit.platform.junit-platform-commons.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.qameta.allure</groupId>
-				<artifactId>allure-junit5</artifactId>
-				<version>${io.qameta.allure.allure-junit5.version}</version>
 			</dependency>
 			<!-- nullaway / error prone -->
 			<dependency>
