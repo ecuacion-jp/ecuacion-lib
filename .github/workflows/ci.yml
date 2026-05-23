@@ -22,6 +22,13 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Validate POM after version update
+        run: |
+          mvn versions:set -DnewVersion=0.0.0-CI-TEST -DgenerateBackupPoms=false
+          mvn versions:update-properties -Dincludes=jp.ecuacion.lib -DgenerateBackupPoms=false
+          mvn validate
+          git checkout -- .
+
       - name: Verify
         run: mvn verify -Dwagon.skip=true
 
