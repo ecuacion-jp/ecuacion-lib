@@ -2,7 +2,12 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in ecuacion-lib, please report it by opening a [GitHub Issue](https://github.com/ecuacion-jp/ecuacion-lib/issues).
+If you discover a security vulnerability in ecuacion-lib, **please do not open a public GitHub Issue**, as this exposes the vulnerability before it can be fixed.
+
+Instead, please report it privately via one of the following:
+
+- **GitHub Private Security Advisory**: Use the [Report a vulnerability](https://github.com/ecuacion-jp/ecuacion-lib/security/advisories/new) button on the Security tab.
+- **Email**: Send a report to [info@ecuacion.jp](mailto:info@ecuacion.jp).
 
 Please include:
 
