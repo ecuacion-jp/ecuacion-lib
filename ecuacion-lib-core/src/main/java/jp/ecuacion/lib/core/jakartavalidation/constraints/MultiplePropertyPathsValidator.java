@@ -70,6 +70,18 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
     if (Objects.requireNonNull(propertyPaths).length == 0) {
       throw new ValidationException("Length of propertyPath is zero.");
     }
+
+    // Each element must be a non-empty string.
+    // An empty string would mean the constraint is not associated with any field,
+    // which makes the validator meaningless. Catching this at initialization time
+    // also prevents SplibExceptionHandler from accidentally attaching the error to
+    // an empty-named field instead of treating it as a global (top-of-page) error.
+    for (String path : propertyPaths) {
+      if (path.isEmpty()) {
+        throw new ValidationException(
+            "propertyPath must not contain empty strings. Specify a valid field name.");
+      }
+    }
   }
 
   @Override
