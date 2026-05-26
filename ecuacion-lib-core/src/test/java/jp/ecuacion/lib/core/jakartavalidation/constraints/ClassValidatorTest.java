@@ -19,6 +19,7 @@ import jakarta.validation.Validation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -46,41 +47,31 @@ public class ClassValidatorTest {
   @SuppressWarnings("unused")
   public void irregular() {
 
-    // propertyPath not set
-    try {
-      var unused = validator.validate(new PropertyPathNotSet(null)).size();
-      Assertions.fail();
+    // Cases where initialize() itself throws are tested by calling initialize(String, String[])
+    // directly, without going through validator.validate(). Routing through the BV framework
+    // when initialize() throws can leave Hibernate Validator's internal constraint-metadata
+    // cache in an inconsistent state and corrupt unrelated tests.
 
-    } catch (Exception ex) {
+    // propertyPath is empty string
+    assertThatThrownBy(
+        () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{""}))
+        .isInstanceOf(ValidationException.class)
+        .hasMessage("propertyPath must not contain empty strings. Specify a valid field name.");
 
-      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
-      assertThat(Objects.requireNonNull(ex.getCause()).getCause())
-          .isInstanceOf(NoSuchFieldException.class);
-    }
-
-    // propertyPath contains empty
-    try {
-      var unused = validator.validate(new PropertyPathContainsEmpty(null)).size();
-      Assertions.fail();
-
-    } catch (Exception ex) {
-      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
-      assertThat(Objects.requireNonNull(ex.getCause()).getCause())
-          .isInstanceOf(NoSuchFieldException.class);
-    }
+    // propertyPath contains an empty string element
+    assertThatThrownBy(
+        () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{"propertyPath", ""}))
+        .isInstanceOf(ValidationException.class)
+        .hasMessage("propertyPath must not contain empty strings. Specify a valid field name.");
 
     // propertyPath length zero
-    try {
-      var unused = validator.validate(new PropertyPathLengthZero(null)).size();
-      Assertions.fail();
+    assertThatThrownBy(
+        () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{}))
+        .isInstanceOf(ValidationException.class)
+        .hasMessage("Length of propertyPath is zero.");
 
-    } catch (Exception ex) {
-      assertThat(ex.getCause()).isInstanceOf(ValidationException.class);
-      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
-          .isEqualTo("Length of propertyPath is zero.");
-    }
-
-    // propertyPath not found
+    // propertyPath not found in the bean — exception comes from isValid(), so validator.validate()
+    // is used here. initialize() succeeds, so no metadata-cache corruption occurs.
     try {
       var unused = validator.validate(new PropertyPathNotFound(null)).size();
       Assertions.fail();
@@ -90,21 +81,6 @@ public class ClassValidatorTest {
       assertThat(Objects.requireNonNull(ex.getCause()).getCause())
           .isInstanceOf(NoSuchFieldException.class);
     }
-  }
-
-  @ClassAlwaysFalse(propertyPath = "")
-  public static record PropertyPathNotSet(@Nullable String propertyPath) {
-
-  }
-
-  @ClassAlwaysFalse(propertyPath = {"propertyPath", ""})
-  public static record PropertyPathContainsEmpty(@Nullable String propertyPath) {
-
-  }
-
-  @ClassAlwaysFalse(propertyPath = {})
-  public static record PropertyPathLengthZero(@Nullable String propertyPath) {
-
   }
 
   @ClassAlwaysFalse(propertyPath = {"a"})

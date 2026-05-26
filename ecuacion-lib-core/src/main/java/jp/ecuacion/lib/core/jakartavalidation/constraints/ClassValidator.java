@@ -27,7 +27,10 @@ import org.jspecify.annotations.Nullable;
  * Is a ConstraintValidator implemented class for class-level validator.
  * This is accepted by ConstraintViolationBean.
  * 
- * <p>The field "propertyPath" is always needed as the field for validation.</p>
+ * <p>The annotation for implementations of this class must have a {@code propertyPath}
+ *     attribute whose elements are non-empty strings identifying the fields associated
+ *     with the constraint. An empty array or an element that is an empty string is
+ *     rejected at initialization time by {@link MultiplePropertyPathsValidator#initialize}.</p>
  * 
  * <p>Jakarta Validation has the feature to create multiple ConstraintViolations 
  *     out of one validator using 
