@@ -394,6 +394,29 @@
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>${org.apache.maven.plugins.maven-antrun-plugin.version}</version>
 					<executions>
+						<!-- Creates an empty javadoc jar if maven-javadoc-plugin skipped (e.g. pom packaging).
+						     Ensures wagon upload-single can always find the file to upload. -->
+						<execution>
+							<id>create-empty-javadoc-jar-if-missing</id>
+							<phase>package</phase>
+							<goals>
+								<goal>run</goal>
+							</goals>
+							<configuration>
+								<target xmlns:unless="ant:unless">
+									<available
+										file="${project.build.directory}/${project.build.finalName}-javadoc.jar"
+										property="javadoc.jar.exists"/>
+									<mkdir dir="${project.build.directory}/empty-javadoc-src"
+										unless:set="javadoc.jar.exists"/>
+									<jar
+										destfile="${project.build.directory}/${project.build.finalName}-javadoc.jar"
+										basedir="${project.build.directory}/empty-javadoc-src"
+										whenempty="create"
+										unless:set="javadoc.jar.exists"/>
+								</target>
+							</configuration>
+						</execution>
 						<execution>
 							<id>zip-allure-report</id>
 							<phase>package</phase>
