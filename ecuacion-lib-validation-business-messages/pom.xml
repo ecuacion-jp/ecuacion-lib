@@ -31,18 +31,6 @@
 	<build>
 		<plugins>
 
-			<!-- maven-source-plugin (outputs a jar of source) -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-
-			<!-- maven-javadoc-plugin (outputs a jar of javadocs; package-info.java provides the docs) -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
-
 			<!-- wagon: skip because this module has no real javadoc/tests/coverage to upload -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -50,12 +38,6 @@
 				<configuration>
 					<skip>true</skip>
 				</configuration>
-			</plugin>
-
-			<!-- mycila license-maven-plugin -->
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
 			</plugin>
 
 		</plugins>
