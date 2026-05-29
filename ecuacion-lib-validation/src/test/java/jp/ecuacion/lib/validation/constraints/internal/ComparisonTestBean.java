@@ -175,14 +175,35 @@ public class ComparisonTestBean {
     public static class Bean {
       private NumberBean number1 = new NumberBean(3);
       private NumberBean number2 = new NumberBean(2);
-      
+
       private static class NumberBean {
         private int number;
-        
+
         NumberBean(int number) {
           this.number = number;
         }
       }
+    }
+  }
+
+  public static class NullPropertyPath {
+
+    @LessThanOrEqualTo(propertyPath = "startDate", baselinePropertyPath = "endDate")
+    public static class PropertyPathNullBean {
+      private @Nullable LocalDate startDate = null;
+      private LocalDate endDate = LocalDate.of(2025, 8, 1);
+    }
+
+    @LessThanOrEqualTo(propertyPath = "startDate", baselinePropertyPath = "endDate")
+    public static class BaselinePropertyPathNullBean {
+      private LocalDate startDate = LocalDate.of(2025, 8, 10);
+      private @Nullable LocalDate endDate = null;
+    }
+
+    @LessThanOrEqualTo(propertyPath = "startDate", baselinePropertyPath = "endDate")
+    public static class BothNullBean {
+      private @Nullable LocalDate startDate = null;
+      private @Nullable LocalDate endDate = null;
     }
   }
 }

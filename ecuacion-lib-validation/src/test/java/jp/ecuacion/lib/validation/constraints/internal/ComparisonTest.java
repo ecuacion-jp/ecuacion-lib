@@ -141,4 +141,23 @@ public class ComparisonTest {
         validator.validate(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
     assertThat(setBean).hasSize(1);
   }
+
+  @SuppressWarnings("null")
+  @Test
+  public void nullPropertyPath() {
+    // propertyPath side is null -> valid (no exception, no violation)
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.PropertyPathNullBean>> setPropertyPathNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.PropertyPathNullBean());
+    assertThat(setPropertyPathNull).isEmpty();
+
+    // baselinePropertyPath side is null -> valid
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.BaselinePropertyPathNullBean>> setBaselineNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.BaselinePropertyPathNullBean());
+    assertThat(setBaselineNull).isEmpty();
+
+    // both null -> valid
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.BothNullBean>> setBothNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.BothNullBean());
+    assertThat(setBothNull).isEmpty();
+  }
 }
