@@ -54,8 +54,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
   /** Initializes an instance. */
   public void initialize(String message, String[] propertyPath, String baselinePropertyPath,
-      ComparisonType comparisonType,
-      TypeConversionFromString typeConversionFromString, String typeConversionDateTimeFormat) {
+      ComparisonType comparisonType, TypeConversionFromString typeConversionFromString,
+      String typeConversionDateTimeFormat) {
     super.initialize(message, propertyPath);
 
     this.baselinePropertyPath = baselinePropertyPath;
@@ -72,15 +72,14 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    // Return of getValue is @NonNull because null means path is wrong and it should be NPE.
-    List<Pair<@NonNull String, @NonNull Object>> valueOfFieldList =
-        Arrays.stream(propertyPaths)
-            .map(path -> Pair.of(path,
-                Objects.requireNonNull(PropertyPathUtil.getValue(instance, path)))).toList();
+    // getValue returns null when the field value is null. Null handling is done in
+    // isValidForSinglePropertyPath (null is treated as valid per the contract of this validator).
+    List<Pair<@NonNull String, @Nullable Object>> valueOfFieldList = Arrays.stream(propertyPaths)
+        .map(path -> Pair.of(path, PropertyPathUtil.getValue(instance, path))).toList();
 
-    for (Pair<@NonNull String, @NonNull Object> pair : valueOfFieldList) {
-      @SuppressWarnings("null")
-      boolean result = isValidForSinglePropertyPath(instance, pair.getLeft(), pair.getRight());
+    for (Pair<@NonNull String, @Nullable Object> pair : valueOfFieldList) {
+      boolean result = isValidForSinglePropertyPath(instance,
+          Objects.requireNonNull(pair.getLeft()), pair.getRight());
 
       if (!result) {
         return false;
@@ -96,7 +95,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   }
 
   protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
-      Object valueOfPropertyPath) {
+      @Nullable Object valueOfPropertyPath) {
 
     Field fieldOfPropertyPath = PropertyPathUtil.getField(instance.getClass(), propertyPath);
     @NonNull
@@ -118,6 +117,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       return true;
     }
 
+    Objects.requireNonNull(valueOfPropertyPath);
+    
     // same values treatment
     if (valueOfPropertyPath.equals(valueOfBasisPropertyPath)) {
       return comparisonType.allowsEqual();
@@ -172,8 +173,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
           + fieldOfPropertyPath.getType().getCanonicalName());
     }
 
-    return comparisonType.isValidWhenLessThanBasis()
-        ? validWhenLessThanBasis : !validWhenLessThanBasis;
+    return comparisonType.isValidWhenLessThanBasis() ? validWhenLessThanBasis
+        : !validWhenLessThanBasis;
   }
 
   protected boolean isStringValidWhenLessThanBasis(String x1, String x2) {

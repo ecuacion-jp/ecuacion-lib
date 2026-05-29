@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import jakarta.validation.ValidationException;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -65,10 +64,11 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
    */
   public void initialize(String message, @NonNull String[] propertyPath) {
     this.message = message;
-    this.propertyPaths = propertyPath == null ? new @NonNull String[] {} : propertyPath;
+    this.propertyPaths = propertyPath;
 
+    // propertyPath is NonNull out of the specification of jakarta validation
     if (Objects.requireNonNull(propertyPaths).length == 0) {
-      throw new ValidationException("Length of propertyPath is zero.");
+      throw new IllegalArgumentException("Length of propertyPath is zero.");
     }
 
     // Each element must be a non-empty string.
@@ -78,7 +78,7 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
     // an empty-named field instead of treating it as a global (top-of-page) error.
     for (String path : propertyPaths) {
       if (path.isEmpty()) {
-        throw new ValidationException(
+        throw new IllegalArgumentException(
             "propertyPath must not contain empty strings. Specify a valid field name.");
       }
     }

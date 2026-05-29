@@ -89,6 +89,7 @@ public class ExceptionUtil {
 
     @Override
     public <T> T unwrap(@Nullable Class<T> type) {
+      // Jakarta Validation spec (ConstraintViolation#unwrap) requires ValidationException here.
       throw new jakarta.validation.ValidationException("Unwrapping is not supported.");
     }
   }
