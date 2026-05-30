@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
@@ -1386,4 +1387,124 @@ public class ExceptionUtilTest {
     }
   }
 
+  // -------------------------------------------------------------------------
+  // getMessageList(Violations, Locale) and getMessageList(Violations, boolean) overloads
+  // -------------------------------------------------------------------------
+
+  @SuppressWarnings("null")
+  @Nested
+  @DisplayName("getMessageList(Violations) 2-arg overloads")
+  class MessageListViolationsTwoArgOverloads {
+
+    @Test
+    @DisplayName("getMessageList(Violations, Locale): delegates correctly")
+    void violationsWithLocale() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+
+    @Test
+    @DisplayName("getMessageList(Violations, boolean): delegates correctly")
+    void violationsWithBoolean() {
+      Violations v = new Violations().add(new BusinessViolation("MSG1"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, false);
+      assertThat(msgs).containsExactly("message 1.");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // ConstraintViolationExceptionWithParameters as Throwable
+  // -------------------------------------------------------------------------
+
+  @SuppressWarnings("null")
+  @Nested
+  @DisplayName("ConstraintViolationExceptionWithParameters as Throwable")
+  class ConstraintViolationExceptionWithParametersAsThrowable {
+
+    private static record NotNullBean(@NotNull @Nullable String value) {}
+
+    @Test
+    @DisplayName("getMessageList(Throwable): extracts MessageParameters from WithParameters exception")
+    void withParameters_usesMessageParameters() {
+      Set<ConstraintViolation<NotNullBean>> cvs = validator.validate(new NotNullBean(null));
+      ConstraintViolationExceptionWithParameters ex =
+          new ConstraintViolationExceptionWithParameters(cvs, Violations.newMessageParameters());
+      List<String> msgs = ExceptionUtil.getMessageList(ex, Locale.ENGLISH, false);
+      assertThat(msgs).hasSize(1);
+      assertThat(msgs.get(0)).contains("must not be null");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Prefix and postfix for ConstraintViolation messages
+  // -------------------------------------------------------------------------
+
+  @SuppressWarnings("null")
+  @Nested
+  @DisplayName("prefix and postfix on ConstraintViolation messages")
+  class ConstraintViolationPrefixPostfix {
+
+    private static record Bean(@NotNull @Nullable String value) {}
+
+    @Test
+    @DisplayName("messagePrefix is prepended to constraint violation message")
+    void prefix() {
+      Violations v = new Violations().validate(new Bean(null))
+          .withMessageParameters(p -> p.messagePrefix(">>"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs.get(0)).startsWith(">>");
+    }
+
+    @Test
+    @DisplayName("messagePostfix is appended to constraint violation message")
+    void postfix() {
+      Violations v = new Violations().validate(new Bean(null))
+          .withMessageParameters(p -> p.messagePostfix("<<"));
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs.get(0)).endsWith("<<");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessageList(Set) with empty set
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessageList(Set) edge cases")
+  class MessageListSetEdgeCases {
+
+    @Test
+    @DisplayName("throws RuntimeException when constraint violation set is empty")
+    void emptySet_throws() {
+      try {
+        ExceptionUtil.getMessageList(new HashSet<>(), Locale.ENGLISH, false,
+            Violations.newMessageParameters());
+        org.junit.jupiter.api.Assertions.fail();
+      } catch (RuntimeException ex) {
+        assertThat(ex.getMessage()).contains("zero");
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // BusinessViolation with itemNameKeys
+  // -------------------------------------------------------------------------
+
+  @SuppressWarnings("null")
+  @Nested
+  @DisplayName("BusinessViolation with itemNameKeys")
+  class BusinessViolationWithItemNameKeys {
+
+    @Test
+    @DisplayName("itemNameKeys are resolved when isMessagesWithItemNamesAsDefault=true")
+    void itemNameKeysResolved() {
+      BusinessViolation bv = new BusinessViolation(
+          new String[]{"singleLayer.field"}, new String[]{}, "MSG1");
+      Violations v = new Violations().add(bv);
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
+      assertThat(msgs).hasSize(1);
+      assertThat(msgs.get(0)).isNotNull();
+    }
+  }
 }

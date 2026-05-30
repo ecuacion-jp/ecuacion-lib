@@ -75,7 +75,6 @@ public class ItemUtilTest {
       this.child = child;
     }
 
-    @SuppressWarnings("unused")
     public SimpleContainer getChild() {
       return child;
     }
@@ -88,7 +87,6 @@ public class ItemUtilTest {
       this.order = order;
     }
 
-    @SuppressWarnings("unused")
     public ContainerWithCustomItem getOrder() {
       return order;
     }

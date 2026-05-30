@@ -17,6 +17,7 @@ package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.HashMap;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg.ArgKind;
@@ -317,6 +318,152 @@ public class PropertiesFileUtilTest {
           Arg.fromFileKinds(new PropertiesFileUtilFileKindEnum[] {PropertiesFileUtilFileKindEnum.MESSAGES},
               "MSG_WITH_STRING_ARG", "ok");
       assertThat(arg.resolveAsString(Locale.ENGLISH)).isEqualTo("value=ok");
+    }
+
+    @Test
+    @DisplayName("itemName(key): resolves from item_names properties")
+    void itemName() {
+      Arg arg = Arg.itemName("singleLayer.field");
+      assertThat(arg.resolveAsString(Locale.ENGLISH)).isEqualTo("test field");
+    }
+
+    @Test
+    @DisplayName("constant(key): resolves from constants properties")
+    void constant() {
+      Arg arg = Arg.constant("TEST_CONSTANTS_KEY");
+      assertThat(arg.resolveAsString(Locale.ENGLISH)).isEqualTo("test constants value");
+    }
+
+    @Test
+    @DisplayName("resolveAsString() (no-locale): delegates to resolveAsString(null)")
+    void resolveAsStringNoLocale() {
+      assertThat(Arg.message("MSG1").resolveAsString())
+          .isEqualTo(Arg.message("MSG1").resolveAsString(null));
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // getMessage / getMessageWithItemName (no-locale overloads)
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("getMessage / getMessageWithItemName no-locale overloads")
+  class MessageNoLocaleOverloads {
+
+    @Test
+    @DisplayName("getMessage(key, args): no-locale overload returns same as locale-aware version")
+    void getMessage_noLocale() {
+      assertThat(PropertiesFileUtil.getMessage("MSG1"))
+          .isEqualTo(PropertiesFileUtil.getMessage((Locale) null, "MSG1"));
+    }
+
+    @Test
+    @DisplayName("getMessageWithItemName(locale, key): locale-aware version works")
+    void getMessageWithItemName_withLocale() {
+      String result = PropertiesFileUtil.getMessageWithItemName(
+          Locale.ENGLISH, "jakarta.validation.constraints.NotNull.message");
+      assertThat(result).contains("must not be null");
+    }
+
+    @Test
+    @DisplayName("getMessageWithItemName(key, args): no-locale overload delegates correctly")
+    void getMessageWithItemName_noLocale() {
+      assertThat(PropertiesFileUtil.getMessageWithItemName(
+          "jakarta.validation.constraints.NotNull.message"))
+              .isEqualTo(PropertiesFileUtil.getMessageWithItemName(
+                  (Locale) null, "jakarta.validation.constraints.NotNull.message"));
+    }
+
+    @Test
+    @DisplayName("getItemName(key): no-locale overload delegates correctly")
+    void getItemName_noLocale() {
+      assertThat(PropertiesFileUtil.getItemName("singleLayer.field"))
+          .isEqualTo(PropertiesFileUtil.getItemName(null, "singleLayer.field"));
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Validation messages
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("ValidationMessages / ValidationMessagesWithItemNames / ValidationMessagesPatternDescriptions")
+  class ValidationMessages {
+
+    private static final String VALIDATION_KEY = "TEST_VALIDATION_KEY";
+    private static final String VALIDATION_WITH_ITEM_NAMES_KEY =
+        "jakarta.validation.constraints.NotNull.message";
+    private static final String PATTERN_DESC_KEY = "embeddedParameter";
+
+    @Test
+    @DisplayName("getValidationMessage(key, argMap): no-locale overload delegates correctly")
+    void getValidationMessage_noLocale() {
+      assertThat(PropertiesFileUtil.getValidationMessage(VALIDATION_KEY, new HashMap<>()))
+          .isEqualTo(PropertiesFileUtil.getValidationMessage(null, VALIDATION_KEY, new HashMap<>()));
+    }
+
+    @Test
+    @DisplayName("hasValidationMessage(key): true for existing key")
+    void hasValidationMessage_existing() {
+      assertThat(PropertiesFileUtil.hasValidationMessage(VALIDATION_KEY)).isTrue();
+    }
+
+    @Test
+    @DisplayName("hasValidationMessage(key): false for non-existing key")
+    void hasValidationMessage_missing() {
+      assertThat(PropertiesFileUtil.hasValidationMessage("NO_SUCH_VALIDATION_KEY")).isFalse();
+    }
+
+    @Test
+    @DisplayName("getValidationMessageWithItemName(key, argMap): no-locale overload delegates correctly")
+    void getValidationMessageWithItemName_noLocale() {
+      assertThat(PropertiesFileUtil.getValidationMessageWithItemName(
+          VALIDATION_WITH_ITEM_NAMES_KEY, new HashMap<>()))
+              .isEqualTo(PropertiesFileUtil.getValidationMessageWithItemName(
+                  null, VALIDATION_WITH_ITEM_NAMES_KEY, new HashMap<>()));
+    }
+
+    @Test
+    @DisplayName("hasValidationMessageWithItemName(key): true for existing key")
+    void hasValidationMessageWithItemName_existing() {
+      assertThat(PropertiesFileUtil.hasValidationMessageWithItemName(
+          VALIDATION_WITH_ITEM_NAMES_KEY)).isTrue();
+    }
+
+    @Test
+    @DisplayName("hasValidationMessageWithItemName(key): false for non-existing key")
+    void hasValidationMessageWithItemName_missing() {
+      assertThat(PropertiesFileUtil.hasValidationMessageWithItemName("NO_SUCH_KEY")).isFalse();
+    }
+
+    @Test
+    @DisplayName("getValidationMessagePatternDescription(locale, key): returns value with explicit locale")
+    void getValidationMessagePatternDescription_withLocale() {
+      String result = PropertiesFileUtil.getValidationMessagePatternDescription(
+          Locale.ENGLISH, PATTERN_DESC_KEY);
+      assertThat(result).isNotNull().isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("getValidationMessagePatternDescription(key): no-locale overload delegates correctly")
+    void getValidationMessagePatternDescription_noLocale() {
+      assertThat(PropertiesFileUtil.getValidationMessagePatternDescription(PATTERN_DESC_KEY))
+          .isEqualTo(PropertiesFileUtil.getValidationMessagePatternDescription(
+              null, PATTERN_DESC_KEY));
+    }
+
+    @Test
+    @DisplayName("hasValidationMessagePatternDescription(key): returns a boolean without throwing")
+    void hasValidationMessagePatternDescription_callable() {
+      boolean result = PropertiesFileUtil.hasValidationMessagePatternDescription(PATTERN_DESC_KEY);
+      assertThat(result).isIn(true, false);
+    }
+
+    @Test
+    @DisplayName("hasValidationMessagePatternDescription(key): false for non-existing key")
+    void hasValidationMessagePatternDescription_missing() {
+      assertThat(PropertiesFileUtil.hasValidationMessagePatternDescription("NO_SUCH_PATTERN_KEY"))
+          .isFalse();
     }
   }
 }

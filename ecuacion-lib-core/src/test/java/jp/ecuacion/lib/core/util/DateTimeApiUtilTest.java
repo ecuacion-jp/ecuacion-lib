@@ -134,4 +134,42 @@ public class DateTimeApiUtilTest {
     assertThat(result.getMinute()).isEqualTo(1);
     assertThat(result.getSecond()).isEqualTo(1);
   }
+
+  @Test
+  @DisplayName("getLocalDateTimeDisplayString(OffsetDateTime, null) uses system default zone")
+  public void getLocalDateTimeDisplayString_offsetDateTime_nullZone() {
+    OffsetDateTime dateTime =
+        OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1), ZoneOffset.UTC);
+    assertThat(DateTimeApiUtil.getLocalDateTimeDisplayString(dateTime, null)).isNotNull();
+  }
+
+  @Test
+  @DisplayName("getTimestampStringForFilename formats as yyyy-MM-dd-HH-mm-ss-SSSSSS")
+  public void getTimestampStringForFilename() {
+    LocalDateTime dateTime = LocalDateTime.of(2001, 1, 1, 1, 1, 1, 0);
+    assertThat(DateTimeApiUtil.getTimestampStringForFilename(dateTime))
+        .isEqualTo("2001-01-01-01-01-01-000000");
+  }
+
+  @Test
+  @DisplayName("getOffsetDateTimeDisplayString(OffsetDateTime, null) uses system default zone")
+  public void getOffsetDateTimeDisplayString_nullZone() {
+    OffsetDateTime dateTime =
+        OffsetDateTime.of(LocalDateTime.of(2001, 1, 1, 1, 1, 1), ZoneOffset.UTC);
+    assertThat(DateTimeApiUtil.getOffsetDateTimeDisplayString(dateTime, null)).isNotNull();
+  }
+
+  @Test
+  @DisplayName("getOffsetDateTime throws RuntimeException when offset part is unparseable")
+  public void getOffsetDateTime_invalidOffsetFormat_throws() {
+    assertThatThrownBy(() -> DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01 BADOFFSET"))
+        .isInstanceOf(RuntimeException.class);
+  }
+
+  @Test
+  @DisplayName("getOffsetDateTime throws RuntimeException when date format is completely invalid")
+  public void getOffsetDateTime_invalidDateFormat_throws() {
+    assertThatThrownBy(() -> DateTimeApiUtil.getOffsetDateTime("NOT-A-DATE"))
+        .isInstanceOf(RuntimeException.class);
+  }
 }

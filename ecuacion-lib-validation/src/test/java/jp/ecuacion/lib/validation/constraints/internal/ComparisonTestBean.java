@@ -206,4 +206,42 @@ public class ComparisonTestBean {
       private @Nullable LocalDate endDate = null;
     }
   }
+
+  public static class TypeConversionFromStringBeans {
+
+    @LessThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class NumberConversionValid {
+      private String amount = "1,000";
+      private String limit = "2,000";
+    }
+
+    @LessThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class NumberConversionInvalid {
+      private String amount = "3,000";
+      private String limit = "2,000";
+    }
+
+    @LessThan(propertyPath = "startDate", baselinePropertyPath = "endDate",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.DATE)
+    public static class DateConversionValid {
+      private String startDate = "2001-01-01";
+      private String endDate = "2001-12-31";
+    }
+
+    @LessThan(propertyPath = "startDate", baselinePropertyPath = "endDate",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.DATE)
+    public static class DateConversionInvalid {
+      private String startDate = "2001-12-31";
+      private String endDate = "2001-01-01";
+    }
+
+    @LessThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class NumberConversionNonStringField {
+      private int amount = 1;
+      private int limit = 2;
+    }
+  }
 }
