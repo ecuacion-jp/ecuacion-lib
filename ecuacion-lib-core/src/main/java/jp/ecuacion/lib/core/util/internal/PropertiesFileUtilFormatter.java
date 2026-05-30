@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.LocaleUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -41,7 +42,8 @@ public class PropertiesFileUtilFormatter {
    * using {@link java.text.MessageFormat}.
    * Returns {@code template} as-is when {@code args} is empty.
    *
-   * @param locale locale used for formatting; {@code null} is treated as {@link Locale#ROOT}
+   * @param locale locale used for formatting; {@code null} is treated as the fallback locale
+   *     (see {@link jp.ecuacion.lib.core.util.LocaleUtil#getFallbackLocale()})
    * @param template message template
    * @param args arguments to substitute
    * @return formatted string
@@ -50,7 +52,7 @@ public class PropertiesFileUtilFormatter {
     if (args.length == 0) {
       return template;
     }
-    Locale effectiveLocale = locale != null ? locale : Locale.ROOT;
+    Locale effectiveLocale = locale != null ? locale : LocaleUtil.getFallbackLocale();
     return new MessageFormat(template, effectiveLocale).format(args);
   }
 

@@ -16,7 +16,6 @@
 package jp.ecuacion.lib.core.jakartavalidation.constraints;
 
 import jakarta.validation.Validation;
-import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,19 +54,19 @@ public class ClassValidatorTest {
     // propertyPath is empty string
     assertThatThrownBy(
         () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{""}))
-        .isInstanceOf(ValidationException.class)
+        .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("propertyPath must not contain empty strings. Specify a valid field name.");
 
     // propertyPath contains an empty string element
     assertThatThrownBy(
         () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{"propertyPath", ""}))
-        .isInstanceOf(ValidationException.class)
+        .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("propertyPath must not contain empty strings. Specify a valid field name.");
 
     // propertyPath length zero
     assertThatThrownBy(
         () -> new ClassAlwaysFalseValidator().initialize("msg", new String[]{}))
-        .isInstanceOf(ValidationException.class)
+        .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Length of propertyPath is zero.");
 
     // propertyPath not found in the bean — exception comes from isValid(), so validator.validate()

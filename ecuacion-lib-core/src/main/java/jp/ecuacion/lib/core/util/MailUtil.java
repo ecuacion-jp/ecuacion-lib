@@ -180,6 +180,12 @@ public class MailUtil {
           "Either mailToList or mailCcList need to have at least one element.");
     }
 
+    if (mailSender != null) {
+      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title,
+          content);
+      return;
+    }
+
     String mailFrom = getApp("smtp.sender");
     String pass = getApp("smtp.password");
 
@@ -309,6 +315,16 @@ public class MailUtil {
       }
     }
   }
+
+  /** Strategy interface for sending mail; package-private to allow substitution in tests. */
+  @FunctionalInterface
+  interface MailSender {
+    void send(@Nullable List<@NonNull String> mailToList,
+        @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
+        @Nullable String content) throws Exception;
+  }
+
+  static @Nullable MailSender mailSender = null;
 
   private static void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
       String mailFrom, String pass, Session session, InternetAddress[] addressTo)

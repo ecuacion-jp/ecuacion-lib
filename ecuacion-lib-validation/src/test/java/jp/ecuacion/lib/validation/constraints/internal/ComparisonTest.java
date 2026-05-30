@@ -141,4 +141,63 @@ public class ComparisonTest {
         validator.validate(new ComparisonTestBean.DotContainingPropertyPaths.Bean());
     assertThat(setBean).hasSize(1);
   }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("typeConversionFromString=NUMBER: converts comma-formatted string to BigDecimal before comparing")
+  public void typeConversionFromString_number() {
+    Set<ConstraintViolation<ComparisonTestBean.TypeConversionFromStringBeans.NumberConversionValid>> valid =
+        validator.validate(new ComparisonTestBean.TypeConversionFromStringBeans.NumberConversionValid());
+    assertThat(valid).isEmpty();
+
+    Set<ConstraintViolation<ComparisonTestBean.TypeConversionFromStringBeans.NumberConversionInvalid>> invalid =
+        validator.validate(
+            new ComparisonTestBean.TypeConversionFromStringBeans.NumberConversionInvalid());
+    assertThat(invalid).hasSize(1);
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("typeConversionFromString=DATE: parses date string before comparing")
+  public void typeConversionFromString_date() {
+    Set<ConstraintViolation<ComparisonTestBean.TypeConversionFromStringBeans.DateConversionValid>> valid =
+        validator.validate(new ComparisonTestBean.TypeConversionFromStringBeans.DateConversionValid());
+    assertThat(valid).isEmpty();
+
+    Set<ConstraintViolation<ComparisonTestBean.TypeConversionFromStringBeans.DateConversionInvalid>> invalid =
+        validator.validate(
+            new ComparisonTestBean.TypeConversionFromStringBeans.DateConversionInvalid());
+    assertThat(invalid).hasSize(1);
+  }
+
+  @Test
+  @DisplayName("typeConversionFromString=NUMBER with non-String field throws RuntimeException")
+  public void typeConversionFromString_nonStringField_throws() {
+    try {
+      validator.validate(
+          new ComparisonTestBean.TypeConversionFromStringBeans.NumberConversionNonStringField());
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+    }
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  public void nullPropertyPath() {
+    // propertyPath side is null -> valid (no exception, no violation)
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.PropertyPathNullBean>> setPropertyPathNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.PropertyPathNullBean());
+    assertThat(setPropertyPathNull).isEmpty();
+
+    // baselinePropertyPath side is null -> valid
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.BaselinePropertyPathNullBean>> setBaselineNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.BaselinePropertyPathNullBean());
+    assertThat(setBaselineNull).isEmpty();
+
+    // both null -> valid
+    Set<ConstraintViolation<ComparisonTestBean.NullPropertyPath.BothNullBean>> setBothNull =
+        validator.validate(new ComparisonTestBean.NullPropertyPath.BothNullBean());
+    assertThat(setBothNull).isEmpty();
+  }
 }
