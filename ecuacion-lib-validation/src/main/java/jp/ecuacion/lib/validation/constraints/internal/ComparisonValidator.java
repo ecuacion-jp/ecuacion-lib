@@ -26,15 +26,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -72,14 +69,9 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     procedureBeforeLoopForEachPropertyPath(instance);
 
-    // getValue returns null when the field value is null. Null handling is done in
-    // isValidForSinglePropertyPath (null is treated as valid per the contract of this validator).
-    List<Pair<@NonNull String, @Nullable Object>> valueOfFieldList = Arrays.stream(propertyPaths)
-        .map(path -> Pair.of(path, PropertyPathUtil.getValue(instance, path))).toList();
-
-    for (Pair<@NonNull String, @Nullable Object> pair : valueOfFieldList) {
-      boolean result = isValidForSinglePropertyPath(instance,
-          Objects.requireNonNull(pair.getLeft()), pair.getRight());
+    for (int i = 0; i < propertyPaths.length; i++) {
+      boolean result = isValidForSinglePropertyPath(instance, propertyPaths[i],
+          valuesOfPropertyPaths[i]);
 
       if (!result) {
         return false;
