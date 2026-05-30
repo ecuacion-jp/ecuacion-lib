@@ -92,17 +92,16 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the value in application_xxx.properties if it exists. 
+   * Returns the value in application_xxx.properties if it exists.
    * Returns given default value if not.
-   * 
+   *
    * @param key the key of the property
-   * @param defaultValue default value
-   * @return the value of the property
+   * @param defaultValue default value, may be {@code null}
+   * @return the value of the property, or {@code defaultValue} if the key does not exist
    */
-  @SuppressWarnings("unchecked")
-  public static <T extends @Nullable String> T getApplicationOrElse(String key, T defaultValue) {
+  public static @Nullable String getApplicationOrElse(String key, @Nullable String defaultValue) {
     if (PropertiesFileUtilResolver.hasProp(APPLICATION, key)) {
-      return (T) PropertiesFileUtilResolver.getProp(null, APPLICATION, key);
+      return PropertiesFileUtilResolver.getProp(null, APPLICATION, key);
 
     } else {
       return defaultValue;
