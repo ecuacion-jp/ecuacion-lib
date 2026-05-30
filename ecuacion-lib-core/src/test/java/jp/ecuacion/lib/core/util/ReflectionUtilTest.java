@@ -211,6 +211,17 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  @DisplayName("newInstance throws RuntimeException for non-existent class")
+  public void newInstance_nonExistentClass_throws() {
+    try {
+      ReflectionUtil.newInstance("no.such.Class");
+      Assertions.fail();
+    } catch (RuntimeException ex) {
+      assertThat(ex.getCause()).isInstanceOf(ClassNotFoundException.class);
+    }
+  }
+
+  @Test
   public void searchAnnotationPlacedAtClassTest() {
     // annotation on the class itself
     Optional<@NonNull SampleAnnotation> found =
