@@ -28,12 +28,12 @@ import org.jspecify.annotations.Nullable;
  */
 public class LocaleUtil {
 
-  private static final Locale FALLBACK_LOCALE;
+  private static final boolean USE_ROOT;
 
   static {
-    @Nullable String val =
-        PropertiesFileUtil.getApplicationOrElse("jp.ecuacion.locale.use-root", null);
-    FALLBACK_LOCALE = "true".equalsIgnoreCase(val) ? Locale.ROOT : Locale.getDefault();
+    @Nullable
+    String val = PropertiesFileUtil.getApplicationOrElse("jp.ecuacion.locale.use-root", null);
+    USE_ROOT = "true".equalsIgnoreCase(val);
   }
 
   private LocaleUtil() {}
@@ -47,6 +47,6 @@ public class LocaleUtil {
    * @return the fallback locale
    */
   public static Locale getFallbackLocale() {
-    return FALLBACK_LOCALE;
+    return USE_ROOT ? Locale.ROOT : Locale.getDefault();
   }
 }
