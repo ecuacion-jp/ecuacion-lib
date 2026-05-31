@@ -20,10 +20,6 @@ This is because `ecuacion-splib` imports `ecuacion-lib-parent` as a BOM (`<scope
 If these settings were moved to `ecuacion-lib-parent`, they would also be pulled into `ecuacion-splib`
 via that BOM import, potentially conflicting with the versions managed by Spring Boot.
 
-## System Requirements
-
-- JDK 21 or above.
-
 ## Dependent External Libraries
 
 (none)

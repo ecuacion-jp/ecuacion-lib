@@ -30,10 +30,6 @@ Adding this module changes validation messages from neutral technical wording to
 | Jakarta standard constraints (`@NotNull`, `@Size`, ...) | `This field is required.`, `Please enter between {min} and {max} characters.`, ... |
 | ecuacion-lib-validation field constraints (`@SizeString`, `@BooleanString`, ...) | `Please enter between {min} and {max} characters.`, ... |
 
-## System Requirements
-
-- JDK 21 or above.
-
 ## Dependent Ecuacion Libraries
 
 ### Automatically Loaded Libraries
