@@ -5,10 +5,6 @@
 `ecuacion-lib-core` provides utilities for `Jakarta Validation`.
 It also provides some utilities used by other ecuacion modules and apps.  
 
-## System Requirements
-
-- JDK 21 or above.
-
 ## Dependent Ecuacion Libraries
 
 (none)
