@@ -38,7 +38,7 @@ Adding this module changes validation messages from neutral technical wording to
 
 ### Automatically Loaded Libraries
 
-- `ecuacion-lib-core`
+- `ecuacion-lib-validation` (which transitively loads `ecuacion-lib-core`)
 
 ## Installation
 

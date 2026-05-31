@@ -54,6 +54,8 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 ## Documentation
 
 - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/en/article?id=home) — Official reference documentation
+- [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-validation/latest/index.html)
+
 - See also the `Documentation` section of the `README` in each module
 
 ## Installation
