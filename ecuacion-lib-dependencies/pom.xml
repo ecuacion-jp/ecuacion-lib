@@ -52,7 +52,7 @@
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.13.4</com.uber.nullaway.version>
+		<com.uber.nullaway.version>0.13.5</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
 
 		<!-- apache commons -->
