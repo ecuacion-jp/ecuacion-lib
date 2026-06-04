@@ -5,10 +5,6 @@
 `ecuacion-lib-core` provides utilities for `Jakarta Validation`.
 It also provides some utilities used by other ecuacion modules and apps.  
 
-## System Requirements
-
-- JDK 21 or above.
-
 ## Dependent Ecuacion Libraries
 
 (none)
@@ -18,12 +14,12 @@ It also provides some utilities used by other ecuacion modules and apps.
 ### Automatically Loaded Libraries
 
 - `org.apache.commons:commons-lang3`
-- `jakarta.el:jakarta.el-api`
 
 ### Manual Load Needed Libraries
 
 - `jakarta.validation:jakarta.validation-api`
 - (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- `jakarta.el:jakarta.el-api`
 - `jakarta.mail:jakarta.mail-api`
 - `org.slf4j:slf4j-api`
 - (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is recommended.)
