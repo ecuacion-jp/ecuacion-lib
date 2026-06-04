@@ -4,4 +4,5 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "16.0"
+    ignore:
+      - dependency-name: "jp.ecuacion.*:*"
