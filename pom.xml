@@ -94,7 +94,7 @@
 		<io.qameta.allure.allure-maven.version>2.14.0</io.qameta.allure.allure-maven.version>
 		<io.qameta.allure.allure-junit5.version>2.29.0</io.qameta.allure.allure-junit5.version>
 		<!-- jacoco -->
-		<org.jacoco.jacoco-maven-plugin.version>0.8.13</org.jacoco.jacoco-maven-plugin.version>
+		<org.jacoco.jacoco-maven-plugin.version>0.8.14</org.jacoco.jacoco-maven-plugin.version>
 		<!-- surefire -->
 		<org.apache.maven.plugins.maven-surefire-plugin.version>3.2.5</org.apache.maven.plugins.maven-surefire-plugin.version>
 		<!-- gpg -->
