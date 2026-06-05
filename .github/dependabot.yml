@@ -4,5 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    target-branch: "develop"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "jp.ecuacion.*:*"

@@ -33,9 +33,9 @@
 		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
 		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
 		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
-		<jakarta.mail.jakarta.mail-api.version>2.1.4</jakarta.mail.jakarta.mail-api.version>
+		<jakarta.mail.jakarta.mail-api.version>2.1.5</jakarta.mail.jakarta.mail-api.version>
 		<org.slf4j.slf4j-api.version>2.0.17</org.slf4j.slf4j-api.version>
-		<tools.jackson.core.jackson-databind.version>3.1.3</tools.jackson.core.jackson-databind.version>
+		<tools.jackson.core.jackson-databind.version>3.1.4</tools.jackson.core.jackson-databind.version>
 		<!-- jakarta-el -->
 		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
@@ -52,7 +52,7 @@
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.13.4</com.uber.nullaway.version>
+		<com.uber.nullaway.version>0.13.5</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
 
 		<!-- apache commons -->
