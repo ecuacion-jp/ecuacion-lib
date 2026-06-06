@@ -92,7 +92,7 @@
 		<com.github.spotbugs.spotbugs.version>4.9.8</com.github.spotbugs.spotbugs.version>
 		<!-- allure -->
 		<io.qameta.allure.allure-maven.version>3.0.1</io.qameta.allure.allure-maven.version>
-		<io.qameta.allure.allure-junit5.version>2.35.2</io.qameta.allure.allure-junit5.version>
+		<io.qameta.allure.allure-jupiter.version>2.35.2</io.qameta.allure.allure-jupiter.version>
 		<!-- jacoco -->
 		<org.jacoco.jacoco-maven-plugin.version>0.8.15</org.jacoco.jacoco-maven-plugin.version>
 		<!-- surefire -->
@@ -588,11 +588,11 @@
 				<version>${ecuacion-lib.version}</version>
 			</dependency>
 
-			<!-- allure-junit5 (not managed by Spring Boot BOM) -->
+			<!-- allure-jupiter (not managed by Spring Boot BOM) -->
 			<dependency>
 				<groupId>io.qameta.allure</groupId>
-				<artifactId>allure-junit5</artifactId>
-				<version>${io.qameta.allure.allure-junit5.version}</version>
+				<artifactId>allure-jupiter</artifactId>
+				<version>${io.qameta.allure.allure-jupiter.version}</version>
 			</dependency>
 
 			<!-- jspecify -->
