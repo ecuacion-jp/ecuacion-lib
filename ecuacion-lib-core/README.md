@@ -14,15 +14,14 @@ It also provides some utilities used by other ecuacion modules and apps.
 ### Automatically Loaded Libraries
 
 - `org.apache.commons:commons-lang3`
+- `jakarta.validation:jakarta.validation-api`
+- `jakarta.mail:jakarta.mail-api`
+- `org.slf4j:slf4j-api`
 
 ### Manual Load Needed Libraries
 
-- `jakarta.validation:jakarta.validation-api`
-- (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
-- `jakarta.el:jakarta.el-api`
-- `jakarta.mail:jakarta.mail-api`
-- `org.slf4j:slf4j-api`
-- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is recommended.)
+- (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation implementation. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- (any `org.slf4j:slf4j-api` compatible logging implementation. `ch.qos.logback:logback-classic` is recommended.)
 
 ## Documentation
 

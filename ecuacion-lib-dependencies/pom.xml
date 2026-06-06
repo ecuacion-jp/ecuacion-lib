@@ -32,15 +32,11 @@
 		
 		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
 		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
-		<jakarta.persistence.jakarta.persistence-api.version>3.2.0</jakarta.persistence.jakarta.persistence-api.version>
 		<jakarta.mail.jakarta.mail-api.version>2.1.5</jakarta.mail.jakarta.mail-api.version>
 		<org.slf4j.slf4j-api.version>2.0.18</org.slf4j.slf4j-api.version>
 		<tools.jackson.core.jackson-databind.version>3.1.4</tools.jackson.core.jackson-databind.version>
 		<!-- jakarta-el -->
-		<jakarta.el.jakarta.el-api.version>6.0.1</jakarta.el.jakarta.el-api.version>
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
-		<!-- jakarta annotation -->
-		<jakarta.annotation.jakarta.annotation-api.version>3.0.0</jakarta.annotation.jakarta.annotation-api.version>
 		<!-- jakarta validation -->
 		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
 		<org.hibernate.validator.hibernate-validator.version>9.1.0.Final</org.hibernate.validator.hibernate-validator.version>
@@ -51,50 +47,11 @@
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
 
-		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.13.6</com.uber.nullaway.version>
-		<com.google.errorprone.error_prone_core.version>2.49.0</com.google.errorprone.error_prone_core.version>
-
 		<!-- apache commons -->
 		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
 
 	</properties>
 	
-	<build>
-		<pluginManagement>
-			<plugins>
-
-				<!-- maven-compiler-plugin with NullAway -->
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<compilerArgs>
-							<arg>-XDcompilePolicy=simple</arg>
-							<arg>-XDshould-stop.ifError=FLOW</arg>
-							<arg>-XDaddTypeAnnotationsToSymbol=true</arg>
-							<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true</arg>
-						</compilerArgs>
-						<annotationProcessorPaths>
-							<path>
-								<groupId>com.google.errorprone</groupId>
-								<artifactId>error_prone_core</artifactId>
-								<version>${com.google.errorprone.error_prone_core.version}</version>
-							</path>
-							<path>
-								<groupId>com.uber.nullaway</groupId>
-								<artifactId>nullaway</artifactId>
-								<version>${com.uber.nullaway.version}</version>
-							</path>
-						</annotationProcessorPaths>
-					</configuration>
-				</plugin>
-
-			</plugins>
-		</pluginManagement>
-
-	</build>
-
 	<dependencies>
 
 		<!-- eclipse null analysis -->
@@ -103,6 +60,33 @@
 			<artifactId>jdk-eea</artifactId>
 			<version>${org.lastnpe.eea.jdk-eea.version}</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- unit test -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-junit5</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
@@ -115,11 +99,6 @@
 				<groupId>jakarta.servlet</groupId>
 				<artifactId>jakarta.servlet-api</artifactId>
 				<version>${jakarta.servlet.jakarta.servlet-api.version}</version>
-			</dependency>
-			<dependency>
-			    <groupId>jakarta.persistence</groupId>
-			    <artifactId>jakarta.persistence-api</artifactId>
-				<version>${jakarta.persistence.jakarta.persistence-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.mail</groupId>
@@ -137,19 +116,9 @@
 				<version>${tools.jackson.core.jackson-databind.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>jakarta.el</groupId>
-				<artifactId>jakarta.el-api</artifactId>
-				<version>${jakarta.el.jakarta.el-api.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.glassfish</groupId>
 				<artifactId>jakarta.el</artifactId>
 				<version>${org.glassfish.jakarta.el.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.annotation</groupId>
-				<artifactId>jakarta.annotation-api</artifactId>
-				<version>${jakarta.annotation.jakarta.annotation-api.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.validation</groupId>
