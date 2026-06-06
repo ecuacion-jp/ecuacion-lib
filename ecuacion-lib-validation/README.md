@@ -70,16 +70,15 @@ public class SearchForm {
 
 ### Automatically Loaded Libraries
 
-(none)
+- `jakarta.validation:jakarta.validation-api`
+- `jakarta.mail:jakarta.mail-api`
+- `org.slf4j:slf4j-api`
+- `org.apache.commons:commons-lang3`
 
 ### Manual Load Needed Libraries
 
-(modules depending on `ecuacion-lib-core`)
-- `jakarta.validation:jakarta.validation-api`
-- (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation libraries. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
-- `jakarta.mail:jakarta.mail-api` (If you want to use the mail related utility: `jp.ecuacion.lib.core.util.MailUtil`)
-- `org.slf4j:slf4j-api`
-- (any `org.slf4j:slf4j-api` compatible logging libraries. `ch.qos.logback:logback-classic` is recommended.)
+- (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation implementation. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
+- (any `org.slf4j:slf4j-api` compatible logging implementation. `ch.qos.logback:logback-classic` is recommended.)
 
 ## Documentation
 
