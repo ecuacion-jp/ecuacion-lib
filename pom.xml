@@ -58,9 +58,6 @@
 		<!-- paths and urls -->
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/public</repository.ecuacion-repo-sftp-root>
 		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
-		<repository.ecuacion-repo-sftp-private-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/private</repository.ecuacion-repo-sftp-private-root>
-		<repository.ecuacion-repo-http-private-root>http://maven-repo.ecuacion.jp/private</repository.ecuacion-repo-http-private-root>
-		<remote-location.javadoc>sftp://docs.ecuacion.jp/home/ytbiz/www/docs.ecuacion.jp/javadoc</remote-location.javadoc>
 		<remote-location.docs-work>sftp://docs.ecuacion.jp/home/ytbiz/my-data/scripts/work</remote-location.docs-work>
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
 
@@ -113,16 +110,6 @@
 		<wagon.skip>true</wagon.skip>
 
 	</properties>
-	
-	<distributionManagement>
-		<!-- Used only on the build server. Destination for deploying the generated jar. -->
-		<repository>
-			<!-- Not accessible to general users. Only available from the build environment. -->
-			<id>ecuacion-repo-sftp</id>
-			<name>ecuacion maven repository</name>
-			<url>${repository.ecuacion-repo-sftp-root}</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<pluginManagement>
@@ -621,6 +608,37 @@
 	</modules>
 
 	<profiles>
+		
+		<!--
+			This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
+			No explicit -P option is required.
+			When activated, spotbugs-exclude.xml is added to excludeFilterFile in addition to the remote common exclude file.
+		-->
+		<profile>
+			<id>spotbugs-local-exclude</id>
+			<activation>
+				<file>
+					<exists>spotbugs-exclude.xml</exists>
+				</file>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>com.github.spotbugs</groupId>
+							<artifactId>spotbugs-maven-plugin</artifactId>
+							<configuration>
+								<excludeFilterFile>
+									https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml,${project.basedir}/spotbugs-exclude.xml
+								</excludeFilterFile>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+
+		<!-- This profile is used in the build server to deploy modules to maven-repo.ecuacion.jp. -->
 		<profile>
 			<id>ecuacion-repository</id>
 			<properties>
@@ -634,8 +652,24 @@
 					<url>https://maven-repo.ecuacion.jp/public</url>
 				</repository>
 			</repositories>
+			<distributionManagement>
+				<!-- Not accessible to general users. Only available from the build environment. -->
+				<repository>
+					<id>ecuacion-repo-sftp</id>
+					<name>ecuacion maven repository</name>
+					<url>${repository.ecuacion-repo-sftp-root}</url>
+				</repository>
+			</distributionManagement>
 		</profile>
-		
+
+		<!-- This profile is used in github actions to deploy modules to the release page on github.
+		     Used for ecuacion tools (ecuacion-tools, ecuacion-tool-code-generator, ...) and applications. -->
+		<profile>
+			<id>github-release-page</id>
+		</profile>
+
+		<!-- This profile is used in github actions to deploy to maven central.
+		     Used for ecuacion libraries (ecuacion-lib, ecuacion-utils, ...). -->
 		<profile>
 			<id>maven-central</id>
 			<build>
