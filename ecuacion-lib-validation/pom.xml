@@ -28,21 +28,6 @@
 		<relativePath>../ecuacion-lib-dependencies</relativePath>
 	</parent>
 	
-	<build>
-		<plugins>
-
-			<!-- spotbugs: also exclude project-local spotbugs-exclude.xml -->
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<configuration>
-					<excludeFilterFile>https://ecuacion-jp.github.io/config/common/spotbugs/exclude.xml,${project.basedir}/spotbugs-exclude.xml</excludeFilterFile>
-				</configuration>
-			</plugin>
-
-		</plugins>
-	</build>
-
 	<dependencies>
 
 		<!-- jakarta ee : implementation -->
