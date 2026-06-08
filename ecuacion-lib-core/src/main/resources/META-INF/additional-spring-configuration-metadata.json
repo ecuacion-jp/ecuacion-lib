@@ -1,7 +1,64 @@
-{"properties": [
-  {
-    "name": "jp.ecuacion.locale.use-root",
-    "type": "java.lang.String",
-    "description": "A description for 'jp.ecuacion.locale.use-root'"
-  }
-]}
+{
+	"properties": [
+		{
+			"name": "jp.ecuacion.locale.use-root",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.locale.use-root'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.title-prefix",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.title-prefix'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.authentication",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.authentication'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.ssl-enabled",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.ssl-enabled'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.server",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.server'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.port",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.port'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.sender",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.sender'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.password",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.password'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.address-csv-on-system-error",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.address-csv-on-system-error'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.checks-certificate",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.checks-certificate'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.bounce-address",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.bounce-address'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.debug",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.debug'"
+		}
+	]
+}
