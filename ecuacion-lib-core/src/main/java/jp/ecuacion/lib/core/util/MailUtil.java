@@ -48,6 +48,37 @@ public class MailUtil {
   private static final String APP_PREFIX = "jp.ecuacion.lib.core.mail.";
 
   /**
+   * Holds all parameters needed to send mail via {@link MailUtil}.
+   *
+   * <p>Use this when you want to supply SMTP settings and application-level mail settings
+   *     programmatically instead of reading them from {@code application.properties}.</p>
+   *
+   * @param smtpServer SMTP server hostname
+   * @param port SMTP port (e.g. 587 for STARTTLS, 465 for SSL)
+   * @param sslEnabled {@code true} to use SSL (port 465), {@code false} for STARTTLS (port 587)
+   * @param needsAuthentication {@code true} if SMTP authentication is required
+   * @param checksCertificate {@code false} to skip TLS certificate verification
+   * @param sender From address
+   * @param password SMTP password
+   * @param bounceAddress bounce/delivery-failure notification address, may be {@code null}
+   * @param debug {@code true} to enable JavaMail debug output
+   * @param titlePrefix prefix prepended to the mail subject
+   * @param addressCsvOnSystemError comma-separated To addresses for system-error notifications
+   */
+  public record MailUtilConfig(
+      String smtpServer,
+      int port,
+      boolean sslEnabled,
+      boolean needsAuthentication,
+      boolean checksCertificate,
+      String sender,
+      String password,
+      @Nullable String bounceAddress,
+      boolean debug,
+      String titlePrefix,
+      String addressCsvOnSystemError) {}
+
+  /**
    * Prevents other classes from instantiating it.
    */
   private MailUtil() {}
@@ -64,12 +95,40 @@ public class MailUtil {
    * @param throwable throwable
    */
   public static void sendErrorMail(Throwable throwable) {
-    sendErrorMail(throwable, null);
+    sendErrorMail(throwable, (String) null);
+  }
+
+  /**
+   * Sends an error mail using the supplied {@link MailUtilConfig} instead of reading settings
+   * from {@code application.properties}.
+   *
+   * @param throwable throwable
+   * @param config mail configuration
+   */
+  public static void sendErrorMail(Throwable throwable, MailUtilConfig config) {
+    ObjectsUtil.requireNonNull(throwable);
+
+    List<@NonNull String> errorMailAddressList =
+        Arrays.asList(config.addressCsvOnSystemError().split(","));
+
+    if (errorMailAddressList.isEmpty()) {
+      return;
+    }
+
+    String mailTitle = config.titlePrefix() + "A system error has occurred.";
+
+    try {
+      sendMailCommon(errorMailAddressList, (List<@NonNull String>) null, false, mailTitle,
+          getErrorMailContent(throwable, null), false, config);
+
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
    * Sends an error mail adding an additional message to it.
-   * 
+   *
    * @param throwable throwable.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
@@ -166,6 +225,34 @@ public class MailUtil {
       @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, true, title, content, true);
+  }
+
+  private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
+      String content, boolean throwsException, MailUtilConfig config) throws Exception {
+    ObjectsUtil.requireNonNull(title);
+
+    if ((mailToList == null || mailToList.isEmpty())
+        && (mailCcList == null || mailCcList.isEmpty())) {
+      throw new RuntimeException(
+          "Either mailToList or mailCcList need to have at least one element.");
+    }
+
+    if (mailSender != null) {
+      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title, content);
+      return;
+    }
+
+    MailUtilEmailServer serverInfo =
+        new MailUtilEmailServer(config.smtpServer(), String.valueOf(config.port()),
+            config.sslEnabled(), config.needsAuthentication(), config.checksCertificate(),
+            config.bounceAddress());
+
+    sendMailInternal(config.sender(), config.password(), mailToList, mailCcList, isHtmlFormat,
+        title, content,
+        new MailUtilEmail(serverInfo, new MailUtilEmailContent(config.sender()),
+            new MailUtilEmailSettings(config.debug())),
+        throwsException);
   }
 
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
