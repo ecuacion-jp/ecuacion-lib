@@ -25,25 +25,35 @@ package jp.ecuacion.lib.core.util.enums;
  * {@code application.properties} / {@code messages.properties} etc. never bind such
  * variables, so evaluating {@code ${...}} there would either be a no-op at best or
  * throw at worst.</p>
+ *
+ * <p>{@code resolvesExternalPlaceholders} is {@code true} only for {@code CONFIG}.
+ * ecuacion-lib has no built-in notion of environment variables or framework-specific
+ * property sources; it only exposes an extension point
+ * ({@link jp.ecuacion.lib.core.util.PropertiesFileUtil#setExternalPlaceholderResolver}) that
+ * a framework-specific module (e.g., a Spring-based one) can use to plug in its own
+ * resolution of {@code ${...}} in {@code application.properties} values, without
+ * ecuacion-lib depending on that framework.</p>
  */
 public enum PropertiesFileUtilFileKindGroupEnum {
 
   /** {@code application.properties}. */
-  CONFIG(true, false),
+  CONFIG(true, false, true),
 
   /** {@code messages}, {@code item_names}, {@code enum_names}, {@code constants}, etc. */
-  MESSAGE(false, false),
+  MESSAGE(false, false, false),
 
   /** {@code ValidationMessages}, {@code ValidationMessagesWithItemNames}, etc. */
-  VALIDATION_MESSAGE(false, true);
+  VALIDATION_MESSAGE(false, true, false);
 
   private final boolean throwsExceptionWhenKeyDoesNotExist;
   private final boolean evaluatesElExpression;
+  private final boolean resolvesExternalPlaceholders;
 
   private PropertiesFileUtilFileKindGroupEnum(boolean throwsExceptionWhenKeyDoesNotExist,
-      boolean evaluatesElExpression) {
+      boolean evaluatesElExpression, boolean resolvesExternalPlaceholders) {
     this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;
     this.evaluatesElExpression = evaluatesElExpression;
+    this.resolvesExternalPlaceholders = resolvesExternalPlaceholders;
   }
 
   /**
@@ -58,5 +68,13 @@ public enum PropertiesFileUtilFileKindGroupEnum {
    */
   public boolean evaluatesElExpression() {
     return evaluatesElExpression;
+  }
+
+  /**
+   * Returns whether a registered external placeholder resolver is applied
+   * for file kinds in this group.
+   */
+  public boolean resolvesExternalPlaceholders() {
+    return resolvesExternalPlaceholders;
   }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
@@ -71,6 +72,22 @@ public class PropertiesFileUtilResolver {
           PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS);
 
   /**
+   * Holds a framework-specific resolver for {@code ${...}} placeholders in CONFIG-group
+   * (currently {@code APPLICATION}) values, registered via
+   * {@link jp.ecuacion.lib.core.util.PropertiesFileUtil#setExternalPlaceholderResolver}.
+   */
+  private static volatile @Nullable UnaryOperator<String> externalPlaceholderResolver;
+
+  /**
+   * Registers (or clears, with {@code null}) the external placeholder resolver.
+   *
+   * @param resolver resolver function, or {@code null} to clear
+   */
+  public static void setExternalPlaceholderResolver(@Nullable UnaryOperator<String> resolver) {
+    externalPlaceholderResolver = resolver;
+  }
+
+  /**
    * Returns the processed property value for the given file kind and key.
    * Applies {@code #{...}} and {@code ${...}} resolution on top of the raw value.
    *
@@ -100,9 +117,41 @@ public class PropertiesFileUtilResolver {
    */
   public static String getProp(@Nullable Locale locale, PropertiesFileUtilFileKindEnum fileKind,
       String key, Map<@NonNull String, @Nullable Object> elParameterMap) {
+    String resolved = getPropWithoutExternalPlaceholderResolution(locale, fileKind, key,
+        elParameterMap);
+
+    UnaryOperator<String> resolver = externalPlaceholderResolver;
+    if (fileKind.getGroup().resolvesExternalPlaceholders() && resolver != null) {
+      resolved = resolver.apply(resolved);
+    }
+
+    return resolved;
+  }
+
+  /**
+   * Returns the processed property value, same as
+   * {@link #getProp(Locale, PropertiesFileUtilFileKindEnum, String, Map)}, but never applies
+   * a registered {@link #setExternalPlaceholderResolver external placeholder resolver}.
+   *
+   * <p>Intended for framework bridges that expose ecuacion-lib property values into their
+   * own placeholder-resolution system (e.g., a {@code PropertySource} backed by
+   * {@code PropertiesFileUtil} that Spring's own {@code Environment} placeholder resolution
+   * falls back to). Such bridges must not re-invoke the external resolver here, since that
+   * resolver is itself what triggered the lookup that reached this fallback — applying it
+   * again would recurse back into the same framework instead of letting the framework's own
+   * single resolution pass continue.</p>
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param fileKind the file kind
+   * @param key the key of the property
+   * @param elParameterMap parameters for EL expression evaluation
+   * @return the processed value, without external placeholder resolution applied
+   */
+  public static String getPropWithoutExternalPlaceholderResolution(@Nullable Locale locale,
+      PropertiesFileUtilFileKindEnum fileKind, String key,
+      Map<@NonNull String, @Nullable Object> elParameterMap) {
     String raw = obtainBundleReader(fileKind).getProp(locale, key);
-    return analyzedValueString(locale, raw, elParameterMap,
-        fileKind.evaluatesElExpression());
+    return analyzedValueString(locale, raw, elParameterMap, fileKind.evaluatesElExpression());
   }
 
   /**
