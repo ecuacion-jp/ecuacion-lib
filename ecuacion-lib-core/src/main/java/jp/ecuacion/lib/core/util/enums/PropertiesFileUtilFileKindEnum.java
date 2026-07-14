@@ -38,44 +38,49 @@ package jp.ecuacion.lib.core.util.enums;
  */
 public enum PropertiesFileUtilFileKindEnum {
 
-  /** 
-   * application.properties. 
+  /**
+   * application.properties.
    */
-  APPLICATION(new String[][] {new String[] {"application"}}, true),
+  APPLICATION(new String[][] {new String[] {"application"}},
+      PropertiesFileUtilFileKindGroupEnum.CONFIG),
 
-  /** 
-   * messages.properties. 
+  /**
+   * messages.properties.
    */
-  MESSAGES(new String[][] {new String[] {"messages"}}, false),
+  MESSAGES(new String[][] {new String[] {"messages"}}, PropertiesFileUtilFileKindGroupEnum.MESSAGE),
 
-  /** 
-   * messagesWithItemNames.properties. 
-   * 
-   * <p>Generally, messages.properties is supposed to be used for messages, 
+  /**
+   * messagesWithItemNames.properties.
+   *
+   * <p>Generally, messages.properties is supposed to be used for messages,
    *     and messagesWithItemNames is not very understandable for users.
-   *     Besides that, since the case that both messages.properties and 
-   *     messagesWithItemNames.properties 
+   *     Besides that, since the case that both messages.properties and
+   *     messagesWithItemNames.properties
    *     are used is very rare, it's better for messages.properties to be used even when
    *     you treat "messages with item names" without that rare case.
    *     That's why messages.properties is also contained with this value.</p>
    */
   MESSAGES_WITH_ITEM_NAMES(
       new String[][] {new String[] {"messages_with_item_names"}, new String[] {"messages"}},
-      false),
+      PropertiesFileUtilFileKindGroupEnum.MESSAGE),
 
   /**
    * constants.properties.
    */
-  CONSTANTS(new String[][] {new String[] {"constants"}}, false),
+  CONSTANTS(new String[][] {new String[] {"constants"}},
+      PropertiesFileUtilFileKindGroupEnum.MESSAGE),
 
   /** item_names. */
-  ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}}, false),
+  ITEM_NAMES(new String[][] {new String[] {"item_names"}, new String[] {"messages"}},
+      PropertiesFileUtilFileKindGroupEnum.MESSAGE),
 
   /** enum_names. Falls back to {@code messages.properties} when the key is not found. */
-  ENUM_NAMES(new String[][] {new String[] {"enum_names"}, new String[] {"messages"}}, false),
+  ENUM_NAMES(new String[][] {new String[] {"enum_names"}, new String[] {"messages"}},
+      PropertiesFileUtilFileKindGroupEnum.MESSAGE),
 
   /** ValidationMessags. */
-  VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}}, false),
+  VALIDATION_MESSAGES(new String[][] {new String[] {"ValidationMessages"}},
+      PropertiesFileUtilFileKindGroupEnum.VALIDATION_MESSAGE),
 
   /**
    * ValidationMessagesWithItemNames.
@@ -84,21 +89,21 @@ public enum PropertiesFileUtilFileKindEnum {
   VALIDATION_MESSAGES_WITH_ITEM_NAMES(
       new String[][] {new String[] {"ValidationMessagesWithItemNames"},
           new String[] {"ValidationMessages"}},
-      false),
+      PropertiesFileUtilFileKindGroupEnum.VALIDATION_MESSAGE),
 
   /** ValidationMessagesPatternDescriptions. */
   VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS(
       new String[][] {new String[] {"ValidationMessagesPatternDescriptions"}},
-      false);
+      PropertiesFileUtilFileKindGroupEnum.VALIDATION_MESSAGE);
 
   @SuppressWarnings("ImmutableEnumChecker")
   private final String[][] actualFilePrefixes;
-  private final boolean throwsExceptionWhenKeyDoesNotExist;
+  private final PropertiesFileUtilFileKindGroupEnum group;
 
   private PropertiesFileUtilFileKindEnum(String[][] actualFilePrefixes,
-      boolean throwsExceptionWhenKeyDoesNotExist) {
+      PropertiesFileUtilFileKindGroupEnum group) {
     this.actualFilePrefixes = actualFilePrefixes;
-    this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;
+    this.group = group;
   }
 
   public String[][] getActualFilePrefixes() {
@@ -106,9 +111,24 @@ public enum PropertiesFileUtilFileKindEnum {
   }
 
   /**
-   * Returns throwsExceptionWhenKeyDoesNotExist.
+   * Returns the group this file kind belongs to.
+   */
+  public PropertiesFileUtilFileKindGroupEnum getGroup() {
+    return group;
+  }
+
+  /**
+   * Returns whether a missing key throws an exception, delegating to {@link #getGroup()}.
    */
   public boolean throwsExceptionWhenKeyDoesNotExist() {
-    return throwsExceptionWhenKeyDoesNotExist;
+    return group.throwsExceptionWhenKeyDoesNotExist();
+  }
+
+  /**
+   * Returns whether {@code ${...}} EL expressions are evaluated, delegating to
+   * {@link #getGroup()}.
+   */
+  public boolean evaluatesElExpression() {
+    return group.evaluatesElExpression();
   }
 }
