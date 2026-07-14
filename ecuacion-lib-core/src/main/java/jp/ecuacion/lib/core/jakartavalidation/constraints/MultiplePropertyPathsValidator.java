@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -94,13 +95,13 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
    */
   protected boolean isValidCommon(T value, @Nullable ConstraintValidatorContext context) {
     boolean result = internalIsValid(value, context);
-    Objects.requireNonNull(context);
+    @NonNull ConstraintValidatorContext nonNullContext = ObjectsUtil.requireNonNull(context);
 
     if (createsMultipleConstraintViolations) {
-      context.disableDefaultConstraintViolation();
+      nonNullContext.disableDefaultConstraintViolation();
 
       for (String propertyPath : Objects.requireNonNull(propertyPaths)) {
-        context.buildConstraintViolationWithTemplate(message).addPropertyNode(propertyPath)
+        nonNullContext.buildConstraintViolationWithTemplate(message).addPropertyNode(propertyPath)
             .addConstraintViolation();
       }
     }
