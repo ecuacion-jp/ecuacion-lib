@@ -25,8 +25,10 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VAL
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilFormatter;
@@ -106,6 +108,24 @@ public class PropertiesFileUtil {
     } else {
       return defaultValue;
     }
+  }
+
+  /**
+   * Returns the value in application_xxx.properties, same as {@link #getApplication(String)},
+   * but never applies a registered {@link #setExternalPlaceholderResolver external placeholder
+   * resolver}.
+   *
+   * <p>Intended for framework bridges that expose {@code application.properties} values into
+   * their own placeholder-resolution system (e.g., a {@code PropertySource} that Spring's own
+   * {@code Environment} placeholder resolution falls back to). Application code should use
+   * {@link #getApplication(String)} instead.</p>
+   *
+   * @param key the key of the property
+   * @return the value of the property, without external placeholder resolution applied
+   */
+  public static String getApplicationWithoutExternalPlaceholderResolution(String key) {
+    return PropertiesFileUtilResolver.getPropWithoutExternalPlaceholderResolution(null, APPLICATION,
+        key, new HashMap<>());
   }
 
   // === message ===
@@ -464,6 +484,24 @@ public class PropertiesFileUtil {
    */
   public static void addResourceBundlePostfix(String postfix) {
     PropertiesFileUtilBundleReader.addToDynamicPostfixList(postfix);
+  }
+
+  /**
+   * Registers a resolver for {@code ${...}} placeholders left in {@code application.properties}
+   * values (e.g., environment variables, system properties).
+   *
+   * <p>ecuacion-lib has no built-in notion of environment variables or any framework's own
+   * property sources. This is an extension point that lets a framework-specific module
+   * (e.g., ecuacion-splib) plug in its own resolution (e.g., Spring's
+   * {@code Environment::resolvePlaceholders}) without ecuacion-lib depending on that
+   * framework. Only {@code application.properties} values are passed through the resolver;
+   * {@code messages.properties}, {@code ValidationMessages.properties}, etc. are not
+   * affected.</p>
+   *
+   * @param resolver resolver function, or {@code null} to clear a previously registered one
+   */
+  public static void setExternalPlaceholderResolver(@Nullable UnaryOperator<String> resolver) {
+    PropertiesFileUtilResolver.setExternalPlaceholderResolver(resolver);
   }
 
   /**
