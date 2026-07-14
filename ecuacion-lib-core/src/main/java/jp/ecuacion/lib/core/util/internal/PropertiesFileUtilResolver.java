@@ -31,6 +31,7 @@ import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg.ArgKind;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindGroupEnum;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -100,7 +101,8 @@ public class PropertiesFileUtilResolver {
   public static String getProp(@Nullable Locale locale, PropertiesFileUtilFileKindEnum fileKind,
       String key, Map<@NonNull String, @Nullable Object> elParameterMap) {
     String raw = obtainBundleReader(fileKind).getProp(locale, key);
-    return analyzedValueString(locale, raw, elParameterMap);
+    return analyzedValueString(locale, raw, elParameterMap,
+        fileKind.evaluatesElExpression());
   }
 
   /**
@@ -158,8 +160,11 @@ public class PropertiesFileUtilResolver {
     } else if (arg.getArgKind() == ArgKind.FORMATTED_STRING) {
       List<@NonNull String> argStrList = new ArrayList<>();
       // argValue is always a non-null String for FORMATTED_STRING (set via constructor)
+      // Treated as belonging to the MESSAGE group: caller-supplied literal strings never
+      // bind EL variables, so ${...} EL evaluation is not applicable here.
       String argString = analyzedValueString(locale,
-          Objects.requireNonNull((String) arg.getArgValue()), new HashMap<>());
+          Objects.requireNonNull((String) arg.getArgValue()), new HashMap<>(),
+          PropertiesFileUtilFileKindGroupEnum.MESSAGE.evaluatesElExpression());
 
       for (Object tmpObj : arg.getMessageArgs()) {
         String resolved = tmpObj instanceof Arg a
@@ -230,6 +235,9 @@ public class PropertiesFileUtilResolver {
    * Resolves {@code #{fileKind:key}} and {@code #{key}} references in {@code rawString},
    * and evaluates any {@code ${...}} EL expressions.
    *
+   * <p>Shorthand for {@link #analyzedValueString(Locale, String, Map, boolean)}
+   * with {@code evaluatesElExpression} set to {@code true}.</p>
+   *
    * @param locale locale, may be {@code null}
    * @param rawString raw string possibly containing {@code #{...}} or {@code ${...}} syntax
    * @param elParameterMap parameters for EL expression evaluation
@@ -237,6 +245,26 @@ public class PropertiesFileUtilResolver {
    */
   public static String analyzedValueString(@Nullable Locale locale, String rawString,
       Map<@NonNull String, @Nullable Object> elParameterMap) {
+    return analyzedValueString(locale, rawString, elParameterMap, true);
+  }
+
+  /**
+   * Resolves {@code #{fileKind:key}} and {@code #{key}} references in {@code rawString},
+   * and, when {@code evaluatesElExpression} is {@code true}, evaluates any {@code ${...}}
+   * EL expressions.
+   *
+   * <p>{@code ${...}} EL evaluation is meaningful only where EL variables are actually
+   * bound (currently, Bean Validation message interpolation via {@code elParameterMap});
+   * other file kinds pass {@code false} so that {@code ${...}} is left untouched.</p>
+   *
+   * @param locale locale, may be {@code null}
+   * @param rawString raw string possibly containing {@code #{...}} or {@code ${...}} syntax
+   * @param elParameterMap parameters for EL expression evaluation
+   * @param evaluatesElExpression whether {@code ${...}} EL expressions should be evaluated
+   * @return fully resolved string
+   */
+  public static String analyzedValueString(@Nullable Locale locale, String rawString,
+      Map<@NonNull String, @Nullable Object> elParameterMap, boolean evaluatesElExpression) {
     StringBuilder sb = new StringBuilder();
     sb.append(rawString);
     List<Pair<@Nullable String, String>> list = null;
@@ -264,8 +292,8 @@ public class PropertiesFileUtilResolver {
       }
     }
 
-    // conditional branch if el expression exists for processing speed.
-    if (sb.toString().contains("${")) {
+    // ${...} EL evaluation only applies where EL variables are actually bound.
+    if (evaluatesElExpression && sb.toString().contains("${")) {
       // Analyze messageString for ${xxx} (EL expression) format parameters.
       try {
         list = EmbeddedVariableUtil.getPartList(sb.toString(), new String[] {"${"}, "}",
