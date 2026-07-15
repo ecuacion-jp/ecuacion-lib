@@ -156,7 +156,7 @@ public class ExceptionUtilTest {
 
     public static record InsideChildNode(@Valid Child myChild) {}
 
-    public static record InsideChildNodeInList(List<@Valid Child> myChildList) {}
+    public static record InsideChildNodeInList(@Valid List<Child> myChildList) {}
 
     public static record Child(@NotNull @Nullable String name) {}
   }
@@ -884,7 +884,7 @@ public class ExceptionUtilTest {
       protected Child child =
           new Child(new StringMulListList.GrandChild(List.of(List.of("1", "a"))));
 
-      private static record Child(@Valid GrandChild grandChild) {}
+      static record Child(@Valid GrandChild grandChild) {}
 
       private static record GrandChild(
           List<List<@Pattern(regexp = "[1-9]*") String>> strListList) {}
@@ -917,7 +917,7 @@ public class ExceptionUtilTest {
       @Valid
       protected Child child = new Child(new GrandChild(List.of(List.of("1", "a"))));
 
-      private static record Child(@Valid GrandChild grandChild) implements ItemContainer {
+      static record Child(@Valid GrandChild grandChild) implements ItemContainer {
         @Override
         public Item[] customizedItems() {
           return new Item[]{new Item("grandChild.strListList").itemNameKey("icStrListList")};
@@ -1085,11 +1085,11 @@ public class ExceptionUtilTest {
     @ItemNameKeyClass("itemNameKeyClass")
     public static record TargetClsInkc(@NotNull @Nullable String field) {}
 
-    public static record SingleList(List<@Valid TargetCls> targetList) {}
+    public static record SingleList(@Valid List<TargetCls> targetList) {}
 
-    public static record SingleListInkc(List<@Valid TargetClsInkc> targetList) {}
+    public static record SingleListInkc(@Valid List<TargetClsInkc> targetList) {}
 
-    public static record SingleListConRoot(List<@Valid TargetCls> targetList)
+    public static record SingleListConRoot(@Valid List<TargetCls> targetList)
         implements ItemContainer {
       @Override
       public Item[] customizedItems() {
@@ -1160,16 +1160,20 @@ public class ExceptionUtilTest {
       private static record GrandChild(@NotNull @Nullable String field) {}
     }
 
-    public static record SingleSet(Set<@Valid TargetCls> targetSet) {}
+    public static record SingleSet(@Valid Set<TargetCls> targetSet) {}
 
-    public static record SingleMapValue(Map<String, @Valid TargetCls> targetMapValue) {}
+    public static record SingleMapValue(@Valid Map<String, TargetCls> targetMapValue) {}
 
     // Hibernate Validator emits HV000271 ("@Valid on a container is deprecated;
     // use type argument") for the field/accessor/constructor of this record.
-    // The warning is not actionable for arrays: arrays have no type-argument
-    // syntax in Java, and `@Valid Foo[]` is the spec-compliant way to cascade
-    // for arrays per Jakarta Bean Validation. Hibernate Validator's message
-    // applies generically to all containers, so the warning is unavoidable here.
+    // @Valid is intentionally placed on the container (not the type argument)
+    // throughout this nested class: this project's compiler flags
+    // (-XDaddTypeAnnotationsToSymbol=true combined with the Error Prone javac
+    // plugin, see root pom.xml) drop the RuntimeVisibleTypeAnnotations needed
+    // for Hibernate Validator to see @Valid when placed on a record component's
+    // generic type argument, which silently disables cascading validation.
+    // Container-level @Valid is unaffected and is also the only spec-compliant
+    // option for arrays, which have no type-argument syntax in Java.
     public static record SingleArray(@Valid TargetCls[] targetArray) {}
   }
 

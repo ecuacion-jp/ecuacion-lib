@@ -71,6 +71,7 @@ public class ValidateWhenValidatorMessageTest {
         .isEqualTo(expectedMessage);
   }
 
+  @SuppressWarnings("null")
   static Stream<Arguments> validatorBeanAndExpectedMessage() {
     return Stream.of(
         Arguments.of(new EmptyWhenTest(),
