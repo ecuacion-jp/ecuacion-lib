@@ -107,6 +107,7 @@ public class ValidateWhenValidatorMessageTest {
     assertThat(getMessage(bean)).isEqualTo(expectedMessage);
   }
 
+  @SuppressWarnings("null")
   static Stream<Arguments> conditionValueAndOperatorCombinations() {
     String p1 = "needs to be not empty when ";
     String p2 = p1 + "'condition value' ";

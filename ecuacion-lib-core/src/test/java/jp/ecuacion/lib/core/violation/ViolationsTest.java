@@ -68,7 +68,6 @@ public class ViolationsTest {
   public void thrownExceptionHoldsViolations() {
     Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
 
-    @SuppressWarnings("null")
     ViolationException ex =
         Assertions.assertThrows(ViolationException.class, violations::throwIfAny);
     assertThat(ex.getViolations()).isNotNull();
