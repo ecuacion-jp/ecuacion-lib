@@ -23,6 +23,7 @@ import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg.ArgKind;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -92,6 +93,35 @@ public class PropertiesFileUtilTest {
           .isEqualTo("default");
     }
 
+  }
+
+  // -------------------------------------------------------------------------
+  // setExternalPlaceholderResolver / getApplicationWithoutExternalPlaceholderResolution
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("setExternalPlaceholderResolver / getApplicationWithoutExternalPlaceholderResolution")
+  class ExternalPlaceholderResolver {
+
+    @AfterEach
+    void clearResolver() {
+      PropertiesFileUtil.setExternalPlaceholderResolver(null);
+    }
+
+    @Test
+    @DisplayName("getApplication: applies a registered external placeholder resolver")
+    void getApplication_appliesRegisteredResolver() {
+      PropertiesFileUtil.setExternalPlaceholderResolver(value -> value + "-resolved");
+      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP-resolved");
+    }
+
+    @Test
+    @DisplayName("getApplicationWithoutExternalPlaceholderResolution: ignores a registered resolver")
+    void getApplicationWithoutExternalPlaceholderResolution_ignoresRegisteredResolver() {
+      PropertiesFileUtil.setExternalPlaceholderResolver(value -> value + "-resolved");
+      assertThat(PropertiesFileUtil.getApplicationWithoutExternalPlaceholderResolution("TEST_KEY"))
+          .isEqualTo("TEST_APP");
+    }
   }
 
   // -------------------------------------------------------------------------

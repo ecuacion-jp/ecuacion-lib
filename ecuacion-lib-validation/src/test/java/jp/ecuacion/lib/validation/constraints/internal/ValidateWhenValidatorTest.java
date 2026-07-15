@@ -69,6 +69,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueString(fieldValue))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> equalToArgs() {
       return Stream.of(
           // condValues = [__NULL__]
@@ -116,6 +117,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueString(fieldValue))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> notEqualToArgs() {
       return Stream.of(
           // condValues = [__NULL__]
@@ -274,6 +276,7 @@ public class ValidateWhenValidatorTest {
       assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> equalToArgs() {
       return Stream.of(
           // String
@@ -299,6 +302,7 @@ public class ValidateWhenValidatorTest {
       assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> notEqualToArgs() {
       return Stream.of(
           // String
@@ -334,6 +338,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> trueEqualToArgs() {
       return Stream.of(
           Arguments.of(null, false),
@@ -352,6 +357,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> trueNotEqualToArgs() {
       return Stream.of(
           Arguments.of(null, true),
@@ -370,6 +376,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> falseEqualToArgs() {
       return Stream.of(
           Arguments.of(null, false),
@@ -388,6 +395,7 @@ public class ValidateWhenValidatorTest {
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
 
+    @SuppressWarnings("null")
     static Stream<Arguments> falseNotEqualToArgs() {
       return Stream.of(
           Arguments.of(null, true),
@@ -436,6 +444,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> stringArgs() {
         return Stream.of(
             Arguments.of(new ValidateWhenTestBean.ConditionValueField.xString(null, null), true),
@@ -460,6 +469,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> integerArgs() {
         return Stream.of(
             Arguments.of(
@@ -484,6 +494,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> enumArgs() {
         return Stream.of(
             Arguments.of(
@@ -510,6 +521,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> stringArrayArgs() {
         return Stream.of(
             // null condField
@@ -565,6 +577,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> integerArrayArgs() {
         return Stream.of(
             Arguments.of(new ValidateWhenTestBean.ConditionValueField.IntegerArray(
@@ -597,6 +610,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> enumArrayArgs() {
         return Stream.of(
             Arguments.of(new ValidateWhenTestBean.ConditionValueField.EnumArray(
@@ -652,6 +666,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> stringArgs() {
         return Stream.of(
             Arguments.of(
@@ -686,6 +701,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> integerArgs() {
         return Stream.of(
             Arguments.of(
@@ -710,6 +726,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> enumArgs() {
         return Stream.of(
             Arguments.of(
@@ -736,6 +753,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> stringArrayArgs() {
         return Stream.of(
             // null condField
@@ -791,6 +809,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> integerArrayArgs() {
         return Stream.of(
             Arguments.of(new ValidateWhenTestBean.ConditionValueField.IntegerArray(
@@ -823,6 +842,7 @@ public class ValidateWhenValidatorTest {
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
+      @SuppressWarnings("null")
       static Stream<Arguments> enumArrayArgs() {
         return Stream.of(
             Arguments.of(new ValidateWhenTestBean.ConditionValueField.EnumArray(
