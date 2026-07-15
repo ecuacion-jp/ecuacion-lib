@@ -64,7 +64,7 @@ public class ComparisonTestBean {
   }
 
   public static class ValidCheck {
-    private static class Bean {
+    static class Bean {
       long ppLong = 0, bppLong = 1;
       Integer ppInt = -1, bppInt = 1;
       short ppShort = 0, bppShort = 1;
@@ -116,7 +116,7 @@ public class ComparisonTestBean {
     }
     
     /** one test case for each kind of types */
-    private static class EqualBean {
+    static class EqualBean {
       long ppLong = 0, bppLong = 0;
       Float ppFloat = 1.2F, bppFloat = 1.2F;
       BigDecimal ppBigDecimal = new BigDecimal("0.1"), bppBigDecimal = new BigDecimal("0.1");
@@ -144,7 +144,7 @@ public class ComparisonTestBean {
   }
   
   public static class EachAnnotation {
-    private static class Bean {
+    static class Bean {
       private int one = 1;
       private int two = 2;
     }

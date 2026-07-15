@@ -35,7 +35,7 @@ public class ItemUtilTest {
     private @Nullable String name;
   }
 
-  private static class SimpleContainer implements ItemContainer {
+  static class SimpleContainer implements ItemContainer {
     @SuppressWarnings("unused")
     private @Nullable String name;
 
@@ -45,7 +45,7 @@ public class ItemUtilTest {
     }
   }
 
-  private static class ContainerWithCustomItem implements ItemContainer {
+  static class ContainerWithCustomItem implements ItemContainer {
     @SuppressWarnings("unused")
     private @Nullable String email;
 

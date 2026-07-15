@@ -31,4 +31,17 @@
     <Class name="~jp\.ecuacion\.lib\.validation\.constraints\..*Validator" />
   </Match>
 
+  <!--
+    initialize()'s annotation parameter and isValid()'s ConstraintValidatorContext parameter
+    are intentionally annotated @Nullable even though never null at runtime, to satisfy
+    Eclipse null analysis when overriding jakarta.validation.ConstraintValidator's unannotated
+    methods; see the package-info.java note in jp.ecuacion.lib.validation.constraints.
+    SpotBugs (as of 4.10.x) flags this as a NonNull-contract violation, which is a false
+    positive for this documented, cross-tool compatibility trade-off.
+  -->
+  <Match>
+    <Bug pattern="NP_PARAMETER_MUST_BE_NONNULL_BUT_MARKED_AS_NULLABLE" />
+    <Class name="~jp\.ecuacion\.lib\.validation\.constraints\..*Validator" />
+  </Match>
+
 </FindBugsFilter>
