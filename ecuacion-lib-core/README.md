@@ -23,6 +23,20 @@ It also provides some utilities used by other ecuacion modules and apps.
 - (any `jakarta.validation:jakarta.validation-api` compatible Jakarta Validation implementation. `org.hibernate.validator:hibernate-validator` and `org.glassfish:jakarta.el` are recommended.)
 - (any `org.slf4j:slf4j-api` compatible logging implementation. `ch.qos.logback:logback-classic` is recommended.)
 
+## Configuration
+
+### Keeping secrets out of `application.properties`
+
+Settings such as `jp.ecuacion.lib.core.mail.smtp.password` are normally read as
+plain text from `application.properties`. Since that file is typically committed to
+source control, avoid writing real secrets into it directly.
+
+Instead, write a `${...}` placeholder (e.g. `jp.ecuacion.lib.core.mail.smtp.password=${SMTP_PASSWORD}`)
+and register an external resolver via `PropertiesFileUtil.setExternalPlaceholderResolver(...)`
+to supply the value from an environment variable or another external source at runtime.
+(Framework-specific modules such as `ecuacion-splib` wire this up automatically, resolving
+`${...}` through Spring's `Environment`.)
+
 ## Documentation
 
 - [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-core/latest/index.html)

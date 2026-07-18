@@ -23,26 +23,23 @@ public final class MailUtilEmailServer {
   private String port;
   private boolean isSslEnabled;
   private boolean needsAuthentication;
-  private boolean checksCertificate;
 
   /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
-      boolean needsAuthentication, boolean checksCertificate) {
+      boolean needsAuthentication) {
     this.smtpServer = smtpServer;
     this.port = port;
     this.isSslEnabled = isSslEnabled;
     this.needsAuthentication = needsAuthentication;
-    this.checksCertificate = checksCertificate;
   }
 
   /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
-      boolean needsAuthentication, boolean checksCertificate, @Nullable String bounceMailAddress) {
+      boolean needsAuthentication, @Nullable String bounceMailAddress) {
     this.smtpServer = smtpServer;
     this.port = port;
     this.isSslEnabled = isSslEnabled;
     this.needsAuthentication = needsAuthentication;
-    this.checksCertificate = checksCertificate;
   }
 
   public String getSmtpServer() {
@@ -59,9 +56,5 @@ public final class MailUtilEmailServer {
 
   public boolean isNeedsAuthentication() {
     return needsAuthentication;
-  }
-
-  public boolean isChecksCertificate() {
-    return checksCertificate;
   }
 }
