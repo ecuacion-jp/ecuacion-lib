@@ -505,6 +505,19 @@ public class PropertiesFileUtil {
   }
 
   /**
+   * Clears the in-memory cache of loaded properties files.
+   *
+   * <p>Call this after updating a {@code *.properties} file on disk while the
+   * application is running (e.g., from an admin screen) to force the next
+   * {@code get...} / {@code has...} call to re-read files from disk instead of
+   * returning a previously cached value. Safe to call concurrently with other threads
+   * reading properties.</p>
+   */
+  public static void clearCache() {
+    PropertiesFileUtilResolver.clearCache();
+  }
+
+  /**
    * Represents a message argument that refers to a message key or a formatted string
    * to be resolved at rendering time.
    *
