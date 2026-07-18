@@ -84,6 +84,21 @@ public class PropertiesFileUtilBundleReader {
   }
 
   /**
+   * Clears the JDK's internal {@link ResourceBundle} cache, so that the next
+   * {@code get...} call re-reads {@code *.properties} files from disk instead of
+   * returning a previously cached value.
+   *
+   * <p>Intended for cases where properties files are updated while the application is
+   * running (e.g., triggered from an admin screen). {@link ResourceBundle}'s cache is
+   * backed by a concurrent map, so this is safe to call while other threads are
+   * concurrently reading properties: an in-flight read either returns the old cached
+   * value or triggers a fresh reload, never a corrupted or partial one.</p>
+   */
+  public static void clearCache() {
+    ResourceBundle.clearCache();
+  }
+
+  /**
    * Provides bundle name in the case that the application is executed with a Jigsaw module.
    *
    * <p>In a java 9 module system, ResourceBundle.Control cannot be used.<br>

@@ -88,6 +88,16 @@ public class PropertiesFileUtilResolver {
   }
 
   /**
+   * Clears the cached contents of properties files, so that the next read re-reads
+   * files from disk.
+   *
+   * @see PropertiesFileUtilBundleReader#clearCache()
+   */
+  public static void clearCache() {
+    PropertiesFileUtilBundleReader.clearCache();
+  }
+
+  /**
    * Returns the processed property value for the given file kind and key.
    * Applies {@code #{...}} and {@code ${...}} resolution on top of the raw value.
    *
