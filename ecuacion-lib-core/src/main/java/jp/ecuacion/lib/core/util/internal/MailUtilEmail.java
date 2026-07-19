@@ -71,9 +71,11 @@ public class MailUtilEmail {
     } else {
       // Port 587 (submission): upgrade the plaintext connection via STARTTLS.
       // "required" fails the connection rather than silently falling back to plaintext
-      // when the server doesn't offer STARTTLS.
+      // when the server doesn't offer STARTTLS. Defaults to true; callers may opt out
+      // (e.g. for a relay that doesn't support STARTTLS) via starttlsRequired.
       props.setProperty("mail.smtp.starttls.enable", "true");
-      props.setProperty("mail.smtp.starttls.required", "true");
+      props.setProperty("mail.smtp.starttls.required",
+          Boolean.valueOf(serverInfo.isStarttlsRequired()).toString());
     }
 
     return props;

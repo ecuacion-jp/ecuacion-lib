@@ -57,6 +57,13 @@ public class MailUtil {
    * @param port SMTP port (e.g. 587 for STARTTLS, 465 for SSL)
    * @param sslEnabled {@code true} to use SSL (port 465), {@code false} for STARTTLS (port 587)
    * @param needsAuthentication {@code true} if SMTP authentication is required
+   * @param starttlsRequired when {@code sslEnabled} is {@code false}, {@code true} makes the
+   *     connection fail rather than fall back to plaintext when the server doesn't support
+   *     STARTTLS. Defaults to {@code true} everywhere this record is built by ecuacion
+   *     modules; set to {@code false} only for a server that is known not to support
+   *     STARTTLS (e.g. a local test relay) — doing so lets SMTP authentication happen over
+   *     an unencrypted connection, exposing the password on the wire. Ignored when
+   *     {@code sslEnabled} is {@code true}.
    * @param sender From address
    * @param password SMTP password
    * @param bounceAddress bounce/delivery-failure notification address, may be {@code null}
@@ -66,17 +73,11 @@ public class MailUtil {
    * @param titlePrefix prefix prepended to the mail subject
    * @param addressCsvOnSystemError comma-separated To addresses for system-error notifications
    */
-  public record MailUtilConfig(
-      String smtpServer,
-      int port,
-      boolean sslEnabled,
-      boolean needsAuthentication,
-      String sender,
-      String password,
-      @Nullable String bounceAddress,
-      boolean debug,
-      String titlePrefix,
-      String addressCsvOnSystemError) {}
+  public record MailUtilConfig(String smtpServer, int port, boolean sslEnabled,
+      boolean needsAuthentication, boolean starttlsRequired, String sender, String password,
+      @Nullable String bounceAddress, boolean debug, String titlePrefix,
+      String addressCsvOnSystemError) {
+  }
 
   /**
    * Prevents other classes from instantiating it.
@@ -206,6 +207,13 @@ public class MailUtil {
    * # true or false. Logs the full SMTP protocol exchange, including the Base64-encoded
    * # credentials sent during authentication -- do not enable in production.
    * jp.ecuacion.lib.core.mail.debug=false
+   * # true or false. Applies only when SMTP_SSL_ENABLED is false (STARTTLS on port 587).
+   * # true (default) fails the connection rather than falling back to plaintext when the
+   * # server doesn't support STARTTLS. Setting this to false lets SMTP authentication
+   * # happen over an unencrypted connection if the server lacks STARTTLS support --
+   * # only do so for a server known not to support it (e.g. a local test relay), never
+   * # in production.
+   * jp.ecuacion.lib.core.mail.smtp.starttls-required=true
    * </pre>
    *
    * <p>{@code mailToList}, {@code mailCcList}, and {@code title} are passed as-is to
@@ -257,11 +265,12 @@ public class MailUtil {
 
     MailUtilEmailServer serverInfo =
         new MailUtilEmailServer(config.smtpServer(), String.valueOf(config.port()),
-            config.sslEnabled(), config.needsAuthentication(), config.bounceAddress());
+            config.sslEnabled(), config.needsAuthentication(), config.starttlsRequired());
 
     sendMailInternal(config.sender(), config.password(), mailToList, mailCcList, isHtmlFormat,
         title, content,
-        new MailUtilEmail(serverInfo, new MailUtilEmailContent(config.sender()),
+        new MailUtilEmail(serverInfo,
+            new MailUtilEmailContent(config.sender(), config.bounceAddress()),
             new MailUtilEmailSettings(config.debug())),
         throwsException);
   }
@@ -279,26 +288,28 @@ public class MailUtil {
     }
 
     if (mailSender != null) {
-      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title,
-          content);
+      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title, content);
       return;
     }
 
     String mailFrom = getApp("smtp.sender");
     String pass = getApp("smtp.password");
+    String bounceAddress = hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null;
 
     // Server connection settings
     MailUtilEmailServer serverInfo =
         new MailUtilEmailServer(getApp("smtp.server"), getApp("smtp.port"),
             hasApp("smtp.ssl-enabled") ? Boolean.parseBoolean(getApp("smtp.ssl-enabled")) : false,
             Boolean.parseBoolean(getApp("smtp.authentication")),
-            hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null);
+            hasApp("smtp.starttls-required")
+                ? Boolean.parseBoolean(getApp("smtp.starttls-required"))
+                : true);
 
     // javaMail settings
     boolean debug = hasApp("debug") && Boolean.parseBoolean(getApp("debug"));
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
-        new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
+        new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom, bounceAddress),
             new MailUtilEmailSettings(debug)),
         throwsException);
   }
