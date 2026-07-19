@@ -15,34 +15,22 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-import org.jspecify.annotations.Nullable;
-
 public final class MailUtilEmailServer {
 
   private String smtpServer;
   private String port;
   private boolean isSslEnabled;
   private boolean needsAuthentication;
-  private boolean checksCertificate;
+  private boolean starttlsRequired;
 
   /** Constructs a new instance. */
   public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
-      boolean needsAuthentication, boolean checksCertificate) {
+      boolean needsAuthentication, boolean starttlsRequired) {
     this.smtpServer = smtpServer;
     this.port = port;
     this.isSslEnabled = isSslEnabled;
     this.needsAuthentication = needsAuthentication;
-    this.checksCertificate = checksCertificate;
-  }
-
-  /** Constructs a new instance. */
-  public MailUtilEmailServer(String smtpServer, String port, boolean isSslEnabled,
-      boolean needsAuthentication, boolean checksCertificate, @Nullable String bounceMailAddress) {
-    this.smtpServer = smtpServer;
-    this.port = port;
-    this.isSslEnabled = isSslEnabled;
-    this.needsAuthentication = needsAuthentication;
-    this.checksCertificate = checksCertificate;
+    this.starttlsRequired = starttlsRequired;
   }
 
   public String getSmtpServer() {
@@ -61,7 +49,7 @@ public final class MailUtilEmailServer {
     return needsAuthentication;
   }
 
-  public boolean isChecksCertificate() {
-    return checksCertificate;
+  public boolean isStarttlsRequired() {
+    return starttlsRequired;
   }
 }

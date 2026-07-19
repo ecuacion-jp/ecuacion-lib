@@ -57,26 +57,27 @@ public class MailUtil {
    * @param port SMTP port (e.g. 587 for STARTTLS, 465 for SSL)
    * @param sslEnabled {@code true} to use SSL (port 465), {@code false} for STARTTLS (port 587)
    * @param needsAuthentication {@code true} if SMTP authentication is required
-   * @param checksCertificate {@code false} to skip TLS certificate verification
+   * @param starttlsRequired when {@code sslEnabled} is {@code false}, {@code true} makes the
+   *     connection fail rather than fall back to plaintext when the server doesn't support
+   *     STARTTLS. Defaults to {@code true} everywhere this record is built by ecuacion
+   *     modules; set to {@code false} only for a server that is known not to support
+   *     STARTTLS (e.g. a local test relay) — doing so lets SMTP authentication happen over
+   *     an unencrypted connection, exposing the password on the wire. Ignored when
+   *     {@code sslEnabled} is {@code true}.
    * @param sender From address
    * @param password SMTP password
    * @param bounceAddress bounce/delivery-failure notification address, may be {@code null}
-   * @param debug {@code true} to enable JavaMail debug output
+   * @param debug {@code true} to enable JavaMail debug output. This logs the full SMTP
+   *     protocol exchange, including the Base64-encoded credentials sent during
+   *     authentication — do not enable in production.
    * @param titlePrefix prefix prepended to the mail subject
    * @param addressCsvOnSystemError comma-separated To addresses for system-error notifications
    */
-  public record MailUtilConfig(
-      String smtpServer,
-      int port,
-      boolean sslEnabled,
-      boolean needsAuthentication,
-      boolean checksCertificate,
-      String sender,
-      String password,
-      @Nullable String bounceAddress,
-      boolean debug,
-      String titlePrefix,
-      String addressCsvOnSystemError) {}
+  public record MailUtilConfig(String smtpServer, int port, boolean sslEnabled,
+      boolean needsAuthentication, boolean starttlsRequired, String sender, String password,
+      @Nullable String bounceAddress, boolean debug, String titlePrefix,
+      String addressCsvOnSystemError) {
+  }
 
   /**
    * Prevents other classes from instantiating it.
@@ -166,7 +167,10 @@ public class MailUtil {
 
   /**
    * Sends a warn mail.
-   * 
+   *
+   * <p>{@code mailToList} is passed as-is to {@link jakarta.mail.internet.InternetAddress}
+   *     without sanitization; do not pass untrusted (e.g. end-user-supplied) values.</p>
+   *
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
@@ -200,11 +204,27 @@ public class MailUtil {
    * jp.ecuacion.lib.core.mail.smtp.password=(password)
    * jp.ecuacion.lib.core.mail.title-prefix=[app-name: staging environment]
    * jp.ecuacion.lib.core.mail.address-csv-on-system-error=info@ecuacion.jp
+   * # true or false. Logs the full SMTP protocol exchange, including the Base64-encoded
+   * # credentials sent during authentication -- do not enable in production.
+   * jp.ecuacion.lib.core.mail.debug=false
+   * # true or false. Applies only when SMTP_SSL_ENABLED is false (STARTTLS on port 587).
+   * # true (default) fails the connection rather than falling back to plaintext when the
+   * # server doesn't support STARTTLS. Setting this to false lets SMTP authentication
+   * # happen over an unencrypted connection if the server lacks STARTTLS support --
+   * # only do so for a server known not to support it (e.g. a local test relay), never
+   * # in production.
+   * jp.ecuacion.lib.core.mail.smtp.starttls-required=true
    * </pre>
-   * 
-   * @param mailToList mailToList. 
+   *
+   * <p>{@code mailToList}, {@code mailCcList}, and {@code title} are passed as-is to
+   *     the underlying {@link jakarta.mail.internet.MimeMessage} (addresses via
+   *     {@link jakarta.mail.internet.InternetAddress}) without sanitization; do not pass
+   *     untrusted (e.g. end-user-supplied) values without validating or escaping them
+   *     first.</p>
+   *
+   * @param mailToList mailToList.
    *     Either mailToList or mailCcList need to have at least one element.
-   * @param mailCcList mailCcList. 
+   * @param mailCcList mailCcList.
    *     Either mailToList or mailCcList need to have at least one element.
    * @param title title
    * @param content content, may be {@code null} if no content needed.
@@ -245,12 +265,12 @@ public class MailUtil {
 
     MailUtilEmailServer serverInfo =
         new MailUtilEmailServer(config.smtpServer(), String.valueOf(config.port()),
-            config.sslEnabled(), config.needsAuthentication(), config.checksCertificate(),
-            config.bounceAddress());
+            config.sslEnabled(), config.needsAuthentication(), config.starttlsRequired());
 
     sendMailInternal(config.sender(), config.password(), mailToList, mailCcList, isHtmlFormat,
         title, content,
-        new MailUtilEmail(serverInfo, new MailUtilEmailContent(config.sender()),
+        new MailUtilEmail(serverInfo,
+            new MailUtilEmailContent(config.sender(), config.bounceAddress()),
             new MailUtilEmailSettings(config.debug())),
         throwsException);
   }
@@ -268,27 +288,28 @@ public class MailUtil {
     }
 
     if (mailSender != null) {
-      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title,
-          content);
+      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title, content);
       return;
     }
 
     String mailFrom = getApp("smtp.sender");
     String pass = getApp("smtp.password");
+    String bounceAddress = hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null;
 
     // Server connection settings
     MailUtilEmailServer serverInfo =
         new MailUtilEmailServer(getApp("smtp.server"), getApp("smtp.port"),
             hasApp("smtp.ssl-enabled") ? Boolean.parseBoolean(getApp("smtp.ssl-enabled")) : false,
             Boolean.parseBoolean(getApp("smtp.authentication")),
-            Boolean.parseBoolean(getApp("smtp.checks-certificate")),
-            hasApp("smtp.bounce-address") ? getApp("smtp.bounce-address") : null);
+            hasApp("smtp.starttls-required")
+                ? Boolean.parseBoolean(getApp("smtp.starttls-required"))
+                : true);
 
     // javaMail settings
     boolean debug = hasApp("debug") && Boolean.parseBoolean(getApp("debug"));
 
     sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
-        new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom),
+        new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom, bounceAddress),
             new MailUtilEmailSettings(debug)),
         throwsException);
   }
@@ -325,10 +346,14 @@ public class MailUtil {
 
       Session session = null;
       // Change procedure whether an authentication is needed or not.
+      // Both branches use getInstance (not getDefaultInstance), which always creates a
+      // fresh Session from the given Properties. getDefaultInstance would instead return
+      // a JVM-wide shared Session created on the first call, silently ignoring the
+      // Properties passed on every subsequent call.
       if (emailInfo.getServerInfo().isNeedsAuthentication()) {
         session = Session.getInstance(emailInfo.getProperties(), new MyAuth(mailFrom, pass));
       } else {
-        session = Session.getDefaultInstance(emailInfo.getProperties());
+        session = Session.getInstance(emailInfo.getProperties());
       }
 
       session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());

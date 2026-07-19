@@ -46,14 +46,14 @@
 			"description": "A description for 'jp.ecuacion.lib.core.mail.address-csv-on-system-error'"
 		},
 		{
-			"name": "jp.ecuacion.lib.core.mail.smtp.checks-certificate",
-			"type": "java.lang.String",
-			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.checks-certificate'"
-		},
-		{
 			"name": "jp.ecuacion.lib.core.mail.smtp.bounce-address",
 			"type": "java.lang.String",
 			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.bounce-address'"
+		},
+		{
+			"name": "jp.ecuacion.lib.core.mail.smtp.starttls-required",
+			"type": "java.lang.String",
+			"description": "A description for 'jp.ecuacion.lib.core.mail.smtp.starttls-required'"
 		},
 		{
 			"name": "jp.ecuacion.lib.core.mail.debug",

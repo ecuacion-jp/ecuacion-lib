@@ -58,18 +58,24 @@ public class MailUtilEmail {
     props.setProperty("mail.smtp.connectiontimeout", "5000");
     props.setProperty("mail.smtp.timeout", "5000");
 
+    // Verify the server's certificate matches its hostname (RFC 2595) for both the
+    // direct-SSL (port 465) and STARTTLS (port 587) cases below; JavaMail/Jakarta Mail
+    // defaults this to false, which would otherwise allow a MITM with a valid-but-wrong cert.
+    props.setProperty("mail.smtp.ssl.checkserveridentity", "true");
+
     if (serverInfo.isSslEnabled()) {
-      props.setProperty("mail.smtp.starttls.enable", "true");
       props.setProperty("mail.smtp.socketFactory.fallback", "false");
       props.setProperty("mail.smtp.socketFactory.port", serverInfo.getPort());
+      props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
-      if (serverInfo.isChecksCertificate()) {
-        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-      } else {
-        // Set SSLSocketFactory with no certificate checks.
-        props.setProperty("mail.smtp.socketFactory.class",
-            "jp.ecuacion.framework.common.common.util.AuthUtilDummySSLSocketFactory");
-      }
+    } else {
+      // Port 587 (submission): upgrade the plaintext connection via STARTTLS.
+      // "required" fails the connection rather than silently falling back to plaintext
+      // when the server doesn't offer STARTTLS. Defaults to true; callers may opt out
+      // (e.g. for a relay that doesn't support STARTTLS) via starttlsRequired.
+      props.setProperty("mail.smtp.starttls.enable", "true");
+      props.setProperty("mail.smtp.starttls.required",
+          Boolean.valueOf(serverInfo.isStarttlsRequired()).toString());
     }
 
     return props;

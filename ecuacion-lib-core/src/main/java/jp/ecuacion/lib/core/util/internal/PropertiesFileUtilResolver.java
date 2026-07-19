@@ -160,8 +160,21 @@ public class PropertiesFileUtilResolver {
   public static String getPropWithoutExternalPlaceholderResolution(@Nullable Locale locale,
       PropertiesFileUtilFileKindEnum fileKind, String key,
       Map<@NonNull String, @Nullable Object> elParameterMap) {
-    String raw = obtainBundleReader(fileKind).getProp(locale, key);
-    return analyzedValueString(locale, raw, elParameterMap, fileKind.evaluatesElExpression());
+    PropertiesFileUtilBundleReader reader = obtainBundleReader(fileKind);
+    String foundValue = reader.getPropIfExists(locale, key);
+
+    if (foundValue == null) {
+      // Key not found: PropertiesFileUtilBundleReader#getProp falls back to echoing the
+      // key argument itself for file kinds that don't throw on a missing key. That
+      // fallback string is caller-supplied input, not a properties-file value, so it must
+      // never be treated as a template here — otherwise a dynamic "key" argument could
+      // trigger #{...} cross-file lookups or ${...} EL evaluation (e.g. leaking
+      // application.properties secrets via "#{application:...}").
+      return reader.getProp(locale, key);
+    }
+
+    return analyzedValueString(locale, foundValue, elParameterMap,
+        fileKind.evaluatesElExpression());
   }
 
   /**

@@ -383,6 +383,34 @@ public class PropertiesFileUtilBundleReader {
    * @return raw value
    */
   public String getProp(@Nullable Locale locale, String key) {
+    String value = getPropIfExists(locale, key);
+    if (value != null) {
+      return value;
+    }
+
+    if (throwsExceptionWhenKeyDoesNotExist) {
+      throw new NoKeyInPropertiesFileException(key);
+    }
+
+    return key;
+  }
+
+  /**
+   * Obtains raw value from a key, or {@code null} if the key does not exist in any
+   * properties file (no {@code #{...}} or {@code ${...}} processing, and no
+   * fallback-to-key-string behavior).
+   *
+   * <p>Unlike {@link #getProp(Locale, String)}, the {@code null} return lets callers tell
+   * apart "a properties file actually had this value" from "the key wasn't found" —
+   * needed by {@link PropertiesFileUtilResolver} so it never runs {@code #{...}}/{@code
+   * ${...}} resolution on a fallback-echoed key, which could otherwise be a caller-supplied
+   * string rather than a trusted template.</p>
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @return raw value, or {@code null} if the key does not exist in any properties file
+   */
+  @Nullable String getPropIfExists(@Nullable Locale locale, String key) {
     ObjectsUtil.requireNonNull(key);
 
     if (StringUtils.isEmpty(key)) {
@@ -393,12 +421,7 @@ public class PropertiesFileUtilBundleReader {
       return getValue(locale, key);
 
     } catch (NoKeyInPropertiesFileException ex) {
-      if (throwsExceptionWhenKeyDoesNotExist) {
-        throw ex;
-
-      } else {
-        return key;
-      }
+      return null;
     }
   }
 
