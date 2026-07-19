@@ -15,14 +15,21 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-public final class MailUtilEmailContent {
-  private String bounceMailAddress;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
-  public MailUtilEmailContent(String bounceMailAddress) {
+public final class MailUtilEmailContent {
+  private String sender;
+  private @Nullable String bounceMailAddress;
+
+  /** Constructs a new instance. {@code bounceMailAddress} may be {@code null}. */
+  public MailUtilEmailContent(String sender, @Nullable String bounceMailAddress) {
+    this.sender = sender;
     this.bounceMailAddress = bounceMailAddress;
   }
 
+  /** Returns {@code bounceMailAddress} if configured, otherwise falls back to {@code sender}. */
   public String getBounceMailAddress() {
-    return bounceMailAddress;
+    return bounceMailAddress != null ? Objects.requireNonNull(bounceMailAddress) : sender;
   }
 }
