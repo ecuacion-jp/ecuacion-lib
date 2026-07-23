@@ -25,6 +25,7 @@ It also provides some utilities used by other ecuacion modules and apps.
 
 ## Documentation
 
+- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home) — Official reference documentation
 - [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-core/latest/index.html)
 
 ## Installation
