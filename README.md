@@ -37,8 +37,8 @@ public class RegistrationForm {
 
 **Optional: `ecuacion-lib-validation-business-messages`**
 
-Adds business-friendly Japanese messages (e.g. `This field is required.`) for both Jakarta standard
-and ecuacion-lib-validation constraints. Without it, neutral HV-aligned messages are used.
+Adds business-friendly messages (e.g. `This field is required.`) for both Jakarta standard
+and ecuacion-lib-validation constraints. Without it, neutral Hibernate-Validator-aligned messages are used.
 
 `ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
 `Jakarta EE 11` compatible, which is also compatible with `Spring Boot 3` and `4`.
@@ -53,7 +53,7 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 ## Documentation
 
-- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/en/article?id=home) — Official reference documentation
+- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home) — Official reference documentation
 - javadoc - See the `Documentation` section of the `README` in each module
 
 ## Installation
