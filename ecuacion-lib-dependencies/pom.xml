@@ -34,7 +34,7 @@
 		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
 		<jakarta.mail.jakarta.mail-api.version>2.1.5</jakarta.mail.jakarta.mail-api.version>
 		<org.slf4j.slf4j-api.version>2.0.18</org.slf4j.slf4j-api.version>
-		<tools.jackson.core.jackson-databind.version>3.2.0</tools.jackson.core.jackson-databind.version>
+		<tools.jackson.core.jackson-databind.version>3.2.1</tools.jackson.core.jackson-databind.version>
 		<!-- jakarta-el -->
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
 		<!-- jakarta validation -->
