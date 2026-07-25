@@ -26,5 +26,5 @@ jobs:
       - name: Merge main into develop
         run: |
           git fetch origin main
-          git merge origin/main --no-edit
+          git merge origin/main --no-ff --no-edit
           git push origin develop
