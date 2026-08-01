@@ -72,25 +72,25 @@
 
 		<!-- plugin module versions -->
 		<org.apache.maven.plugins.maven-compiler-plugin.version>3.15.0</org.apache.maven.plugins.maven-compiler-plugin.version>
-		<org.apache.maven.plugins.maven-resources-plugin.version>3.3.1</org.apache.maven.plugins.maven-resources-plugin.version>
+		<org.apache.maven.plugins.maven-resources-plugin.version>3.5.0</org.apache.maven.plugins.maven-resources-plugin.version>
 		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
 		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.12.0</org.apache.maven.plugins.maven-javadoc-plugin.version>
 		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.6.3</org.apache.maven.plugins.maven-enforcer-plugin.version>
-		<com.mycila.license-maven-plugin.version>5.0.0</com.mycila.license-maven-plugin.version>
+		<com.mycila.license-maven-plugin.version>5.1.1</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>13.7.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>13.9.0</com.puppycrawl.tools.checkstyle.version>
 		<!-- wagon -->
 		<org.codehaus.mojo.wagon-maven-plugin.version>3.0.0</org.codehaus.mojo.wagon-maven-plugin.version>
 		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
 		<!-- antrun -->
 		<org.apache.maven.plugins.maven-antrun-plugin.version>3.2.0</org.apache.maven.plugins.maven-antrun-plugin.version>
 		<!-- spotbugs -->
-		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.2.0</com.github.spotbugs.spotbugs-maven-plugin.version>
-		<com.github.spotbugs.spotbugs.version>4.10.2</com.github.spotbugs.spotbugs.version>
+		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.3.0</com.github.spotbugs.spotbugs-maven-plugin.version>
+		<com.github.spotbugs.spotbugs.version>4.10.3</com.github.spotbugs.spotbugs.version>
 		<!-- allure -->
-		<io.qameta.allure.allure-maven.version>3.0.2</io.qameta.allure.allure-maven.version>
-		<io.qameta.allure.allure-jupiter.version>2.35.3</io.qameta.allure.allure-jupiter.version>
+		<io.qameta.allure.allure-maven.version>3.0.3</io.qameta.allure.allure-maven.version>
+		<io.qameta.allure.allure-jupiter.version>2.35.4</io.qameta.allure.allure-jupiter.version>
 		<!-- jacoco -->
 		<org.jacoco.jacoco-maven-plugin.version>0.8.15</org.jacoco.jacoco-maven-plugin.version>
 		<!-- surefire -->
@@ -104,7 +104,7 @@
 		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
 
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.13.7</com.uber.nullaway.version>
+		<com.uber.nullaway.version>0.13.8</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.50.0</com.google.errorprone.error_prone_core.version>
 
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->

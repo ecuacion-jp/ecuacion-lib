@@ -39,10 +39,10 @@
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
 		<!-- jakarta validation -->
 		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
-		<org.hibernate.validator.hibernate-validator.version>9.1.1.Final</org.hibernate.validator.hibernate-validator.version>
+		<org.hibernate.validator.hibernate-validator.version>9.1.3.Final</org.hibernate.validator.hibernate-validator.version>
 
 		<!-- module versions (test scope) -->
-		<junit.version>6.1.1</junit.version>
+		<junit.version>6.1.2</junit.version>
 		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
