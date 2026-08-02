@@ -101,7 +101,7 @@
 		<org.sonatype.central.central-publishing-maven-plugin.version>0.11.0</org.sonatype.central.central-publishing-maven-plugin.version>
 
 		<!-- jspecify -->
-		<org.jspecify.jspecify.version>1.0.0</org.jspecify.jspecify.version>
+		<org.jspecify.jspecify.version>1.0.1</org.jspecify.jspecify.version>
 
 		<!-- nullaway / error prone -->
 		<com.uber.nullaway.version>0.13.8</com.uber.nullaway.version>
