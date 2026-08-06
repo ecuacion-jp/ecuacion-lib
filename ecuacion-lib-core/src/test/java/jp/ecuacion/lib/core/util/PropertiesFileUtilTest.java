@@ -125,6 +125,71 @@ public class PropertiesFileUtilTest {
   }
 
   // -------------------------------------------------------------------------
+  // setApplicationEnvironmentFallbackResolver
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("setApplicationEnvironmentFallbackResolver")
+  class ApplicationEnvironmentFallbackResolver {
+
+    @AfterEach
+    void clearResolver() {
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(null);
+    }
+
+    @Test
+    @DisplayName("getApplication: a registered resolver overrides the classpath-bundled value")
+    void getApplication_resolverOverridesClasspathValue() {
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
+          key -> key.equals("TEST_KEY") ? "FROM_ENV" : null);
+      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("FROM_ENV");
+    }
+
+    @Test
+    @DisplayName("getApplication: falls back to the classpath value "
+        + "when the resolver has no value for the key")
+    void getApplication_fallsBackToClasspathWhenResolverReturnsNull() {
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(key -> null);
+      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP");
+    }
+
+    @Test
+    @DisplayName("getApplication: a JVM system property still takes precedence over the resolver")
+    void getApplication_systemPropertyStillWinsOverResolver() {
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(key -> "FROM_ENV");
+      System.setProperty("TEST_KEY", "FROM_SYSTEM_PROPERTY");
+      try {
+        assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("FROM_SYSTEM_PROPERTY");
+      } finally {
+        System.clearProperty("TEST_KEY");
+      }
+    }
+
+    @Test
+    @DisplayName("hasApplication: true when only the resolver (not the classpath) has the key")
+    void hasApplication_trueWhenOnlyResolverHasKey() {
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
+          key -> key.equals("ENV_ONLY_KEY") ? "true" : null);
+      assertThat(PropertiesFileUtil.hasApplication("ENV_ONLY_KEY")).isTrue();
+    }
+
+    @Test
+    @DisplayName("getApplicationWithoutExternalPlaceholderResolution: bypasses the resolver so a "
+        + "framework bridge whose own resolution falls back to this method "
+        + "(e.g. ecuacion-splib's ApplicationPropertySource) never recurses back into itself")
+    void getApplicationWithoutExternalPlaceholderResolution_bypassesResolverAndAvoidsRecursion() {
+      // Mimics a bridge resolver that itself calls back into
+      // getApplicationWithoutExternalPlaceholderResolution, matching how ecuacion-splib's
+      // ApplicationPropertySource is implemented. Without the recursion guard, resolving
+      // TEST_KEY below would recurse indefinitely (StackOverflowError) instead of returning.
+      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
+          key -> PropertiesFileUtil.getApplicationWithoutExternalPlaceholderResolution(key));
+
+      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP");
+    }
+  }
+
+  // -------------------------------------------------------------------------
   // getMessage with Arg[]
   // -------------------------------------------------------------------------
 

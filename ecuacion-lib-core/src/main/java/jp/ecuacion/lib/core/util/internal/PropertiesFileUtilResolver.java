@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil;
@@ -79,12 +80,86 @@ public class PropertiesFileUtilResolver {
   private static volatile @Nullable UnaryOperator<String> externalPlaceholderResolver;
 
   /**
+   * Holds a framework-specific fallback resolver for {@code APPLICATION} key lookups,
+   * registered via {@link jp.ecuacion.lib.core.util.PropertiesFileUtil
+   * #setApplicationEnvironmentFallbackResolver}. Consulted by
+   * {@link PropertiesFileUtilBundleReader#getValue} after the JVM system property check and
+   * before the classpath-bundled {@code application.properties} scan, so that a framework's
+   * own externalized configuration (e.g. Spring's {@code file:./config/application.properties})
+   * can override or add values without ecuacion-lib depending on that framework.
+   */
+  private static volatile @Nullable UnaryOperator<String> applicationEnvironmentFallbackResolver;
+
+  /**
+   * Suppresses {@link #applicationEnvironmentFallbackResolver} for the current thread while
+   * {@code true}. Set around calls originating from a framework bridge that itself backs the
+   * resolver (e.g. Spring's {@code Environment} falling back to ecuacion-lib's own
+   * {@code application.properties} reading), so that resolving a key never recurses back into
+   * the same bridge.
+   */
+  private static final ThreadLocal<Boolean> suppressesApplicationEnvironmentFallback =
+      new ThreadLocal<>();
+
+  /**
    * Registers (or clears, with {@code null}) the external placeholder resolver.
    *
    * @param resolver resolver function, or {@code null} to clear
    */
   public static void setExternalPlaceholderResolver(@Nullable UnaryOperator<String> resolver) {
     externalPlaceholderResolver = resolver;
+  }
+
+  /**
+   * Registers (or clears, with {@code null}) the application-environment fallback resolver.
+   *
+   * @param resolver resolver function returning the value for a key, or {@code null} when the
+   *     key is not present; or {@code null} to clear a previously registered resolver
+   */
+  public static void setApplicationEnvironmentFallbackResolver(
+      @Nullable UnaryOperator<String> resolver) {
+    applicationEnvironmentFallbackResolver = resolver;
+  }
+
+  /**
+   * Returns the value the registered application-environment fallback resolver has for
+   * {@code key}, or {@code null} if none is registered, the resolver has no value for
+   * {@code key}, or the fallback is currently suppressed on this thread.
+   *
+   * <p>Package-private: called only from {@link PropertiesFileUtilBundleReader#getValue}.</p>
+   *
+   * @param key the key of the property
+   * @return the resolved value, or {@code null}
+   */
+  static @Nullable String getApplicationEnvironmentFallbackValue(String key) {
+    if (Boolean.TRUE.equals(suppressesApplicationEnvironmentFallback.get())) {
+      return null;
+    }
+
+    UnaryOperator<String> resolver = applicationEnvironmentFallbackResolver;
+    return resolver == null ? null : resolver.apply(key);
+  }
+
+  /**
+   * Runs {@code action} with {@link #applicationEnvironmentFallbackResolver} suppressed for the
+   * current thread, then restores the previous state.
+   *
+   * <p>Intended for framework bridges (e.g. a Spring {@code PropertySource} backed by
+   * {@link jp.ecuacion.lib.core.util.PropertiesFileUtil}) that themselves back the registered
+   * resolver: without suppression, resolving a key from within such a bridge would call back
+   * into the very resolver that triggered the lookup, recursing indefinitely.</p>
+   *
+   * @param <T> the result type
+   * @param action the action to run with the fallback suppressed
+   * @return the result of {@code action}
+   */
+  public static <T> T withApplicationEnvironmentFallbackSuppressed(Supplier<T> action) {
+    suppressesApplicationEnvironmentFallback.set(true);
+    try {
+      return action.get();
+
+    } finally {
+      suppressesApplicationEnvironmentFallback.remove();
+    }
   }
 
   /**
