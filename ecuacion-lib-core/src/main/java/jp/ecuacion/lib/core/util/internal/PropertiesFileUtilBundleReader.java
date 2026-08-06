@@ -51,6 +51,13 @@ public class PropertiesFileUtilBundleReader {
    */
   private final String[][] filePrefixes;
 
+  /**
+   * The file kind this instance reads, or {@code null} for the test-only constructor that
+   * accepts a raw {@code filePrefixes} array. Used to scope the application-environment
+   * fallback (see {@link #getValue}) to {@code APPLICATION} only.
+   */
+  private final @Nullable PropertiesFileUtilFileKindEnum fileKind;
+
   private static final String[] LIB_MODULES =
       new String[] {"core", "jpa", "validation", "validation_business_messages"};
   private static final String[] SPLIB_MODULES = new String[] {"core", "web", "web_jpa"};
@@ -128,6 +135,7 @@ public class PropertiesFileUtilBundleReader {
   public PropertiesFileUtilBundleReader(PropertiesFileUtilFileKindEnum fileKindEnum) {
     this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
+    this.fileKind = fileKindEnum;
   }
 
   /**
@@ -137,6 +145,7 @@ public class PropertiesFileUtilBundleReader {
   PropertiesFileUtilBundleReader(String[][] filePrefixes) {
     this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
+    this.fileKind = null;
   }
 
   /**
@@ -182,7 +191,14 @@ public class PropertiesFileUtilBundleReader {
       value = tmpValue == null ? "" : tmpValue;
 
     } else {
-      value = getValueFromPropertiesFiles(locale, key);
+      // For APPLICATION only, a framework bridge (e.g. Spring's Environment, covering its own
+      // externalized application.properties locations) may provide a value that overrides the
+      // classpath-bundled application.properties below. See
+      // PropertiesFileUtilResolver#getApplicationEnvironmentFallbackValue.
+      String fromEnv = fileKind == PropertiesFileUtilFileKindEnum.APPLICATION
+          ? PropertiesFileUtilResolver.getApplicationEnvironmentFallbackValue(key)
+          : null;
+      value = fromEnv != null ? fromEnv : getValueFromPropertiesFiles(locale, key);
     }
 
     return value;
