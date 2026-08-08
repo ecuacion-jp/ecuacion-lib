@@ -131,6 +131,7 @@
 	</dependencyManagement>
 
 	<modules>
+		<module>ecuacion-lib-bom</module>
 		<module>ecuacion-lib-dependencies</module>
 		<module>ecuacion-lib-core</module>
 		<module>ecuacion-lib-validation</module>
