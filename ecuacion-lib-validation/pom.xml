@@ -58,7 +58,7 @@
 			<dependency>
 				<groupId>jp.ecuacion.lib</groupId>
 				<artifactId>ecuacion-lib-bom</artifactId>
-				<version>${ecuacion-lib.version}</version>
+				<version>${project.parent.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
