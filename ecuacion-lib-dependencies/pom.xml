@@ -29,26 +29,12 @@
 	</parent>
 	
 	<properties>
-		
-		<!-- module versions (ecuacion-lib depends on them, but marked as 'provided') -->
-		<jakarta.servlet.jakarta.servlet-api.version>6.1.0</jakarta.servlet.jakarta.servlet-api.version>
-		<jakarta.mail.jakarta.mail-api.version>2.1.5</jakarta.mail.jakarta.mail-api.version>
-		<org.slf4j.slf4j-api.version>2.0.18</org.slf4j.slf4j-api.version>
-		<tools.jackson.core.jackson-databind.version>3.2.1</tools.jackson.core.jackson-databind.version>
-		<!-- jakarta-el -->
-		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
-		<!-- jakarta validation -->
-		<jakarta.validation.jakarta.validation-api.version>3.1.1</jakarta.validation.jakarta.validation-api.version>
-		<org.hibernate.validator.hibernate-validator.version>9.1.3.Final</org.hibernate.validator.hibernate-validator.version>
 
 		<!-- module versions (test scope) -->
 		<junit.version>6.1.2</junit.version>
 		<org.assertj.assertj-core.version>3.27.7</org.assertj.assertj-core.version>
 		<!-- eclipse null analysis -->
 		<org.lastnpe.eea.jdk-eea.version>2.4.0</org.lastnpe.eea.jdk-eea.version>
-
-		<!-- apache commons -->
-		<org.apache.commons.commons-lang3.version>3.20.0</org.apache.commons.commons-lang3.version>
 
 		<!-- build tooling versions, used only by the plugins declared below -->
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
@@ -592,42 +578,6 @@
 				<version>${io.qameta.allure.allure-jupiter.version}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>jakarta.servlet</groupId>
-				<artifactId>jakarta.servlet-api</artifactId>
-				<version>${jakarta.servlet.jakarta.servlet-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.mail</groupId>
-				<artifactId>jakarta.mail-api</artifactId>
-				<version>${jakarta.mail.jakarta.mail-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>${org.slf4j.slf4j-api.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>tools.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${tools.jackson.core.jackson-databind.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.glassfish</groupId>
-				<artifactId>jakarta.el</artifactId>
-				<version>${org.glassfish.jakarta.el.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>jakarta.validation</groupId>
-				<artifactId>jakarta.validation-api</artifactId>
-				<version>${jakarta.validation.jakarta.validation-api.version}</version>
-			</dependency>
-			 <dependency>
-				<groupId>org.hibernate.validator</groupId>
-				<artifactId>hibernate-validator</artifactId>
-				<version>${org.hibernate.validator.hibernate-validator.version}</version>
-			</dependency>
-
 			<!-- junit -->
 			<dependency>
 				<groupId>org.junit</groupId>
@@ -651,13 +601,6 @@
 				<groupId>com.google.errorprone</groupId>
 				<artifactId>error_prone_core</artifactId>
 				<version>${com.google.errorprone.error_prone_core.version}</version>
-			</dependency>
-
-			<!-- apache commons -->
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-lang3</artifactId>
-				<version>${org.apache.commons.commons-lang3.version}</version>
 			</dependency>
 
 		</dependencies>
