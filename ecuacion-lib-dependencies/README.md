@@ -14,11 +14,24 @@ On the other hand, even when `ecuacion-splib` is not used we still need to set v
 This is why `ecuacion-lib-dependencies` was introduced.  
 It stores `jakartaee` versions, `ecuacion-lib` modules refer to it but `ecuacion-splib` modules don't.
 
-Note that these `dependencyManagement` settings are intentionally kept in this separate module rather than
-being merged into `ecuacion-lib-parent`.  
-This is because `ecuacion-splib` imports `ecuacion-lib-parent` as a BOM (`<scope>import</scope>`).  
-If these settings were moved to `ecuacion-lib-parent`, they would also be pulled into `ecuacion-splib`
-via that BOM import, potentially conflicting with the versions managed by Spring Boot.
+Note that these settings are intentionally kept in this separate module rather than being merged
+into `ecuacion-lib-parent`.  
+`ecuacion-splib-parent` uses `ecuacion-lib-parent` as its **parent POM** (not a BOM import), so
+anything in `ecuacion-lib-parent` is inherited by every general application that in turn uses
+`ecuacion-splib-parent` as its own parent POM. `ecuacion-lib-dependencies` therefore also holds
+everything that should stay opt-in rather than being forced onto those general applications:
+
+- The external library version management described above (avoids propagating versions that could
+  conflict with Spring Boot's `dependencyManagement`).
+- Build tooling for this library's own quality assurance: checkstyle, spotbugs, automatic
+  license-header insertion, and NullAway/Error Prone static analysis.
+- An actual (not just managed) dependency on `jspecify`, the null-safety annotations NullAway relies on.
+
+`ecuacion-lib-core`, `ecuacion-lib-validation`, and `ecuacion-lib-validation-business-messages` use
+`ecuacion-lib-dependencies` as their parent POM, so they get all of the above. `ecuacion-splib` has
+the equivalent split: `ecuacion-splib-dependencies` plays the same role for `ecuacion-splib-core`
+and the other ecuacion-splib modules, while `ecuacion-splib-parent` stays free of it so it's safe
+for general applications to use as their own parent POM.
 
 ## Dependent External Libraries
 
