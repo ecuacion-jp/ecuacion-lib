@@ -25,7 +25,10 @@ everything that should stay opt-in rather than being forced onto those general a
   conflict with Spring Boot's `dependencyManagement`).
 - Build tooling for this library's own quality assurance: checkstyle, spotbugs, automatic
   license-header insertion, and NullAway/Error Prone static analysis.
-- An actual (not just managed) dependency on `jspecify`, the null-safety annotations NullAway relies on.
+- Source jar / javadoc jar generation, uploading them to the ecuacion docs server (wagon), test
+  coverage measurement (jacoco), and enforcing a minimum Maven version (enforcer).
+- An actual (not just managed) dependency on `jspecify` (the null-safety annotations NullAway
+  relies on) and `allure-jupiter` (test report generation).
 
 `ecuacion-lib-core`, `ecuacion-lib-validation`, and `ecuacion-lib-validation-business-messages` use
 `ecuacion-lib-dependencies` as their parent POM, so they get all of the above. `ecuacion-splib` has
