@@ -2,23 +2,42 @@
 
 ## What is it?
 
-`ecuacion-lib-dependencies` provides `dependencyManagement` settings in `pom.xml`.  
-It stores versions for `jakarta EE` and some other modules.  
+`ecuacion-lib-dependencies` is the parent POM used by `ecuacion-lib`'s own modules
+(`ecuacion-lib-core`, `ecuacion-lib-validation`, `ecuacion-lib-validation-business-messages`), not
+by application projects.
 
-We have `ecuacion-splib` modules which adopts `spring boot 4` and uses `ecuacion-lib` as a base library.  
-Since `spring boot` provides the latest versions for `jakarta EE` and some other modules with its `dependencyManagement` settings,
-we adopt its versions to `ecuacion-splib` and apps based on that.  
+Note that these settings are intentionally kept in this separate module rather than being merged
+into `ecuacion-lib-parent`.  
+`ecuacion-splib-parent` uses `ecuacion-lib-parent` as its **parent POM** (not a BOM import), so
+anything in `ecuacion-lib-parent` is inherited by every general application that in turn uses
+`ecuacion-splib-parent` as its own parent POM. `ecuacion-lib-dependencies` therefore holds
+everything that should stay opt-in rather than being forced onto those general applications:
 
-On the other hand, even when `ecuacion-splib` is not used we still need to set versions for `jakarta EE` and some other modules.  
+- Build tooling for this library's own quality assurance: checkstyle, spotbugs, automatic
+  license-header insertion, and NullAway/Error Prone static analysis.
+- Source jar / javadoc jar generation, uploading them to the ecuacion docs server (wagon), test
+  coverage measurement (jacoco), and enforcing a minimum Maven version (enforcer).
+- An actual (not just managed) dependency on `jspecify` (the null-safety annotations NullAway
+  relies on) and a bundled test stack: `junit-jupiter`, `assertj-core`, `allure-jupiter` (test
+  report generation).
 
-This is why `ecuacion-lib-dependencies` was introduced.  
-It stores `jakartaee` versions, `ecuacion-lib` modules refer to it but `ecuacion-splib` modules don't.
+`ecuacion-lib-dependencies` deliberately does **not** hold version pins for external libraries that
+overlap with Spring Boot's own `dependencyManagement` (`hibernate-validator`, `jakarta.el`,
+`jakarta.validation-api`, `jakarta.servlet-api`, `jakarta.mail-api`, `slf4j-api`,
+`jackson-databind`, `commons-lang3`). Those live in a separate module, `ecuacion-lib-bom`: since
+`ecuacion-splib-dependencies` uses `ecuacion-lib-dependencies` as its own **parent POM** (for the
+strict tooling above), anything pinned here would also propagate to `ecuacion-splib-dependencies`
+and silently override the versions a Spring Boot project would otherwise get from
+`spring-boot-dependencies`. See `ecuacion-lib-bom`'s own `pom.xml` for details. The test-stack
+libraries above don't have this problem: they're declared as actual dependencies (not just
+managed), so they always win Maven's dependency mediation regardless of where the version is
+pinned, making the split unnecessary for them.
 
-Note that these `dependencyManagement` settings are intentionally kept in this separate module rather than
-being merged into `ecuacion-lib-parent`.  
-This is because `ecuacion-splib` imports `ecuacion-lib-parent` as a BOM (`<scope>import</scope>`).  
-If these settings were moved to `ecuacion-lib-parent`, they would also be pulled into `ecuacion-splib`
-via that BOM import, potentially conflicting with the versions managed by Spring Boot.
+`ecuacion-lib-core`, `ecuacion-lib-validation`, and `ecuacion-lib-validation-business-messages` use
+`ecuacion-lib-dependencies` as their parent POM, so they get all of the above. `ecuacion-splib` has
+the equivalent split: `ecuacion-splib-dependencies` plays the same role for `ecuacion-splib-core`
+and the other ecuacion-splib modules, while `ecuacion-splib-parent` stays free of it so it's safe
+for general applications to use as their own parent POM.
 
 ## Dependent External Libraries
 
