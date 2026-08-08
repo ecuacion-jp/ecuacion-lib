@@ -77,8 +77,8 @@
 		<wagon.skip>true</wagon.skip>
 
 		<!-- properties for ecuacion build: paths and urls -->
-		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/public</repository.ecuacion-repo-sftp-root>
-		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/public</repository.ecuacion-repo-http-root>
+		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-sftp-root>
+		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-http-root>
 		<remote-location.docs-work>sftp://docs.ecuacion.jp/home/ytbiz/my-data/scripts/work</remote-location.docs-work>
 		
 	</properties>
