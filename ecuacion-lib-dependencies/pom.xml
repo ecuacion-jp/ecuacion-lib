@@ -52,7 +52,6 @@
 		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
 		<!-- wagon: uploads javadoc/allure/jacoco reports to the ecuacion docs server -->
 		<org.codehaus.mojo.wagon-maven-plugin.version>3.0.0</org.codehaus.mojo.wagon-maven-plugin.version>
-		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
 		<!-- antrun: zips allure/jacoco reports for upload -->
 		<org.apache.maven.plugins.maven-antrun-plugin.version>3.2.0</org.apache.maven.plugins.maven-antrun-plugin.version>
 		<!-- allure -->
@@ -454,20 +453,6 @@
 
 			</plugins>
 		</pluginManagement>
-
-		<extensions>
-			<!-- Enabling the use of SSH (wagon-maven-plugin upload to the ecuacion docs server) -->
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh</artifactId>
-				<version>${org.apache.maven.wagon.version}</version>
-			</extension>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh-external</artifactId>
-				<version>${org.apache.maven.wagon.version}</version>
-			</extension>
-		</extensions>
 
 		<plugins>
 			<!-- Activated here (not pluginManagement alone) so that all inheriting
