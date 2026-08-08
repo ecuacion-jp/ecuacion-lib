@@ -75,6 +75,10 @@
 		<org.sonatype.central.central-publishing-maven-plugin.version>0.11.0</org.sonatype.central.central-publishing-maven-plugin.version>
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
 		<wagon.skip>true</wagon.skip>
+		<!-- wagon: needed here (not just ecuacion-lib-dependencies) so that ecuacion-lib-parent
+			itself and ecuacion-lib-bom (whose <parent> is ecuacion-lib-parent directly, bypassing
+			ecuacion-lib-dependencies) can deploy to the SFTP repository below. -->
+		<org.apache.maven.wagon.version>3.5.3</org.apache.maven.wagon.version>
 
 		<!-- properties for ecuacion build: paths and urls -->
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-sftp-root>
@@ -84,6 +88,23 @@
 	</properties>
 
 	<build>
+		<extensions>
+			<!-- Enabling the use of SSH (wagon-maven-plugin upload to the ecuacion docs server).
+				Declared here (not just in ecuacion-lib-dependencies) so that ecuacion-lib-parent
+				itself and ecuacion-lib-bom (whose <parent> is ecuacion-lib-parent directly) can
+				also deploy to the SFTP repository. -->
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>${org.apache.maven.wagon.version}</version>
+			</extension>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>${org.apache.maven.wagon.version}</version>
+			</extension>
+		</extensions>
+
 		<pluginManagement>
 			<plugins>
 
