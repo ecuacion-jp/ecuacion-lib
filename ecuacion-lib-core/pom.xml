@@ -38,6 +38,7 @@
 		<dependency>
 			<groupId>jakarta.mail</groupId>
 			<artifactId>jakarta.mail-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- jakarta ee : implementation -->
