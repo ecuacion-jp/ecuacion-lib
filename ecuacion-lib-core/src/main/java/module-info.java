@@ -36,7 +36,9 @@ module jp.ecuacion.lib.core {
   exports jp.ecuacion.lib.core.violation;
 
   requires transitive jakarta.validation;
-  requires jakarta.mail;
+  // jakarta.mail-api is provided scope: MailUtil may not be used, so it must not be
+  // mandatory at runtime for consumers.
+  requires static jakarta.mail;
   requires transitive org.slf4j;
   requires org.apache.commons.lang3;
   requires org.hibernate.validator;
