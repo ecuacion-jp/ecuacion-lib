@@ -18,8 +18,11 @@ package jp.ecuacion.lib.core.util.internal;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.CONSTANTS;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.MESSAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import jakarta.el.ELException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.junit.jupiter.api.BeforeAll;
@@ -215,6 +218,23 @@ public class PropertiesFileUtilResolverTest {
       assertThat(PropertiesFileUtilResolver.analyzedValueString(
           null, "result: ${1 + 1}", new HashMap<>()))
           .isEqualTo("result: 2");
+    }
+
+    @Test
+    @DisplayName("${boundVar == literal ? a : b} (real ValidationMessages pattern) still works")
+    void elExpressionWithBoundVariableAndTernary() {
+      assertThat(PropertiesFileUtilResolver.analyzedValueString(null,
+          "must be ${inclusive == true ? 'at most' : 'less than'} {value}",
+          Map.of("inclusive", true)))
+          .isEqualTo("must be at most {value}");
+    }
+
+    @Test
+    @DisplayName("${boundVar.method()} property/method access on a bound value is rejected")
+    void elExpressionPropertyAccessOnBoundValueIsRejected() {
+      assertThatThrownBy(() -> PropertiesFileUtilResolver.analyzedValueString(null,
+          "${arg.getClass().getClassLoader()}", Map.of("arg", "some value")))
+          .isInstanceOf(ELException.class);
     }
   }
 }
