@@ -15,7 +15,8 @@
  */
 package jp.ecuacion.lib.core.util.internal;
 
-import jakarta.el.ELProcessor;
+import jakarta.el.ELContext;
+import jakarta.el.ExpressionFactory;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -451,15 +452,22 @@ public class PropertiesFileUtilResolver {
       }
 
       sb = new StringBuilder();
-      ELProcessor elProcessor = new ELProcessor();
-      elParameterMap.forEach(elProcessor::setValue);
+      ExpressionFactory expressionFactory = ExpressionFactory.newInstance();
+      // SafeElContext (not the unrestricted jakarta.el.ELProcessor) so ${...} here can only
+      // reference bound variables/operators, never call methods or read properties on them.
+      // See SafeElContext's javadoc for why.
+      ELContext elContext = new SafeElContext(expressionFactory);
+      elParameterMap.forEach((name, value) -> elContext.getVariableMapper()
+          .setVariable(name, expressionFactory.createValueExpression(value, Object.class)));
 
       for (Pair<@Nullable String, String> tuple : list) {
         if (tuple.getLeft() == null) {
           sb.append(tuple.getRight());
 
         } else {
-          sb.append(elProcessor.eval(tuple.getRight()).toString());
+          sb.append(expressionFactory
+              .createValueExpression(elContext, "${" + tuple.getRight() + "}", String.class)
+              .getValue(elContext));
         }
       }
     }
