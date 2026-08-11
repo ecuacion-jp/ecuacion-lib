@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil;
@@ -74,93 +73,50 @@ public class PropertiesFileUtilResolver {
           PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS);
 
   /**
-   * Holds a framework-specific resolver for {@code ${...}} placeholders in CONFIG-group
-   * (currently {@code APPLICATION}) values, registered via
-   * {@link jp.ecuacion.lib.core.util.PropertiesFileUtil#setExternalPlaceholderResolver}.
+   * Holds a framework-specific resolver for {@code APPLICATION} key lookups, registered via
+   * {@link jp.ecuacion.lib.core.util.PropertiesFileUtil#setApplicationResolver}. When
+   * registered, it is the sole source consulted by {@link PropertiesFileUtilBundleReader
+   * #getValue} for {@code APPLICATION} keys — the JVM system property check and the
+   * classpath-bundled {@code application.properties} scan are both skipped, since a framework's
+   * own configuration mechanism (e.g. Spring's {@code Environment}) already covers those and
+   * more (externalized locations, profiles, nested placeholder resolution).
    */
-  private static volatile @Nullable UnaryOperator<String> externalPlaceholderResolver;
+  private static volatile @Nullable UnaryOperator<String> applicationResolver;
 
   /**
-   * Holds a framework-specific fallback resolver for {@code APPLICATION} key lookups,
-   * registered via {@link jp.ecuacion.lib.core.util.PropertiesFileUtil
-   * #setApplicationEnvironmentFallbackResolver}. Consulted by
-   * {@link PropertiesFileUtilBundleReader#getValue} after the JVM system property check and
-   * before the classpath-bundled {@code application.properties} scan, so that a framework's
-   * own externalized configuration (e.g. Spring's {@code file:./config/application.properties})
-   * can override or add values without ecuacion-lib depending on that framework.
-   */
-  private static volatile @Nullable UnaryOperator<String> applicationEnvironmentFallbackResolver;
-
-  /**
-   * Suppresses {@link #applicationEnvironmentFallbackResolver} for the current thread while
-   * {@code true}. Set around calls originating from a framework bridge that itself backs the
-   * resolver (e.g. Spring's {@code Environment} falling back to ecuacion-lib's own
-   * {@code application.properties} reading), so that resolving a key never recurses back into
-   * the same bridge.
-   */
-  private static final ThreadLocal<Boolean> suppressesApplicationEnvironmentFallback =
-      new ThreadLocal<>();
-
-  /**
-   * Registers (or clears, with {@code null}) the external placeholder resolver.
-   *
-   * @param resolver resolver function, or {@code null} to clear
-   */
-  public static void setExternalPlaceholderResolver(@Nullable UnaryOperator<String> resolver) {
-    externalPlaceholderResolver = resolver;
-  }
-
-  /**
-   * Registers (or clears, with {@code null}) the application-environment fallback resolver.
+   * Registers (or clears, with {@code null}) the application resolver.
    *
    * @param resolver resolver function returning the value for a key, or {@code null} when the
    *     key is not present; or {@code null} to clear a previously registered resolver
    */
-  public static void setApplicationEnvironmentFallbackResolver(
-      @Nullable UnaryOperator<String> resolver) {
-    applicationEnvironmentFallbackResolver = resolver;
+  public static void setApplicationResolver(@Nullable UnaryOperator<String> resolver) {
+    applicationResolver = resolver;
   }
 
   /**
-   * Returns the value the registered application-environment fallback resolver has for
-   * {@code key}, or {@code null} if none is registered, the resolver has no value for
-   * {@code key}, or the fallback is currently suppressed on this thread.
+   * Returns whether an application resolver is currently registered.
    *
    * <p>Package-private: called only from {@link PropertiesFileUtilBundleReader#getValue}.</p>
+   *
+   * @return {@code true} if a resolver is registered
+   */
+  static boolean hasApplicationResolver() {
+    return applicationResolver != null;
+  }
+
+  /**
+   * Returns the value the registered application resolver has for {@code key}, or {@code null}
+   * if the resolver has no value for {@code key}.
+   *
+   * <p>Package-private: called only from {@link PropertiesFileUtilBundleReader#getValue}, and
+   * only after {@link #hasApplicationResolver()} has confirmed a resolver is registered.</p>
    *
    * @param key the key of the property
    * @return the resolved value, or {@code null}
    */
-  static @Nullable String getApplicationEnvironmentFallbackValue(String key) {
-    if (Boolean.TRUE.equals(suppressesApplicationEnvironmentFallback.get())) {
-      return null;
-    }
-
-    UnaryOperator<String> resolver = applicationEnvironmentFallbackResolver;
+  static @Nullable String getApplicationResolverValue(String key) {
+    UnaryOperator<String> resolver = applicationResolver;
     return resolver == null ? null : resolver.apply(key);
-  }
-
-  /**
-   * Runs {@code action} with {@link #applicationEnvironmentFallbackResolver} suppressed for the
-   * current thread, then restores the previous state.
-   *
-   * <p>Intended for framework bridges (e.g. a Spring {@code PropertySource} backed by
-   * {@link jp.ecuacion.lib.core.util.PropertiesFileUtil}) that themselves back the registered
-   * resolver: without suppression, resolving a key from within such a bridge would call back
-   * into the very resolver that triggered the lookup, recursing indefinitely.</p>
-   *
-   * @param <T> the result type
-   * @param action the action to run with the fallback suppressed
-   * @return the result of {@code action}
-   */
-  public static <T> T withApplicationEnvironmentFallbackSuppressed(Supplier<T> action) {
-    suppressesApplicationEnvironmentFallback.set(true);
-    try {
-      return action.get();
-
-    } finally {
-      suppressesApplicationEnvironmentFallback.remove();
-    }
   }
 
   /**
@@ -203,39 +159,6 @@ public class PropertiesFileUtilResolver {
    */
   public static String getProp(@Nullable Locale locale, PropertiesFileUtilFileKindEnum fileKind,
       String key, Map<@NonNull String, @Nullable Object> elParameterMap) {
-    String resolved = getPropWithoutExternalPlaceholderResolution(locale, fileKind, key,
-        elParameterMap);
-
-    UnaryOperator<String> resolver = externalPlaceholderResolver;
-    if (fileKind.getGroup().resolvesExternalPlaceholders() && resolver != null) {
-      resolved = resolver.apply(resolved);
-    }
-
-    return resolved;
-  }
-
-  /**
-   * Returns the processed property value, same as
-   * {@link #getProp(Locale, PropertiesFileUtilFileKindEnum, String, Map)}, but never applies
-   * a registered {@link #setExternalPlaceholderResolver external placeholder resolver}.
-   *
-   * <p>Intended for framework bridges that expose ecuacion-lib property values into their
-   * own placeholder-resolution system (e.g., a {@code PropertySource} backed by
-   * {@code PropertiesFileUtil} that Spring's own {@code Environment} placeholder resolution
-   * falls back to). Such bridges must not re-invoke the external resolver here, since that
-   * resolver is itself what triggered the lookup that reached this fallback — applying it
-   * again would recurse back into the same framework instead of letting the framework's own
-   * single resolution pass continue.</p>
-   *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
-   * @param fileKind the file kind
-   * @param key the key of the property
-   * @param elParameterMap parameters for EL expression evaluation
-   * @return the processed value, without external placeholder resolution applied
-   */
-  public static String getPropWithoutExternalPlaceholderResolution(@Nullable Locale locale,
-      PropertiesFileUtilFileKindEnum fileKind, String key,
-      Map<@NonNull String, @Nullable Object> elParameterMap) {
     PropertiesFileUtilBundleReader reader = obtainBundleReader(fileKind);
     String foundValue = reader.getPropIfExists(locale, key);
 
@@ -250,7 +173,7 @@ public class PropertiesFileUtilResolver {
     }
 
     return analyzedValueString(locale, foundValue, elParameterMap,
-        fileKind.evaluatesElExpression());
+        fileKind.getGroup().resolvesCrossReferences(), fileKind.evaluatesElExpression());
   }
 
   /**
@@ -312,6 +235,7 @@ public class PropertiesFileUtilResolver {
       // bind EL variables, so ${...} EL evaluation is not applicable here.
       String argString = analyzedValueString(locale,
           Objects.requireNonNull((String) arg.getArgValue()), new HashMap<>(),
+          PropertiesFileUtilFileKindGroupEnum.MESSAGE.resolvesCrossReferences(),
           PropertiesFileUtilFileKindGroupEnum.MESSAGE.evaluatesElExpression());
 
       for (Object tmpObj : arg.getMessageArgs()) {
@@ -383,8 +307,9 @@ public class PropertiesFileUtilResolver {
    * Resolves {@code #{fileKind:key}} and {@code #{key}} references in {@code rawString},
    * and evaluates any {@code ${...}} EL expressions.
    *
-   * <p>Shorthand for {@link #analyzedValueString(Locale, String, Map, boolean)}
-   * with {@code evaluatesElExpression} set to {@code true}.</p>
+   * <p>Shorthand for {@link #analyzedValueString(Locale, String, Map, boolean, boolean)}
+   * with both {@code resolvesCrossReferences} and {@code evaluatesElExpression} set to
+   * {@code true}.</p>
    *
    * @param locale locale, may be {@code null}
    * @param rawString raw string possibly containing {@code #{...}} or {@code ${...}} syntax
@@ -393,13 +318,20 @@ public class PropertiesFileUtilResolver {
    */
   public static String analyzedValueString(@Nullable Locale locale, String rawString,
       Map<@NonNull String, @Nullable Object> elParameterMap) {
-    return analyzedValueString(locale, rawString, elParameterMap, true);
+    return analyzedValueString(locale, rawString, elParameterMap, true, true);
   }
 
   /**
-   * Resolves {@code #{fileKind:key}} and {@code #{key}} references in {@code rawString},
-   * and, when {@code evaluatesElExpression} is {@code true}, evaluates any {@code ${...}}
-   * EL expressions.
+   * Resolves, when {@code resolvesCrossReferences} is {@code true}, {@code #{fileKind:key}}
+   * and {@code #{key}} references in {@code rawString}, and, when
+   * {@code evaluatesElExpression} is {@code true}, evaluates any {@code ${...}} EL
+   * expressions.
+   *
+   * <p>{@code #{...}} cross-reference resolution is disabled for {@code application.properties}
+   * values ({@code CONFIG} group) regardless of retrieval path, because {@code #{...}} is
+   * also Spring's own SpEL delimiter for {@code @Value} — see {@link
+   * jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindGroupEnum} for the full
+   * rationale.</p>
    *
    * <p>{@code ${...}} EL evaluation is meaningful only where EL variables are actually
    * bound (currently, Bean Validation message interpolation via {@code elParameterMap});
@@ -408,18 +340,21 @@ public class PropertiesFileUtilResolver {
    * @param locale locale, may be {@code null}
    * @param rawString raw string possibly containing {@code #{...}} or {@code ${...}} syntax
    * @param elParameterMap parameters for EL expression evaluation
+   * @param resolvesCrossReferences whether {@code #{fileKind:key}} / {@code #{key}}
+   *     cross-references should be resolved
    * @param evaluatesElExpression whether {@code ${...}} EL expressions should be evaluated
    * @return fully resolved string
    */
   public static String analyzedValueString(@Nullable Locale locale, String rawString,
-      Map<@NonNull String, @Nullable Object> elParameterMap, boolean evaluatesElExpression) {
+      Map<@NonNull String, @Nullable Object> elParameterMap, boolean resolvesCrossReferences,
+      boolean evaluatesElExpression) {
     StringBuilder sb = new StringBuilder();
     sb.append(rawString);
     List<Pair<@Nullable String, String>> list = null;
     locale = locale == null ? Locale.ENGLISH : locale;
 
     // conditional branch if el expression exists for processing speed.
-    if (sb.toString().contains("#{")) {
+    if (resolvesCrossReferences && sb.toString().contains("#{")) {
       // Analyze messageString for #{fileKind:key} and #{key} format parameters.
       list = analyze(sb.toString());
       sb = new StringBuilder();

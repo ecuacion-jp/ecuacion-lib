@@ -236,5 +236,14 @@ public class PropertiesFileUtilResolverTest {
           "${arg.getClass().getClassLoader()}", Map.of("arg", "some value")))
           .isInstanceOf(ELException.class);
     }
+
+    @Test
+    @DisplayName("resolvesCrossReferences=false: #{...} is left as a literal "
+        + "(application.properties values, since #{...} collides with Spring's @Value SpEL)")
+    void crossReferenceDisabled_leavesHashBraceLiteral() {
+      assertThat(PropertiesFileUtilResolver.analyzedValueString(Locale.ENGLISH,
+          "Hello, #{messages:MSG1}", new HashMap<>(), false, true))
+          .isEqualTo("Hello, #{messages:MSG1}");
+    }
   }
 }
