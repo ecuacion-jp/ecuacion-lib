@@ -26,7 +26,6 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -133,7 +132,7 @@ public class PropertiesFileUtilBundleReader {
    * @param fileKindEnum fileKindEnum
    */
   public PropertiesFileUtilBundleReader(PropertiesFileUtilFileKindEnum fileKindEnum) {
-    this.filePrefixes = ObjectsUtil.requireNonNull(fileKindEnum).getActualFilePrefixes();
+    this.filePrefixes = Objects.requireNonNull(fileKindEnum).getActualFilePrefixes();
     this.throwsExceptionWhenKeyDoesNotExist = fileKindEnum.throwsExceptionWhenKeyDoesNotExist();
     this.fileKind = fileKindEnum;
   }
@@ -143,7 +142,7 @@ public class PropertiesFileUtilBundleReader {
    * It is used to accept non-PropFileKindEnum file prefix.
    */
   PropertiesFileUtilBundleReader(String[][] filePrefixes) {
-    this.filePrefixes = ObjectsUtil.requireNonNull(filePrefixes);
+    this.filePrefixes = Objects.requireNonNull(filePrefixes);
     throwsExceptionWhenKeyDoesNotExist = true;
     this.fileKind = null;
   }
@@ -276,7 +275,7 @@ public class PropertiesFileUtilBundleReader {
    */
   private @Nullable ResourceBundle getResourceBundle(String bundleId, @Nullable Locale locale) {
 
-    ObjectsUtil.requireNonNull(bundleId);
+    Objects.requireNonNull(bundleId);
 
     if (locale == null) {
       locale = Locale.ROOT;
@@ -430,7 +429,7 @@ public class PropertiesFileUtilBundleReader {
    * @return raw value, or {@code null} if the key does not exist in any properties file
    */
   @Nullable String getPropIfExists(@Nullable Locale locale, String key) {
-    ObjectsUtil.requireNonNull(key);
+    Objects.requireNonNull(key);
 
     if (StringUtils.isEmpty(key)) {
       throw new RuntimeException("Message ID is blank.");

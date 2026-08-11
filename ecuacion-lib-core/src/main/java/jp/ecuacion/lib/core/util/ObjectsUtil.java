@@ -26,7 +26,6 @@ import jp.ecuacion.lib.core.annotation.RequireElementNonNull;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -46,27 +45,11 @@ public class ObjectsUtil {
   private ObjectsUtil() {}
 
   /**
-   * Validates that the argument is not {@code null}
-   *     and throws {@code RequireNonNullException} if it is.
-   * 
-   * @param <T> The class of the argument
-   * @param object Any object
-   * @return the argument
-   */
-  public static <T> @NonNull T requireNonNull(@Nullable T object) {
-    if (object == null) {
-      throw new RequireNonNullException();
-    }
-
-    return object;
-  }
-
-  /**
    * Validates that multiple arguments are not {@code null}
-   *     and throws {@code RequireNonNullException} if any of them is.
-   * 
+   *     and throws {@code NullPointerException} if any of them is.
+   *
    * <p>This is used to validate multiple arguments at one time.</p>
-   * 
+   *
    * @param object1 Any object
    * @param object2 Any object
    * @param objects Any objects
@@ -77,7 +60,7 @@ public class ObjectsUtil {
     Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
 
     for (Object object : allObjects) {
-      requireNonNull(object);
+      Objects.requireNonNull(object);
     }
   }
 
@@ -266,21 +249,6 @@ public class ObjectsUtil {
      */
     public ObjectsUtilException(String message) {
       super(message);
-    }
-  }
-
-  /**
-   * Designates non-null is required.
-   */
-  public static class RequireNonNullException extends ObjectsUtilException {
-
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Construct a new instance.
-     */
-    public RequireNonNullException() {
-      super("Non-null required.");
     }
   }
 

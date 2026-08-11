@@ -17,7 +17,7 @@ package jp.ecuacion.lib.core.violation;
 
 import java.util.Arrays;
 import java.util.Locale;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
+import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
 import org.jspecify.annotations.NonNull;
@@ -104,7 +104,7 @@ public class BusinessViolation {
       String messageId, @Nullable Object... messageArgs) {
     this.itemNameKeys = itemNameKeys;
     this.itemPropertyPaths = itemPropertyPaths;
-    this.messageId = ObjectsUtil.requireNonNull(messageId);
+    this.messageId = Objects.requireNonNull(messageId);
     this.messageArgs = messageArgs;
   }
 

@@ -209,7 +209,7 @@ public class EnumUtil {
    */
   public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass,
       @Nullable Locale locale) {
-    ObjectsUtil.requireNonNull(enumClass);
+    Objects.requireNonNull(enumClass);
     locale = locale == null ? Locale.ROOT : locale;
 
     List<EnumUtil.EnumValueInfo<T>> valueList = new ArrayList<>();

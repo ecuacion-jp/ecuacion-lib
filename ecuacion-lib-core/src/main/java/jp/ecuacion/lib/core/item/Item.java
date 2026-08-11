@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.item;
 
+import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.RequireNonEmpty;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
@@ -197,7 +198,7 @@ public class Item {
     }
 
     if (!StringUtils.isEmpty(itemNameKeyField)) {
-      tmpItemNameKeyField = ObjectsUtil.requireNonNull(itemNameKeyField);
+      tmpItemNameKeyField = Objects.requireNonNull(itemNameKeyField);
     } else {
       tmpItemNameKeyField =
           PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(propertyPath));

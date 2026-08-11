@@ -15,10 +15,10 @@
  */
 package jp.ecuacion.lib.core.logging;
 
+import java.util.Objects;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
@@ -49,7 +49,7 @@ public class DetailLogger extends AbstractLogger {
    * @param cls caller class.
    */
   public DetailLogger(Class<?> cls) {
-    super(ObjectsUtil.requireNonNull(cls));
+    super(Objects.requireNonNull(cls));
   }
 
   /** 
@@ -93,8 +93,8 @@ public class DetailLogger extends AbstractLogger {
    *
    * @param th exception to log
    */
-  public void warn(@Nullable Throwable th) {
-    ObjectsUtil.requireNonNull(th);
+  public void warn(Throwable th) {
+    Objects.requireNonNull(th);
     log(Level.WARN, th);
   }
 

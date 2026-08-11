@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -46,7 +47,7 @@ public class StringUtil {
    * @return camel case string
    */
   public static String getLowerCamelFromSnake(String snakeCaseString) {
-    ObjectsUtil.requireNonNull(snakeCaseString);
+    Objects.requireNonNull(snakeCaseString);
 
     // Throw an exception if "_" exists at the start or end because it means it's not a snake case.
     if (snakeCaseString.startsWith("_")) {
@@ -127,7 +128,7 @@ public class StringUtil {
    * @throws NumberFormatException NumberFormatException.
    */
   public static String toCurrencyFormat(String number) {
-    ObjectsUtil.requireNonNull(number);
+    Objects.requireNonNull(number);
 
     NumberFormat formatter = NumberFormat.getNumberInstance();
     return formatter.format(Integer.valueOf(number));
@@ -146,7 +147,7 @@ public class StringUtil {
    */
   public static String getSeparatedValuesString(String[] array, String separator,
       String leftHandSideEnclosedBy, String rightHandSideEnclosedBy) {
-    ObjectsUtil.requireNonNull(array);
+    Objects.requireNonNull(array);
 
     separator = separator == null ? "" : separator;
     leftHandSideEnclosedBy = leftHandSideEnclosedBy == null ? "" : leftHandSideEnclosedBy;
