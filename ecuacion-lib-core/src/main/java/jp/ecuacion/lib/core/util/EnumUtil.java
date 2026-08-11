@@ -65,7 +65,8 @@ public class EnumUtil {
   * @return the enum value
   */
   public static <T> T getEnumFromCode(Class<@NonNull T> enumClass, String code) {
-    ObjectsUtil.requireNonNull(enumClass, code);
+    Objects.requireNonNull(enumClass);
+    Objects.requireNonNull(code);
 
     if (!enumClass.isEnum()) {
       throw new IllegalArgumentException();

@@ -64,7 +64,8 @@ public class FileUtil {
 
   /* Concatenates two paths. */
   private static String concatTwoFilePaths(String path1, String path2) {
-    ObjectsUtil.requireNonNull(path1, path2);
+    Objects.requireNonNull(path1);
+    Objects.requireNonNull(path2);
 
     if (path1.endsWith("/")) {
       path1 = path1.substring(0, path1.length() - 1);
