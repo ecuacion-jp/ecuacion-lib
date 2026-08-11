@@ -310,7 +310,7 @@ public class EmbeddedVariableUtil {
   public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
       String endSymbol, Function<String, String> valueGetterFromKey, @Nullable Options options) {
 
-    ObjectsUtil.requireNonNull(valueGetterFromKey);
+    Objects.requireNonNull(valueGetterFromKey);
 
     List<Pair<@Nullable String, String>> list =
         getPartList(string, new @NonNull String[] {startSymbol}, endSymbol, options);
@@ -370,7 +370,7 @@ public class EmbeddedVariableUtil {
       @RequireNonEmpty String endSymbol, Map<String, String> parameterMap,
       @Nullable Options options) {
 
-    ObjectsUtil.requireNonNull(parameterMap);
+    Objects.requireNonNull(parameterMap);
 
     return getVariableReplacedString(string, startSymbol, endSymbol,
         getValueGetterFromKey(parameterMap), options);

@@ -201,7 +201,7 @@ public class MessageUtil {
    */
   public static Arg formatValues(String[] values) {
     return Arg
-        .formattedString(StringUtil.getSeparatedValuesString(ObjectsUtil.requireNonNull(values),
+        .formattedString(StringUtil.getSeparatedValuesString(Objects.requireNonNull(values),
             VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL));
   }
 

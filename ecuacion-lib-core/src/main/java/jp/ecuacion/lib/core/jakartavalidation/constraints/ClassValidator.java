@@ -20,8 +20,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -50,10 +50,10 @@ public abstract class ClassValidator<A extends Annotation, T>
   protected Object[] valuesOfPropertyPaths = new Object[] {};
 
   @Override
-  public boolean isValid(T value, @Nullable ConstraintValidatorContext context) {
+  public boolean isValid(T value, @SuppressWarnings("null") ConstraintValidatorContext context) {
     valuesOfPropertyPaths = setValuesOfPropertyPaths(value);
 
-    return isValidCommon(value, context);
+    return isValidCommon(value, Objects.requireNonNull(context));
   }
 
   private Object[] setValuesOfPropertyPaths(T object) {

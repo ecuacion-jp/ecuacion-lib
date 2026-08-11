@@ -52,7 +52,7 @@ public class FileUtil {
    * Changes argument filename into file-savable name.
    */
   public static String getFileSavableName(String origName) {
-    ObjectsUtil.requireNonNull(origName);
+    Objects.requireNonNull(origName);
 
     String rtn = origName;
     for (Map.Entry<String, String> entry : SAVABLE_NAME_REPLACEMENTS.entrySet()) {
@@ -64,7 +64,8 @@ public class FileUtil {
 
   /* Concatenates two paths. */
   private static String concatTwoFilePaths(String path1, String path2) {
-    ObjectsUtil.requireNonNull(path1, path2);
+    Objects.requireNonNull(path1);
+    Objects.requireNonNull(path2);
 
     if (path1.endsWith("/")) {
       path1 = path1.substring(0, path1.length() - 1);
@@ -107,7 +108,7 @@ public class FileUtil {
    * @return the cleaned path
    */
   public static String cleanPathStrWithSlash(String path) {
-    ObjectsUtil.requireNonNull(path);
+    Objects.requireNonNull(path);
 
     // At the same time, unify the delimiter to "/".
     String rtnStr = path.replaceAll("\\\\", "/");
@@ -143,7 +144,7 @@ public class FileUtil {
    * @return the separator changed path
    */
   public static String getParentDirPath(String origPath) {
-    ObjectsUtil.requireNonNull(origPath);
+    Objects.requireNonNull(origPath);
 
     // The separator used is now unified to "/".
     String path = cleanPathStrWithSlash(origPath);
@@ -159,7 +160,7 @@ public class FileUtil {
    * @return filename
    */
   public static String getFileNameFromFilePath(String path) {
-    ObjectsUtil.requireNonNull(path);
+    Objects.requireNonNull(path);
 
     // To avoid any impact whether or not there is a path separator ("/" or "\")
     // at the end of getParentDirPath, remove the leading path separator.
@@ -173,7 +174,7 @@ public class FileUtil {
    * @return the file size in Megabyte
    */
   public static String getFileSizeInMb(Long fileSize) {
-    ObjectsUtil.requireNonNull(fileSize);
+    Objects.requireNonNull(fileSize);
 
     double d = Double.valueOf(fileSize);
 
@@ -212,7 +213,7 @@ public class FileUtil {
    */
   public static Pair<FileChannel, FileLock> lock(File lockFile, @Nullable String version)
       throws IOException {
-    ObjectsUtil.requireNonNull(lockFile);
+    Objects.requireNonNull(lockFile);
 
     FileChannel channel =
         FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
@@ -244,7 +245,7 @@ public class FileUtil {
    */
   @SuppressWarnings({"resource", "Finally"})
   public static boolean isLocked(String path) throws IOException {
-    ObjectsUtil.requireNonNull(path);
+    Objects.requireNonNull(path);
 
     File file = new File(path);
     // The implementation using FileLock doesn't work well.

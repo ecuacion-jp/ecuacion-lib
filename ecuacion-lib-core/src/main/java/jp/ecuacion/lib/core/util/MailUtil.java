@@ -107,7 +107,7 @@ public class MailUtil {
    * @param config mail configuration
    */
   public static void sendErrorMail(Throwable throwable, MailUtilConfig config) {
-    ObjectsUtil.requireNonNull(throwable);
+    Objects.requireNonNull(throwable);
 
     List<@NonNull String> errorMailAddressList =
         Arrays.asList(config.addressCsvOnSystemError().split(","));
@@ -136,7 +136,7 @@ public class MailUtil {
    *     In the case of {@code null} no additional message is output.
    */
   public static void sendErrorMail(Throwable throwable, @Nullable String additionalMessage) {
-    ObjectsUtil.requireNonNull(throwable);
+    Objects.requireNonNull(throwable);
 
     List<@NonNull String> errorMailAddressList = Arrays.asList(
         PropertiesFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
@@ -250,7 +250,7 @@ public class MailUtil {
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
       @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
       String content, boolean throwsException, MailUtilConfig config) throws Exception {
-    ObjectsUtil.requireNonNull(title);
+    Objects.requireNonNull(title);
 
     if ((mailToList == null || mailToList.isEmpty())
         && (mailCcList == null || mailCcList.isEmpty())) {
@@ -278,7 +278,7 @@ public class MailUtil {
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
       @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
       String content, boolean throwsException) throws Exception {
-    ObjectsUtil.requireNonNull(title);
+    Objects.requireNonNull(title);
 
     // Either mailToList or mailCcList need to have one element at least
     if ((mailToList == null || mailToList.isEmpty())

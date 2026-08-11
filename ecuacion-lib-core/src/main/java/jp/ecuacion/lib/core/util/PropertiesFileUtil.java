@@ -25,7 +25,6 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VAL
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -53,16 +52,23 @@ import org.jspecify.annotations.Nullable;
  *     suffix; apps override them by defining the key without the suffix.</li>
  * <li><b>System property override</b> — values in {@code application.properties} can be
  *     overridden via {@code -D} JVM argument or {@code System.setProperty}.</li>
- * <li><b>Application-environment fallback</b> — a framework bridge registered via
- *     {@link #setApplicationEnvironmentFallbackResolver} (e.g. ecuacion-splib backing it with
- *     Spring's {@code Environment}) can supply {@code application.properties} values from
- *     outside the classpath, such as a Spring Boot executable jar's
- *     {@code file:./config/application.properties}. Consulted after the system property check
- *     and before the classpath-bundled file, so it overrides the classpath default but not an
- *     explicit {@code -D}.</li>
+ * <li><b>Application resolver</b> — a framework bridge registered via
+ *     {@link #setApplicationResolver} (e.g. ecuacion-splib backing it with Spring's {@code
+ *     Environment}) supplies {@code application.properties} values from that framework's own
+ *     configuration mechanism instead of the classpath. When registered, it is the sole source
+ *     for {@code application.properties} lookups. When not registered (e.g. ecuacion-lib used
+ *     standalone), lookups fall back to the classpath-bundled file, with the JVM system
+ *     property check taking precedence.</li>
  * <li><b>{@code #{fileKind:key}} / {@code #{key}} embedding</b> — property values may
  *     reference other property keys; resolution is recursive.
- *     {@code #{key}} searches across messages, item_names, constants, and enum_names.</li>
+ *     {@code #{key}} searches across messages, item_names, constants, and enum_names.
+ *     Not applied to {@code application.properties} values themselves (via {@link
+ *     #getApplication}, regardless of whether a resolver is registered): {@code #{...}} is
+ *     also Spring's own SpEL delimiter for {@code @Value}, so a raw {@code
+ *     application.properties} value containing {@code #{fileKind:key}} would parse as
+ *     (invalid) SpEL and throw at bean-creation time if that same key were also injected via
+ *     {@code @Value}. {@code #{application:key}} references made <i>from</i> other file
+ *     kinds (e.g. a {@code messages.properties} value) are unaffected.</li>
  * <li><b>{@link Arg} for typed arguments</b> — methods that accept {@code Object... args}
  *     allow plain {@code Object} values and {@link Arg} instances to be freely mixed.
  *     {@link Arg#message(String, Object...)} resolves a message key at render time so that
@@ -115,54 +121,6 @@ public class PropertiesFileUtil {
     } else {
       return defaultValue;
     }
-  }
-
-  /**
-   * Returns the value in application_xxx.properties, same as {@link #getApplication(String)},
-   * but never applies a registered {@link #setExternalPlaceholderResolver external placeholder
-   * resolver}.
-   *
-   * <p>Intended for framework bridges that expose {@code application.properties} values into
-   * their own placeholder-resolution system (e.g., a {@code PropertySource} that Spring's own
-   * {@code Environment} placeholder resolution falls back to). Application code should use
-   * {@link #getApplication(String)} instead.</p>
-   *
-   * @param key the key of the property
-   * @return the value of the property, without external placeholder resolution applied
-   */
-  public static String getApplicationWithoutExternalPlaceholderResolution(String key) {
-    return PropertiesFileUtilResolver.withApplicationEnvironmentFallbackSuppressed(
-        () -> PropertiesFileUtilResolver.getPropWithoutExternalPlaceholderResolution(null,
-            APPLICATION, key, new HashMap<>()));
-  }
-
-  /**
-   * Returns the value in application_xxx.properties if it exists, or {@code null} if not — same
-   * as {@link #getApplicationOrElse(String, String)} with a {@code null} default, but never
-   * applies a registered {@link #setExternalPlaceholderResolver external placeholder resolver}
-   * or {@link #setApplicationEnvironmentFallbackResolver application-environment fallback
-   * resolver}.
-   *
-   * <p>Intended for framework bridges that themselves back one of those two resolvers (e.g. a
-   * {@code PropertySource} that a Spring {@code Environment} falls back to, where that same
-   * {@code Environment} is also what the application-environment fallback resolver queries).
-   * The existence check and the value lookup are both performed within a single suppressed
-   * scope — unlike chaining {@link #hasApplication(String)} followed by {@link
-   * #getApplicationWithoutExternalPlaceholderResolution(String)}, which would leave the
-   * existence check unsuppressed and could recurse back into the calling bridge. Application
-   * code should use {@link #getApplication(String)} or {@link #getApplicationOrElse(String,
-   * String)} instead.</p>
-   *
-   * @param key the key of the property
-   * @return the value of the property, or {@code null} if the key does not exist
-   */
-  public static @Nullable String getApplicationIfExistsWithoutExternalPlaceholderResolution(
-      String key) {
-    return PropertiesFileUtilResolver.withApplicationEnvironmentFallbackSuppressed(
-        () -> PropertiesFileUtilResolver.hasProp(APPLICATION, key)
-            ? PropertiesFileUtilResolver.getPropWithoutExternalPlaceholderResolution(null,
-                APPLICATION, key, new HashMap<>())
-            : null);
   }
 
   // === message ===
@@ -524,47 +482,33 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Registers a resolver for {@code ${...}} placeholders left in {@code application.properties}
-   * values (e.g., environment variables, system properties).
-   *
-   * <p>ecuacion-lib has no built-in notion of environment variables or any framework's own
-   * property sources. This is an extension point that lets a framework-specific module
-   * (e.g., ecuacion-splib) plug in its own resolution (e.g., Spring's
-   * {@code Environment::resolvePlaceholders}) without ecuacion-lib depending on that
-   * framework. Only {@code application.properties} values are passed through the resolver;
-   * {@code messages.properties}, {@code ValidationMessages.properties}, etc. are not
-   * affected.</p>
-   *
-   * @param resolver resolver function, or {@code null} to clear a previously registered one
-   */
-  public static void setExternalPlaceholderResolver(@Nullable UnaryOperator<String> resolver) {
-    PropertiesFileUtilResolver.setExternalPlaceholderResolver(resolver);
-  }
-
-  /**
-   * Registers (or clears, with {@code null}) a fallback resolver for
+   * Registers (or clears, with {@code null}) the resolver backing
    * {@code application.properties} key lookups.
    *
-   * <p>ecuacion-lib itself only reads {@code application.properties} from the classpath — it has
-   * no notion of a framework's own externalized configuration (e.g. Spring Boot's
-   * {@code file:./config/application.properties} next to an executable jar/war). This is an
-   * extension point that lets a framework-specific module (e.g. ecuacion-splib, backed by
-   * Spring's {@code Environment}) plug in resolution of such external values, without
-   * ecuacion-lib depending on that framework.</p>
+   * <p>ecuacion-lib itself has no built-in notion of a framework's own configuration
+   * mechanism (e.g. Spring Boot's {@code Environment}, which merges classpath {@code
+   * application.properties}, externalized locations such as {@code
+   * file:./config/application.properties}, environment variables, {@code -D} system
+   * properties, and profile-specific files with the framework's own precedence rules and
+   * {@code ${...}} placeholder resolution already applied). This is an extension point that
+   * lets a framework-specific module (e.g. ecuacion-splib, backed by Spring's {@code
+   * Environment}) supply already-resolved values, without ecuacion-lib depending on that
+   * framework.</p>
    *
-   * <p>Consulted after the JVM system property check (a {@code -D} argument or
-   * {@code System.setProperty} still takes precedence) and before the classpath-bundled
-   * {@code application.properties} is read, so a value found here overrides the classpath
-   * default. Only affects {@code application.properties} lookups ({@code getApplication*} /
-   * {@code hasApplication}); {@code messages.properties}, {@code ValidationMessages.properties},
-   * etc. are not affected.</p>
+   * <p>When a resolver is registered, it is the sole source for {@code application.properties}
+   * lookups ({@code getApplication*} / {@code hasApplication}): the classpath-bundled {@code
+   * application.properties} and the JVM system property check are not consulted, and a key the
+   * resolver does not have is treated as missing. When no resolver is registered (e.g.
+   * ecuacion-lib used standalone, without Spring), lookups fall back to the classpath-bundled
+   * {@code application.properties} (with the JVM system property check taking precedence), as
+   * before. Only affects {@code application.properties} lookups; {@code messages.properties},
+   * {@code ValidationMessages.properties}, etc. are not affected.</p>
    *
    * @param resolver resolver function returning the value for a key, or {@code null} when the
    *     key is not present; or {@code null} to clear a previously registered resolver
    */
-  public static void setApplicationEnvironmentFallbackResolver(
-      @Nullable UnaryOperator<String> resolver) {
-    PropertiesFileUtilResolver.setApplicationEnvironmentFallbackResolver(resolver);
+  public static void setApplicationResolver(@Nullable UnaryOperator<String> resolver) {
+    PropertiesFileUtilResolver.setApplicationResolver(resolver);
   }
 
   /**

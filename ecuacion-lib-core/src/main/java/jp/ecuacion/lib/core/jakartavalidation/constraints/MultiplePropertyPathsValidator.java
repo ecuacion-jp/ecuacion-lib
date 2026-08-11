@@ -19,7 +19,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Objects;
-import jp.ecuacion.lib.core.util.ObjectsUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -86,16 +85,19 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
   }
 
   @Override
-  public boolean isValid(T value, @Nullable ConstraintValidatorContext context) {
-    return isValidCommon(value, context);
+  public boolean isValid(T value, @SuppressWarnings("null") ConstraintValidatorContext context) {
+    return isValidCommon(value, Objects.requireNonNull(context));
   }
 
   /**
    * Is a common procedure of {@code isValid}.
+   *
+   * <p>{@code context} is declared non-null: the Jakarta Validation runtime always supplies a
+   *     real context, and this method unconditionally requires it non-null below.</p>
    */
-  protected boolean isValidCommon(T value, @Nullable ConstraintValidatorContext context) {
+  protected boolean isValidCommon(T value, ConstraintValidatorContext context) {
     boolean result = internalIsValid(value, context);
-    @NonNull ConstraintValidatorContext nonNullContext = ObjectsUtil.requireNonNull(context);
+    @NonNull ConstraintValidatorContext nonNullContext = Objects.requireNonNull(context);
 
     if (createsMultipleConstraintViolations) {
       nonNullContext.disableDefaultConstraintViolation();

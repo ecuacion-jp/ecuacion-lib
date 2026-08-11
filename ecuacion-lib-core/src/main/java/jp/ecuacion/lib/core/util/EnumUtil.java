@@ -65,7 +65,8 @@ public class EnumUtil {
   * @return the enum value
   */
   public static <T> T getEnumFromCode(Class<@NonNull T> enumClass, String code) {
-    ObjectsUtil.requireNonNull(enumClass, code);
+    Objects.requireNonNull(enumClass);
+    Objects.requireNonNull(code);
 
     if (!enumClass.isEnum()) {
       throw new IllegalArgumentException();
@@ -209,7 +210,7 @@ public class EnumUtil {
    */
   public static <T> EnumUtil.EnumClassInfo<T> getEnumInfo(Class<@NonNull T> enumClass,
       @Nullable Locale locale) {
-    ObjectsUtil.requireNonNull(enumClass);
+    Objects.requireNonNull(enumClass);
     locale = locale == null ? Locale.ROOT : locale;
 
     List<EnumUtil.EnumValueInfo<T>> valueList = new ArrayList<>();

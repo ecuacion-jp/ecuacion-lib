@@ -23,7 +23,6 @@ import jp.ecuacion.lib.core.util.ObjectsUtil.RequireElementNonEmptyException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireElementNonNullException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireElementsNonDuplicatedException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
-import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonNullException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireSizeNonZeroException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,53 +31,6 @@ import org.junit.jupiter.api.Test;
 /** Tests for {@link ObjectsUtil}. */
 @DisplayName("ObjectsUtil")
 public class ObjectsUtilTest {
-
-  // -------------------------------------------------------------------------
-  // requireNonNull (single)
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("requireNonNull (single)")
-  class RequireNonNullSingle {
-
-    @Test
-    @DisplayName("non-null value is returned as-is")
-    void nonNullReturns() {
-      assertThat(ObjectsUtil.requireNonNull("value")).isEqualTo("value");
-      assertThat(ObjectsUtil.requireNonNull(42)).isEqualTo(42);
-    }
-
-    @Test
-    @DisplayName("null throws RequireNonNullException")
-    void nullThrows() {
-      assertThatThrownBy(() -> ObjectsUtil.requireNonNull(null))
-          .isInstanceOf(RequireNonNullException.class);
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // requireNonNull (multiple)
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("requireNonNull (multiple)")
-  class RequireNonNullMultiple {
-
-    @Test
-    @DisplayName("all non-null passes without throwing")
-    void allNonNullPasses() {
-      ObjectsUtil.requireNonNull("a", "b", "c");
-    }
-
-    @Test
-    @DisplayName("any null throws RequireNonNullException")
-    void anyNullThrows() {
-      assertThatThrownBy(() -> ObjectsUtil.requireNonNull("a", null, "c"))
-          .isInstanceOf(RequireNonNullException.class);
-      assertThatThrownBy(() -> ObjectsUtil.requireNonNull(null, "b", "c"))
-          .isInstanceOf(RequireNonNullException.class);
-    }
-  }
 
   // -------------------------------------------------------------------------
   // requireNonEmpty (single)

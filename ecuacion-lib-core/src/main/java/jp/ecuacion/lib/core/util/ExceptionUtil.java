@@ -291,7 +291,7 @@ public class ExceptionUtil {
    */
   public static List<@NonNull String> getMessageList(Throwable throwable, @Nullable Locale locale,
       boolean isMessagesWithItemNamesAsDefault) {
-    ObjectsUtil.requireNonNull(throwable);
+    Objects.requireNonNull(throwable);
     Locale nonNullLocale = locale == null ? LocaleUtil.getFallbackLocale() : locale;
 
     // Handle ViolationException first.
