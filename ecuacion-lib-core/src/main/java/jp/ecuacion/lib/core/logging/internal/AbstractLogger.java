@@ -15,7 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging.internal;
 
-import jp.ecuacion.lib.core.util.ObjectsUtil;
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public abstract class AbstractLogger {
    *     So {@code message} is {@code @Nullable}.
    */
   public void log(Level logLevel, @Nullable String message) {
-    ObjectsUtil.requireNonNull(logLevel);
+    Objects.requireNonNull(logLevel);
 
     switch (logLevel) {
       case Level.ERROR -> internalLogger.error(message);
