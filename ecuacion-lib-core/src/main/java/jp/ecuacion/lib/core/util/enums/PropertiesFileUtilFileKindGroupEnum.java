@@ -26,34 +26,38 @@ package jp.ecuacion.lib.core.util.enums;
  * variables, so evaluating {@code ${...}} there would either be a no-op at best or
  * throw at worst.</p>
  *
- * <p>{@code resolvesExternalPlaceholders} is {@code true} only for {@code CONFIG}.
- * ecuacion-lib has no built-in notion of environment variables or framework-specific
- * property sources; it only exposes an extension point
- * ({@link jp.ecuacion.lib.core.util.PropertiesFileUtil#setExternalPlaceholderResolver}) that
- * a framework-specific module (e.g., a Spring-based one) can use to plug in its own
- * resolution of {@code ${...}} in {@code application.properties} values, without
- * ecuacion-lib depending on that framework.</p>
+ * <p>{@code resolvesCrossReferences} is {@code false} only for {@code CONFIG}. Unlike
+ * {@code ${...}}, {@code #{fileKind:key}} / {@code #{key}} is not merely unused for
+ * {@code application.properties} — it actively collides with Spring's own {@code #{...}}
+ * SpEL delimiter (used by {@code @Value}, always registered by default via {@code
+ * StandardBeanExpressionResolver}). A raw {@code application.properties} value containing
+ * {@code #{fileKind:key}} would parse as (invalid) SpEL and throw at bean-creation time if
+ * that same key were ever also injected via {@code @Value}. Disabling cross-reference
+ * resolution for {@code CONFIG} entirely — even when read via {@link
+ * jp.ecuacion.lib.core.util.PropertiesFileUtil#getApplication}, not just via Spring — makes
+ * {@code #{...}} a plain literal in {@code application.properties} values regardless of
+ * retrieval path, so this footgun cannot be triggered.</p>
  */
 public enum PropertiesFileUtilFileKindGroupEnum {
 
   /** {@code application.properties}. */
-  CONFIG(true, false, true),
+  CONFIG(true, false, false),
 
   /** {@code messages}, {@code item_names}, {@code enum_names}, {@code constants}, etc. */
-  MESSAGE(false, false, false),
+  MESSAGE(false, false, true),
 
   /** {@code ValidationMessages}, {@code ValidationMessagesWithItemNames}, etc. */
-  VALIDATION_MESSAGE(false, true, false);
+  VALIDATION_MESSAGE(false, true, true);
 
   private final boolean throwsExceptionWhenKeyDoesNotExist;
   private final boolean evaluatesElExpression;
-  private final boolean resolvesExternalPlaceholders;
+  private final boolean resolvesCrossReferences;
 
   private PropertiesFileUtilFileKindGroupEnum(boolean throwsExceptionWhenKeyDoesNotExist,
-      boolean evaluatesElExpression, boolean resolvesExternalPlaceholders) {
+      boolean evaluatesElExpression, boolean resolvesCrossReferences) {
     this.throwsExceptionWhenKeyDoesNotExist = throwsExceptionWhenKeyDoesNotExist;
     this.evaluatesElExpression = evaluatesElExpression;
-    this.resolvesExternalPlaceholders = resolvesExternalPlaceholders;
+    this.resolvesCrossReferences = resolvesCrossReferences;
   }
 
   /**
@@ -71,10 +75,10 @@ public enum PropertiesFileUtilFileKindGroupEnum {
   }
 
   /**
-   * Returns whether a registered external placeholder resolver is applied
+   * Returns whether {@code #{fileKind:key}} / {@code #{key}} cross-references are resolved
    * for file kinds in this group.
    */
-  public boolean resolvesExternalPlaceholders() {
-    return resolvesExternalPlaceholders;
+  public boolean resolvesCrossReferences() {
+    return resolvesCrossReferences;
   }
 }

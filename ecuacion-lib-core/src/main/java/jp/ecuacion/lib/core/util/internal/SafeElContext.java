@@ -25,7 +25,6 @@ import jakarta.el.ListELResolver;
 import jakarta.el.MapELResolver;
 import jakarta.el.StandardELContext;
 import java.util.Iterator;
-import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -86,21 +85,27 @@ class SafeElContext extends StandardELContext {
         return null;
       }
 
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      if (context != null) {
+        context.setPropertyResolved(true);
+      }
       throw new ELException("Property access is not allowed in this expression: " + property);
     }
 
     @Override
     public @Nullable Object invoke(@Nullable ELContext context, @Nullable Object base,
         @Nullable Object method, Class<?> @Nullable [] paramTypes, Object @Nullable [] params) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      if (context != null) {
+        context.setPropertyResolved(true);
+      }
       throw new ELException("Method invocation is not allowed in this expression: " + method);
     }
 
     @Override
     public void setValue(@Nullable ELContext context, @Nullable Object base,
         @Nullable Object property, @Nullable Object value) {
-      Objects.requireNonNull(context).setPropertyResolved(true);
+      if (context != null) {
+        context.setPropertyResolved(true);
+      }
       throw new ELException("Setting properties is not allowed in this expression: " + property);
     }
 

@@ -184,24 +184,27 @@ public class PropertiesFileUtilBundleReader {
    * @return raw value
    */
   String getValue(@Nullable Locale locale, String key) {
-    String value;
+    // For APPLICATION only, a framework bridge (e.g. Spring's Environment) may be registered as
+    // the sole source of values, superseding the JVM system property check and the
+    // classpath-bundled application.properties scan below — see
+    // PropertiesFileUtilResolver#getApplicationResolverValue.
+    if (fileKind == PropertiesFileUtilFileKindEnum.APPLICATION
+        && PropertiesFileUtilResolver.hasApplicationResolver()) {
+      String fromResolver = PropertiesFileUtilResolver.getApplicationResolverValue(key);
+      if (fromResolver == null) {
+        throw new NoKeyInPropertiesFileException(key);
+      }
+
+      return fromResolver;
+    }
+
     if (System.getProperties().keySet().contains(key)) {
       // If the key is in System.getProperties(), just return it.
       String tmpValue = System.getProperties().getProperty(key);
-      value = tmpValue == null ? "" : tmpValue;
-
-    } else {
-      // For APPLICATION only, a framework bridge (e.g. Spring's Environment, covering its own
-      // externalized application.properties locations) may provide a value that overrides the
-      // classpath-bundled application.properties below. See
-      // PropertiesFileUtilResolver#getApplicationEnvironmentFallbackValue.
-      String fromEnv = fileKind == PropertiesFileUtilFileKindEnum.APPLICATION
-          ? PropertiesFileUtilResolver.getApplicationEnvironmentFallbackValue(key)
-          : null;
-      value = fromEnv != null ? fromEnv : getValueFromPropertiesFiles(locale, key);
+      return tmpValue == null ? "" : tmpValue;
     }
 
-    return value;
+    return getValueFromPropertiesFiles(locale, key);
   }
 
   private String getValueFromPropertiesFiles(@Nullable Locale locale, String key) {

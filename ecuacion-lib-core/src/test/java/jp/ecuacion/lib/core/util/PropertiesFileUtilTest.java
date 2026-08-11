@@ -93,73 +93,56 @@ public class PropertiesFileUtilTest {
           .isEqualTo("default");
     }
 
+    @Test
+    @DisplayName("getApplication: #{fileKind:key} is left as a literal, not resolved "
+        + "(application.properties values must stay safe to also inject via Spring's @Value, "
+        + "which uses #{...} as its own SpEL delimiter)")
+    void getApplication_doesNotResolveHashBraceCrossReference() {
+      assertThat(PropertiesFileUtil.getApplication("TEST_KEY_WITH_HASH_BRACE"))
+          .isEqualTo("Hello, #{messages:MSG1}");
+    }
+
   }
 
   // -------------------------------------------------------------------------
-  // setExternalPlaceholderResolver / getApplicationWithoutExternalPlaceholderResolution
+  // setApplicationResolver
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("setExternalPlaceholderResolver / getApplicationWithoutExternalPlaceholderResolution")
-  class ExternalPlaceholderResolver {
+  @DisplayName("setApplicationResolver")
+  class ApplicationResolver {
 
     @AfterEach
     void clearResolver() {
-      PropertiesFileUtil.setExternalPlaceholderResolver(null);
+      PropertiesFileUtil.setApplicationResolver(null);
     }
 
     @Test
-    @DisplayName("getApplication: applies a registered external placeholder resolver")
-    void getApplication_appliesRegisteredResolver() {
-      PropertiesFileUtil.setExternalPlaceholderResolver(value -> value + "-resolved");
-      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP-resolved");
-    }
-
-    @Test
-    @DisplayName("getApplicationWithoutExternalPlaceholderResolution: ignores a registered resolver")
-    void getApplicationWithoutExternalPlaceholderResolution_ignoresRegisteredResolver() {
-      PropertiesFileUtil.setExternalPlaceholderResolver(value -> value + "-resolved");
-      assertThat(PropertiesFileUtil.getApplicationWithoutExternalPlaceholderResolution("TEST_KEY"))
-          .isEqualTo("TEST_APP");
-    }
-  }
-
-  // -------------------------------------------------------------------------
-  // setApplicationEnvironmentFallbackResolver
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("setApplicationEnvironmentFallbackResolver")
-  class ApplicationEnvironmentFallbackResolver {
-
-    @AfterEach
-    void clearResolver() {
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(null);
-    }
-
-    @Test
-    @DisplayName("getApplication: a registered resolver overrides the classpath-bundled value")
+    @DisplayName("getApplication: a registered resolver is used instead of the classpath value")
     void getApplication_resolverOverridesClasspathValue() {
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
+      PropertiesFileUtil.setApplicationResolver(
           key -> key.equals("TEST_KEY") ? "FROM_ENV" : null);
       assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("FROM_ENV");
     }
 
     @Test
-    @DisplayName("getApplication: falls back to the classpath value "
-        + "when the resolver has no value for the key")
-    void getApplication_fallsBackToClasspathWhenResolverReturnsNull() {
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(key -> null);
-      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP");
+    @DisplayName("getApplication: throws when a resolver is registered but "
+        + "has no value for the key (classpath is not consulted as a fallback)")
+    void getApplication_throwsWhenResolverRegisteredButReturnsNull() {
+      PropertiesFileUtil.setApplicationResolver(key -> null);
+      assertThatThrownBy(() -> PropertiesFileUtil.getApplication("TEST_KEY"))
+          .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    @DisplayName("getApplication: a JVM system property still takes precedence over the resolver")
-    void getApplication_systemPropertyStillWinsOverResolver() {
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(key -> "FROM_ENV");
+    @DisplayName("getApplication: once a resolver is registered, it takes full precedence "
+        + "over a JVM system property (the resolver's own source, e.g. Spring's Environment, "
+        + "is expected to already account for system properties itself)")
+    void getApplication_resolverTakesPrecedenceOverSystemProperty() {
+      PropertiesFileUtil.setApplicationResolver(key -> "FROM_ENV");
       System.setProperty("TEST_KEY", "FROM_SYSTEM_PROPERTY");
       try {
-        assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("FROM_SYSTEM_PROPERTY");
+        assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("FROM_ENV");
       } finally {
         System.clearProperty("TEST_KEY");
       }
@@ -168,24 +151,9 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("hasApplication: true when only the resolver (not the classpath) has the key")
     void hasApplication_trueWhenOnlyResolverHasKey() {
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
+      PropertiesFileUtil.setApplicationResolver(
           key -> key.equals("ENV_ONLY_KEY") ? "true" : null);
       assertThat(PropertiesFileUtil.hasApplication("ENV_ONLY_KEY")).isTrue();
-    }
-
-    @Test
-    @DisplayName("getApplicationWithoutExternalPlaceholderResolution: bypasses the resolver so a "
-        + "framework bridge whose own resolution falls back to this method "
-        + "(e.g. ecuacion-splib's ApplicationPropertySource) never recurses back into itself")
-    void getApplicationWithoutExternalPlaceholderResolution_bypassesResolverAndAvoidsRecursion() {
-      // Mimics a bridge resolver that itself calls back into
-      // getApplicationWithoutExternalPlaceholderResolution, matching how ecuacion-splib's
-      // ApplicationPropertySource is implemented. Without the recursion guard, resolving
-      // TEST_KEY below would recurse indefinitely (StackOverflowError) instead of returning.
-      PropertiesFileUtil.setApplicationEnvironmentFallbackResolver(
-          key -> PropertiesFileUtil.getApplicationWithoutExternalPlaceholderResolution(key));
-
-      assertThat(PropertiesFileUtil.getApplication("TEST_KEY")).isEqualTo("TEST_APP");
     }
   }
 
