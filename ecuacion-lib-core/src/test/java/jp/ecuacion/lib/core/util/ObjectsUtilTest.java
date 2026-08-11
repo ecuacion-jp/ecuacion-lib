@@ -33,30 +33,6 @@ import org.junit.jupiter.api.Test;
 public class ObjectsUtilTest {
 
   // -------------------------------------------------------------------------
-  // requireNonNull (multiple)
-  // -------------------------------------------------------------------------
-
-  @Nested
-  @DisplayName("requireNonNull (multiple)")
-  class RequireNonNullMultiple {
-
-    @Test
-    @DisplayName("all non-null passes without throwing")
-    void allNonNullPasses() {
-      ObjectsUtil.requireNonNull("a", "b", "c");
-    }
-
-    @Test
-    @DisplayName("any null throws NullPointerException")
-    void anyNullThrows() {
-      assertThatThrownBy(() -> ObjectsUtil.requireNonNull("a", null, "c"))
-          .isInstanceOf(NullPointerException.class);
-      assertThatThrownBy(() -> ObjectsUtil.requireNonNull(null, "b", "c"))
-          .isInstanceOf(NullPointerException.class);
-    }
-  }
-
-  // -------------------------------------------------------------------------
   // requireNonEmpty (single)
   // -------------------------------------------------------------------------
 

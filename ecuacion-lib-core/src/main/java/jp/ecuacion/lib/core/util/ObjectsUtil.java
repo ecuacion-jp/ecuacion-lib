@@ -29,13 +29,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides utility methods for {@code Objects.requireNonnull} and other checks.
- * 
- * <p>{@code Objects.requireNonnull} throws NullPointerException and we can't see the difference
- * whether it happens because of the parameter or return value check, or other reasons.<br>
- * By using these methods you can see it by additional messages.</p>
- * 
- * <p>Several other methods provided to clarify an exception is thrown from ecuacion apps.</p>
+ * Provides non-empty / non-zero-size / no-duplicate-element checks
+ * beyond what {@code java.util.Objects} offers.
+ *
+ * <p>Plain {@code null} checks are not provided here; use {@code java.util.Objects#requireNonNull}
+ * directly so that IDE and static-analysis null checkers can recognize the idiom.</p>
+ *
+ * <p>Each check throws its own dedicated exception type, to clarify that an exception
+ * is thrown from ecuacion apps.</p>
  */
 public class ObjectsUtil {
 
@@ -43,26 +44,6 @@ public class ObjectsUtil {
    * Prevents other classes from instantiating it.
    */
   private ObjectsUtil() {}
-
-  /**
-   * Validates that multiple arguments are not {@code null}
-   *     and throws {@code NullPointerException} if any of them is.
-   *
-   * <p>This is used to validate multiple arguments at one time.</p>
-   *
-   * @param object1 Any object
-   * @param object2 Any object
-   * @param objects Any objects
-   */
-  public static void requireNonNull(@Nullable Object object1, @Nullable Object object2,
-      @Nullable Object... objects) {
-
-    Object[] allObjects = ArrayUtils.addAll(objects, object1, object2);
-
-    for (Object object : allObjects) {
-      Objects.requireNonNull(object);
-    }
-  }
 
   /**
    * Validates that the argument is not {@code null} or {@code blank("")}
