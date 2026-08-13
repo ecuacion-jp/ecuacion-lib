@@ -479,8 +479,8 @@ public class ExceptionUtil {
     Map<@NonNull String, @Nullable Object> updates = new HashMap<>();
     for (Map.Entry<@NonNull String, @Nullable Object> entry : map.entrySet()) {
       if (entry.getValue() instanceof ValidatorMessageParameterCreator.ItemNameParam lep) {
-        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, lep.items(),
-            showsItemNamePath, Objects.requireNonNull(lep.rootBean())));
+        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, lep.items(), showsItemNamePath,
+            Objects.requireNonNull(lep.rootBean())));
       }
     }
     map.putAll(updates);
@@ -489,12 +489,6 @@ public class ExceptionUtil {
   private static String getMessageFromBusinessViolation(Locale locale,
       boolean isMessagesWithItemNamesAsDefault, BusinessViolation violation,
       MessageParameters messageParameters) {
-    // return isMessagesWithItemNamesAsDefault
-    // ? PropertiesFileUtil.getMessageWithItemName(locale, violation.getMessageId(),
-    // violation.getMessageArgs())
-    // : PropertiesFileUtil.getMessage(locale, violation.getMessageId(),
-    // violation.getMessageArgs());
-
     // If messageParameters.isMessageWithItemName() is not null (= explicitly specified),
     // it's prioritized over isMessagesWithItemNamesAsDefault.
     Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
@@ -502,7 +496,8 @@ public class ExceptionUtil {
         : isMessagesWithItemNamesAsDefault;
 
     String message = null;
-    String messageKey = violation.getMessageId();
+    String msgKey = violation.getMessageId();
+    Object[] msgArgs = (Object[]) violation.getMessageArgs();
     if (isMessageWithItemName) {
       Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
       String[] itemNameKeys = violation.getItemNameKeys();
@@ -513,14 +508,9 @@ public class ExceptionUtil {
         namedArgs.put("item_name", itemName);
         namedArgs.put("0", itemName);
       }
-      message = PropertiesFileUtil.hasMessageWithItemName(messageKey)
-          ? PropertiesFileUtil.getMessageWithItemName(locale, messageKey, namedArgs,
-              (Object[]) violation.getMessageArgs())
-          : PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, namedArgs);
+      message = PropertiesFileUtil.getMessageWithItemName(locale, msgKey, namedArgs, msgArgs);
     } else {
-      message = PropertiesFileUtil.hasMessage(messageKey)
-          ? PropertiesFileUtil.getMessage(locale, messageKey, (Object[]) violation.getMessageArgs())
-          : PropertiesFileUtil.getValidationMessage(locale, messageKey, new HashMap<>());
+      message = PropertiesFileUtil.getMessage(locale, msgKey, msgArgs);
     }
 
     // add prefix and postfix messages.
