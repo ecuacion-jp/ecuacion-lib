@@ -15,6 +15,9 @@
  */
 package jp.ecuacion.lib.core.util.enums;
 
+import java.util.Locale;
+import jp.ecuacion.lib.core.util.StringUtil;
+
 /** 
  * Holds kinds of property files.
  * 
@@ -108,6 +111,22 @@ public enum PropertiesFileUtilFileKindEnum {
 
   public String[][] getActualFilePrefixes() {
     return actualFilePrefixes;
+  }
+
+  /**
+   * Returns the token that identifies this file kind in {@code #{fileKind:key}} cross-file
+   * reference syntax within property values.
+   *
+   * <p>For the {@link PropertiesFileUtilFileKindGroupEnum#VALIDATION_MESSAGE} group, the token
+   *     is this constant's name in UpperCamelCase (e.g. {@code "ValidationMessages"} for
+   *     {@code VALIDATION_MESSAGES}), since those files use PascalCase names. For other groups,
+   *     the token is this constant's name lowercased (e.g. {@code "messages"} for
+   *     {@code MESSAGES}), matching their snake_case file names.</p>
+   */
+  public String getCrossReferenceToken() {
+    return group == PropertiesFileUtilFileKindGroupEnum.VALIDATION_MESSAGE
+        ? StringUtil.getUpperCamelFromSnake(name())
+        : name().toLowerCase(Locale.ROOT);
   }
 
   /**

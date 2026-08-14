@@ -55,12 +55,17 @@ public class PropertiesFileUtilResolver {
       Map<PropertiesFileUtilFileKindEnum, PropertiesFileUtilBundleReader> readerMap;
   //@formatter:on
 
+  private static final Map<String, PropertiesFileUtilFileKindEnum> fileKindByCrossReferenceToken;
+
   static {
     Map<PropertiesFileUtilFileKindEnum, PropertiesFileUtilBundleReader> tmp = new HashMap<>();
+    Map<String, PropertiesFileUtilFileKindEnum> tokenTmp = new HashMap<>();
     for (PropertiesFileUtilFileKindEnum anEnum : PropertiesFileUtilFileKindEnum.values()) {
       tmp.put(anEnum, new PropertiesFileUtilBundleReader(anEnum));
+      tokenTmp.put(anEnum.getCrossReferenceToken(), anEnum);
     }
     readerMap = Collections.unmodifiableMap(tmp);
+    fileKindByCrossReferenceToken = Collections.unmodifiableMap(tokenTmp);
   }
 
   private static PropertiesFileUtilBundleReader obtainBundleReader(
@@ -368,9 +373,11 @@ public class PropertiesFileUtilResolver {
           sb.append(searchKeyAcrossFileKinds(locale, tuple.getRight()));
 
         } else {
-          sb.append(
-              getProp(locale, PropertiesFileUtilFileKindEnum.valueOf(left.toUpperCase(Locale.ROOT)),
-                  tuple.getRight()));
+          PropertiesFileUtilFileKindEnum fileKind = fileKindByCrossReferenceToken.get(left);
+          if (fileKind == null) {
+            throw new RuntimeException("Unknown fileKind '" + left + "' in cross-reference.");
+          }
+          sb.append(getProp(locale, fileKind, tuple.getRight()));
         }
       }
     }
@@ -446,7 +453,7 @@ public class PropertiesFileUtilResolver {
     // Pass 1: #{fileKind:key} patterns (like #{messages:key}, #{item_names:key}).
     List<@NonNull String> fileKindStartSymbols =
         Arrays.stream(PropertiesFileUtilFileKindEnum.values())
-            .map(en -> prefix + en.toString().toLowerCase(Locale.ROOT) + ":").toList();
+            .map(en -> prefix + en.getCrossReferenceToken() + ":").toList();
 
     List<Pair<@Nullable String, String>> pass1Result =
         EmbeddedVariableUtil.getPartList(string, fileKindStartSymbols.toArray(String[]::new), "}",
