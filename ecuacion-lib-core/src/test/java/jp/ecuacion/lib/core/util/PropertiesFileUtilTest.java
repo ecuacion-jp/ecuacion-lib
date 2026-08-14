@@ -423,18 +423,15 @@ public class PropertiesFileUtilTest {
     @Test
     @DisplayName("getMessageWithItemName(locale, key): locale-aware version works")
     void getMessageWithItemName_withLocale() {
-      String result = PropertiesFileUtil.getMessageWithItemName(
-          Locale.ENGLISH, "jakarta.validation.constraints.NotNull.message");
-      assertThat(result).contains("must not be null");
+      String result = PropertiesFileUtil.getMessageWithItemName(Locale.ENGLISH, "MSG1");
+      assertThat(result).contains("message 1.");
     }
 
     @Test
     @DisplayName("getMessageWithItemName(key, args): no-locale overload delegates correctly")
     void getMessageWithItemName_noLocale() {
-      assertThat(PropertiesFileUtil.getMessageWithItemName(
-          "jakarta.validation.constraints.NotNull.message"))
-              .isEqualTo(PropertiesFileUtil.getMessageWithItemName(
-                  (Locale) null, "jakarta.validation.constraints.NotNull.message"));
+      assertThat(PropertiesFileUtil.getMessageWithItemName("MSG1"))
+          .isEqualTo(PropertiesFileUtil.getMessageWithItemName((Locale) null, "MSG1"));
     }
 
     @Test
