@@ -21,7 +21,6 @@ import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
-import jp.ecuacion.lib.core.util.ExceptionUtil;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
@@ -98,15 +97,24 @@ public class ErrorLogger extends AbstractLogger {
 
     } else {
       throwableMessage = throwable.getClass().getName() + " - "
-          + ExceptionUtil.getMessageList(throwable, Locale.ENGLISH).toString().replace("\n", " ");
+          + ExceptionLogUtil.getMessageListStringSafely(throwable, Locale.ENGLISH, false)
+              .replace("\n", " ");
 
       if (throwable instanceof ViolationException ve) {
-        StringBuilder sb = new StringBuilder(throwableMessage);
-        for (ConstraintViolation<?> cv
-            : ve.getViolations().getConstraintViolations()) {
-          sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
+        try {
+          StringBuilder sb = new StringBuilder(throwableMessage);
+          for (ConstraintViolation<?> cv
+              : ve.getViolations().getConstraintViolations()) {
+            sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
+          }
+          throwableMessage = sb.toString();
+
+        } catch (Throwable violationDetailBuildFailure) {
+          // Building per-violation detail can itself fail (e.g. a broken item-name resource).
+          // Keep the already-built throwableMessage rather than losing it.
+          throwableMessage += " (failed to build violation detail: "
+              + violationDetailBuildFailure + ")";
         }
-        throwableMessage = sb.toString();
       }
     }
 
