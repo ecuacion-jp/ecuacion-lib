@@ -206,6 +206,10 @@
 							<publishingServerId>central</publishingServerId>
 							<autoPublish>false</autoPublish>
 							<deploymentName>ecuacion-lib-${project.version}</deploymentName>
+							<!-- sha256/sha512 are optional per Maven Central's requirements; skipping
+								them keeps only the required md5/sha1 checksums and cuts published
+								file count (relevant to Central's publishing rate limits). -->
+							<checksums>required</checksums>
 						</configuration>
 					</plugin>
  
