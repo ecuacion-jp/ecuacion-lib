@@ -397,6 +397,10 @@ public class ExceptionUtil {
     try {
       final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
 
+      if (messageParameters.getRepresentativePropertyPath() != null) {
+        map.put("representativePropertyPath", messageParameters.getRepresentativePropertyPath());
+      }
+
       // Put Arg-based parameters directly into the map (resolved by getValidationMessage).
       addArgBasedParamsToMap(bean, map);
 
@@ -500,6 +504,10 @@ public class ExceptionUtil {
     Object[] msgArgs = (Object[]) violation.getMessageArgs();
     if (isMessageWithItemName) {
       Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
+      if (messageParameters.getRepresentativePropertyPath() != null) {
+        namedArgs.put("representativePropertyPath",
+            messageParameters.getRepresentativePropertyPath());
+      }
       String[] itemNameKeys = violation.getItemNameKeys();
       if (itemNameKeys.length > 0) {
         List<@NonNull Item> itemList =
