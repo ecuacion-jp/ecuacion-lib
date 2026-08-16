@@ -114,9 +114,9 @@ public class ValidateWhenValidatorMessageTest {
     return Stream.of(
         // EMPTY / NOT_EMPTY with EQUAL_TO / NOT_EQUAL_TO
         Arguments.of(new EmptyEqualToBean(null, null), p2 + "is empty"),
-        Arguments.of(new NotEmptyEqualToBean(null, null), p2 + "is not empty"),
+        Arguments.of(new NotEmptyEqualToBean(null, "a"), p2 + "is not empty"),
         Arguments.of(new EmptyNotEqualToBean(null, "a"), p2 + "is not empty"),
-        Arguments.of(new NotEmptyNotEqualToBean(null, "a"), p2 + "is empty"),
+        Arguments.of(new NotEmptyNotEqualToBean(null, null), p2 + "is empty"),
         // TRUE / FALSE with EQUAL_TO / NOT_EQUAL_TO
         Arguments.of(new TrueEqualToBean(null, true), p2 + "is ON"),
         Arguments.of(new TrueNotEqualToBean(null, false), p2 + "is not ON"),
@@ -338,7 +338,8 @@ public class ValidateWhenValidatorMessageTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionOperator = ConditionOperator.NOT_EQUAL_TO,
       conditionValue = ConditionValue.NOT_EMPTY)
-  public static record NotEmptyNotEqualToBean(@Nullable String value, String condValue) {}
+  public static record NotEmptyNotEqualToBean(@Nullable String value,
+      @Nullable String condValue) {}
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
