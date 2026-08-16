@@ -154,8 +154,12 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
 
     boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
 
-    return (isEmpty && conditionOperator == EQUAL_TO)
-        || (!isEmpty && conditionOperator == NOT_EQUAL_TO);
+    // conditionPattern EMPTY means "empty", NOT_EMPTY means "not empty".
+    // conditionOperator then further modifies the direction.
+    boolean patternMatchesEmpty = conditionPattern == ConditionValue.EMPTY;
+    boolean conditionSatisfied = patternMatchesEmpty ? isEmpty : !isEmpty;
+    return (conditionSatisfied && conditionOperator == EQUAL_TO)
+        || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
   }
 
   private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
