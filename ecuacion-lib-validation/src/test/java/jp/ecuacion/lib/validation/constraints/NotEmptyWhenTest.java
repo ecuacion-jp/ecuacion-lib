@@ -99,4 +99,24 @@ public class NotEmptyWhenTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.EMPTY)
   public static record IntBean(@Nullable Integer value, @Nullable String condValue) {}
+
+  /**
+   * Tests validation logic for {@code conditionValue = NOT_EMPTY}, the mirror image of
+   * {@code EMPTY}: the condition is satisfied when {@code condValue} is NOT blank.
+   */
+  @Test
+  @DisplayName("NOT_EMPTY condition: condition satisfied only when condValue is non-blank")
+  public void validationOnConditionIsNotEmpty() {
+    // blank condValue -> condition NOT satisfied -> pass regardless of value
+    assertThat(validator.validate(new NotEmptyCondBean(null, null))).isEmpty();
+    assertThat(validator.validate(new NotEmptyCondBean(null, ""))).isEmpty();
+    // non-blank condValue -> condition satisfied -> value=null -> fail
+    assertThat(validator.validate(new NotEmptyCondBean(null, "a"))).hasSize(1);
+    // non-blank condValue -> condition satisfied -> value="a" -> pass
+    assertThat(validator.validate(new NotEmptyCondBean("a", "a"))).isEmpty();
+  }
+
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValue = ConditionValue.NOT_EMPTY)
+  public static record NotEmptyCondBean(@Nullable String value, @Nullable String condValue) {}
 }

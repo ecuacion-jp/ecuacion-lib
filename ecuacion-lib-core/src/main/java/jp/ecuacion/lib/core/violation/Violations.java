@@ -275,10 +275,17 @@ public class Violations {
    *     when {@code true} is specified.
    *     Default value is {@code false}.</p>
    * 
-   * <p>{@code messagePrefix} and {@code messagePostfix}: Used 
-   *     when you want to put an additional message 
-   *     before the original message like "About the uploaded excel file, ". 
+   * <p>{@code messagePrefix} and {@code messagePostfix}: Used
+   *     when you want to put an additional message
+   *     before the original message like "About the uploaded excel file, ".
    *     It may be {@code null}, which means no messages added.</p>
+   *
+   * <p>{@code representativePropertyPath}: Used when the violations added to this
+   *     {@code Violations} instance have {@code itemPropertyPaths} that don't map to
+   *     a single UI item (e.g. violations found deep inside an uploaded excel file),
+   *     but you still want the whole batch of violations to be associated with
+   *     a single representative item (e.g. the file upload item itself)
+   *     on the screen. It may be {@code null}, which means no representative item.</p>
    */
   public static class MessageParameters {
 
@@ -286,6 +293,7 @@ public class Violations {
     private boolean showsItemNamePath = false;
     private @Nullable Arg messagePrefix;
     private @Nullable Arg messagePostfix;
+    private @Nullable String representativePropertyPath;
 
     /**
      * Construct a new instance.
@@ -391,6 +399,18 @@ public class Violations {
      */
     public MessageParameters messagePostfix(String messagePostfix) {
       this.messagePostfix = Arg.message(messagePostfix);
+      return this;
+    }
+
+    public @Nullable String getRepresentativePropertyPath() {
+      return representativePropertyPath;
+    }
+
+    /**
+     * Sets representativePropertyPath and returns this.
+     */
+    public MessageParameters representativePropertyPath(String representativePropertyPath) {
+      this.representativePropertyPath = representativePropertyPath;
       return this;
     }
   }

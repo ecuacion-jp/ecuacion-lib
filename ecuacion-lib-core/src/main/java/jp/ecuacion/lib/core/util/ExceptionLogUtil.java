@@ -90,6 +90,34 @@ public class ExceptionLogUtil {
   }
 
   /**
+   * Returns the exception message list string for a throwable, built via
+   * {@link ExceptionUtil#getMessageList(Throwable, Locale, boolean)}.
+   *
+   * <p>Message resolution can itself throw (e.g. a broken message resource), which would
+   *     otherwise hide the original throwable from the log. When that happens, this method
+   *     falls back to a message built only from the throwable's own class name and message
+   *     (both of which cannot fail), and includes the build failure itself so the underlying
+   *     issue stays visible. This method never throws.</p>
+   *
+   * @param th throwable. Cannot be {@code null}.
+   * @param locale locale, may be {@code null} which is treated as the fallback locale.
+   * @param isMessagesWithItemNamesAsDefault see
+   *     {@link ExceptionUtil#getMessageList(Throwable, Locale, boolean)}.
+   * @return the message string; never throws.
+   */
+  public static String getMessageListStringSafely(Throwable th, @Nullable Locale locale,
+      boolean isMessagesWithItemNamesAsDefault) {
+    try {
+      return ExceptionUtil.getMessageList(th, locale, isMessagesWithItemNamesAsDefault)
+          .toString();
+
+    } catch (Throwable messageBuildFailure) {
+      return "(failed to build detailed message: " + messageBuildFailure + ") "
+          + th.getMessage();
+    }
+  }
+
+  /**
    * Adds Throwable message and stackTrace string to argument stringBuilder
    *     for a throwable and its causes. All packages are shown in stack traces.
    *
@@ -146,8 +174,7 @@ public class ExceptionLogUtil {
       errMsg = NULL_THROWABLE_MESSAGE;
 
     } else {
-      errMsg = th.getClass().getCanonicalName()
-          + ExceptionUtil.getMessageList(th, locale, true).toString();
+      errMsg = th.getClass().getCanonicalName() + getMessageListStringSafely(th, locale, true);
     }
 
     sb.append(errMsg + RT);
