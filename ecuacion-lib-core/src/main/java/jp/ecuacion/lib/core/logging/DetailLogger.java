@@ -15,7 +15,10 @@
  */
 package jp.ecuacion.lib.core.logging;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.Objects;
+import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
@@ -156,6 +159,11 @@ public class DetailLogger extends AbstractLogger {
     } else {
       StringBuilder sb = new StringBuilder();
       ExceptionLogUtil.getMessageAndStackTraceStringRecursively(sb, throwable, null);
+
+      if (throwable instanceof ViolationException ve) {
+        appendViolationDetail(sb, ve);
+      }
+
       throwableMessage = sb.toString();
     }
 
@@ -165,6 +173,26 @@ public class DetailLogger extends AbstractLogger {
       if (!StringUtils.isEmpty(additionalMessage)) {
         log(logLevel, additionalMessage);
       }
+    }
+  }
+
+  /**
+   * Appends per-violation detail (property path, invalid value, root / leaf bean class, ...)
+   *     to {@code sb} for each {@code ConstraintViolation} held by {@code ve}.
+   *
+   * @param sb StringBuilder to append to
+   * @param ve ViolationException
+   */
+  private void appendViolationDetail(StringBuilder sb, ViolationException ve) {
+    try {
+      for (ConstraintViolation<?> cv : ve.getViolations().getConstraintViolations()) {
+        sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
+      }
+
+    } catch (Throwable violationDetailBuildFailure) {
+      // Building per-violation detail can itself fail (e.g. a broken item-name resource).
+      // Keep the already-built sb content rather than losing it.
+      sb.append("\n(failed to build violation detail: " + violationDetailBuildFailure + ")");
     }
   }
 }
