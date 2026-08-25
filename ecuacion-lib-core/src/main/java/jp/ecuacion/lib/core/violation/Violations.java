@@ -134,6 +134,18 @@ public class Violations {
   }
 
   /**
+   * Adds a set of {@link ConstraintViolation}s.
+   *
+   * @param violations set of constraint violations to add
+   * @return this instance for method chaining
+   */
+  public Violations addAll(Violations violations) {
+    constraintViolations.addAll(violations.getConstraintViolations());
+    businessViolations.addAll(violations.getBusinessViolations());
+    return this;
+  }
+
+  /**
    * Validates {@code object} using Jakarta Validation and adds any resulting
    * {@link ConstraintViolation}s to this instance.
    *
