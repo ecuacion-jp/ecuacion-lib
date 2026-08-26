@@ -22,7 +22,7 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code AnyNull}.
+ * Provides the validation logic for {@code ReturnTrue}.
  */
 public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
 
