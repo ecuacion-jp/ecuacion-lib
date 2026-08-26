@@ -21,7 +21,7 @@ import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code ConditionalEmpty}.
+ * Provides the validation logic for {@code EmptyWhen}.
  */
 public class EmptyWhenValidator extends ValidateWhenValidator<EmptyWhen, Object> {
 
