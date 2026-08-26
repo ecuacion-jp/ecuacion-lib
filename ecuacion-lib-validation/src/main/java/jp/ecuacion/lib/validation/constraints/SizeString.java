@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 /**
  * Checks if the size of a string is within designated min and max.
  * 
- * @see LongStringValidator
+ * @see SizeStringValidator
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RUNTIME)

@@ -21,7 +21,7 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsV
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code AnyNotEmpty}.
+ * Provides the validation logic for {@code AssertTrueWithPropertyPath}.
  */
 public class AssertTrueWithPropertyPathValidator
     extends MultiplePropertyPathsValidator<AssertTrueWithPropertyPath, Object> {

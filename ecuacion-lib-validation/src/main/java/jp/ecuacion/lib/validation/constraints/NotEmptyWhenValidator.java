@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code ConditionalNotEmpty}.
+ * Provides the validation logic for {@code NotEmptyWhen}.
  */
 public class NotEmptyWhenValidator extends ValidateWhenValidator<NotEmptyWhen, Object> {
 
