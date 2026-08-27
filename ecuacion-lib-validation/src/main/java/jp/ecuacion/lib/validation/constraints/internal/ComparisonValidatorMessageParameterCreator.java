@@ -23,6 +23,7 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ItemUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -38,9 +39,11 @@ public class ComparisonValidatorMessageParameterCreator
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
+    String cvPropertyPath = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
     String bpp =
         Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
-    Item item = ItemUtil.resolveItem(bpp, cv.getRootBean());
+    String fullBpp = (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".") + bpp;
+    Item item = ItemUtil.resolveItem(fullBpp, cv.getRootBean());
     result.put("baselinePropertyPathItemName",
         new ItemNameParam(List.of(item), cv.getRootBean()));
 
