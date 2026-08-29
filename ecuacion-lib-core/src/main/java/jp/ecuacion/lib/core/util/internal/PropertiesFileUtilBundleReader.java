@@ -26,6 +26,7 @@ import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
+import java.util.concurrent.CopyOnWriteArrayList;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +67,10 @@ public class PropertiesFileUtilBundleReader {
       new String[] {"", "base", "core", "core_web", "core_batch"};
   private static final String[] APP_ENVS = new String[] {"", "profile"};
 
-  private static final List<@NonNull String> dynamicPostfixList = new ArrayList<>();
+  // CopyOnWriteArrayList: addToDynamicPostfixList may be called concurrently with getPostfixes
+  // reading this list (e.g. an admin screen registering a postfix while requests are in
+  // flight), and a plain ArrayList is not safe under that concurrent read/write pattern.
+  private static final List<@NonNull String> dynamicPostfixList = new CopyOnWriteArrayList<>();
 
   /**
    * Offers a way to add postfixes dynamically.
@@ -177,6 +181,12 @@ public class PropertiesFileUtilBundleReader {
    * <p>Raw means return data is not processed after obtained from properties file.</p>
    *
    * <p>This is also used to find out whether the key exists.</p>
+   *
+   * <p>For every file kind, a JVM system property whose name equals {@code key} takes
+   *     precedence over the properties files below — so if a system property happens to share
+   *     a name with a message/config key, it silently overrides the file value. Only whoever
+   *     can set JVM system properties (effectively the server administrator) can trigger this,
+   *     but it can be a source of confusion if unaware of it.</p>
    *
    * @param locale locale
    * @param key key

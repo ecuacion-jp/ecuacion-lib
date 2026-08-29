@@ -34,6 +34,9 @@ public class ReflectionUtil {
   /**
    * Returns true when designated class exists.
    *
+   * <p>{@code className} must not come from untrusted (e.g. end-user) input: it triggers
+   *     loading and static initialization of the named class.</p>
+   *
    * @param className className with package (like "java.lang.Object")
    * @return boolean
    */
@@ -49,6 +52,9 @@ public class ReflectionUtil {
 
   /**
    * Returns new instance constructed with a no-argument constructor.
+   *
+   * <p>{@code className} must not come from untrusted (e.g. end-user) input: it triggers
+   *     loading, static initialization, and no-argument construction of the named class.</p>
    *
    * @param className className with package (like "java.lang.Object")
    * @return new instance
