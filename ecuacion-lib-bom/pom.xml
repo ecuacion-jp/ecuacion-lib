@@ -45,7 +45,7 @@
 		<!-- jakarta mail implementation (used by MailUtil) -->
 		<org.eclipse.angus.angus-mail.version>2.0.5</org.eclipse.angus.angus-mail.version>
 		<org.slf4j.slf4j-api.version>2.0.18</org.slf4j.slf4j-api.version>
-		<tools.jackson.core.jackson-databind.version>3.2.1</tools.jackson.core.jackson-databind.version>
+		<tools.jackson.core.jackson-databind.version>3.2.2</tools.jackson.core.jackson-databind.version>
 		<!-- jakarta-el -->
 		<org.glassfish.jakarta.el.version>4.0.2</org.glassfish.jakarta.el.version>
 		<!-- jakarta validation -->

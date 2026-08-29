@@ -32,9 +32,9 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {AssertTrueWithPropertyPathValidator.class})
 public @interface AssertTrueWithPropertyPath {
 
-  /** 
-   * Is the array of propertyPath. 
-   * The validation result is true when one of the values is not empty.
+  /**
+   * Is the array of propertyPath to which the constraint violation is associated
+   *     when the validation fails.
    */
   String[] propertyPath();
 

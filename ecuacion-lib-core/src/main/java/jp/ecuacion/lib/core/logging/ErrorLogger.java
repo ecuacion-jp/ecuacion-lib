@@ -15,10 +15,7 @@
  */
 package jp.ecuacion.lib.core.logging;
 
-import jakarta.validation.ConstraintViolation;
 import java.util.Locale;
-import jp.ecuacion.lib.core.exception.ViolationException;
-import jp.ecuacion.lib.core.jakartavalidation.internal.ConstraintViolationBean;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
 import org.jspecify.annotations.Nullable;
@@ -99,23 +96,6 @@ public class ErrorLogger extends AbstractLogger {
       throwableMessage = throwable.getClass().getName() + " - "
           + ExceptionLogUtil.getMessageListStringSafely(throwable, Locale.ENGLISH, false)
               .replace("\n", " ");
-
-      if (throwable instanceof ViolationException ve) {
-        try {
-          StringBuilder sb = new StringBuilder(throwableMessage);
-          for (ConstraintViolation<?> cv
-              : ve.getViolations().getConstraintViolations()) {
-            sb.append("\n").append(ConstraintViolationBean.createConstraintViolationBean(cv));
-          }
-          throwableMessage = sb.toString();
-
-        } catch (Throwable violationDetailBuildFailure) {
-          // Building per-violation detail can itself fail (e.g. a broken item-name resource).
-          // Keep the already-built throwableMessage rather than losing it.
-          throwableMessage += " (failed to build violation detail: "
-              + violationDetailBuildFailure + ")";
-        }
-      }
     }
 
     String additionalMsg = additionalMessage == null ? "" : " (" + additionalMessage + ")";

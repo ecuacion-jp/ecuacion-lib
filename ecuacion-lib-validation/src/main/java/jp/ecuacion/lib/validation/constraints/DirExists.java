@@ -29,43 +29,42 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Checks if the size of a string is within designated min and max.
- * 
- * @see SizeStringValidator
+ * Checks if the {@code String}, {@code java.io.File} or {@code java.nio.file.Path}
+ *     annotated points to an existing directory.
+ *
+ * <p>It's invalid when the path points to a regular file, or to nothing.</p>
+ *
+ * <p><b>Do not annotate a field fed by untrusted (e.g. end-user) input.</b> Since the pass/fail
+ *     result is observable per request, an attacker could use it as an oracle to enumerate which
+ *     paths exist on the server's file system (e.g. probing {@code /etc/passwd} or internal
+ *     application paths). Use it only for trusted input such as configuration values or
+ *     administrator-entered paths.</p>
+ *
+ * @see DirExistsValidator
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {SizeStringValidator.class})
-public @interface SizeString {
+@Constraint(validatedBy = {DirExistsValidator.class})
+public @interface DirExists {
 
-  /** 
+  /**
    * Returns message ID.
-   * 
+   *
    * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.SizeString.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.DirExists.message}";
 
-  /** 
-   * Is a minimum allowable size.
-   */
-  int min() default 0;
-
-  /** 
-   * Is a maximum allowable size.
-   */
-  int max() default Integer.MAX_VALUE;
-  
-  /** 
+  /**
    * Returns groups.
-   * 
+   *
    * @return groups
    */
   Class<?>[] groups() default {};
 
-  /** 
+  /**
    * Returns payload.
-   * 
+   *
    * @return payload
    */
   Class<? extends Payload>[] payload() default {};

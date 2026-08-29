@@ -29,44 +29,46 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Checks if the size of a string is within designated min and max.
- * 
- * @see SizeStringValidator
+ * Checks if the {@code String}, {@code java.io.File} or {@code java.nio.file.Path}
+ *     annotated has the file name extension designated by {@link #value()}.
+ *
+ * <p>{@link #value()} may be specified with or without the leading dot
+ *     ({@code "xlsx"} and {@code ".xlsx"} are treated the same). The comparison
+ *     is case-insensitive. It's invalid when the file name has no extension at all.</p>
+ *
+ * @see FileExtensionValidator
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {SizeStringValidator.class})
-public @interface SizeString {
+@Constraint(validatedBy = {FileExtensionValidator.class})
+public @interface FileExtension {
 
-  /** 
+  /**
    * Returns message ID.
-   * 
+   *
    * @return message ID
    */
-  String message() default "{jp.ecuacion.lib.validation.constraints.SizeString.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.FileExtension.message}";
 
-  /** 
-   * Is a minimum allowable size.
-   */
-  int min() default 0;
-
-  /** 
-   * Is a maximum allowable size.
-   */
-  int max() default Integer.MAX_VALUE;
-  
-  /** 
+  /**
    * Returns groups.
-   * 
+   *
    * @return groups
    */
   Class<?>[] groups() default {};
 
-  /** 
+  /**
    * Returns payload.
-   * 
+   *
    * @return payload
    */
   Class<? extends Payload>[] payload() default {};
+
+  /**
+   * Stores the required file name extension, with or without the leading dot.
+   *
+   * @return the required file name extension
+   */
+  String value();
 }

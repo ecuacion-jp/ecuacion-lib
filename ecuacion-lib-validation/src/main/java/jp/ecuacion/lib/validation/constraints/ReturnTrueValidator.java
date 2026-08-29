@@ -22,7 +22,7 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code AnyNull}.
+ * Provides the validation logic for {@code ReturnTrue}.
  */
 public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
 
@@ -43,7 +43,8 @@ public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
   }
 
   @Override
-  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
     try {
       Method method = object.getClass().getMethod(methodName);
       return (boolean) Objects.requireNonNull(method.invoke(object));

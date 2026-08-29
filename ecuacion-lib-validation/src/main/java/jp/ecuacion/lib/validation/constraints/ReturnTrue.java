@@ -23,29 +23,29 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.validation.constraints.ReturnTrue.AnyNullList;
+import jp.ecuacion.lib.validation.constraints.ReturnTrue.ReturnTrueList;
 
 /**
- * Is valid when at least one of the values of {@code propertyPath} is null.
+ * Is valid when the return value of the method specified by {@code methodName} is {@code true}.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(AnyNullList.class)
+@Repeatable(ReturnTrueList.class)
 @Documented
 @Constraint(validatedBy = {ReturnTrueValidator.class})
 public @interface ReturnTrue {
 
   /**
-   * Is the array of propertyPath.
-   * The validation result is true when one of the values is null.
+   * Is the array of propertyPath to which the constraint violation is associated
+   *     when the validation fails.
    */
   String[] propertyPath();
 
   /**
-   * Specifies the method name you want to execute with string 
-   *     (like "isTestMethod") for {@code public String boolean isTestMethod()}.
-   * 
-   * <p>The retuurn value of the specified method must be {@code boolean}.<br>
+   * Specifies the method name you want to execute with string
+   *     (like "isTestMethod") for {@code public boolean isTestMethod()}.
+   *
+   * <p>The return value of the specified method must be {@code boolean}.<br>
    *     The method can not have any arguments.</p>
    */
   String methodName();
@@ -71,7 +71,7 @@ public @interface ReturnTrue {
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface AnyNullList {
+  public @interface ReturnTrueList {
 
     /**
      * Returns an array of {@link ReturnTrue}.

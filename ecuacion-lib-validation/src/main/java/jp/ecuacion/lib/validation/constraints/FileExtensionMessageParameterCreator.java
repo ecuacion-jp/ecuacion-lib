@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.ecuacion.lib.validation.constraints.internal;
+package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintViolation;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.ItemUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Is a LocalizedMessageParameter creator for Comparison validators.
+ * Is a LocalizedMessageParameter creator for FileExtension.
+ *
+ * <p>Normalizes {@code value} (which may or may not have a leading dot) to always have
+ *     a leading dot, so the message reads consistently regardless of how
+ *     {@code @FileExtension} was declared.</p>
  */
-public class ComparisonValidatorMessageParameterCreator
-    implements ValidatorMessageParameterCreator {
+public class FileExtensionMessageParameterCreator implements ValidatorMessageParameterCreator {
 
   @Override
   public Map<@NonNull String, @Nullable Object> create(ConstraintViolation<?> cv,
@@ -39,13 +38,8 @@ public class ComparisonValidatorMessageParameterCreator
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
-    String cvPropertyPath = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    String bpp =
-        Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
-    String fullBpp = (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".") + bpp;
-    Item item = ItemUtil.resolveItem(fullBpp, cv.getRootBean());
-    result.put("baselinePropertyPathItemName",
-        new ItemNameParam(List.of(item), cv.getRootBean()));
+    String value = Objects.requireNonNull((String) paramMap.get("value"));
+    result.put("extension", value.startsWith(".") ? value : "." + value);
 
     return result;
   }

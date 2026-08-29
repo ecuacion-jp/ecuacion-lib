@@ -15,7 +15,10 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Locale;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -148,11 +151,22 @@ public class ExceptionLogUtil {
   private static void getMessageAndStackTraceStringRecursivelyCore(StringBuilder sb,
       @Nullable Throwable th, @Nullable Locale locale, @Nullable Integer packagesShown) {
 
-    getMessageAndStackTraceString(sb, th, locale, packagesShown);
+    if (th == null) {
+      getMessageAndStackTraceString(sb, null, locale, packagesShown);
+      return;
+    }
 
-    // Also outputs for getCause().
-    if (th != null && th.getCause() != null) {
-      getMessageAndStackTraceStringRecursivelyCore(sb, th.getCause(), locale, packagesShown);
+    // A cause chain must not be walked without a cycle check: unlike getCause() on a normal
+    // exception, a crafted or buggy cause chain can point back to a throwable already visited
+    // (e.g. a.initCause(b); b.initCause(a)), which would otherwise recurse forever and crash
+    // the very logging path meant to report the original error. IdentityHashMap-backed set
+    // mirrors the "dejavu" set the JDK's own printStackTrace uses for the same reason: identity
+    // (not equals()) is what matters here, since two unrelated throwables may be equal.
+    Set<Throwable> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+    Throwable current = th;
+    while (current != null && visited.add(current)) {
+      getMessageAndStackTraceString(sb, current, locale, packagesShown);
+      current = current.getCause();
     }
   }
 

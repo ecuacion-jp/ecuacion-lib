@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
@@ -43,10 +44,12 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private ConditionOperator conditionOperator = ConditionOperator.EQUAL_TO;
   private String[] conditionValueString = new String[] {};
   private String conditionValueRegexp = "";
+  // Compiled once here rather than per isValid() call: the regexp itself is annotation
+  // (developer) input, immutable after initialize(), so caching it is safe (see ClassValidator's
+  // javadoc on why per-call state must not be cached in a field, which does not apply here).
+  private @Nullable Pattern compiledConditionValueRegexp;
   private String conditionValuePropertyPath = "";
-  private boolean validatesWhenConditionNotSatisfied;
-
-  private boolean satisfiesCondition = false;
+  protected boolean validatesWhenConditionNotSatisfied;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
@@ -74,6 +77,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     this.conditionOperator = conditionOperator;
     this.conditionValueString = conditionValueString;
     this.conditionValueRegexp = conditionValuePattern;
+    this.compiledConditionValueRegexp =
+        conditionValuePattern.isEmpty() ? null : Pattern.compile(conditionValuePattern);
     this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
@@ -84,12 +89,14 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
    * Executes validation check.
    */
   @Override
-  public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
 
-    procedureBeforeLoopForEachPropertyPath(instance);
+    boolean satisfiesCondition = getSatisfiesCondition(instance);
 
     for (int i = 0; i < propertyPaths.length; i++) {
-      boolean result = isValidForSinglePropertyPath(propertyPaths[i], valuesOfPropertyPaths[i]);
+      boolean result =
+          isValidForSinglePropertyPath(satisfiesCondition, valuesOfPropertyPaths[i]);
 
       if (!result) {
         return false;
@@ -99,11 +106,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     return true;
   }
 
-  public void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    satisfiesCondition = getSatisfiesCondition(instance);
-  }
-
-  protected boolean isValidForSinglePropertyPath(String itemPropertyPath, Object valueOfField) {
+  protected boolean isValidForSinglePropertyPath(boolean satisfiesCondition,
+      Object valueOfField) {
     if (satisfiesCondition) {
       return isValid(valueOfField);
 
@@ -117,7 +121,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
   }
 
-  boolean getSatisfiesCondition(Object instance) {
+  protected boolean getSatisfiesCondition(Object instance) {
     Object valueOfConditionPropertyPath =
         PropertyPathUtil.getValue(instance, conditionPropertyPath);
 
@@ -222,8 +226,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       throw new RuntimeException("'conditionValuePattern' must be set.");
     }
 
-    Pattern p = Pattern.compile(conditionValueRegexp);
-    Matcher m = p.matcher(s);
+    Matcher m = Objects.requireNonNull(compiledConditionValueRegexp).matcher(s);
 
     boolean satisfies = m.find();
     return (satisfies && conditionOperator == EQUAL_TO)
