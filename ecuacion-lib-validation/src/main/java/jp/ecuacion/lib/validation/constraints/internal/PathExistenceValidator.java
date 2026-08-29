@@ -18,6 +18,7 @@ package jp.ecuacion.lib.validation.constraints.internal;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Objects;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -52,7 +53,13 @@ public abstract class PathExistenceValidator<A extends Annotation>
       return true;
     }
 
-    return isValidPath(PathConversionUtil.toPath(Objects.requireNonNull(value)));
+    try {
+      return isValidPath(PathConversionUtil.toPath(Objects.requireNonNull(value)));
+    } catch (InvalidPathException ex) {
+      // A malformed path string (e.g. containing a NUL character) cannot exist on the file
+      // system, so it fails validation rather than propagating as an unhandled exception.
+      return false;
+    }
   }
 
   /**

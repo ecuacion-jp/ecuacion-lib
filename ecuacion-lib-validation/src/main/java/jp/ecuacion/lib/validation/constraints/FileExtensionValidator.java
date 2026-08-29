@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation.constraints;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.Objects;
 import jp.ecuacion.lib.core.util.StringUtil;
@@ -55,7 +56,15 @@ public class FileExtensionValidator implements ConstraintValidator<FileExtension
       return true;
     }
 
-    Path path = PathConversionUtil.toPath(Objects.requireNonNull(value));
+    Path path;
+    try {
+      path = PathConversionUtil.toPath(Objects.requireNonNull(value));
+    } catch (InvalidPathException ex) {
+      // A malformed path string (e.g. containing a NUL character) is not a valid file name,
+      // so it fails validation rather than propagating as an unhandled exception.
+      return false;
+    }
+
     Path fileNamePath = path.getFileName();
     if (fileNamePath == null) {
       return false;
