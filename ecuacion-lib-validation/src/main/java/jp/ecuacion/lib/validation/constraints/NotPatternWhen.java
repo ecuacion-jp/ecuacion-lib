@@ -31,6 +31,11 @@ import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 /**
  * Checks if specified {@code propertyPath} does not match the specified regular expression
  *     only when condition is satisfied.
+ *
+ * <p>{@code regexp} and {@code conditionValuePatternRegexp} are matched against a value that
+ *     may come from end-user input. Avoid patterns prone to catastrophic backtracking (e.g.
+ *     nested quantifiers like {@code (a+)+}), which can make matching take exponential time on
+ *     a crafted input.</p>
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

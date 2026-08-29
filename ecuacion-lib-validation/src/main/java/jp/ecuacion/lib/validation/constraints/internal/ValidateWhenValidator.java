@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
@@ -43,6 +44,10 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private ConditionOperator conditionOperator = ConditionOperator.EQUAL_TO;
   private String[] conditionValueString = new String[] {};
   private String conditionValueRegexp = "";
+  // Compiled once here rather than per isValid() call: the regexp itself is annotation
+  // (developer) input, immutable after initialize(), so caching it is safe (see ClassValidator's
+  // javadoc on why per-call state must not be cached in a field, which does not apply here).
+  private @Nullable Pattern compiledConditionValueRegexp;
   private String conditionValuePropertyPath = "";
   protected boolean validatesWhenConditionNotSatisfied;
 
@@ -72,6 +77,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     this.conditionOperator = conditionOperator;
     this.conditionValueString = conditionValueString;
     this.conditionValueRegexp = conditionValuePattern;
+    this.compiledConditionValueRegexp =
+        conditionValuePattern.isEmpty() ? null : Pattern.compile(conditionValuePattern);
     this.conditionValuePropertyPath = conditionValuePropertyPath;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
@@ -219,8 +226,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       throw new RuntimeException("'conditionValuePattern' must be set.");
     }
 
-    Pattern p = Pattern.compile(conditionValueRegexp);
-    Matcher m = p.matcher(s);
+    Matcher m = Objects.requireNonNull(compiledConditionValueRegexp).matcher(s);
 
     boolean satisfies = m.find();
     return (satisfies && conditionOperator == EQUAL_TO)
