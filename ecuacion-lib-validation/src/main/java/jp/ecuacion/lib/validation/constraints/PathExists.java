@@ -34,6 +34,12 @@ import java.lang.annotation.Target;
  *
  * <p>It's invalid only when nothing exists at the path.</p>
  *
+ * <p><b>Do not annotate a field fed by untrusted (e.g. end-user) input.</b> Since the pass/fail
+ *     result is observable per request, an attacker could use it as an oracle to enumerate which
+ *     paths exist on the server's file system (e.g. probing {@code /etc/passwd} or internal
+ *     application paths). Use it only for trusted input such as configuration values or
+ *     administrator-entered paths.</p>
+ *
  * @see PathExistsValidator
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
