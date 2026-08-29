@@ -19,9 +19,9 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Is a ConstraintValidator implemented class for class-level validator.
@@ -44,23 +44,28 @@ public abstract class ClassValidator<A extends Annotation, T>
     extends MultiplePropertyPathsValidator<A, T> implements ConstraintValidator<A, T> {
 
   /**
-   * It's {@code @NonNull} 
-   *     but it cannot be initialized at Constructor so initial value is substituted.
+   * Computes the value of each {@code propertyPath} once per validation call, then delegates to
+   * {@link #internalIsValid(Object, Object[], ConstraintValidatorContext)}.
+   *
+   * <p>{@code ConstraintValidator} instances are cached and reused by the Jakarta Validation
+   *     runtime across concurrent validations of different objects, so the computed values are
+   *     passed down as a method argument rather than kept in an instance field.</p>
    */
-  protected Object[] valuesOfPropertyPaths = new Object[] {};
-
   @Override
-  public boolean isValid(T value, @SuppressWarnings("null") ConstraintValidatorContext context) {
-    valuesOfPropertyPaths = setValuesOfPropertyPaths(value);
-
-    return isValidCommon(value, Objects.requireNonNull(context));
+  protected final boolean internalIsValid(@NonNull T value,
+      @Nullable ConstraintValidatorContext context) {
+    return internalIsValid(value, computeValuesOfPropertyPaths(value), context);
   }
 
-  private Object[] setValuesOfPropertyPaths(T object) {
-    List<Object> list =
-        Arrays.stream(propertyPaths).map(path -> PropertyPathUtil.getValue(object, path)).toList();
+  /**
+   * Is {@code internalIsValid} for class-level validators, additionally given the value of each
+   * {@code propertyPath}, computed once per call from {@code value}.
+   */
+  protected abstract boolean internalIsValid(@NonNull T value, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context);
 
-    Object[] rtn = list.toArray(Object[]::new);
-    return rtn;
+  private Object[] computeValuesOfPropertyPaths(Object object) {
+    return Arrays.stream(propertyPaths).map(path -> PropertyPathUtil.getValue(object, path))
+        .toArray(Object[]::new);
   }
 }

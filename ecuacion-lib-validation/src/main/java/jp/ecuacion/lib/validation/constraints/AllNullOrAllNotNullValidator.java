@@ -38,8 +38,9 @@ public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNo
   }
 
   @Override
-  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
-    int numberOfNonNullValues = numberOfNonNullValues();
+  public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
+    int numberOfNonNullValues = numberOfNonNullValues(valuesOfPropertyPaths);
     return numberOfNonNullValues == propertyPaths.length || numberOfNonNullValues == 0;
   }
 }
