@@ -181,10 +181,11 @@ public class ValidateWhenValidatorTest {
       @Test
       @DisplayName("throws PatternSyntaxException when regexp is malformed")
       void throwsWhenRegexpMalformed() {
-        obj.initialize("", new String[]{"field"}, "condField", PATTERN, EQUAL_TO,
-            new String[]{NULL}, "^[.*$", "", false);
-        assertThatThrownBy(() ->
-            obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")))
+        // The regexp is compiled once in initialize() (not per isValid() call, since it's
+        // developer-controlled annotation input that never changes after initialize()), so a
+        // malformed regexp now fails fast here rather than later on first use.
+        assertThatThrownBy(() -> obj.initialize("", new String[]{"field"}, "condField", PATTERN,
+            EQUAL_TO, new String[]{NULL}, "^[.*$", "", false))
             .isInstanceOf(PatternSyntaxException.class);
       }
 
@@ -228,10 +229,11 @@ public class ValidateWhenValidatorTest {
       @Test
       @DisplayName("throws PatternSyntaxException when regexp is malformed")
       void throwsWhenRegexpMalformed() {
-        obj.initialize("", new String[]{"field"}, "condField", PATTERN, NOT_EQUAL_TO,
-            new String[]{NULL}, "^[.*$", "", false);
-        assertThatThrownBy(() ->
-            obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")))
+        // The regexp is compiled once in initialize() (not per isValid() call, since it's
+        // developer-controlled annotation input that never changes after initialize()), so a
+        // malformed regexp now fails fast here rather than later on first use.
+        assertThatThrownBy(() -> obj.initialize("", new String[]{"field"}, "condField", PATTERN,
+            NOT_EQUAL_TO, new String[]{NULL}, "^[.*$", "", false))
             .isInstanceOf(PatternSyntaxException.class);
       }
 
