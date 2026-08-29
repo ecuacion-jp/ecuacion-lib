@@ -22,13 +22,13 @@ import org.apache.commons.lang3.StringUtils;
 
 public abstract class AllAnyValidator<A extends Annotation, T> extends ClassValidator<A, T> {
 
-  protected int numberOfNonEmptyValues() {
+  protected int numberOfNonEmptyValues(Object[] valuesOfPropertyPaths) {
     return (int) Arrays.stream(valuesOfPropertyPaths)
         .filter(v -> v instanceof String s ? StringUtils.isNotEmpty(s) : v != null)
         .count();
   }
 
-  protected int numberOfNonNullValues() {
+  protected int numberOfNonNullValues(Object[] valuesOfPropertyPaths) {
     return (int) Arrays.stream(valuesOfPropertyPaths).filter(v -> v != null).count();
   }
 }

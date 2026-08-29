@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.validation.constraints;
 
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +31,6 @@ public class ValueOfPropertyPathWhenValidator
     extends ValidateWhenValidator<ValueOfPropertyPathWhen, Object> {
 
   private String valuePropertyPath = "";
-  private List<Object> propertyValues = new ArrayList<>();
 
   /**
    * Initializes an instance.
@@ -50,13 +50,36 @@ public class ValueOfPropertyPathWhenValidator
     this.valuePropertyPath = annotation.valuePropertyPath();
   }
 
+  /**
+   * Overrides {@code internalIsValid} instead of {@code isValid(Object)} because this validator
+   * needs {@code propertyValues}, which is derived from {@code instance} and therefore cannot be
+   * threaded through the single-value {@code isValid(Object)} hook without caching it in an
+   * instance field (unsafe: the validator instance is cached and reused across concurrent
+   * validations by the Jakarta Validation runtime).
+   */
   @Override
-  public void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    super.procedureBeforeLoopForEachPropertyPath(instance);
+  public boolean internalIsValid(Object instance, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
+    boolean satisfiesCondition = getSatisfiesCondition(instance);
+    List<Object> propertyValues = computePropertyValues(instance);
 
+    for (int i = 0; i < propertyPaths.length; i++) {
+      boolean matches = isValueInPropertyValues(valuesOfPropertyPaths[i], propertyValues);
+      boolean result = satisfiesCondition ? matches
+          : (validatesWhenConditionNotSatisfied ? !matches : true);
+
+      if (!result) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private List<Object> computePropertyValues(Object instance) {
     Object valueOfPropertyValuePath = PropertyPathUtil.getValue(instance, valuePropertyPath);
 
-    propertyValues = new ArrayList<>();
+    List<Object> propertyValues = new ArrayList<>();
     if (valueOfPropertyValuePath instanceof Object[] arr) {
       for (Object val : arr) {
         propertyValues.add(val);
@@ -67,13 +90,20 @@ public class ValueOfPropertyPathWhenValidator
 
     propertyValues.replaceAll(
         x -> x == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL : x);
+    return propertyValues;
+  }
+
+  private boolean isValueInPropertyValues(@Nullable Object valueOfField,
+      List<Object> propertyValues) {
+    return (valueOfField == null
+        && propertyValues.contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL))
+        || (valueOfField != null && propertyValues.contains(valueOfField));
   }
 
   @Override
   protected boolean isValid(Object valueOfField) {
-    return (valueOfField == null
-        && propertyValues.contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL))
-        || (valueOfField != null && propertyValues.contains(valueOfField));
+    throw new UnsupportedOperationException(
+        "internalIsValid is overridden directly; this hook is not used.");
   }
 
 }

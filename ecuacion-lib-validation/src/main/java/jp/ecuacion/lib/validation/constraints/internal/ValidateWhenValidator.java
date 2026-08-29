@@ -44,9 +44,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private String[] conditionValueString = new String[] {};
   private String conditionValueRegexp = "";
   private String conditionValuePropertyPath = "";
-  private boolean validatesWhenConditionNotSatisfied;
-
-  private boolean satisfiesCondition = false;
+  protected boolean validatesWhenConditionNotSatisfied;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
@@ -84,12 +82,14 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
    * Executes validation check.
    */
   @Override
-  public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
 
-    procedureBeforeLoopForEachPropertyPath(instance);
+    boolean satisfiesCondition = getSatisfiesCondition(instance);
 
     for (int i = 0; i < propertyPaths.length; i++) {
-      boolean result = isValidForSinglePropertyPath(propertyPaths[i], valuesOfPropertyPaths[i]);
+      boolean result =
+          isValidForSinglePropertyPath(satisfiesCondition, valuesOfPropertyPaths[i]);
 
       if (!result) {
         return false;
@@ -99,11 +99,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     return true;
   }
 
-  public void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    satisfiesCondition = getSatisfiesCondition(instance);
-  }
-
-  protected boolean isValidForSinglePropertyPath(String itemPropertyPath, Object valueOfField) {
+  protected boolean isValidForSinglePropertyPath(boolean satisfiesCondition,
+      Object valueOfField) {
     if (satisfiesCondition) {
       return isValid(valueOfField);
 
@@ -117,7 +114,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     }
   }
 
-  boolean getSatisfiesCondition(Object instance) {
+  protected boolean getSatisfiesCondition(Object instance) {
     Object valueOfConditionPropertyPath =
         PropertyPathUtil.getValue(instance, conditionPropertyPath);
 

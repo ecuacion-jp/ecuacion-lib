@@ -38,8 +38,9 @@ public class AllEmptyOrAllNotEmptyValidator extends AllAnyValidator<AllEmptyOrAl
   }
 
   @Override
-  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
-    int numberOfNonEmptyValues = numberOfNonEmptyValues();
+  public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
+    int numberOfNonEmptyValues = numberOfNonEmptyValues(valuesOfPropertyPaths);
     return numberOfNonEmptyValues == propertyPaths.length || numberOfNonEmptyValues == 0;
   }
 }

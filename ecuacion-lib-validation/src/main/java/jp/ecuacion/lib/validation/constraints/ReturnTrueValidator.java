@@ -43,7 +43,8 @@ public class ReturnTrueValidator extends ClassValidator<ReturnTrue, Object> {
   }
 
   @Override
-  public boolean internalIsValid(Object object, @Nullable ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
     try {
       Method method = object.getClass().getMethod(methodName);
       return (boolean) Objects.requireNonNull(method.invoke(object));

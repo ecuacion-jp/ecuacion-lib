@@ -46,9 +46,6 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   private TypeConversionFromString typeConversionFromString = TypeConversionFromString.NONE;
   private String typeConversionDateTimeFormat = "";
 
-  private @Nullable Field fieldOfBasisPropertyPath;
-  private @Nullable Object valueOfBasisPropertyPath;
-
   /** Initializes an instance. */
   public void initialize(String message, String[] propertyPath, String baselinePropertyPath,
       ComparisonType comparisonType, TypeConversionFromString typeConversionFromString,
@@ -65,13 +62,19 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
    * Executes validation check.
    */
   @Override
-  public boolean internalIsValid(Object instance, @Nullable ConstraintValidatorContext context) {
+  public boolean internalIsValid(Object instance, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
 
-    procedureBeforeLoopForEachPropertyPath(instance);
+    Field fieldOfBasisPropertyPath =
+        PropertyPathUtil.getField(instance.getClass(), baselinePropertyPath);
+    // Held in a single-element array so isValidForSinglePropertyPath can update it in place
+    // (type conversion below replaces the value) while staying a local, not an instance field.
+    Object[] valueOfBasisPropertyPathHolder = {
+        PropertyPathUtil.getValue(instance, baselinePropertyPath)};
 
     for (int i = 0; i < propertyPaths.length; i++) {
       boolean result = isValidForSinglePropertyPath(instance, propertyPaths[i],
-          valuesOfPropertyPaths[i]);
+          valuesOfPropertyPaths[i], fieldOfBasisPropertyPath, valueOfBasisPropertyPathHolder);
 
       if (!result) {
         return false;
@@ -81,25 +84,20 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     return true;
   }
 
-  protected void procedureBeforeLoopForEachPropertyPath(Object instance) {
-    fieldOfBasisPropertyPath = PropertyPathUtil.getField(instance.getClass(), baselinePropertyPath);
-    valueOfBasisPropertyPath = PropertyPathUtil.getValue(instance, baselinePropertyPath);
-  }
-
   protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
-      @Nullable Object valueOfPropertyPath) {
+      @Nullable Object valueOfPropertyPath, Field fieldOfBasisPropertyPath,
+      Object[] valueOfBasisPropertyPathHolder) {
 
     Field fieldOfPropertyPath = PropertyPathUtil.getField(instance.getClass(), propertyPath);
-    @NonNull
-    Field nonNullFieldOfBasisPropertyPath = Objects.requireNonNull(fieldOfBasisPropertyPath);
 
     // Throws an exception when the types of two PropertyPaths differ.
-    if (!fieldOfPropertyPath.getType()
-        .isAssignableFrom(nonNullFieldOfBasisPropertyPath.getType())) {
-      throw new RuntimeException("Types of two propertyPath differ. propertyPath: "
-          + fieldOfPropertyPath.getType() + ", basisPropertyPath: "
-          + Objects.requireNonNull(nonNullFieldOfBasisPropertyPath).getType());
+    if (!fieldOfPropertyPath.getType().isAssignableFrom(fieldOfBasisPropertyPath.getType())) {
+      throw new RuntimeException(
+          "Types of two propertyPath differ. propertyPath: " + fieldOfPropertyPath.getType()
+              + ", basisPropertyPath: " + fieldOfBasisPropertyPath.getType());
     }
+
+    Object valueOfBasisPropertyPath = valueOfBasisPropertyPathHolder[0];
 
     // True when one of valueOfField or fieldOfBasisPropertyPath is empty.
     boolean isValueOfPropertyPathEmpty = StringUtil.isObjectNullOrEmpty(valueOfPropertyPath);
@@ -110,7 +108,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     }
 
     Objects.requireNonNull(valueOfPropertyPath);
-    
+
     // same values treatment
     if (valueOfPropertyPath.equals(valueOfBasisPropertyPath)) {
       return comparisonType.allowsEqual();
@@ -136,6 +134,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
         valueOfPropertyPath = LocalDate.parse(valOfPp, fmt);
         valueOfBasisPropertyPath = LocalDate.parse(valOfBpp, fmt);
       }
+
+      valueOfBasisPropertyPathHolder[0] = valueOfBasisPropertyPath;
     }
 
     @NonNull
@@ -154,7 +154,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
       case LocalDate x -> x.isBefore((LocalDate) nonNullValueOfBasisPropertyPath);
       case LocalDateTime x -> x.isBefore((LocalDateTime) nonNullValueOfBasisPropertyPath);
       case OffsetDateTime x -> x.isBefore((OffsetDateTime) nonNullValueOfBasisPropertyPath);
-      case ZonedDateTime x -> x.isBefore((ZonedDateTime) valueOfBasisPropertyPath);
+      case ZonedDateTime x -> x.isBefore((ZonedDateTime) nonNullValueOfBasisPropertyPath);
       case String x -> isStringValidWhenLessThanBasis(x, (String) nonNullValueOfBasisPropertyPath);
       default -> null;
     };

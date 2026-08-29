@@ -31,7 +31,8 @@ public class ClassAlwaysFalseValidator extends ClassValidator<ClassAlwaysFalse, 
   }
 
   @Override
-  protected boolean internalIsValid(Object value, @Nullable ConstraintValidatorContext context) {
+  protected boolean internalIsValid(Object value, Object[] valuesOfPropertyPaths,
+      @Nullable ConstraintValidatorContext context) {
     return false;
   }
 }
