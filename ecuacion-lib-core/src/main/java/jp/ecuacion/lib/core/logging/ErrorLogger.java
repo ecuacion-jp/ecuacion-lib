@@ -99,6 +99,6 @@ public class ErrorLogger extends AbstractLogger {
     }
 
     String additionalMsg = additionalMessage == null ? "" : " (" + additionalMessage + ")";
-    internalLogger.error("A system error has occurred: " + throwableMessage + additionalMsg);
+    log(Level.ERROR, "A system error has occurred: " + throwableMessage + additionalMsg);
   }
 }

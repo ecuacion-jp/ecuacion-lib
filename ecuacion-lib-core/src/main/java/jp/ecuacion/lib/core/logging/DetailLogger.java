@@ -167,7 +167,9 @@ public class DetailLogger extends AbstractLogger {
       throwableMessage = sb.toString();
     }
 
-    log(logLevel, throwableMessage);
+    // Deliberately multi-line (a rendered stack trace) — logWithoutSanitizing preserves the line
+    // breaks instead of flattening them the way log() (which sanitizes) would.
+    logWithoutSanitizing(logLevel, throwableMessage);
 
     for (String additionalMessage : additionalMessages) {
       if (!StringUtils.isEmpty(additionalMessage)) {
