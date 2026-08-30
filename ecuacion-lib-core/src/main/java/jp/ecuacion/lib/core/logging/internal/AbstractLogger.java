@@ -27,7 +27,7 @@ import org.slf4j.event.Level;
 public abstract class AbstractLogger {
 
   /** internalLogger. */
-  protected Logger internalLogger;
+  private Logger internalLogger;
 
   /**
    * Constructs a new instance with a logger name.
@@ -49,7 +49,16 @@ public abstract class AbstractLogger {
   }
 
   /**
-   * Logs message with logLevel.
+   * Logs message with logLevel, after sanitizing control characters (CR/LF etc., via
+   * {@link #sanitize}) so that a message built by concatenating untrusted input (a request URI,
+   * a header value, ...) cannot forge additional log lines or entries. This is the method every
+   * {@code trace}/{@code debug}/{@code info}/{@code warn}/{@code error} overload across the
+   * concrete logger classes ends up calling for a plain, single message — callers do not need to
+   * sanitize such fragments themselves before concatenating them.
+   *
+   * <p>Not used for content that is deliberately multi-line, such as a rendered stack trace —
+   *     see {@link #logWithoutSanitizing}, which those callers use instead so their line breaks
+   *     survive.</p>
    *
    * @param logLevel logLevel. Cannot be {@code null}.
    * @param message message.
@@ -60,6 +69,27 @@ public abstract class AbstractLogger {
    *     So {@code message} is {@code @Nullable}.
    */
   public void log(Level logLevel, @Nullable String message) {
+    logInternal(logLevel, sanitize(message));
+  }
+
+  /**
+   * Logs message with logLevel, exactly as given — no sanitization.
+   *
+   * <p>Reserved for a subclass that has already assembled multi-line content it fully controls
+   *     the structure of (e.g. {@code DetailLogger}'s rendered stack trace output), where
+   *     sanitizing would flatten the line breaks into an unreadable single line. Never pass a
+   *     value built by concatenating untrusted input to this method — use {@link #log} instead,
+   *     which sanitizes.</p>
+   *
+   * @param logLevel logLevel. Cannot be {@code null}.
+   * @param message message. See {@link #log}'s {@code message} parameter for the {@code null}
+   *     rationale.
+   */
+  protected void logWithoutSanitizing(Level logLevel, @Nullable String message) {
+    logInternal(logLevel, message);
+  }
+
+  private void logInternal(Level logLevel, @Nullable String message) {
     Objects.requireNonNull(logLevel);
 
     switch (logLevel) {
@@ -70,5 +100,38 @@ public abstract class AbstractLogger {
       case Level.TRACE -> internalLogger.trace(message);
       default -> throw new IllegalArgumentException("Unexpected value: " + logLevel);
     }
+  }
+
+  /**
+   * Escapes CR / LF and removes other ASCII control characters in {@code value}, so it is safe
+   * to concatenate into a single log line without letting an attacker forge extra log lines or
+   * fake log entries (CRLF / log injection) via a value that originates from untrusted input
+   * (e.g. a request URI or header value).
+   *
+   * @param value value to sanitize, or {@code null}
+   * @return {@code value} with {@code CR} / {@code LF} replaced by the literal two-character
+   *     sequences {@code \r} / {@code \n}, and other ASCII control characters
+   *     ({@code 0x00}-{@code 0x1F} excluding tab, and {@code 0x7F}) removed; {@code null} if
+   *     {@code value} is {@code null}
+   */
+  private static @Nullable String sanitize(@Nullable String value) {
+    if (value == null) {
+      return null;
+    }
+
+    StringBuilder sb = new StringBuilder(value.length());
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == '\r') {
+        sb.append("\\r");
+      } else if (c == '\n') {
+        sb.append("\\n");
+      } else if (c == '\t' || (c >= 0x20 && c != 0x7f)) {
+        sb.append(c);
+      }
+      // else: drop other control characters
+    }
+
+    return sb.toString();
   }
 }
