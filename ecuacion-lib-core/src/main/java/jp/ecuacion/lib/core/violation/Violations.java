@@ -202,12 +202,22 @@ public class Violations {
   }
 
   /**
+   * Returns {@code true} if no {@link ConstraintViolation} or {@link BusinessViolation}
+   * has been added.
+   *
+   * @return {@code true} if empty
+   */
+  public boolean isEmpty() {
+    return constraintViolations.isEmpty() && businessViolations.isEmpty();
+  }
+
+  /**
    * Throws {@link ViolationException} if any violations have been added.
    *
    * @throws ViolationException when one or more violations are present
    */
   public void throwIfAny() {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       throw new ViolationException(this);
     }
   }
@@ -227,7 +237,7 @@ public class Violations {
    *     has no constructor with a {@link Violations} argument
    */
   public <T extends ViolationException> void throwIfAny(Class<T> violationExceptionClass) {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       try {
         throw violationExceptionClass.getConstructor(Violations.class).newInstance(this);
       } catch (NoSuchMethodException e) {
@@ -246,7 +256,7 @@ public class Violations {
    * @throws ViolationException when one or more violations are present
    */
   public void throwWarningIfAny() {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       throw new ViolationWarningException(this);
     }
   }
