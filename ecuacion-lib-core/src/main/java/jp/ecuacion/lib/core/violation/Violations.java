@@ -315,19 +315,19 @@ public class Violations {
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemName, String messagePrefix,
-        String messagePostfix, boolean showsItemNamePath) {
+    public MessageParameters(@Nullable Boolean isMessageWithItemName, String prefixMessageId,
+        String postfixMessageId, boolean showsItemNamePath) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix == null ? null : Arg.message(messagePrefix);
-      this.messagePostfix = messagePostfix == null ? null : Arg.message(messagePostfix);
+      this.messagePrefix = messagePrefix == null ? null : Arg.message(prefixMessageId);
+      this.messagePostfix = messagePostfix == null ? null : Arg.message(postfixMessageId);
     }
 
     /**
      * Construct a new instance.
      */
-    public MessageParameters(Boolean isMessageWithItemName, boolean showsItemNamePath,
-        Arg messagePrefix, Arg messagePostfix) {
+    public MessageParameters(@Nullable Boolean isMessageWithItemName, boolean showsItemNamePath,
+        @Nullable Arg messagePrefix, @Nullable Arg messagePostfix) {
       this.isMessageWithItemName = isMessageWithItemName;
       this.showsItemNamePath = showsItemNamePath;
       this.messagePrefix = messagePrefix;
@@ -335,16 +335,16 @@ public class Violations {
     }
 
     /**
-     * Returns addsItemNameToMessage.
+     * Returns isMessageWithItemName.
      */
     public @Nullable Boolean isMessageWithItemName() {
       return isMessageWithItemName;
     }
 
     /**
-     * Sets messagePrefix and returns this.
+     * Sets isMessageWithItemName.
      */
-    public MessageParameters isMessageWithItemName(Boolean isMessageWithItemName) {
+    public MessageParameters isMessageWithItemName(@Nullable Boolean isMessageWithItemName) {
       this.isMessageWithItemName = isMessageWithItemName;
       return this;
     }
@@ -357,7 +357,7 @@ public class Violations {
     }
 
     /**
-     * Sets showsItemNamePath.
+     * Sets showsItemNamePath and returns this.
      */
     public MessageParameters showsItemNamePath(boolean showsItemNamePath) {
       this.showsItemNamePath = showsItemNamePath;
@@ -371,7 +371,7 @@ public class Violations {
     /**
      * Sets messagePrefix and returns this.
      */
-    public MessageParameters messagePrefix(Arg messagePrefix) {
+    public MessageParameters messagePrefix(@Nullable Arg messagePrefix) {
       this.messagePrefix = messagePrefix;
       return this;
     }
@@ -384,8 +384,8 @@ public class Violations {
      *     in {@code messages.properties}.
      *     When not found, the argument string itself is used as the prefix message.</p>
      */
-    public MessageParameters messagePrefix(String messagePrefix) {
-      this.messagePrefix = Arg.message(messagePrefix);
+    public MessageParameters messagePrefix(String messageId) {
+      this.messagePrefix = Arg.message(messageId);
       return this;
     }
 
@@ -396,7 +396,7 @@ public class Violations {
     /**
      * Sets messagePostfix and returns this.
      */
-    public MessageParameters messagePostfix(Arg messagePostfix) {
+    public MessageParameters messagePostfix(@Nullable Arg messagePostfix) {
       this.messagePostfix = messagePostfix;
       return this;
     }
@@ -409,8 +409,8 @@ public class Violations {
      *     in {@code messages.properties}.
      *     When not found, the argument string itself is used as the postfix message.</p>
      */
-    public MessageParameters messagePostfix(String messagePostfix) {
-      this.messagePostfix = Arg.message(messagePostfix);
+    public MessageParameters messagePostfix(String messageId) {
+      this.messagePostfix = Arg.message(messageId);
       return this;
     }
 
@@ -421,7 +421,8 @@ public class Violations {
     /**
      * Sets representativePropertyPath and returns this.
      */
-    public MessageParameters representativePropertyPath(String representativePropertyPath) {
+    public MessageParameters representativePropertyPath(
+        @Nullable String representativePropertyPath) {
       this.representativePropertyPath = representativePropertyPath;
       return this;
     }
