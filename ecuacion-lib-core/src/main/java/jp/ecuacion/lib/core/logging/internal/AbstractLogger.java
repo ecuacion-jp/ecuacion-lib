@@ -49,9 +49,9 @@ public abstract class AbstractLogger {
   }
 
   /**
-   * Logs message with logLevel, after sanitizing control characters (CR/LF etc., via
-   * {@link #sanitize}) so that a message built by concatenating untrusted input (a request URI,
-   * a header value, ...) cannot forge additional log lines or entries. This is the method every
+   * Logs message with logLevel, after sanitizing control characters (CR/LF etc.) so that a
+   * message built by concatenating untrusted input (a request URI, a header value, ...) cannot
+   * forge additional log lines or entries. This is the method every
    * {@code trace}/{@code debug}/{@code info}/{@code warn}/{@code error} overload across the
    * concrete logger classes ends up calling for a plain, single message — callers do not need to
    * sanitize such fragments themselves before concatenating them.
