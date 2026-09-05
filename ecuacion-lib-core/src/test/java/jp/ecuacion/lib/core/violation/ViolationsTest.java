@@ -227,26 +227,6 @@ public class ViolationsTest {
   class MessageParametersTests {
 
     @Test
-    @DisplayName("4-arg constructor (String prefix/postfix): sets all fields")
-    void constructorWithStrings() {
-      MessageParameters mp = new MessageParameters(true, "prefix-", "-postfix", false);
-      assertThat(mp.isMessageWithItemName()).isTrue();
-      assertThat(mp.showsItemNamePath()).isFalse();
-      assertThat(mp.getMessagePrefix()).isNotNull();
-      assertThat(mp.getMessagePostfix()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("4-arg constructor (String prefix/postfix): sets all fields including showsItemNamePath")
-    void constructorWithArgs() {
-      MessageParameters mp = new MessageParameters(false, "[", "]", true);
-      assertThat(mp.isMessageWithItemName()).isFalse();
-      assertThat(mp.showsItemNamePath()).isTrue();
-      assertThat(mp.getMessagePrefix()).isNotNull();
-      assertThat(mp.getMessagePostfix()).isNotNull();
-    }
-
-    @Test
     @DisplayName("messagePrefix(String): sets prefix from string")
     void messagePrefixString() {
       MessageParameters mp = Violations.newMessageParameters().messagePrefix("[ERROR] ");
