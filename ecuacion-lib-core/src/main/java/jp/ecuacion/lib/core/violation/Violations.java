@@ -313,28 +313,6 @@ public class Violations {
     public MessageParameters() {}
 
     /**
-     * Construct a new instance.
-     */
-    public MessageParameters(@Nullable Boolean isMessageWithItemName, String prefixMessageId,
-        String postfixMessageId, boolean showsItemNamePath) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix == null ? null : Arg.message(prefixMessageId);
-      this.messagePostfix = messagePostfix == null ? null : Arg.message(postfixMessageId);
-    }
-
-    /**
-     * Construct a new instance.
-     */
-    public MessageParameters(@Nullable Boolean isMessageWithItemName, boolean showsItemNamePath,
-        @Nullable Arg messagePrefix, @Nullable Arg messagePostfix) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix;
-      this.messagePostfix = messagePostfix;
-    }
-
-    /**
      * Returns isMessageWithItemName.
      */
     public @Nullable Boolean isMessageWithItemName() {
