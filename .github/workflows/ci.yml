@@ -46,7 +46,7 @@ jobs:
 
       - name: Test (windows)
         if: matrix.os == 'windows-latest'
-        run: mvn test
+        run: mvn test -Dcheckstyle.skip=true -Dspotbugs.skip=true -Dlicense.skip=true
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main'))
