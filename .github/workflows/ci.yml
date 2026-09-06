@@ -33,6 +33,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Exclude build paths from Windows Defender scanning
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          Add-MpPreference -ExclusionPath "$env:USERPROFILE\.m2"
+          Add-MpPreference -ExclusionPath "${{ github.workspace }}"
+
       - name: Validate POM after version update
         run: |
           mvn versions:set -DnewVersion=0.0.0-CI-TEST -DgenerateBackupPoms=false
