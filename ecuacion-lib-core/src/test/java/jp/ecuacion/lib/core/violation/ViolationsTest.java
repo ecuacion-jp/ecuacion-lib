@@ -43,6 +43,19 @@ public class ViolationsTest {
   }
 
   @Test
+  @DisplayName("isEmpty returns true when no violations are present")
+  public void isEmptyReturnsTrueWhenEmpty() {
+    assertThat(new Violations().isEmpty()).isTrue();
+  }
+
+  @Test
+  @DisplayName("isEmpty returns false when only a business violation is present")
+  public void isEmptyReturnsFalseWhenBusinessViolationPresent() {
+    Violations violations = new Violations().add(new BusinessViolation("KEY"));
+    assertThat(violations.isEmpty()).isFalse();
+  }
+
+  @Test
   @DisplayName("throwIfAny throws ViolationException when a violation is present")
   public void throwIfAny() {
     Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
