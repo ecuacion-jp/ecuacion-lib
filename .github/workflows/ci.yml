@@ -40,8 +40,13 @@ jobs:
           mvn validate
           git checkout -- .
 
-      - name: Verify
+      - name: Verify (ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: mvn verify -Dwagon.skip=true
+
+      - name: Test (windows)
+        if: matrix.os == 'windows-latest'
+        run: mvn test
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main'))
