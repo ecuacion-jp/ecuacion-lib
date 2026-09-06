@@ -56,6 +56,14 @@ public class ViolationsTest {
   }
 
   @Test
+  @DisplayName("isEmpty returns false when only a constraint violation is present")
+  public void isEmptyReturnsFalseWhenConstraintViolationPresent() {
+    ConstraintViolation<?> cv = validator.validate(new ValidatedBean(null)).iterator().next();
+    Violations violations = new Violations().add(cv);
+    assertThat(violations.isEmpty()).isFalse();
+  }
+
+  @Test
   @DisplayName("throwIfAny throws ViolationException when a violation is present")
   public void throwIfAny() {
     Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
@@ -150,6 +158,12 @@ public class ViolationsTest {
     }
   }
 
+  @SuppressWarnings("MultipleNullnessAnnotations")
+  private static record ValidatedBean(@NotNull @Nullable String value) {}
+
+  private static final Validator validator =
+      Validation.buildDefaultValidatorFactory().getValidator();
+
   // -------------------------------------------------------------------------
   // add(...) overloads
   // -------------------------------------------------------------------------
@@ -157,12 +171,6 @@ public class ViolationsTest {
   @Nested
   @DisplayName("add overloads")
   class AddOverloads {
-
-    @SuppressWarnings("MultipleNullnessAnnotations")
-    private static record ValidatedBean(@NotNull @Nullable String value) {}
-
-    private static final Validator validator =
-        Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
     @DisplayName("add(ConstraintViolation): stores constraint violation")
