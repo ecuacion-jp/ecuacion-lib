@@ -202,12 +202,22 @@ public class Violations {
   }
 
   /**
+   * Returns {@code true} if no {@link ConstraintViolation} or {@link BusinessViolation}
+   * has been added.
+   *
+   * @return {@code true} if empty
+   */
+  public boolean isEmpty() {
+    return constraintViolations.isEmpty() && businessViolations.isEmpty();
+  }
+
+  /**
    * Throws {@link ViolationException} if any violations have been added.
    *
    * @throws ViolationException when one or more violations are present
    */
   public void throwIfAny() {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       throw new ViolationException(this);
     }
   }
@@ -227,7 +237,7 @@ public class Violations {
    *     has no constructor with a {@link Violations} argument
    */
   public <T extends ViolationException> void throwIfAny(Class<T> violationExceptionClass) {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       try {
         throw violationExceptionClass.getConstructor(Violations.class).newInstance(this);
       } catch (NoSuchMethodException e) {
@@ -246,7 +256,7 @@ public class Violations {
    * @throws ViolationException when one or more violations are present
    */
   public void throwWarningIfAny() {
-    if (!constraintViolations.isEmpty() || !businessViolations.isEmpty()) {
+    if (!isEmpty()) {
       throw new ViolationWarningException(this);
     }
   }
@@ -311,28 +321,6 @@ public class Violations {
      * Construct a new instance.
      */
     public MessageParameters() {}
-
-    /**
-     * Construct a new instance.
-     */
-    public MessageParameters(@Nullable Boolean isMessageWithItemName, String prefixMessageId,
-        String postfixMessageId, boolean showsItemNamePath) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix == null ? null : Arg.message(prefixMessageId);
-      this.messagePostfix = messagePostfix == null ? null : Arg.message(postfixMessageId);
-    }
-
-    /**
-     * Construct a new instance.
-     */
-    public MessageParameters(@Nullable Boolean isMessageWithItemName, boolean showsItemNamePath,
-        @Nullable Arg messagePrefix, @Nullable Arg messagePostfix) {
-      this.isMessageWithItemName = isMessageWithItemName;
-      this.showsItemNamePath = showsItemNamePath;
-      this.messagePrefix = messagePrefix;
-      this.messagePostfix = messagePostfix;
-    }
 
     /**
      * Returns isMessageWithItemName.

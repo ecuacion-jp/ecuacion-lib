@@ -43,6 +43,27 @@ public class ViolationsTest {
   }
 
   @Test
+  @DisplayName("isEmpty returns true when no violations are present")
+  public void isEmptyReturnsTrueWhenEmpty() {
+    assertThat(new Violations().isEmpty()).isTrue();
+  }
+
+  @Test
+  @DisplayName("isEmpty returns false when only a business violation is present")
+  public void isEmptyReturnsFalseWhenBusinessViolationPresent() {
+    Violations violations = new Violations().add(new BusinessViolation("KEY"));
+    assertThat(violations.isEmpty()).isFalse();
+  }
+
+  @Test
+  @DisplayName("isEmpty returns false when only a constraint violation is present")
+  public void isEmptyReturnsFalseWhenConstraintViolationPresent() {
+    ConstraintViolation<?> cv = validator.validate(new ValidatedBean(null)).iterator().next();
+    Violations violations = new Violations().add(cv);
+    assertThat(violations.isEmpty()).isFalse();
+  }
+
+  @Test
   @DisplayName("throwIfAny throws ViolationException when a violation is present")
   public void throwIfAny() {
     Violations violations = new Violations().add(new BusinessViolation("TEST_KEY"));
@@ -137,6 +158,12 @@ public class ViolationsTest {
     }
   }
 
+  @SuppressWarnings("MultipleNullnessAnnotations")
+  private static record ValidatedBean(@NotNull @Nullable String value) {}
+
+  private static final Validator validator =
+      Validation.buildDefaultValidatorFactory().getValidator();
+
   // -------------------------------------------------------------------------
   // add(...) overloads
   // -------------------------------------------------------------------------
@@ -144,12 +171,6 @@ public class ViolationsTest {
   @Nested
   @DisplayName("add overloads")
   class AddOverloads {
-
-    @SuppressWarnings("MultipleNullnessAnnotations")
-    private static record ValidatedBean(@NotNull @Nullable String value) {}
-
-    private static final Validator validator =
-        Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
     @DisplayName("add(ConstraintViolation): stores constraint violation")
@@ -225,26 +246,6 @@ public class ViolationsTest {
   @Nested
   @DisplayName("Violations.MessageParameters")
   class MessageParametersTests {
-
-    @Test
-    @DisplayName("4-arg constructor (String prefix/postfix): sets all fields")
-    void constructorWithStrings() {
-      MessageParameters mp = new MessageParameters(true, "prefix-", "-postfix", false);
-      assertThat(mp.isMessageWithItemName()).isTrue();
-      assertThat(mp.showsItemNamePath()).isFalse();
-      assertThat(mp.getMessagePrefix()).isNotNull();
-      assertThat(mp.getMessagePostfix()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("4-arg constructor (String prefix/postfix): sets all fields including showsItemNamePath")
-    void constructorWithArgs() {
-      MessageParameters mp = new MessageParameters(false, "[", "]", true);
-      assertThat(mp.isMessageWithItemName()).isFalse();
-      assertThat(mp.showsItemNamePath()).isTrue();
-      assertThat(mp.getMessagePrefix()).isNotNull();
-      assertThat(mp.getMessagePostfix()).isNotNull();
-    }
 
     @Test
     @DisplayName("messagePrefix(String): sets prefix from string")
