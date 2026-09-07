@@ -277,28 +277,9 @@
 								<toFile>${project.artifactId}/${project.build.finalName}-javadoc.jar</toFile>
 							</configuration>
 						</execution>
-						<execution>
-							<id>upload-allure-to-server</id>
-							<phase>deploy</phase>
-							<goals>
-								<goal>upload-single</goal>
-							</goals>
-							<configuration>
-								<fromFile>${project.build.directory}/${project.build.finalName}-allure-report.zip</fromFile>
-								<toFile>${project.artifactId}/${project.build.finalName}-allure-report.zip</toFile>
-							</configuration>
-						</execution>
-						<execution>
-							<id>upload-jacoco-to-server</id>
-							<phase>deploy</phase>
-							<goals>
-								<goal>upload-single</goal>
-							</goals>
-							<configuration>
-								<fromFile>${project.build.directory}/${project.build.finalName}-jacoco-report.zip</fromFile>
-								<toFile>${project.artifactId}/${project.build.finalName}-jacoco-report.zip</toFile>
-							</configuration>
-						</execution>
+						<!-- upload-allure-to-server / upload-jacoco-to-server: added by the
+						     allure-report / jacoco-report profiles below, so the upload only
+						     runs when the corresponding report was actually generated. -->
 					</executions>
 				</plugin>
 
@@ -386,46 +367,9 @@
 								</target>
 							</configuration>
 						</execution>
-						<execution>
-							<id>zip-allure-report</id>
-							<phase>package</phase>
-							<goals>
-								<goal>run</goal>
-							</goals>
-							<configuration>
-								<target xmlns:if="ant:if" xmlns:unless="ant:unless">
-									<available
-										file="${project.build.directory}/site/allure-maven-plugin"
-										type="dir" property="allure.report.dir.exists"/>
-									<mkdir dir="${project.build.directory}/site/allure-maven-plugin"
-										unless:set="allure.report.dir.exists"/>
-									<zip
-										destfile="${project.build.directory}/${project.build.finalName}-allure-report.zip"
-										basedir="${project.build.directory}/site/allure-maven-plugin"
-										whenempty="create"/>
-								</target>
-							</configuration>
-						</execution>
-						<execution>
-							<id>zip-jacoco-report</id>
-							<phase>package</phase>
-							<goals>
-								<goal>run</goal>
-							</goals>
-							<configuration>
-								<target xmlns:if="ant:if" xmlns:unless="ant:unless">
-									<available
-										file="${project.build.directory}/site/jacoco"
-										type="dir" property="jacoco.report.dir.exists"/>
-									<mkdir dir="${project.build.directory}/site/jacoco"
-										unless:set="jacoco.report.dir.exists"/>
-									<zip
-										destfile="${project.build.directory}/${project.build.finalName}-jacoco-report.zip"
-										basedir="${project.build.directory}/site/jacoco"
-										whenempty="create"/>
-								</target>
-							</configuration>
-						</execution>
+						<!-- zip-allure-report / zip-jacoco-report: added by the allure-report /
+						     jacoco-report profiles below, so zipping only runs when the
+						     corresponding report was actually generated. -->
 					</executions>
 				</plugin>
 
@@ -472,10 +416,6 @@
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -587,18 +527,18 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!--
-		This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
-		No explicit -P option is required.
-		When activated, spotbugs-exclude.xml is added to excludeFilterFile in addition to the remote common exclude file.
-		Lives here (not in lib-parent) because it must be in the same POM as the base
-		spotbugs-maven-plugin pluginManagement declaration above: Maven's pluginManagement
-		merge across the ancestor chain lets the nearer POM win for the same scalar element
-		(excludeFilterFile), so if this profile lived in a farther ancestor than the base
-		declaration, the nearer, profile-less declaration would silently win and drop the
-		local exclude file.
-	-->
 	<profiles>
+		<!--
+			This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
+			No explicit -P option is required.
+			When activated, spotbugs-exclude.xml is added to excludeFilterFile in addition to the remote common exclude file.
+			Lives here (not in lib-parent) because it must be in the same POM as the base
+			spotbugs-maven-plugin pluginManagement declaration above: Maven's pluginManagement
+			merge across the ancestor chain lets the nearer POM win for the same scalar element
+			(excludeFilterFile), so if this profile lived in a farther ancestor than the base
+			declaration, the nearer, profile-less declaration would silently win and drop the
+			local exclude file.
+		-->
 		<profile>
 			<id>spotbugs-local-exclude</id>
 			<activation>
@@ -644,6 +584,140 @@
 					<plugin>
 						<groupId>io.qameta.allure</groupId>
 						<artifactId>allure-maven</artifactId>
+					</plugin>
+					<!-- zip the report and upload it, only when it was actually generated above -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>zip-allure-report</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target xmlns:if="ant:if" xmlns:unless="ant:unless">
+										<available
+											file="${project.build.directory}/site/allure-maven-plugin"
+											type="dir" property="allure.report.dir.exists"/>
+										<mkdir dir="${project.build.directory}/site/allure-maven-plugin"
+											unless:set="allure.report.dir.exists"/>
+										<zip
+											destfile="${project.build.directory}/${project.build.finalName}-allure-report.zip"
+											basedir="${project.build.directory}/site/allure-maven-plugin"
+											whenempty="create"/>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>upload-allure-to-server</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>upload-single</goal>
+								</goals>
+								<configuration>
+									<fromFile>${project.build.directory}/${project.build.finalName}-allure-report.zip</fromFile>
+									<toFile>${project.artifactId}/${project.build.finalName}-allure-report.zip</toFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<!--
+			jacoco-maven-plugin's own executions (prepare-agent / report) stay unconditional
+			above, controlled directly by the plugin's native jacoco.skip parameter. This
+			profile only covers the extra zip/upload steps, so they run exactly when the
+			report itself was generated (mirrors the allure-report profile above).
+		-->
+		<profile>
+			<id>jacoco-report</id>
+			<activation>
+				<property>
+					<name>!jacoco.skip</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>zip-jacoco-report</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target xmlns:if="ant:if" xmlns:unless="ant:unless">
+										<available
+											file="${project.build.directory}/site/jacoco"
+											type="dir" property="jacoco.report.dir.exists"/>
+										<mkdir dir="${project.build.directory}/site/jacoco"
+											unless:set="jacoco.report.dir.exists"/>
+										<zip
+											destfile="${project.build.directory}/${project.build.finalName}-jacoco-report.zip"
+											basedir="${project.build.directory}/site/jacoco"
+											whenempty="create"/>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>wagon-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>upload-jacoco-to-server</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>upload-single</goal>
+								</goals>
+								<configuration>
+									<fromFile>${project.build.directory}/${project.build.finalName}-jacoco-report.zip</fromFile>
+									<toFile>${project.artifactId}/${project.build.finalName}-jacoco-report.zip</toFile>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<!--
+			maven-source-plugin's `jar` goal declares executePhase=generate-sources, so Maven
+			forks a full validate..generate-sources mini-build for it before the mojo itself
+			runs. That fork happens at the Maven-core level, before the mojo's own `skip`
+			check, so passing -Dmaven.source.skip=true still pays for a second checkstyle /
+			jacoco:prepare-agent / license:format / compile-for-javadoc pass per module. Gating
+			the plugin's binding itself behind this default-on profile, keyed off the same
+			property, lets a consumer build that never wants the source jar (e.g. ecuacion-utils'
+			CI, which only needs the installed classes jar) avoid the fork entirely instead of
+			just skipping the mojo's own work.
+		-->
+		<profile>
+			<id>source-jar</id>
+			<activation>
+				<property>
+					<name>!maven.source.skip</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>

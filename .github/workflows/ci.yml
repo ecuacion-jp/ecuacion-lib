@@ -9,10 +9,10 @@ on:
       - main
 
 env:
-  # allure.install.directory: share one Node.js/allure install across all reactor
-  # modules instead of the plugin's per-module default (${project.basedir}/.allure),
-  # which would otherwise re-download it for every module in the build.
-  MAVEN_OPTS: -Xmx2g -Dallure.install.directory=${{ github.workspace }}/.allure-shared
+  MAVEN_OPTS: -Xmx2g
+  # Codecov only ingests coverage for main pushes and PRs targeting main; jacoco's
+  # report generation is skipped everywhere else since nothing would consume it.
+  UPLOAD_COVERAGE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
 
 permissions:
   contents: read
@@ -44,6 +44,7 @@ jobs:
           Add-MpPreference -ExclusionPath "${{ github.workspace }}"
 
       - name: Validate POM after version update
+        if: matrix.os == 'ubuntu-latest'
         run: |
           mvn versions:set -DnewVersion=0.0.0-CI-TEST -DgenerateBackupPoms=false
           mvn versions:update-properties -Dincludes=jp.ecuacion.lib -DgenerateBackupPoms=false
@@ -52,14 +53,19 @@ jobs:
 
       - name: Verify (ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn verify -Dwagon.skip=true
+        run: |
+          if [ "$UPLOAD_COVERAGE" = "true" ]; then
+            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true
+          else
+            mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Dlicense.skip=true -Djacoco.skip=true
+          fi
 
       - name: Test (windows)
         if: matrix.os == 'windows-latest'
         run: mvn test -Dcheckstyle.skip=true -Dspotbugs.skip=true -Dlicense.skip=true -Djacoco.skip=true
 
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.base_ref == 'main'))
+        if: matrix.os == 'ubuntu-latest' && env.UPLOAD_COVERAGE == 'true'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
