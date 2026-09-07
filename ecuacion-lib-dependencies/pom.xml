@@ -475,10 +475,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 			<plugin>
@@ -587,18 +583,18 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!--
-		This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
-		No explicit -P option is required.
-		When activated, spotbugs-exclude.xml is added to excludeFilterFile in addition to the remote common exclude file.
-		Lives here (not in lib-parent) because it must be in the same POM as the base
-		spotbugs-maven-plugin pluginManagement declaration above: Maven's pluginManagement
-		merge across the ancestor chain lets the nearer POM win for the same scalar element
-		(excludeFilterFile), so if this profile lived in a farther ancestor than the base
-		declaration, the nearer, profile-less declaration would silently win and drop the
-		local exclude file.
-	-->
 	<profiles>
+		<!--
+			This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
+			No explicit -P option is required.
+			When activated, spotbugs-exclude.xml is added to excludeFilterFile in addition to the remote common exclude file.
+			Lives here (not in lib-parent) because it must be in the same POM as the base
+			spotbugs-maven-plugin pluginManagement declaration above: Maven's pluginManagement
+			merge across the ancestor chain lets the nearer POM win for the same scalar element
+			(excludeFilterFile), so if this profile lived in a farther ancestor than the base
+			declaration, the nearer, profile-less declaration would silently win and drop the
+			local exclude file.
+		-->
 		<profile>
 			<id>spotbugs-local-exclude</id>
 			<activation>
@@ -644,6 +640,34 @@
 					<plugin>
 						<groupId>io.qameta.allure</groupId>
 						<artifactId>allure-maven</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<!--
+			maven-source-plugin's `jar` goal declares executePhase=generate-sources, so Maven
+			forks a full validate..generate-sources mini-build for it before the mojo itself
+			runs. That fork happens at the Maven-core level, before the mojo's own `skip`
+			check, so passing -Dmaven.source.skip=true still pays for a second checkstyle /
+			jacoco:prepare-agent / license:format / compile-for-javadoc pass per module. Gating
+			the plugin's binding itself behind this default-on profile, keyed off the same
+			property, lets a consumer build that never wants the source jar (e.g. ecuacion-utils'
+			CI, which only needs the installed classes jar) avoid the fork entirely instead of
+			just skipping the mojo's own work.
+		-->
+		<profile>
+			<id>source-jar</id>
+			<activation>
+				<property>
+					<name>!maven.source.skip</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>

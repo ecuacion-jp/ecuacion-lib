@@ -44,6 +44,7 @@ jobs:
           Add-MpPreference -ExclusionPath "${{ github.workspace }}"
 
       - name: Validate POM after version update
+        if: matrix.os == 'ubuntu-latest'
         run: |
           mvn versions:set -DnewVersion=0.0.0-CI-TEST -DgenerateBackupPoms=false
           mvn versions:update-properties -Dincludes=jp.ecuacion.lib -DgenerateBackupPoms=false
