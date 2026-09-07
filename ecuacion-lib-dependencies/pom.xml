@@ -493,10 +493,6 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>io.qameta.allure</groupId>
-				<artifactId>allure-maven</artifactId>
-			</plugin>
 		</plugins>
 	</build>
 
@@ -624,6 +620,32 @@
 						</plugin>
 					</plugins>
 				</pluginManagement>
+			</build>
+		</profile>
+
+		<!--
+			allure-maven has no built-in skip parameter, so it cannot be turned off via a
+			plain -D property. Wrapping its activation in this default-on profile lets a
+			consumer build (e.g. ecuacion-utils' CI, which runs `mvn install -DskipTests`
+			against this reactor purely to populate the local repo and never has any test
+			results to report on) opt out with `-Dallure.report.skip=true`, avoiding the
+			Node.js/npm bootstrap the plugin performs on every module even when there is
+			nothing to report.
+		-->
+		<profile>
+			<id>allure-report</id>
+			<activation>
+				<property>
+					<name>!allure.report.skip</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>io.qameta.allure</groupId>
+						<artifactId>allure-maven</artifactId>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>
