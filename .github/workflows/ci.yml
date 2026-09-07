@@ -9,7 +9,10 @@ on:
       - main
 
 env:
-  MAVEN_OPTS: -Xmx2g
+  # allure.install.directory: share one Node.js/allure install across all reactor
+  # modules instead of the plugin's per-module default (${project.basedir}/.allure),
+  # which would otherwise re-download it for every module in the build.
+  MAVEN_OPTS: -Xmx2g -Dallure.install.directory=${{ github.workspace }}/.allure-shared
 
 permissions:
   contents: read
