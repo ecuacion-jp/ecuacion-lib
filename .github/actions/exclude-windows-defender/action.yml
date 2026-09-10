@@ -1,0 +1,11 @@
+name: 'Exclude build paths from Windows Defender scanning'
+description: 'Adds the Maven repo and workspace paths to Windows Defender exclusions. No-op on non-Windows runners.'
+
+runs:
+  using: 'composite'
+  steps:
+    - if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Add-MpPreference -ExclusionPath "$env:USERPROFILE\.m2"
+        Add-MpPreference -ExclusionPath "${{ github.workspace }}"

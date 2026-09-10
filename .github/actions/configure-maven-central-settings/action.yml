@@ -1,0 +1,20 @@
+name: 'Configure Maven Central settings'
+description: 'Writes ~/.m2/settings.xml with placeholders that Maven resolves from MAVEN_CENTRAL_USERNAME/PASSWORD env vars at deploy time.'
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml << 'EOF'
+        <settings>
+          <servers>
+            <server>
+              <id>central</id>
+              <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+              <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
+            </server>
+          </servers>
+        </settings>
+        EOF
