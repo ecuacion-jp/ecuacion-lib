@@ -9,4 +9,6 @@ permissions:
 
 jobs:
   check-source-branch:
-    uses: ./.github/workflows/reusable-check-pr-source.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/check-pr-source-branch
