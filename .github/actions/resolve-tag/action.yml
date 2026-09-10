@@ -1,0 +1,23 @@
+name: 'Resolve deploy tag'
+description: 'Resolves the version tag from a workflow_dispatch input, or from the pushed tag ref otherwise.'
+
+outputs:
+  value:
+    description: 'The resolved tag value'
+    value: ${{ steps.tag.outputs.value }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: tag
+      shell: bash
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        INPUT_TAG: ${{ github.event.inputs.tag }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          echo "value=$INPUT_TAG" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=$REF_NAME" >> "$GITHUB_OUTPUT"
+        fi

@@ -1,0 +1,17 @@
+name: 'Upload coverage to Codecov'
+description: 'Uploads jacoco coverage reports to Codecov. Wraps codecov/codecov-action, pinned to a commit SHA since tags are mutable.'
+
+inputs:
+  token:
+    required: true
+  files:
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
+      with:
+        token: ${{ inputs.token }}
+        files: ${{ inputs.files }}
+        fail_ci_if_error: false

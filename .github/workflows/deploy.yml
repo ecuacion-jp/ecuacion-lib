@@ -22,18 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Resolve tag
+      - uses: ./.github/actions/resolve-tag
         id: tag
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_TAG: ${{ github.event.inputs.tag }}
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            echo "value=$INPUT_TAG" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=$REF_NAME" >> "$GITHUB_OUTPUT"
-          fi
 
       - uses: actions/setup-java@v5
         with:
@@ -50,26 +40,12 @@ jobs:
       - name: Verify
         run: mvn verify -Dwagon.skip=true -Dallure.report.skip=true -Djacoco.skip=true -Dlicense.skip=true
 
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
+      - uses: ./.github/actions/import-gpg-key
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
-      - name: Configure Maven settings
-        run: |
-          mkdir -p ~/.m2
-          cat > ~/.m2/settings.xml << 'EOF'
-          <settings>
-            <servers>
-              <server>
-                <id>central</id>
-                <username>${env.MAVEN_CENTRAL_USERNAME}</username>
-                <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
+      - uses: ./.github/actions/configure-maven-central-settings
 
       - name: Deploy
         run: mvn deploy -P maven-central -Dwagon.skip=true -DskipTests

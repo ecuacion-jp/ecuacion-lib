@@ -36,12 +36,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Exclude build paths from Windows Defender scanning
-        if: matrix.os == 'windows-latest'
-        shell: powershell
-        run: |
-          Add-MpPreference -ExclusionPath "$env:USERPROFILE\.m2"
-          Add-MpPreference -ExclusionPath "${{ github.workspace }}"
+      - uses: ./.github/actions/exclude-windows-defender
 
       - name: Validate POM after version update
         if: matrix.os == 'ubuntu-latest'
@@ -64,12 +59,10 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: mvn test -Dcheckstyle.skip=true -Dspotbugs.skip=true -Dlicense.skip=true -Djacoco.skip=true
 
-      - name: Upload coverage to Codecov
+      - uses: ./.github/actions/upload-coverage
         if: matrix.os == 'ubuntu-latest' && env.UPLOAD_COVERAGE == 'true'
-        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: >-
             ecuacion-lib-core/target/site/jacoco/jacoco.xml,
             ecuacion-lib-validation/target/site/jacoco/jacoco.xml
-          fail_ci_if_error: false
