@@ -45,7 +45,7 @@ for general applications to use as their own parent POM.
 
 ## Documentation
 
-(none)
+- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
 
 ## Installation
 
