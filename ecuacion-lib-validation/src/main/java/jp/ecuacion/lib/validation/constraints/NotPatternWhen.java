@@ -27,6 +27,7 @@ import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.NotPatternWhen.NotPatternWhenList;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 
 /**
  * Checks if specified {@code propertyPath} does not match the specified regular expression
@@ -92,9 +93,24 @@ public @interface NotPatternWhen {
    *     a variety of values.
    *     </p>
    *
+   * <p>This element can be omitted when it is unambiguous which one is meant: if exactly
+   *     one of {@code conditionValueString}, {@code conditionValuePatternRegexp},
+   *     {@code conditionValuePropertyPath}, {@code conditionValueBoolean} or
+   *     {@code conditionValueState} is set, {@code conditionValue} is inferred from it:
+   *     {@code STRING}, {@code PATTERN}, {@code VALUE_OF_PROPERTY_PATH}, {@code TRUE} /
+   *     {@code FALSE} (from the boolean value), or the value of {@code conditionValueState}
+   *     itself, respectively. It is an error to set more than one of those five elements,
+   *     and it is an error to omit this element while setting none of them. Explicitly
+   *     setting this element is always allowed and is checked against whichever of the
+   *     five elements is set.</p>
+   *
    * @return ConditionPattern
+   * @deprecated Use {@link #conditionValueString()}, {@link #conditionValuePatternRegexp()},
+   *     {@link #conditionValuePropertyPath()}, {@link #conditionValueBoolean()} or
+   *     {@link #conditionValueState()} instead.
    */
-  ConditionValue conditionValue();
+  @Deprecated(forRemoval = true, since = "16.1")
+  ConditionValue conditionValue() default ConditionValue.UNSPECIFIED;
 
   /**
    * Specifies the operator applied between the value of a condition field and the condition value
@@ -161,6 +177,32 @@ public @interface NotPatternWhen {
    * @return an array of string values
    */
   String conditionValuePropertyPath() default "";
+
+  /**
+   * Specifies condition value boolean.
+   *
+   * <p>This is used when {@code ConditionValue} is {@code TRUE} or {@code FALSE}: setting
+   *     it to {@code true} infers {@code ConditionValue.TRUE}, {@code false} infers
+   *     {@code ConditionValue.FALSE}. Otherwise it must be unset.</p>
+   *
+   * <p>The datatype is an array only so that "unset" can be expressed (an empty array);
+   *     set exactly one value, e.g. {@code conditionValueBoolean = true}.</p>
+   *
+   * @return an array holding at most one boolean value
+   */
+  boolean[] conditionValueBoolean() default {};
+
+  /**
+   * Specifies condition value state.
+   *
+   * <p>This is used when {@code ConditionValue} is {@code NULL}, {@code NOT_NULL},
+   *     {@code EMPTY} or {@code NOT_EMPTY}: none of these have a value of their own to
+   *     distinguish them, so this element's value directly names which one applies.
+   *     Otherwise it must be unset.</p>
+   *
+   * @return ConditionValueState
+   */
+  ConditionValueState conditionValueState() default ConditionValueState.UNSPECIFIED;
 
   /**
    * Specifies the display string of the condition value.

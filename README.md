@@ -19,7 +19,6 @@ a custom class-level validator for every case.
 @NotEmptyWhen(
     propertyPath = "companyName",
     conditionPropertyPath = "type",
-    conditionValue = ConditionValue.STRING,
     conditionValueString = "CORPORATE"
 )
 public class RegistrationForm {

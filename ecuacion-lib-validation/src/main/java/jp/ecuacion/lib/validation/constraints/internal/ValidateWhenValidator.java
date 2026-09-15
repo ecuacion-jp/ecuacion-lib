@@ -34,6 +34,7 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import org.jspecify.annotations.Nullable;
 
 public abstract class ValidateWhenValidator<A extends Annotation, T> extends ClassValidator<A, T> {
@@ -49,6 +50,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   // javadoc on why per-call state must not be cached in a field, which does not apply here).
   private @Nullable Pattern compiledConditionValueRegexp;
   private String conditionValuePropertyPath = "";
+  private boolean[] conditionValueBoolean = new boolean[] {};
+  private ConditionValueState conditionValueState = ConditionValueState.UNSPECIFIED;
   protected boolean validatesWhenConditionNotSatisfied;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
@@ -59,6 +62,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   public static final String CONDITION_OPERATOR = "conditionOperator";
   public static final String CONDITION_VALUE_STRING = "conditionValueString";
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
+  public static final String CONDITION_VALUE_BOOLEAN = "conditionValueBoolean";
+  public static final String CONDITION_VALUE_STATE = "conditionValueState";
 
   public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH =
@@ -69,18 +74,92 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   public void initialize(String message, String[] propertyPath, String conditionPropertyPath,
       ConditionValue conditionPattern, ConditionOperator conditionOperator,
       String[] conditionValueString, String conditionValuePattern,
-      String conditionValuePropertyPath, boolean validatesWhenConditionNotSatisfied) {
+      String conditionValuePropertyPath, boolean[] conditionValueBoolean,
+      ConditionValueState conditionValueState, boolean validatesWhenConditionNotSatisfied) {
     super.initialize(message, propertyPath);
 
     this.conditionPropertyPath = conditionPropertyPath;
-    this.conditionPattern = conditionPattern;
+    this.conditionPattern = resolveConditionValue(conditionPattern, conditionValueString,
+        conditionValuePattern, conditionValuePropertyPath, conditionValueBoolean,
+        conditionValueState);
     this.conditionOperator = conditionOperator;
     this.conditionValueString = conditionValueString;
     this.conditionValueRegexp = conditionValuePattern;
     this.compiledConditionValueRegexp =
         conditionValuePattern.isEmpty() ? null : Pattern.compile(conditionValuePattern);
     this.conditionValuePropertyPath = conditionValuePropertyPath;
+    this.conditionValueBoolean = conditionValueBoolean;
+    this.conditionValueState = conditionValueState;
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
+  }
+
+  /**
+   * Resolves the effective {@code ConditionValue}, inferring it from whichever of
+   * {@code conditionValueString} / {@code conditionValuePatternRegexp} /
+   * {@code conditionValuePropertyPath} / {@code conditionValueBoolean} /
+   * {@code conditionValueState} is set when the annotation left {@code conditionValue}
+   * unspecified.
+   *
+   * <p>Also used by {@link ValidateWhenValidatorMessageParameterCreator} so that error messages
+   *     reflect the same resolution, since {@code ConstraintViolation} attributes carry the
+   *     raw (unresolved) annotation value rather than this validator's resolved field.</p>
+   *
+   * @param conditionValue the raw {@code conditionValue} annotation element
+   * @param conditionValueString the raw {@code conditionValueString} annotation element
+   * @param conditionValuePatternRegexp the raw {@code conditionValuePatternRegexp} annotation
+   *     element
+   * @param conditionValuePropertyPath the raw {@code conditionValuePropertyPath} annotation
+   *     element
+   * @param conditionValueBoolean the raw {@code conditionValueBoolean} annotation element
+   * @param conditionValueState the raw {@code conditionValueState} annotation element
+   * @return the resolved, concrete {@code ConditionValue}
+   */
+  public static ConditionValue resolveConditionValue(ConditionValue conditionValue,
+      String[] conditionValueString, String conditionValuePatternRegexp,
+      String conditionValuePropertyPath, boolean[] conditionValueBoolean,
+      ConditionValueState conditionValueState) {
+    if (conditionValue != ConditionValue.UNSPECIFIED) {
+      return conditionValue;
+    }
+
+    boolean stringSet = !Arrays.asList(conditionValueString)
+        .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL);
+    boolean patternSet = !conditionValuePatternRegexp.isEmpty();
+    boolean propertyPathSet = !conditionValuePropertyPath.isEmpty();
+    boolean booleanSet = conditionValueBoolean.length > 0;
+    boolean stateSet = conditionValueState != ConditionValueState.UNSPECIFIED;
+
+    int numSet = (stringSet ? 1 : 0) + (patternSet ? 1 : 0) + (propertyPathSet ? 1 : 0)
+        + (booleanSet ? 1 : 0) + (stateSet ? 1 : 0);
+
+    if (numSet > 1) {
+      throw new RuntimeException(
+          "You cannot set more than one of 'conditionValueString', "
+              + "'conditionValuePatternRegexp', 'conditionValuePropertyPath', "
+              + "'conditionValueBoolean' and 'conditionValueState' at the same time.");
+    }
+
+    if (numSet == 0) {
+      throw new RuntimeException(
+          "'conditionValue' must be set when none of 'conditionValueString', "
+              + "'conditionValuePatternRegexp', 'conditionValuePropertyPath', "
+              + "'conditionValueBoolean' or 'conditionValueState' is set.");
+    }
+
+    if (stringSet) {
+      return ConditionValue.STRING;
+    } else if (patternSet) {
+      return ConditionValue.PATTERN;
+    } else if (propertyPathSet) {
+      return ConditionValue.VALUE_OF_PROPERTY_PATH;
+    } else if (booleanSet) {
+      // When both true and false happen to be set, the first element wins.
+      return conditionValueBoolean[0] ? ConditionValue.TRUE : ConditionValue.FALSE;
+    } else {
+      // ConditionValueState constant names are kept identical to their ConditionValue
+      // counterparts (NULL / NOT_NULL / EMPTY / NOT_EMPTY) so this mapping is safe.
+      return ConditionValue.valueOf(conditionValueState.name());
+    }
   }
 
   protected abstract boolean isValid(Object valueOfField);
@@ -133,6 +212,10 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       case PATTERN -> checkPattern(valueOfConditionPropertyPath);
       case VALUE_OF_PROPERTY_PATH -> checkValueOfPropertyPath(instance,
           valueOfConditionPropertyPath);
+      // Unreachable: resolveConditionValue() replaces UNSPECIFIED before it is ever stored
+      // in conditionPattern. Kept only because the switch must be exhaustive.
+      case ConditionValue.UNSPECIFIED -> throw new AssertionError(
+          "conditionPattern must have been resolved to a concrete value in initialize().");
     };
   }
 
@@ -140,6 +223,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
+    conditionValueBooleanMustNotSet();
+    conditionValueStateMustMatchOrNotSet();
 
     boolean isNull = valueOfConditionPropertyPath == null;
 
@@ -155,6 +240,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
+    conditionValueBooleanMustNotSet();
+    conditionValueStateMustMatchOrNotSet();
 
     boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
 
@@ -170,6 +257,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
+    conditionValueStateMustNotSet();
+    conditionValueBooleanMustMatchOrNotSet();
 
     if (valueOfConditionPropertyPath != null
         && !(valueOfConditionPropertyPath instanceof Boolean)) {
@@ -189,6 +278,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private boolean checkString(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueRegexpMustNotSet();
     conditionValuePropertyPathMustNotSet();
+    conditionValueBooleanMustNotSet();
+    conditionValueStateMustNotSet();
 
     Object conditionValue =
         valueOfConditionPropertyPath == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL
@@ -207,6 +298,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValuePropertyPathMustNotSet();
+    conditionValueBooleanMustNotSet();
+    conditionValueStateMustNotSet();
 
     // Condition is considered not to be satisfied when valueOfConditionPropertyPath is null or
     // blank.
@@ -237,6 +330,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       @Nullable Object valueOfConditionPropertyPath) {
     conditionValueStringMustNotSet();
     conditionValueRegexpMustNotSet();
+    conditionValueBooleanMustNotSet();
+    conditionValueStateMustNotSet();
 
     Object valueOfConditionValueField =
         PropertyPathUtil.getValue(instance, conditionValuePropertyPath);
@@ -312,6 +407,48 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     if (!conditionValueRegexp.isEmpty()) {
       throw new RuntimeException(
           "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
+    }
+  }
+
+  private void conditionValueBooleanMustNotSet() {
+    if (conditionValueBoolean.length > 0) {
+      throw new RuntimeException(
+          "You cannot set 'conditionValueBoolean' when conditionValue is not 'TRUE' or 'FALSE'.");
+    }
+  }
+
+  private void conditionValueStateMustNotSet() {
+    if (conditionValueState != ConditionValueState.UNSPECIFIED) {
+      throw new RuntimeException("You cannot set 'conditionValueState' when conditionValue is "
+          + "'STRING', 'PATTERN', 'VALUE_OF_PROPERTY_PATH', 'TRUE' or 'FALSE'.");
+    }
+  }
+
+  /**
+   * Checked from {@code checkBoolean()}: {@code conditionValueBoolean} corresponds to both
+   * {@code TRUE} and {@code FALSE}, so unlike the other {@code MustNotSet} guards it is allowed
+   * to be set here — it just must agree with the already-resolved {@code conditionPattern}
+   * when it is.
+   */
+  private void conditionValueBooleanMustMatchOrNotSet() {
+    if (conditionValueBoolean.length > 0
+        && conditionValueBoolean[0] != (conditionPattern == TRUE)) {
+      throw new RuntimeException("'conditionValueBoolean' (" + conditionValueBoolean[0]
+          + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
+    }
+  }
+
+  /**
+   * Checked from {@code checkNull()} / {@code checkEmpty()}: {@code conditionValueState}
+   * corresponds to all of {@code NULL} / {@code NOT_NULL} / {@code EMPTY} / {@code NOT_EMPTY},
+   * so unlike the other {@code MustNotSet} guards it is allowed to be set here — it just must
+   * agree with the already-resolved {@code conditionPattern} when it is.
+   */
+  private void conditionValueStateMustMatchOrNotSet() {
+    if (conditionValueState != ConditionValueState.UNSPECIFIED
+        && conditionValueState != ConditionValueState.valueOf(conditionPattern.name())) {
+      throw new RuntimeException("'conditionValueState' (" + conditionValueState
+          + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
     }
   }
 }

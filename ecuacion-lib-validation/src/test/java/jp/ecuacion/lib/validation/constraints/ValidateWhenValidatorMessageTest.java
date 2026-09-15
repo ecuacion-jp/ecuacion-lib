@@ -25,6 +25,7 @@ import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +46,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * </ul>
  */
 @DisplayName("ValidateWhen validators - message content")
-@SuppressWarnings("ArrayRecordComponent")
+@SuppressWarnings({"ArrayRecordComponent", "removal"})
 public class ValidateWhenValidatorMessageTest {
 
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -122,6 +123,11 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new TrueNotEqualToBean(null, false), p2 + "is not ON"),
         Arguments.of(new FalseEqualToBean(null, false), p2 + "is OFF"),
         Arguments.of(new FalseNotEqualToBean(null, true), p2 + "is not OFF"),
+        // conditionValue inferred from conditionValueBoolean / conditionValueState: the
+        // message parameter creator must resolve the same way ValidateWhenValidator does,
+        // since ConstraintViolation attributes carry the raw (unresolved) annotation value.
+        Arguments.of(new InferredTrueBean(null, true), p2 + "is ON"),
+        Arguments.of(new InferredStateEmptyBean(null, null), p2 + "is empty"),
         // STRING, EQUAL_TO: no displayString
         Arguments.of(new StringEqualToSinBean(null, "test"), p2 + "is 'test'"),
         Arguments.of(new StringEqualToMulBean(null, "test1"), p2 + "is one of 'test1', 'test2'"),
@@ -541,5 +547,18 @@ public class ValidateWhenValidatorMessageTest {
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
       conditionValue = ConditionValue.EMPTY, emptyWhenConditionNotSatisfied = true)
   public static record EmptyWhenConditionNotSatisfiedBean(@Nullable String value,
+      @Nullable String condValue) {}
+
+  // conditionValue omitted, inferred as TRUE from conditionValueBoolean.
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValueBoolean = true)
+  public static record InferredTrueBean(@Nullable String value, boolean condValue) {}
+
+  // conditionValue omitted, inferred as EMPTY from conditionValueState.
+  @ItemNameKeyClass("NotEmptyWhenTest")
+  @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+      conditionValueState = ConditionValueState.EMPTY)
+  public static record InferredStateEmptyBean(@Nullable String value,
       @Nullable String condValue) {}
 }
