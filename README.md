@@ -1,10 +1,10 @@
 # ecuacion-lib
 
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
 [![Java CI](https://github.com/ecuacion-jp/ecuacion-lib/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ecuacion-jp/ecuacion-lib/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/ecuacion-jp/ecuacion-lib/branch/main/graph/badge.svg)](https://codecov.io/gh/ecuacion-jp/ecuacion-lib)
 [![GitHub Release](https://img.shields.io/github/v/release/ecuacion-jp/ecuacion-lib)](https://github.com/ecuacion-jp/ecuacion-lib/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/jp.ecuacion.lib/ecuacion-lib-validation.svg)](https://search.maven.org/artifact/jp.ecuacion.lib/ecuacion-lib-validation)
-[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/downloads/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## What is it?
@@ -52,8 +52,8 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 ## Documentation
 
-- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home) — Official reference documentation
-- javadoc - See the `Documentation` section of the `README` in each module
+- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
+- javadoc - [javadoc.io](https://javadoc.io/doc/jp.ecuacion.lib/)
 
 ## Installation
 
