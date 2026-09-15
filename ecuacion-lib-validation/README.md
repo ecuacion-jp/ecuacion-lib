@@ -81,8 +81,8 @@ public class SearchForm {
 
 ## Documentation
 
-- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home) — Official reference documentation
-- [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-validation/latest/index.html)
+- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
+- javadoc - [javadoc.io](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-validation/latest/index.html)
 
 ## Installation
 

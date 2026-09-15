@@ -36,6 +36,10 @@ Adding this module changes validation messages from neutral technical wording to
 
 - `ecuacion-lib-validation` (which transitively loads `ecuacion-lib-core`)
 
+## Documentation
+
+- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
+
 ## Installation
 
 ```xml
