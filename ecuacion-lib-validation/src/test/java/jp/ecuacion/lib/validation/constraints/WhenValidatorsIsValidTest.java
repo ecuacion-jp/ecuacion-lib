@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  *     validation logic only.</p>
  */
 @DisplayName("When validators - isValid logic")
-@SuppressWarnings("SameNameButDifferent")
+@SuppressWarnings({"SameNameButDifferent", "removal"})
 public class WhenValidatorsIsValidTest {
 
   private static final Validator validator =

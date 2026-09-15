@@ -33,6 +33,7 @@ import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -80,8 +81,26 @@ public class ValidateWhenValidatorMessageParameterCreator
   private void displayStringOfConditionValue(ConstraintViolation<?> cv,
       Map<@NonNull String, @Nullable Object> paramMap, final String commonMessagePrefix,
       Map<@NonNull String, @Nullable Object> result) {
-    ConditionValue conditionPtn =
+    // paramMap carries the raw (possibly UNSPECIFIED) annotation attribute, not the validator's
+    // resolved field, so it must be resolved the same way ValidateWhenValidator.initialize() does.
+    ConditionValue rawConditionValue =
         (ConditionValue) paramMap.get(ValidateWhenValidator.CONDITION_VALUE);
+    String[] conditionValueString =
+        (String[]) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_STRING);
+    String conditionValuePatternRegexp =
+        (String) paramMap.get("conditionValuePatternRegexp");
+    String conditionValuePropertyPath =
+        (String) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_PROPERTY_PATH);
+    boolean[] conditionValueBoolean =
+        (boolean[]) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_BOOLEAN);
+    ConditionValueState conditionValueState =
+        (ConditionValueState) paramMap.get(ValidateWhenValidator.CONDITION_VALUE_STATE);
+    ConditionValue conditionPtn = ValidateWhenValidator.resolveConditionValue(
+        Objects.requireNonNull(rawConditionValue), Objects.requireNonNull(conditionValueString),
+        Objects.requireNonNull(conditionValuePatternRegexp),
+        Objects.requireNonNull(conditionValuePropertyPath),
+        Objects.requireNonNull(conditionValueBoolean),
+        Objects.requireNonNull(conditionValueState));
     Object displayStringOfConditionValueArg = "";
 
     if (conditionPtn == VALUE_OF_PROPERTY_PATH) {
@@ -113,8 +132,7 @@ public class ValidateWhenValidatorMessageParameterCreator
     }
 
     String propKey = commonMessagePrefix + ".messagePart."
-        + StringUtil.getLowerCamelFromSnake(
-            Objects.requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_VALUE)).toString())
+        + StringUtil.getLowerCamelFromSnake(conditionPtn.toString())
         + "." + StringUtil.getLowerCamelFromSnake(Objects
             .requireNonNull(paramMap.get(ValidateWhenValidator.CONDITION_OPERATOR)).toString());
     result.put(ValidateWhenValidator.DISPLAY_STRING_OF_CONDITION_VALUE,

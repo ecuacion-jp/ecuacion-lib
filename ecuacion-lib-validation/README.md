@@ -21,7 +21,6 @@
 @NotEmptyWhen(
     propertyPath = "companyName",
     conditionPropertyPath = "type",
-    conditionValue = ConditionValue.STRING,
     conditionValueString = "CORPORATE"
 )
 public class RegistrationForm {

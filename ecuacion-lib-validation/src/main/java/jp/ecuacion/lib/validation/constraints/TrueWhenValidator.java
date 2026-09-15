@@ -30,6 +30,9 @@ public class TrueWhenValidator extends ValidateWhenValidator<TrueWhen, Object> {
    * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
    *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
    */
+  // conditionValue() is deprecated but still forwarded here for backward compatibility;
+  // this is the intended internal use, not user misuse.
+  @SuppressWarnings("removal")
   @Override
   public void initialize(@Nullable TrueWhen annotation) {
     Objects.requireNonNull(annotation);
@@ -37,6 +40,7 @@ public class TrueWhenValidator extends ValidateWhenValidator<TrueWhen, Object> {
         annotation.conditionPropertyPath(), annotation.conditionValue(),
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
+        annotation.conditionValueBoolean(), annotation.conditionValueState(),
         annotation.falseWhenConditionNotSatisfied());
   }
 

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for {@code @NotEmptyWhen} validation logic. */
 @DisplayName("@NotEmptyWhen")
+@SuppressWarnings("removal")
 public class NotEmptyWhenTest {
 
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
