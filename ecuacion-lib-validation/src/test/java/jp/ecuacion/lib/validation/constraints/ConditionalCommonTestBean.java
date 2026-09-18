@@ -247,5 +247,20 @@ public class ConditionalCommonTestBean {
         conditionValueState = ConditionValueState.NOT_EMPTY)
     public static record ExplicitConflictsWithState(@Nullable String value,
         @Nullable String condValue) {}
+
+    // conditionValueBoolean set together with a conditionValue that isn't TRUE/FALSE: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.STRING, conditionValueString = "a",
+        conditionValueBoolean = true)
+    public static record BooleanSetWithNonBooleanConditionValue(@Nullable String value,
+        String condValue) {}
+
+    // conditionValueState set together with a conditionValue that isn't NULL/NOT_NULL/EMPTY/
+    // NOT_EMPTY: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.STRING, conditionValueString = "a",
+        conditionValueState = ConditionValueState.NULL)
+    public static record StateSetWithNonStateConditionValue(@Nullable String value,
+        String condValue) {}
   }
 }
