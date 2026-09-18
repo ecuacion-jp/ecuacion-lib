@@ -304,6 +304,32 @@ public class ConditionalCommonTest {
   }
 
   @Test
+  public void conditionValueInference_booleanSetWithNonBooleanConditionValue_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .BooleanSetWithNonBooleanConditionValue(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueBoolean");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_stateSetWithNonStateConditionValue_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .StateSetWithNonStateConditionValue(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueState");
+    }
+  }
+
+  @Test
   public void conditionValueInference_explicitConflictsWithState_throws() {
     try {
       validator.validate(new ConditionalCommonTestBean.ConditionValueInference
