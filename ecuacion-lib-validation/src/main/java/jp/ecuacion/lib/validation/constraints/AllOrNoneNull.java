@@ -23,20 +23,17 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.AllNullOrAllNotNullList;
+import jp.ecuacion.lib.validation.constraints.AllOrNoneNull.AllOrNoneNullList;
 
 /**
  * Is valid when all of the values of {@code propertyPath} are null or all are not null.
- * 
- * @deprecated Use {@code @AllOrNoneNull} instead.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(AllNullOrAllNotNullList.class)
+@Repeatable(AllOrNoneNullList.class)
 @Documented
-@Constraint(validatedBy = {AllNullOrAllNotNullValidator.class})
-@Deprecated
-public @interface AllNullOrAllNotNull {
+@Constraint(validatedBy = {AllOrNoneNullValidator.class})
+public @interface AllOrNoneNull {
 
   /**
    * Is the array of propertyPath.
@@ -48,7 +45,7 @@ public @interface AllNullOrAllNotNull {
    * Returns message ID.
    */
   String message() default
-      "{jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.message}";
+      "{jp.ecuacion.lib.validation.constraints.AllOrNoneNull.message}";
 
   /**
    * Returns groups.
@@ -61,16 +58,16 @@ public @interface AllNullOrAllNotNull {
   Class<? extends Payload>[] payload() default {};
 
   /**
-   * Defines several {@link AllNullOrAllNotNull} annotations on the same element.
+   * Defines several {@link AllOrNoneNull} annotations on the same element.
    */
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface AllNullOrAllNotNullList {
+  public @interface AllOrNoneNullList {
 
     /**
-     * Returns an array of {@link AllNullOrAllNotNull}.
+     * Returns an array of {@link AllOrNoneNull}.
      */
-    AllNullOrAllNotNull[] value();
+    AllOrNoneNull[] value();
   }
 }

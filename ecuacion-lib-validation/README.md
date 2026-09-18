@@ -9,7 +9,7 @@
 | Category | Annotations |
 | --- | --- |
 | Conditional (When) | `@NotEmptyWhen`, `@EmptyWhen`, `@NotNullWhen`, `@NullWhen`, `@TrueWhen`, `@FalseWhen`, `@StringWhen`, `@NotStringWhen`, `@PatternWhen`, `@NotPatternWhen`, `@ValueOfPropertyPathWhen`, `@NotValueOfPropertyPathWhen` |
-| Multi-field | `@AllEmptyOrAllNotEmpty`, `@AllNullOrAllNotNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
+| Multi-field | `@AllOrNoneEmpty`, `@AllOrNoneNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
 | Numeric comparison | `@GreaterThan`, `@GreaterThanOrEqualTo`, `@LessThan`, `@LessThanOrEqualTo` |
 | Others | `@PatternWithDescription`, `@AssertTrueWithPropertyPath`, `@ReturnTrue`, ... |
 
@@ -32,7 +32,7 @@ public class RegistrationForm {
 **Multi-field** — validate relationships across multiple fields:
 
 ```java
-@AllEmptyOrAllNotEmpty(propertyPath = {"startDate", "endDate"})
+@AllOrNoneEmpty(propertyPath = {"startDate", "endDate"})
 public class SearchForm {
     private String startDate;  // both must be filled in, or both must be empty
     private String endDate;

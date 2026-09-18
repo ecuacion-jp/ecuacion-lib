@@ -99,6 +99,73 @@ public class AllAnyValidatorsTest {
   }
 
   // -------------------------------------------------------------------------
+  // AllOrNoneNull
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("@AllOrNoneNull")
+  class AllOrNoneNullTests {
+
+    @Test
+    @DisplayName("all null passes")
+    void allNull() {
+      assertThat(validator.validate(new Bean(null, null, null))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("all not-null passes")
+    void allNotNull() {
+      assertThat(validator.validate(new Bean("a", "b", "c"))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("mixed null and not-null fails")
+    void mixed() {
+      assertThat(validator.validate(new Bean("a", null, "c"))).hasSize(1);
+    }
+
+    @AllOrNoneNull(propertyPath = {"f1", "f2", "f3"})
+    private static record Bean(@Nullable String f1, @Nullable String f2, @Nullable String f3) {}
+  }
+
+  // -------------------------------------------------------------------------
+  // AllOrNoneEmpty
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("@AllOrNoneEmpty")
+  class AllOrNoneEmptyTests {
+
+    @Test
+    @DisplayName("all null passes")
+    void allNull() {
+      assertThat(validator.validate(new Bean(null, null, null))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("all empty string passes")
+    void allEmptyString() {
+      assertThat(validator.validate(new Bean("", "", ""))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("all non-empty passes")
+    void allNonEmpty() {
+      assertThat(validator.validate(new Bean("a", "b", "c"))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("mixed empty and non-empty fails")
+    void mixed() {
+      assertThat(validator.validate(new Bean("a", null, "c"))).hasSize(1);
+      assertThat(validator.validate(new Bean("a", "", "c"))).hasSize(1);
+    }
+
+    @AllOrNoneEmpty(propertyPath = {"f1", "f2", "f3"})
+    private static record Bean(@Nullable String f1, @Nullable String f2, @Nullable String f3) {}
+  }
+
+  // -------------------------------------------------------------------------
   // AnyNull
   // -------------------------------------------------------------------------
 

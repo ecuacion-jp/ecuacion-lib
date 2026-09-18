@@ -27,12 +27,15 @@ import jp.ecuacion.lib.validation.constraints.AllEmptyOrAllNotEmpty.AllEmptyOrAl
 
 /**
  * Is valid when all of the values of {@code propertyPath} are empty or all are not empty.
+ * 
+ * @deprecated Use {@code @AllOrNoneEmpty} instead.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(AllEmptyOrAllNotEmptyList.class)
 @Documented
 @Constraint(validatedBy = {AllEmptyOrAllNotEmptyValidator.class})
+@Deprecated
 public @interface AllEmptyOrAllNotEmpty {
 
   /** 
