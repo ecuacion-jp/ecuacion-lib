@@ -23,54 +23,50 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.AllNullOrAllNotNullList;
+import jp.ecuacion.lib.validation.constraints.AllOrNoneEmpty.AllOrNoneEmptyList;
 
 /**
- * Is valid when all of the values of {@code propertyPath} are null or all are not null.
- * 
- * @deprecated Use {@code @AllOrNoneNull} instead.
+ * Is valid when all of the values of {@code propertyPath} are empty or all are not empty.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(AllNullOrAllNotNullList.class)
+@Repeatable(AllOrNoneEmptyList.class)
 @Documented
-@Constraint(validatedBy = {AllNullOrAllNotNullValidator.class})
-@Deprecated
-public @interface AllNullOrAllNotNull {
+@Constraint(validatedBy = {AllOrNoneEmptyValidator.class})
+public @interface AllOrNoneEmpty {
 
   /**
    * Is the array of propertyPath.
-   * The validation result is true when all of the values are null or not null.
+   * The validation result is true when all of the values are empty or not empty.
    */
   String[] propertyPath();
 
   /**
    * Returns message ID.
    */
-  String message() default
-      "{jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.message}";
+  String message() default "{jp.ecuacion.lib.validation.constraints.AllOrNoneEmpty.message}";
 
-  /**
+  /** 
    * Returns groups.
    */
   Class<?>[] groups() default {};
 
-  /**
+  /** 
    * Returns payload.
    */
   Class<? extends Payload>[] payload() default {};
 
   /**
-   * Defines several {@link AllNullOrAllNotNull} annotations on the same element.
+   * Defines several {@link AllOrNoneEmpty} annotations on the same element.
    */
   @Target({ElementType.TYPE})
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  public @interface AllNullOrAllNotNullList {
+  public @interface AllOrNoneEmptyList {
 
     /**
-     * Returns an array of {@link AllNullOrAllNotNull}.
+     * Returns an array of {@link AllOrNoneEmpty}.
      */
-    AllNullOrAllNotNull[] value();
+    AllOrNoneEmpty[] value();
   }
 }

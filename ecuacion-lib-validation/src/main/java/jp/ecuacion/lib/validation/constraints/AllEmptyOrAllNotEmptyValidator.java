@@ -22,7 +22,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Provides the validation logic for {@code AllEmptyOrAllNotEmpty}.
+ * 
+ * @deprecated Use {@link AllOrNoneEmpty} instead.
  */
+@Deprecated
 public class AllEmptyOrAllNotEmptyValidator extends AllAnyValidator<AllEmptyOrAllNotEmpty, Object> {
 
   /**

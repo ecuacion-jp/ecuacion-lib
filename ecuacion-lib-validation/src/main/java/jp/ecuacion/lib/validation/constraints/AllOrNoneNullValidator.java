@@ -21,12 +21,9 @@ import jp.ecuacion.lib.validation.constraints.internal.AllAnyValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code AllNullOrAllNotNull}.
- * 
- * @deprecated Use {@link AllOrNoneNull} instead.
+ * Provides the validation logic for {@code AllOrNoneNull}.
  */
-@Deprecated
-public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNotNull, Object> {
+public class AllOrNoneNullValidator extends AllAnyValidator<AllOrNoneNull, Object> {
 
   /**
    * Initializes an instance.
@@ -35,7 +32,7 @@ public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNo
    *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
    */
   @Override
-  public void initialize(@Nullable AllNullOrAllNotNull annotation) {
+  public void initialize(@Nullable AllOrNoneNull annotation) {
     Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }

@@ -30,7 +30,7 @@ public class RegistrationForm {
 **What's included in `ecuacion-lib-validation`:**
 
 - Conditional validators (`@NotEmptyWhen`, `@EmptyWhen`, `@TrueWhen`, ...)
-- Multi-field validators (`@AllEmptyOrAllNotEmpty`, `@AnyNotEmpty`, ...)
+- Multi-field validators (`@AllOrNoneEmpty`, `@AnyNotEmpty`, ...)
 - Numeric comparison validators (`@GreaterThan`, `@LessThan`, ...)
 - Additional Jakarta Validation constraints (`@PatternWithDescription`, `@ReturnTrue`, ...)
 
