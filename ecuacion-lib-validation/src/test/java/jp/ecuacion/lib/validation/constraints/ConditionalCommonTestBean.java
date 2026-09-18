@@ -20,10 +20,12 @@ import static jp.ecuacion.lib.validation.constraints.enums.ConditionValue.VALUE_
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
+import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
+import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenValidator;
 import org.jspecify.annotations.Nullable;
 
 /** Test beans for {@link ConditionalCommonTest}. */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "removal"})
 public class ConditionalCommonTestBean {
 
   @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
@@ -150,5 +152,115 @@ public class ConditionalCommonTestBean {
       private @Nullable String field = null;
       private @Nullable String condField = null;
     }
+  }
+
+  /**
+   * Test beans for {@code conditionValue} inference/omission
+   * (see {@link ValidateWhenValidator#resolveConditionValue}).
+   */
+  public static class ConditionValueInference {
+
+    // conditionValue omitted, inferred as STRING from conditionValueString.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueString = "a")
+    public static record InferredString(@Nullable String value, String condValue) {}
+
+    // conditionValue omitted, inferred as PATTERN from conditionValuePatternRegexp.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValuePatternRegexp = ".*test.*")
+    public static record InferredPattern(@Nullable String value, String condValue) {}
+
+    // conditionValue omitted, inferred as VALUE_OF_PROPERTY_PATH from
+    // conditionValuePropertyPath.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValuePropertyPath = "condEqual")
+    public static record InferredValueOfPropertyPath(@Nullable String value, String condValue,
+        String condEqual) {}
+
+    // conditionValue omitted, but 2 of the 3 inferable elements are set: ambiguous.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueString = "a", conditionValuePatternRegexp = ".*test.*")
+    public static record AmbiguousStringAndPattern(@Nullable String value, String condValue) {}
+
+    // conditionValue omitted and none of the 3 inferable elements are set: cannot infer.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue")
+    public static record NothingSet(@Nullable String value, String condValue) {}
+
+    // conditionValue explicitly set to a value that conflicts with the element that is set:
+    // still rejected, exactly as when conditionValue is explicit today.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.PATTERN, conditionValueString = "a")
+    public static record ExplicitConflictsWithSetElement(@Nullable String value,
+        String condValue) {}
+
+    // conditionValue omitted, inferred as TRUE from conditionValueBoolean = true.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueBoolean = true)
+    public static record InferredTrue(@Nullable String value, boolean condValue) {}
+
+    // conditionValue omitted, inferred as FALSE from conditionValueBoolean = false.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueBoolean = false)
+    public static record InferredFalse(@Nullable String value, boolean condValue) {}
+
+    // conditionValueBoolean set to both true and false: not an error, first element wins (TRUE).
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueBoolean = {true, false})
+    public static record BooleanBothValuesFirstWins(@Nullable String value, boolean condValue) {}
+
+    // conditionValue omitted, inferred as NULL from conditionValueState.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueState = ConditionValueState.NULL)
+    public static record InferredStateNull(@Nullable String value, @Nullable String condValue) {}
+
+    // conditionValue omitted, inferred as NOT_EMPTY from conditionValueState.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueState = ConditionValueState.NOT_EMPTY)
+    public static record InferredStateNotEmpty(@Nullable String value,
+        @Nullable String condValue) {}
+
+    // conditionValueBoolean and conditionValueState both set: ambiguous.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValueBoolean = true, conditionValueState = ConditionValueState.NULL)
+    public static record AmbiguousBooleanAndState(@Nullable String value, boolean condValue) {}
+
+    // conditionValue explicit and matching conditionValueBoolean: redundant but allowed.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.TRUE, conditionValueBoolean = true)
+    public static record ExplicitMatchesBoolean(@Nullable String value, boolean condValue) {}
+
+    // conditionValue explicit but conflicting with conditionValueBoolean: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.TRUE, conditionValueBoolean = false)
+    public static record ExplicitConflictsWithBoolean(@Nullable String value,
+        boolean condValue) {}
+
+    // conditionValue explicit and matching conditionValueState: redundant but allowed.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.EMPTY, conditionValueState = ConditionValueState.EMPTY)
+    public static record ExplicitMatchesState(@Nullable String value,
+        @Nullable String condValue) {}
+
+    // conditionValue explicit but conflicting with conditionValueState: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.EMPTY,
+        conditionValueState = ConditionValueState.NOT_EMPTY)
+    public static record ExplicitConflictsWithState(@Nullable String value,
+        @Nullable String condValue) {}
+
+    // conditionValueBoolean set together with a conditionValue that isn't TRUE/FALSE: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.STRING, conditionValueString = "a",
+        conditionValueBoolean = true)
+    public static record BooleanSetWithNonBooleanConditionValue(@Nullable String value,
+        String condValue) {}
+
+    // conditionValueState set together with a conditionValue that isn't NULL/NOT_NULL/EMPTY/
+    // NOT_EMPTY: rejected.
+    @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
+        conditionValue = ConditionValue.STRING, conditionValueString = "a",
+        conditionValueState = ConditionValueState.NULL)
+    public static record StateSetWithNonStateConditionValue(@Nullable String value,
+        String condValue) {}
   }
 }

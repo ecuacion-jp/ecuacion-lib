@@ -55,7 +55,6 @@ public class ComparisonValidatorMessageTest {
   }
 
   @ItemNameKeyClass("outerBean")
-  @SuppressWarnings("unused")
   private static class Outer {
     @Valid
     private Inner inner = new Inner();

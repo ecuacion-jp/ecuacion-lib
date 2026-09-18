@@ -39,5 +39,12 @@ public enum ConditionValue {
   PATTERN,
 
   // Setting value of conditionValuePropertyPath is needed.
-  VALUE_OF_PROPERTY_PATH;
+  VALUE_OF_PROPERTY_PATH,
+
+  // Used only as the default value of the {@code conditionValue} annotation element.
+  // It tells the framework to infer the actual value from whichever of
+  // conditionValueString / conditionValuePatternRegexp / conditionValuePropertyPath is set.
+  // Never observed outside that resolution step: initialize() always replaces it with a
+  // concrete value (or throws when it cannot be inferred), so it never reaches isValid().
+  UNSPECIFIED;
 }

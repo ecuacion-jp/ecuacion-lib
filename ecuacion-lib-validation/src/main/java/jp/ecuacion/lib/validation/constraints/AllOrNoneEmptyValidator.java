@@ -21,12 +21,9 @@ import jp.ecuacion.lib.validation.constraints.internal.AllAnyValidator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Provides the validation logic for {@code AllNullOrAllNotNull}.
- * 
- * @deprecated Use {@link AllOrNoneNull} instead.
+ * Provides the validation logic for {@code AllOrNoneEmpty}.
  */
-@Deprecated
-public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNotNull, Object> {
+public class AllOrNoneEmptyValidator extends AllAnyValidator<AllOrNoneEmpty, Object> {
 
   /**
    * Initializes an instance.
@@ -35,7 +32,7 @@ public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNo
    *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
    */
   @Override
-  public void initialize(@Nullable AllNullOrAllNotNull annotation) {
+  public void initialize(@Nullable AllOrNoneEmpty annotation) {
     Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
@@ -43,7 +40,7 @@ public class AllNullOrAllNotNullValidator extends AllAnyValidator<AllNullOrAllNo
   @Override
   public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
       @Nullable ConstraintValidatorContext context) {
-    int numberOfNonNullValues = numberOfNonNullValues(valuesOfPropertyPaths);
-    return numberOfNonNullValues == propertyPaths.length || numberOfNonNullValues == 0;
+    int numberOfNonEmptyValues = numberOfNonEmptyValues(valuesOfPropertyPaths);
+    return numberOfNonEmptyValues == propertyPaths.length || numberOfNonEmptyValues == 0;
   }
 }

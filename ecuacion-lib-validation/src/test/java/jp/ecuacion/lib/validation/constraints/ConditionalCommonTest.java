@@ -119,4 +119,226 @@ public class ConditionalCommonTest {
     Set<?> set = validator.validate(new ConditionalCommonTestBean.ItemNameKey.Obj());
     assertThat(set).hasSize(1);
   }
+
+  // -------------------------------------------------------------------------
+  // conditionValue inference/omission
+  // -------------------------------------------------------------------------
+
+  @Test
+  public void conditionValueInference_string_isInferredFromConditionValueString() {
+    // condValue == "a" -> condition satisfied -> value must be not empty
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredString(null, "a")))
+        .hasSize(1);
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredString("x", "a")))
+        .isEmpty();
+    // condValue != "a" -> condition not satisfied -> always passes
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredString(null, "b")))
+        .isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_pattern_isInferredFromConditionValuePatternRegexp() {
+    // condValue matches ".*test.*" -> condition satisfied -> value must be not empty
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredPattern(null, "test")))
+        .hasSize(1);
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredPattern("x", "test")))
+        .isEmpty();
+    // condValue does not match -> condition not satisfied -> always passes
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredPattern(null, "other")))
+        .isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_valueOfPropertyPath_isInferredFromConditionValuePropertyPath() {
+    // condValue == condEqual -> condition satisfied -> value must be not empty
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .InferredValueOfPropertyPath(null, "a", "a"))).hasSize(1);
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .InferredValueOfPropertyPath("x", "a", "a"))).isEmpty();
+    // condValue != condEqual -> condition not satisfied -> always passes
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .InferredValueOfPropertyPath(null, "a", "b"))).isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_ambiguousElements_throws() {
+    try {
+      validator.validate(
+          new ConditionalCommonTestBean.ConditionValueInference.AmbiguousStringAndPattern(null,
+              "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("cannot set more than one");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_nothingSet_throws() {
+    try {
+      validator.validate(
+          new ConditionalCommonTestBean.ConditionValueInference.NothingSet(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("'conditionValue' must be set");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_explicitConflictsWithSetElement_stillThrows() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .ExplicitConflictsWithSetElement(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueString");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_true_isInferredFromConditionValueBoolean() {
+    // condValue == true -> condition satisfied -> value must be not empty
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredTrue(null, true)))
+        .hasSize(1);
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredTrue("x", true)))
+        .isEmpty();
+    // condValue == false -> condition not satisfied -> always passes
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredTrue(null, false)))
+        .isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_false_isInferredFromConditionValueBoolean() {
+    // condValue == false -> condition satisfied -> value must be not empty
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredFalse(null, false)))
+        .hasSize(1);
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredFalse("x", false)))
+        .isEmpty();
+    // condValue == true -> condition not satisfied -> always passes
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredFalse(null, true)))
+        .isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_booleanBothValuesSet_firstElementWinsAsTrue() {
+    // {true, false} is treated as TRUE (first element), not an error
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .BooleanBothValuesFirstWins(null, true))).hasSize(1);
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .BooleanBothValuesFirstWins(null, false))).isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_null_isInferredFromConditionValueState() {
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredStateNull(null, null)))
+        .hasSize(1);
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.InferredStateNull(null, "a")))
+        .isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_notEmpty_isInferredFromConditionValueState() {
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .InferredStateNotEmpty(null, "a"))).hasSize(1);
+    assertThat(validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+        .InferredStateNotEmpty(null, null))).isEmpty();
+  }
+
+  @Test
+  public void conditionValueInference_ambiguousBooleanAndState_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .AmbiguousBooleanAndState(null, true));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("cannot set more than one");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_explicitMatchesBoolean_redundantButAllowed() {
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.ExplicitMatchesBoolean(null, true)))
+        .hasSize(1);
+  }
+
+  @Test
+  public void conditionValueInference_explicitConflictsWithBoolean_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .ExplicitConflictsWithBoolean(null, false));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueBoolean");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_explicitMatchesState_redundantButAllowed() {
+    assertThat(validator.validate(
+        new ConditionalCommonTestBean.ConditionValueInference.ExplicitMatchesState(null, null)))
+        .hasSize(1);
+  }
+
+  @Test
+  public void conditionValueInference_booleanSetWithNonBooleanConditionValue_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .BooleanSetWithNonBooleanConditionValue(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueBoolean");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_stateSetWithNonStateConditionValue_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .StateSetWithNonStateConditionValue(null, "a"));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueState");
+    }
+  }
+
+  @Test
+  public void conditionValueInference_explicitConflictsWithState_throws() {
+    try {
+      validator.validate(new ConditionalCommonTestBean.ConditionValueInference
+          .ExplicitConflictsWithState(null, null));
+      Assertions.fail();
+    } catch (ValidationException ex) {
+      assertThat(ex.getCause()).isInstanceOf(RuntimeException.class);
+      assertThat(Objects.requireNonNull(ex.getCause()).getMessage())
+          .contains("conditionValueState");
+    }
+  }
 }

@@ -9,7 +9,7 @@
 | Category | Annotations |
 | --- | --- |
 | Conditional (When) | `@NotEmptyWhen`, `@EmptyWhen`, `@NotNullWhen`, `@NullWhen`, `@TrueWhen`, `@FalseWhen`, `@StringWhen`, `@NotStringWhen`, `@PatternWhen`, `@NotPatternWhen`, `@ValueOfPropertyPathWhen`, `@NotValueOfPropertyPathWhen` |
-| Multi-field | `@AllEmptyOrAllNotEmpty`, `@AllNullOrAllNotNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
+| Multi-field | `@AllOrNoneEmpty`, `@AllOrNoneNull`, `@AnyNotEmpty`, `@AnyEmpty`, `@AnyNotNull`, `@AnyNull` |
 | Numeric comparison | `@GreaterThan`, `@GreaterThanOrEqualTo`, `@LessThan`, `@LessThanOrEqualTo` |
 | Others | `@PatternWithDescription`, `@AssertTrueWithPropertyPath`, `@ReturnTrue`, ... |
 
@@ -21,7 +21,6 @@
 @NotEmptyWhen(
     propertyPath = "companyName",
     conditionPropertyPath = "type",
-    conditionValue = ConditionValue.STRING,
     conditionValueString = "CORPORATE"
 )
 public class RegistrationForm {
@@ -33,7 +32,7 @@ public class RegistrationForm {
 **Multi-field** — validate relationships across multiple fields:
 
 ```java
-@AllEmptyOrAllNotEmpty(propertyPath = {"startDate", "endDate"})
+@AllOrNoneEmpty(propertyPath = {"startDate", "endDate"})
 public class SearchForm {
     private String startDate;  // both must be filled in, or both must be empty
     private String endDate;
@@ -82,8 +81,8 @@ public class SearchForm {
 
 ## Documentation
 
-- [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home) — Official reference documentation
-- [javadoc](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-validation/latest/index.html)
+- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
+- javadoc - [javadoc.io](https://javadoc.io/doc/jp.ecuacion.lib/ecuacion-lib-validation/latest/index.html)
 
 ## Installation
 
