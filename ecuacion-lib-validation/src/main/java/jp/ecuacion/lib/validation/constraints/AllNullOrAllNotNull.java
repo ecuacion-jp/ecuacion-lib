@@ -23,7 +23,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.AllNullOrAllNotNullList;
 
 /**
  * Is valid when all of the values of {@code propertyPath} are null or all are not null.
@@ -32,7 +31,8 @@ import jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.AllNullOrAllNo
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(AllNullOrAllNotNullList.class)
+@Repeatable(
+    jp.ecuacion.lib.validation.constraints.AllNullOrAllNotNull.AllNullOrAllNotNullList.class)
 @Documented
 @Constraint(validatedBy = {AllNullOrAllNotNullValidator.class})
 @Deprecated
