@@ -34,12 +34,14 @@ public class AllEmptyOrAllNotEmptyValidator extends AllAnyValidator<AllEmptyOrAl
    * <p>{@code @Nullable} on the parameter is for Eclipse null analysis compatibility;
    *     see package {@link jp.ecuacion.lib.validation.constraints} for details.</p>
    */
+  @Deprecated
   @Override
   public void initialize(@Nullable AllEmptyOrAllNotEmpty annotation) {
     Objects.requireNonNull(annotation);
     super.initialize(annotation.message(), annotation.propertyPath());
   }
 
+  @Deprecated
   @Override
   public boolean internalIsValid(Object object, Object[] valuesOfPropertyPaths,
       @Nullable ConstraintValidatorContext context) {

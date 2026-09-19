@@ -57,6 +57,7 @@ public class AllAnyValidatorsTest {
       assertThat(validator.validate(new Bean("a", null, "c"))).hasSize(1);
     }
 
+    @SuppressWarnings("deprecation")
     @AllNullOrAllNotNull(propertyPath = {"f1", "f2", "f3"})
     private static record Bean(@Nullable String f1, @Nullable String f2, @Nullable String f3) {}
   }
@@ -94,6 +95,7 @@ public class AllAnyValidatorsTest {
       assertThat(validator.validate(new Bean("a", "", "c"))).hasSize(1);
     }
 
+    @SuppressWarnings("deprecation")
     @AllEmptyOrAllNotEmpty(propertyPath = {"f1", "f2", "f3"})
     private static record Bean(@Nullable String f1, @Nullable String f2, @Nullable String f3) {}
   }
