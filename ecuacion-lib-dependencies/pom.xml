@@ -38,25 +38,25 @@
 
 		<!-- build tooling versions, used only by the plugins declared below -->
 		<checkstyle.config.site>https://ecuacion-jp.github.io/config/common/checkstyle</checkstyle.config.site>
-		<com.mycila.license-maven-plugin.version>5.1.1</com.mycila.license-maven-plugin.version>
+		<com.mycila.license-maven-plugin.version>5.1.2</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>13.11.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>14.1.0</com.puppycrawl.tools.checkstyle.version>
 		<!-- spotbugs -->
-		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.3.0</com.github.spotbugs.spotbugs-maven-plugin.version>
-		<com.github.spotbugs.spotbugs.version>4.10.3</com.github.spotbugs.spotbugs.version>
+		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.4.1</com.github.spotbugs.spotbugs-maven-plugin.version>
+		<com.github.spotbugs.spotbugs.version>4.10.4</com.github.spotbugs.spotbugs.version>
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.13.8</com.uber.nullaway.version>
+		<com.uber.nullaway.version>0.14.1</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.50.0</com.google.errorprone.error_prone_core.version>
 		<!-- source jar -->
 		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
 		<!-- wagon: uploads javadoc/allure/jacoco reports to the ecuacion docs server -->
-		<org.codehaus.mojo.wagon-maven-plugin.version>3.0.0</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.codehaus.mojo.wagon-maven-plugin.version>3.1.0</org.codehaus.mojo.wagon-maven-plugin.version>
 		<!-- antrun: zips allure/jacoco reports for upload -->
 		<org.apache.maven.plugins.maven-antrun-plugin.version>3.2.0</org.apache.maven.plugins.maven-antrun-plugin.version>
 		<!-- allure -->
-		<io.qameta.allure.allure-maven.version>3.0.3</io.qameta.allure.allure-maven.version>
-		<io.qameta.allure.allure-jupiter.version>2.35.4</io.qameta.allure.allure-jupiter.version>
+		<io.qameta.allure.allure-maven.version>3.1.0</io.qameta.allure.allure-maven.version>
+		<io.qameta.allure.allure-jupiter.version>3.0.0</io.qameta.allure.allure-jupiter.version>
 		<!-- jacoco -->
 		<org.jacoco.jacoco-maven-plugin.version>0.8.15</org.jacoco.jacoco-maven-plugin.version>
 		<!-- javadoc jar -->
