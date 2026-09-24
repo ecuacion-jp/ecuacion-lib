@@ -151,6 +151,30 @@ public class PropertiesFileUtil {
   }
 
   /**
+   * Returns the localized value in messages_xxx.properties, resolving named placeholders
+   * (e.g., {@code {item_name}}) before applying {@link java.text.MessageFormat} for positional
+   * placeholders ({@code {0}}, {@code {1}}, ...).
+   *
+   * <p>Named placeholders in {@code namedArgs} are substituted first via string replacement,
+   *     so they do not conflict with positional placeholders processed by
+   *     {@link java.text.MessageFormat}.</p>
+   *
+   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param key the key of the property
+   * @param namedArgs named placeholder map (e.g., {@code "item_name"} to item display name)
+   * @param positionalArgs positional arguments for {@link java.text.MessageFormat};
+   *     {@link Arg} instances and plain {@code Object}s may be mixed
+   * @return the value (message) of the property key (message ID)
+   */
+  public static String getMessage(@Nullable Locale locale, String key,
+      Map<@NonNull String, @Nullable Object> namedArgs, @Nullable Object... positionalArgs) {
+    String template = PropertiesFileUtilResolver.getProp(locale, MESSAGES, key);
+    template = PropertiesFileUtilFormatter.formatWithArgs(template, namedArgs);
+    return PropertiesFileUtilFormatter.formatWithArgs(locale, template,
+        PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs));
+  }
+
+  /**
    * Returns the existence of the key in messages_xxx.properties.
    *
    * @param key the key of the property
