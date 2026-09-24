@@ -23,7 +23,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.ecuacion.lib.validation.constraints.AllEmptyOrAllNotEmpty.AllEmptyOrAllNotEmptyList;
 
 /**
  * Is valid when all of the values of {@code propertyPath} are empty or all are not empty.
@@ -32,7 +31,8 @@ import jp.ecuacion.lib.validation.constraints.AllEmptyOrAllNotEmpty.AllEmptyOrAl
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(AllEmptyOrAllNotEmptyList.class)
+@Repeatable(
+    jp.ecuacion.lib.validation.constraints.AllEmptyOrAllNotEmpty.AllEmptyOrAllNotEmptyList.class)
 @Documented
 @Constraint(validatedBy = {AllEmptyOrAllNotEmptyValidator.class})
 @Deprecated
