@@ -514,7 +514,6 @@ public class ExceptionUtil {
             Arrays.stream(itemNameKeys).map(key -> new Item(key).itemNameKey(key)).toList();
         String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
         namedArgs.put("item_name", itemName);
-        namedArgs.put("0", itemName);
       }
       message = PropertiesFileUtil.getMessageWithItemName(locale, msgKey, namedArgs, msgArgs);
     } else {

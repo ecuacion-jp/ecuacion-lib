@@ -1510,5 +1510,19 @@ public class ExceptionUtilTest {
       assertThat(msgs).hasSize(1);
       assertThat(msgs.get(0)).isNotNull();
     }
+
+    @Test
+    @DisplayName("{item_name} is resolved and messageArgs[0] is still available via {0}")
+    void itemNameDoesNotOverwriteMessageArgZero() {
+      BusinessViolation bv = new BusinessViolation(new String[]{"singleLayer.field"},
+          new String[]{}, "MSG_WITH_ITEM_NAME_AND_ARG", "argValue");
+      Violations v = new Violations().add(bv);
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
+      assertThat(msgs).hasSize(1);
+      // Before the fix, "{0}" in the template was hijacked by the item name (via
+      // namedArgs.put("0", itemName)) before messageArgs were ever applied by MessageFormat,
+      // so messageArgs[0] ("argValue") could never appear in the message.
+      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+    }
   }
 }
