@@ -1524,5 +1524,35 @@ public class ExceptionUtilTest {
       // so messageArgs[0] ("argValue") could never appear in the message.
       assertThat(msgs.get(0)).isEqualTo("test field: argValue");
     }
+
+    @Test
+    @DisplayName("{item_name} is resolved even when isMessagesWithItemNamesAsDefault=false")
+    void itemNameResolvedWithoutItemNameMode() {
+      BusinessViolation bv = new BusinessViolation(new String[]{"singleLayer.field"},
+          new String[]{}, "MSG_WITH_ITEM_NAME_AND_ARG", "argValue");
+      Violations v = new Violations().add(bv);
+      // isMessagesWithItemNamesAsDefault=false: the message is looked up in
+      // messages.properties (not messages_with_item_names.properties), but {item_name} in it
+      // must still be resolved, mirroring the ConstraintViolation message path where {0} is
+      // replaced by the item name regardless of which message file the text came from.
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs).hasSize(1);
+      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+    }
+
+    @Test
+    @DisplayName("{representativePropertyPath} is resolved even when "
+        + "isMessagesWithItemNamesAsDefault=false")
+    void representativePropertyPathResolvedWithoutItemNameMode() {
+      BusinessViolation bv = new BusinessViolation("MSG_WITH_REPRESENTATIVE_PROPERTY_PATH");
+      Violations v = new Violations().add(bv)
+          .withMessageParameters(p -> p.representativePropertyPath("dept.name"));
+      // isMessagesWithItemNamesAsDefault=false: mirrors the ConstraintViolation message path,
+      // where representativePropertyPath is put into the same map used by both the
+      // withItemName and plain message lookups, so it is resolved regardless of the mode.
+      List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
+      assertThat(msgs).hasSize(1);
+      assertThat(msgs.get(0)).isEqualTo("path=dept.name");
+    }
   }
 }
