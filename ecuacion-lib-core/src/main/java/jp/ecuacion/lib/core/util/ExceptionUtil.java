@@ -397,10 +397,6 @@ public class ExceptionUtil {
     try {
       final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
 
-      if (messageParameters.getRepresentativePropertyPath() != null) {
-        map.put("representativePropertyPath", messageParameters.getRepresentativePropertyPath());
-      }
-
       // Put Arg-based parameters directly into the map (resolved by getValidationMessage).
       addArgBasedParamsToMap(bean, map);
 
@@ -502,17 +498,12 @@ public class ExceptionUtil {
     String msgKey = violation.getMessageId();
     Object[] msgArgs = (Object[]) violation.getMessageArgs();
 
-    // {item_name} and {representativePropertyPath} are resolved regardless of
-    // isMessageWithItemName, the same as the ConstraintViolation message path (there,
-    // representativePropertyPath is put into the map before the isMessageWithItemName branching,
-    // and {0}-to-itemName substitution runs unconditionally once the resolved message contains
-    // the placeholder). This lets a message embed {item_name} directly in messages.properties
-    // without requiring a separate messages_with_item_names.properties entry just to use it.
+    // {item_name} is resolved regardless of isMessageWithItemName, the same as the
+    // ConstraintViolation message path, where {0}-to-itemName substitution runs
+    // unconditionally once the resolved message contains the placeholder. This lets a message
+    // embed {item_name} directly in messages.properties without requiring a separate
+    // messages_with_item_names.properties entry just to use it.
     Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
-    if (messageParameters.getRepresentativePropertyPath() != null) {
-      namedArgs.put("representativePropertyPath",
-          messageParameters.getRepresentativePropertyPath());
-    }
     String[] itemNameKeys = violation.getItemNameKeys();
     if (itemNameKeys.length > 0) {
       List<@NonNull Item> itemList =
