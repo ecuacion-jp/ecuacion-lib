@@ -161,11 +161,18 @@ public class Item {
 
   /**
    * Sets itemNameKeyClass from {@code @ItemNameKeyClass} annotation.
-   * 
+   *
    * @param itemNameKeyClass argument {@code itemNameKeyClass} is {@code @NonNull}
-   *     but property {@code itemNameKeyClass} is {@code @Nullable} 
+   *     but property {@code itemNameKeyClass} is {@code @Nullable}
    *     because the method is not always called.
+   * @deprecated No longer called internally: {@link ItemContainer#getItem(String)} now resolves
+   *     the itemNameKey class part through
+   *     {@link jp.ecuacion.lib.core.util.ItemUtil#resolveItemNameKeyClass(String, Class)}
+   *     and always sets it via {@link #setItemNameKeyClassFromClassName(String)}, since the
+   *     distinction between annotation-derived and class-name-derived values is not used by
+   *     {@link #mergeFromParent(Item)}.
    */
+  @Deprecated(forRemoval = true, since = "16.2.0")
   public void setItemNameKeyClassFromAnnotation(String itemNameKeyClass) {
     this.itemNameKeyClassFromAnnotation = itemNameKeyClass;
   }

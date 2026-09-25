@@ -144,12 +144,13 @@ public class ExceptionUtilTest {
       // normal
       String message = getMsg(new Normal(null));
       assertThat(message).isEqualTo("'normal.name' must not be null.");
-      // inside child node
+      // inside child node: no ItemContainer/item_names entry exists, so the class part falls
+      // back to the path segment itself ("myChild"), shown unresolved.
       message = getMsg(new InsideChildNode(new Child(null)));
-      assertThat(message).isEqualTo("'child.name' must not be null.");
-      // inside child node in list
+      assertThat(message).isEqualTo("'myChild.name' must not be null.");
+      // inside child node in list: likewise, the path segment ("myChildList") is used.
       message = getMsg(new InsideChildNodeInList(List.of(new Child(null))));
-      assertThat(message).isEqualTo("'child.name' must not be null.");
+      assertThat(message).isEqualTo("'myChildList.name' must not be null.");
     }
 
     public static record Normal(@NotNull @Nullable String name) {}
@@ -213,9 +214,13 @@ public class ExceptionUtilTest {
       // itemNamePath
       assertThat(getMsg(new MultipleLayer(), true, true)).isEqualTo(
           "'sample field in grandChild' at 'child field' > 'grand child field' " + MSG);
-      // itemNamePath + itemNameKeyClass
-      msg = "'@ItemNameKeyClass considered field' at '@ItemNameKeyClass considered child field' "
-          + "> '@ItemNameKeyClass considered grandChild field' " + MSG;
+      // itemNamePath + itemNameKeyClass: the leaf ("child.grandChild.field") and the
+      // "child.grandChild" ancestor node are both nested paths, so their class parts now come
+      // from the path segment itself ("grandChild" and "child" respectively), bypassing
+      // GrandChild's own @ItemNameKeyClass. Only the single-segment "child" ancestor node is
+      // non-nested and still honors @ItemNameKeyClass.
+      msg = "'sample field in grandChild' at '@ItemNameKeyClass considered child field' "
+          + "> 'grand child field' " + MSG;
       assertThat(getMsg(new MultipleLayerInkc(), true, true)).isEqualTo(msg);
       // itemNamePath + ItemContainer(root)
       msg = "'ItemContainer considered field' at 'ItemContainer considered child field'"
@@ -246,8 +251,11 @@ public class ExceptionUtilTest {
       msg = "'field 1' at 'child field' > 'grand child field' > 'the child', "
           + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
       assertThat(getMsg(new ClassMultipleLayer(), true, true)).isEqualTo(msg);
-      msg = "'ItemNameKeyClass considered field 1' at 'child field' > 'grand child field' "
-          + "> 'the child', " + "'ItemNameKeyClass considered field 2' at 'child field' "
+      // Leaf path ("child.grandChild.theChild.field1/2") is nested, so its class part now comes
+      // from the path segment ("theChild"), bypassing TheChild's own @ItemNameKeyClass -- same
+      // resolution (and same text) as the non-annotated ClassMultipleLayer case above.
+      msg = "'field 1' at 'child field' > 'grand child field' "
+          + "> 'the child', " + "'field 2' at 'child field' "
           + "> 'grand child field' > 'the child'" + MSG;
       assertThat(getMsg(new ClassMultipleLayerInkc(), true, true)).isEqualTo(msg);
       msg = "'ItemContainer considered the child field 1' "
@@ -277,9 +285,12 @@ public class ExceptionUtilTest {
       msg = "'field 1' at 'child field' > 'grand child field' > 'the child', "
           + "'field 2' at 'child field' > 'grand child field' > 'the child'" + MSG;
       assertThat(getMsg(new MethodMultipleLayer(), true, true)).isEqualTo(msg);
+      // Leaf path ("child.grandChild.theChild.field1/2") is nested, so its class part now comes
+      // from the path segment ("theChild"), bypassing TheChild's own @ItemNameKeyClass -- same
+      // resolution (and same text) as the non-annotated MethodMultipleLayer case above.
       msg =
-          "'ItemNameKeyClass considered field 1' at 'child field' > 'grand child field' > "
-              + "'the child', 'ItemNameKeyClass considered field 2' at 'child field' "
+          "'field 1' at 'child field' > 'grand child field' > "
+              + "'the child', 'field 2' at 'child field' "
               + "> 'grand child field' > 'the child'" + MSG;
       assertThat(getMsg(new MethodMultipleLayerInkc(), true, true)).isEqualTo(msg);
       msg = "'ItemContainer considered the child field 1' at 'child field' "
@@ -703,8 +714,12 @@ public class ExceptionUtilTest {
       StringMulListListInkc strMulListListInkc =
           new StringMulListListInkc(new StringMulListListInkc.Child(
               new StringMulListListInkc.GrandChild(List.of(List.of("1", "a")))));
+      // The leaf collection field ("child.grandChild.strListList") is nested, so its class part
+      // now comes from the path segment ("grandChild"), bypassing GrandChild's own
+      // @ItemNameKeyClass -- same resolution (and same text) as the non-annotated
+      // StringMulListList case above.
       expected = "Element 1 > element 2 contained by "
-          + "'ItemNameKeyClass considered string list list' at 'child field' > 'grand child field'"
+          + "'grand child string list list' at 'child field' > 'grand child field'"
           + MSG;
       msg = validateCollection(strMulListListInkc, true, true);
       assertThat(msg).isEqualTo(expected);
@@ -994,16 +1009,23 @@ public class ExceptionUtilTest {
       msg = validateCollection(new SingleList(targetList), true, true);
       assertThat(msg).isEqualTo(
           "'target field' at element 2 contained by 'target list'" + MSG);
+      // The leaf collection field ("targetList[].field") is nested, so its class part now comes
+      // from the path segment ("targetList"), bypassing TargetClsInkc's own @ItemNameKeyClass --
+      // same resolution (and same text) as the plain SingleList case above.
       msg = validateCollection(new SingleListInkc(targetInkcList), true, true);
       assertThat(msg).isEqualTo(
-          "'ItemNameKeyClass considered field' at element 2 contained by 'target list'" + MSG);
+          "'target field' at element 2 contained by 'target list'" + MSG);
       msg = validateCollection(new SingleListConRoot(targetList), true, true);
       assertThat(msg).isEqualTo(
           "'ItemContainer considered field' at element 2 contained by 'target list'" + MSG);
       SingleListConChild.Child child =
           new SingleListConChild.Child(new SingleListConChild.GrandChild[]{
               new SingleListConChild.GrandChild(null)});
-      String expected = "'sample field in grandChild' at element 1 "
+      // The nested itemPropertyPath ("grandChildListList[].field") means the class part comes
+      // from the path segment ("grandChildListList"), not GrandChild's reflected class name;
+      // Child's own customizedItems() registration of "field" (unqualified) never matches this
+      // array-element path, so it falls through to this default resolution either way.
+      String expected = "'sample field in grandChild list list' at element 1 "
           + "contained by 'grand child list list'" + MSG;
       msg = validateCollection(child, true, true);
       assertThat(msg).isEqualTo(expected);
@@ -1019,9 +1041,13 @@ public class ExceptionUtilTest {
           + "> element 1 contained by 'grand child field'" + MSG;
       msg = validateCollection(mulListList, true, true);
       assertThat(msg).isEqualTo(expected);
+      // The leaf collection field ("child.grandChildListList[].field") is nested, so its class
+      // part now comes from the path segment ("grandChildListList"), bypassing GrandChild's own
+      // @ItemNameKeyClass -- same resolution (and same text) as the non-annotated MulList case
+      // above.
       MulListInkc mulListListInkc = new MulListInkc(
           new MulListInkc.Child(new MulListInkc.GrandChild[]{new MulListInkc.GrandChild(null)}));
-      expected = "'ItemNameKeyClass considered field' at 'child field' > element 1"
+      expected = "'sample field in grandChild' at 'child field' > element 1"
           + " contained by 'grand child field'" + MSG;
       msg = validateCollection(mulListListInkc, true, true);
       assertThat(msg).isEqualTo(expected);
