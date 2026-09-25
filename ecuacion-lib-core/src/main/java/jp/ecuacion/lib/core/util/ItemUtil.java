@@ -81,22 +81,55 @@ public class ItemUtil {
     boolean showsValue = true;
 
     if (item == null) {
-      Class<?> leafBeanClass = PropertyPathUtil.getClass(rootBean.getClass(),
-          PropertyPathUtil.getPropertyPathWithoutRightMostNode(fullPropertyPath));
-      String itemNameKeyClassFromAnnotation =
-          ReflectionUtil.searchAnnotationPlacedAtClass(leafBeanClass, ItemNameKeyClass.class)
-              .map(ItemNameKeyClass::value).orElse(null);
-      String itemNameKeyClass = StringUtils.isNotEmpty(itemNameKeyClassFromAnnotation)
-          ? itemNameKeyClassFromAnnotation
-          : leafBeanClass.getSimpleName();
+      // No ItemContainer was found anywhere in the object graph for this path. Determine the
+      // itemNameKey class part the same way ItemContainer#getItem() does.
+      String itemNameKeyClass = resolveItemNameKeyClass(fullPropertyPath, rootBean.getClass());
       String itemNameKeyField =
           PropertyPathUtil.toFieldPath(PropertyPathUtil.getRightMostNode(fullPropertyPath));
-      itemNameKey = StringUtils.uncapitalize(itemNameKeyClass) + "." + itemNameKeyField;
+      itemNameKey = itemNameKeyClass + "." + itemNameKeyField;
     } else {
       itemNameKey = item.getItemNameKey();
       showsValue = item.getShowsValue();
     }
 
     return new Item(fullPropertyPath).itemNameKey(itemNameKey).showsValue(showsValue);
+  }
+
+  /**
+   * Returns the itemNameKey class part for {@code itemPropertyPath}.
+   *
+   * <p>Shared by {@link ItemContainer#getItem(String)} and by this class's own
+   *     {@link #resolveItem(String, Object)} fallback for when no {@code ItemContainer} is found
+   *     anywhere in the object graph.</p>
+   *
+   * <p>When {@code itemPropertyPath} is nested (e.g. "dlUser.name"), the class part is taken
+   *     directly from the path itself -- the node immediately before the rightmost (field-part)
+   *     node -- rather than from {@code @ItemNameKeyClass} or the reflected Java type of that
+   *     node. This takes priority over both, because the same {@code ItemContainer}-implementing
+   *     class can be embedded under different field names in different places (e.g. "dlUser" and
+   *     "requestingUser", both typed as a common {@code User} record), and the field name is what
+   *     actually distinguishes them, whereas {@code @ItemNameKeyClass} only ever expresses one
+   *     fixed value per class.</p>
+   *
+   * <p>{@code @ItemNameKeyClass} therefore only applies when {@code itemPropertyPath} is NOT
+   *     nested, where there is no path segment to fall back on and it instead replaces the
+   *     (usually unsuitable, e.g. "userBaseRecord") raw class name of {@code ownerClass}.</p>
+   *
+   * @param itemPropertyPath itemPropertyPath
+   * @param ownerClass the class {@code itemPropertyPath} is relative to, consulted for
+   *     {@code @ItemNameKeyClass} when {@code itemPropertyPath} is not nested
+   * @return the itemNameKey class part, already uncapitalized
+   */
+  public static String resolveItemNameKeyClass(String itemPropertyPath, Class<?> ownerClass) {
+    String fieldPath = PropertyPathUtil.toFieldPath(itemPropertyPath);
+    if (fieldPath.contains(".")) {
+      String parentPath = PropertyPathUtil.getPropertyPathWithoutRightMostNode(fieldPath);
+      return StringUtils.uncapitalize(PropertyPathUtil.getRightMostNode(parentPath));
+    }
+
+    // Since what we want to know is class, instance is not needed.
+    return ReflectionUtil.searchAnnotationPlacedAtClass(ownerClass, ItemNameKeyClass.class)
+        .map(ItemNameKeyClass::value).map(StringUtils::uncapitalize)
+        .orElseGet(() -> StringUtils.uncapitalize(ownerClass.getSimpleName()));
   }
 }

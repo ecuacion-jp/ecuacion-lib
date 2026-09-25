@@ -34,7 +34,6 @@ import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -48,11 +47,16 @@ public class ValidateWhenValidatorMessageParameterCreator
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
     // conditionFieldItemNameKey — resolved as item name (needs locale at render time)
-    String cvPropertyPath = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    String conditionPropertyPath =
-        (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".")
-            + ((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
-    Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getRootBean());
+    //
+    // This constraint (e.g. @NotNullWhen) is always class-level (@Target(TYPE)), so
+    // cv.getLeafBean() is always the exact bean instance the annotation is placed on, and
+    // CONDITION_PROPERTY_PATH is always a direct property of that same bean. Resolving relative
+    // to it directly (rather than concatenating cv.getPropertyPath() onto cv.getRootBean())
+    // keeps the item name based on the bean's own identity (@ItemNameKeyClass or class name)
+    // regardless of how deeply that bean is nested under the root.
+    String conditionPropertyPath = Objects
+        .requireNonNull((String) paramMap.get(ValidateWhenValidator.CONDITION_PROPERTY_PATH));
+    Item item = ItemUtil.resolveItem(conditionPropertyPath, cv.getLeafBean());
     result.put(ValidateWhenValidator.CONDITION_PROPERTY_PATH_ITEM_NAME,
         new ItemNameParam(List.of(item), cv.getRootBean()));
 
