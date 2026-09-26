@@ -188,7 +188,9 @@ public class ConstraintViolationBeanTest {
         if (bean.getItems()[0].getPropertyPath().equals("root.child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("childRecord", bean);
+          // Nested itemPropertyPath ("child.field2"): the class part comes from the path
+          // segment ("child"), not ChildRecord's reflected class name.
+          assertEqualsItemNameKeyClass("child", bean);
 
       } else {
         throw new RuntimeException();
@@ -213,7 +215,9 @@ public class ConstraintViolationBeanTest {
         if (bean.getItems()[0].getPropertyPath().equals("child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("childRecord", bean);
+          // Nested itemPropertyPath ("child.field2"): the class part comes from the path
+          // segment ("child"), not ChildRecord's reflected class name.
+          assertEqualsItemNameKeyClass("child", bean);
 
       } else {
         throw new RuntimeException();
@@ -297,9 +301,13 @@ public class ConstraintViolationBeanTest {
       if (leafClassName.equals("Root"))
         assertEqualsItemNameKeyClass("itemNameKeyClass_Root", bean);
       else if (leafClassName.equals("Child"))
-        assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
+        // Nested itemPropertyPath ("child.field"): the path segment ("child") is used,
+        // taking priority over Child's own @ItemNameKeyClass.
+        assertEqualsItemNameKeyClass("child", bean);
       else if (leafClassName.equals("GrandChild"))
-        assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild", bean);
+        // Nested itemPropertyPath ("child.grandChild.field"): the immediate parent segment
+        // ("grandChild") is used, taking priority over GrandChild's own @ItemNameKeyClass.
+        assertEqualsItemNameKeyClass("grandChild", bean);
       else
         throw new RuntimeException();
     }
@@ -316,9 +324,14 @@ public class ConstraintViolationBeanTest {
       if (leafClassName.equals("Root"))
         assertEqualsItemNameKeyClass("itemNameKeyClass_Root_Parent", bean);
       else if (leafClassName.equals("Child"))
-        assertEqualsItemNameKeyClass("itemNameKeyClass_Child_Parent", bean);
+        // Nested itemPropertyPath ("child.field"): the path segment ("child") is used,
+        // taking priority over ChildParent's inherited @ItemNameKeyClass.
+        assertEqualsItemNameKeyClass("child", bean);
       else if (leafClassName.equals("GrandChild"))
-        assertEqualsItemNameKeyClass("itemNameKeyClass_GrandChild_Parent", bean);
+        // Nested itemPropertyPath ("child.grandChild.field"): the immediate parent segment
+        // ("grandChild") is used, taking priority over GrandChildParent's inherited
+        // @ItemNameKeyClass.
+        assertEqualsItemNameKeyClass("grandChild", bean);
       else
         throw new RuntimeException();
     }
@@ -440,7 +453,9 @@ public class ConstraintViolationBeanTest {
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
 
         } else {
-          assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
+          // Nested itemPropertyPath ("child.field2"): the class part comes from the path
+          // segment ("child"), taking priority over ChildRecord's @ItemNameKeyClass.
+          assertEqualsItemNameKeyClass("child", bean);
         }
 
       } else {
@@ -466,7 +481,9 @@ public class ConstraintViolationBeanTest {
         if (bean.getItems()[0].getPropertyPath().equals("child.field1"))
           assertEqualsItemNameKeyClass("itemNameKeyClass_InItem_Child", bean);
         else
-          assertEqualsItemNameKeyClass("itemNameKeyClass_Child", bean);
+          // Nested itemPropertyPath ("child.field2"): the class part comes from the path
+          // segment ("child"), taking priority over ChildRecord's @ItemNameKeyClass.
+          assertEqualsItemNameKeyClass("child", bean);
 
       } else {
         throw new RuntimeException();

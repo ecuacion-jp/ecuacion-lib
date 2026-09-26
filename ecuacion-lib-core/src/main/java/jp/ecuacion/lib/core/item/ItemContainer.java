@@ -24,14 +24,11 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.ObjectsUtil;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
-import jp.ecuacion.lib.core.util.ReflectionUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -92,31 +89,8 @@ public interface ItemContainer {
 
     final Item finalItem = item == null ? getNewItem(noIndexPropertyPath) : item;
 
-    // Set finalDefaultItemNameKeyClass.
-    // Since what we want to know is class, instance is not needed.
-    @NonNull
-    Optional<@NonNull ItemNameKeyClass> optAn = ReflectionUtil.searchAnnotationPlacedAtClass(
-        PropertyPathUtil.getClass(this.getClass(),
-            PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath)),
-        ItemNameKeyClass.class);
-
-    optAn.ifPresent(
-        an -> finalItem.setItemNameKeyClassFromAnnotation(StringUtils.uncapitalize(an.value())));
-
-    // Get leafBeanClass.
-    Class<?> leafBeanClass = this.getClass();
-    if (itemPropertyPath.contains(".")) {
-      // Handle collections and arrays
-      if (itemPropertyPath.endsWith("<list element>")) {
-        itemPropertyPath = itemPropertyPath.substring(0, itemPropertyPath.lastIndexOf("."));
-      }
-
-      leafBeanClass = PropertyPathUtil.getClass(this.getClass(),
-          PropertyPathUtil.getPropertyPathWithoutRightMostNode(itemPropertyPath));
-    }
-
-    finalItem
-        .setItemNameKeyClassFromClassName(StringUtils.uncapitalize(leafBeanClass.getSimpleName()));
+    finalItem.setItemNameKeyClassFromClassName(
+        ItemUtil.resolveItemNameKeyClass(itemPropertyPath, this.getClass()));
 
     return finalItem;
   }

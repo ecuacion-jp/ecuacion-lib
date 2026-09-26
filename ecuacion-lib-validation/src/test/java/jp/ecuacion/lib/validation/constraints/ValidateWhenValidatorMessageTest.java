@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Locale;
@@ -242,6 +243,35 @@ public class ValidateWhenValidatorMessageTest {
         .getMessageList(validator.validate(new EmptyEqualToBean(null, null)), Locale.ITALIAN)
         .get(0);
     assertThat(msg).isEqualTo("needs to be not empty when 'condition value' is empty");
+  }
+
+  // -------------------------------------------------------------------------
+  // conditionPropertyPathItemName resolution when the annotated bean is nested
+  // -------------------------------------------------------------------------
+
+  @Test
+  @DisplayName("conditionPropertyPathItemName is resolved relative to the nested bean, "
+      + "not the root bean")
+  public void conditionPropertyPathItemNameResolvedRelativeToNestedBean() {
+    String msg = ExceptionUtil
+        .getMessageList(validator.validate(new WhenOuter()), Locale.ENGLISH).get(0);
+    assertThat(msg).isEqualTo("needs to be not empty when 'condition field' is ON");
+  }
+
+  @ItemNameKeyClass("whenOuterBean")
+  private static class WhenOuter {
+    @SuppressWarnings("unused")
+    @Valid
+    private WhenInner inner = new WhenInner();
+  }
+
+  @ItemNameKeyClass("whenInnerBean")
+  @NotEmptyWhen(propertyPath = "field", conditionPropertyPath = "conditionField",
+      conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class WhenInner {
+    private String field = "";
+    private boolean conditionField = true;
   }
 
   // -------------------------------------------------------------------------

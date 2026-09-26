@@ -188,7 +188,7 @@ public class ExceptionUtil {
     List<@NonNull String> result = new ArrayList<>();
     for (ConstraintViolation<T> cv : constraintViolations) {
       result
-          .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+          .add(getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
               cv, ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
     }
     return result;
@@ -310,7 +310,7 @@ public class ExceptionUtil {
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
-            buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, cv,
+            getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, cv,
                 ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
@@ -376,10 +376,9 @@ public class ExceptionUtil {
     Locale nonNullLocale = locale == null ? LocaleUtil.getFallbackLocale() : locale;
 
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
-      result
-          .add(buildMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
-              cv, ConstraintViolationBean.createConstraintViolationBean(cv),
-              violations.messageParameters()));
+      result.add(getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+          cv, ConstraintViolationBean.createConstraintViolationBean(cv),
+          violations.messageParameters()));
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
@@ -390,16 +389,12 @@ public class ExceptionUtil {
     return result;
   }
 
-  private static String buildMessageFromConstraintViolation(Locale locale,
+  private static String getMessageFromConstraintViolation(Locale locale,
       boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
       ConstraintViolationBean<?> bean, MessageParameters messageParameters) {
     String message = null;
     try {
       final Map<@NonNull String, @Nullable Object> map = new HashMap<>(bean.getEmbeddedParamMap());
-
-      if (messageParameters.getRepresentativePropertyPath() != null) {
-        map.put("representativePropertyPath", messageParameters.getRepresentativePropertyPath());
-      }
 
       // Put Arg-based parameters directly into the map (resolved by getValidationMessage).
       addArgBasedParamsToMap(bean, map);
@@ -410,11 +405,8 @@ public class ExceptionUtil {
       // Resolve ItemNameParam (item names) before formatWithArgs.
       resolveItemNameParams(locale, map, messageParameters.showsItemNamePath());
 
-      // If messageParameters.isMessageWithItemName() is not null (= explicitly specified),
-      // it's prioritized over isMessagesWithItemNamesAsDefault.
-      Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
-          ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
-          : isMessagesWithItemNamesAsDefault;
+      boolean isMessageWithItemName =
+          resolveIsMessageWithItemName(messageParameters, isMessagesWithItemNamesAsDefault);
 
       String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
       boolean isMessageDefined =
@@ -437,21 +429,42 @@ public class ExceptionUtil {
             messageParameters.showsItemNamePath(), bean.getRootBean()));
       }
 
-      // add prefix and postfix messages.
-      if (messageParameters.getMessagePrefix() != null) {
-        message =
-            Objects.requireNonNull(messageParameters.getMessagePrefix()).resolveAsString(locale)
-                + message;
-      }
-
-      if (messageParameters.getMessagePostfix() != null) {
-        message = message
-            + Objects.requireNonNull(messageParameters.getMessagePostfix()).resolveAsString(locale);
-      }
+      message = applyPrefixAndPostfix(message, locale, messageParameters);
 
     } catch (MissingResourceException ignored) {
       message = bean.getMessage();
     }
+    return message;
+  }
+
+  /**
+   * Resolves whether the message should be built with the item name, giving priority to
+   * {@link MessageParameters#isMessageWithItemName()} when it is explicitly specified over
+   * {@code isMessagesWithItemNamesAsDefault}.
+   */
+  private static boolean resolveIsMessageWithItemName(MessageParameters messageParameters,
+      boolean isMessagesWithItemNamesAsDefault) {
+    return messageParameters.isMessageWithItemName() != null
+        ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
+        : isMessagesWithItemNamesAsDefault;
+  }
+
+  /**
+   * Prepends {@code messageParameters}' {@code messagePrefix} and appends its
+   * {@code messagePostfix} to {@code message}, when each is specified.
+   */
+  private static String applyPrefixAndPostfix(String message, Locale locale,
+      MessageParameters messageParameters) {
+    if (messageParameters.getMessagePrefix() != null) {
+      message = Objects.requireNonNull(messageParameters.getMessagePrefix()).resolveAsString(locale)
+          + message;
+    }
+
+    if (messageParameters.getMessagePostfix() != null) {
+      message = message
+          + Objects.requireNonNull(messageParameters.getMessagePostfix()).resolveAsString(locale);
+    }
+
     return message;
   }
 
@@ -493,45 +506,30 @@ public class ExceptionUtil {
   private static String getMessageFromBusinessViolation(Locale locale,
       boolean isMessagesWithItemNamesAsDefault, BusinessViolation violation,
       MessageParameters messageParameters) {
-    // If messageParameters.isMessageWithItemName() is not null (= explicitly specified),
-    // it's prioritized over isMessagesWithItemNamesAsDefault.
-    Boolean isMessageWithItemName = messageParameters.isMessageWithItemName() != null
-        ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
-        : isMessagesWithItemNamesAsDefault;
+    boolean isMessageWithItemName =
+        resolveIsMessageWithItemName(messageParameters, isMessagesWithItemNamesAsDefault);
 
-    String message = null;
     String msgKey = violation.getMessageId();
     Object[] msgArgs = (Object[]) violation.getMessageArgs();
-    if (isMessageWithItemName) {
-      Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
-      if (messageParameters.getRepresentativePropertyPath() != null) {
-        namedArgs.put("representativePropertyPath",
-            messageParameters.getRepresentativePropertyPath());
-      }
-      String[] itemNameKeys = violation.getItemNameKeys();
-      if (itemNameKeys.length > 0) {
-        List<@NonNull Item> itemList =
-            Arrays.stream(itemNameKeys).map(key -> new Item(key).itemNameKey(key)).toList();
-        String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
-        namedArgs.put("item_name", itemName);
-        namedArgs.put("0", itemName);
-      }
-      message = PropertiesFileUtil.getMessageWithItemName(locale, msgKey, namedArgs, msgArgs);
-    } else {
-      message = PropertiesFileUtil.getMessage(locale, msgKey, msgArgs);
+
+    // {item_name} is resolved regardless of isMessageWithItemName, the same as the
+    // ConstraintViolation message path, where {0}-to-itemName substitution runs
+    // unconditionally once the resolved message contains the placeholder. This lets a message
+    // embed {item_name} directly in messages.properties without requiring a separate
+    // messages_with_item_names.properties entry just to use it.
+    Map<@NonNull String, @Nullable Object> namedArgs = new HashMap<>();
+    String[] itemNameKeys = violation.getItemNameKeys();
+    if (itemNameKeys.length > 0) {
+      List<@NonNull Item> itemList =
+          Arrays.stream(itemNameKeys).map(key -> new Item(key).itemNameKey(key)).toList();
+      String itemName = MessageUtil.getItemNames(locale, itemList, false, new Object());
+      namedArgs.put("item_name", itemName);
     }
 
-    // add prefix and postfix messages.
-    if (messageParameters.getMessagePrefix() != null) {
-      message = Objects.requireNonNull(messageParameters.getMessagePrefix()).resolveAsString(locale)
-          + message;
-    }
+    String message = isMessageWithItemName
+        ? PropertiesFileUtil.getMessageWithItemName(locale, msgKey, namedArgs, msgArgs)
+        : PropertiesFileUtil.getMessage(locale, msgKey, namedArgs, msgArgs);
 
-    if (messageParameters.getMessagePostfix() != null) {
-      message = message
-          + Objects.requireNonNull(messageParameters.getMessagePostfix()).resolveAsString(locale);
-    }
-
-    return message;
+    return applyPrefixAndPostfix(message, locale, messageParameters);
   }
 }

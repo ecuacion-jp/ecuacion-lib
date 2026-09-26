@@ -23,7 +23,6 @@ import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ItemUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -39,11 +38,14 @@ public class ComparisonValidatorMessageParameterCreator
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
-    String cvPropertyPath = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
-    String bpp =
-        Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
-    String fullBpp = (StringUtils.isEmpty(cvPropertyPath) ? "" : cvPropertyPath + ".") + bpp;
-    Item item = ItemUtil.resolveItem(fullBpp, cv.getRootBean());
+    // This constraint (e.g. @LessThanOrEqualTo) is always class-level (@Target(TYPE)), so
+    // cv.getLeafBean() is always the exact bean instance the annotation is placed on, and
+    // baselinePropertyPath is always a direct property of that same bean. Resolving relative
+    // to it directly (rather than concatenating cv.getPropertyPath() onto cv.getRootBean())
+    // keeps the item name based on the bean's own identity (@ItemNameKeyClass or class name)
+    // regardless of how deeply that bean is nested under the root.
+    String bpp = Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
+    Item item = ItemUtil.resolveItem(bpp, cv.getLeafBean());
     result.put("baselinePropertyPathItemName",
         new ItemNameParam(List.of(item), cv.getRootBean()));
 
