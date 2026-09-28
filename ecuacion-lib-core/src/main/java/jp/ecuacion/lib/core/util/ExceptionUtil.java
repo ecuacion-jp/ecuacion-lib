@@ -495,12 +495,37 @@ public class ExceptionUtil {
       final Map<@NonNull String, @Nullable Object> map, boolean showsItemNamePath) {
     Map<@NonNull String, @Nullable Object> updates = new HashMap<>();
     for (Map.Entry<@NonNull String, @Nullable Object> entry : map.entrySet()) {
-      if (entry.getValue() instanceof ValidatorMessageParameterCreator.ItemNameParam lep) {
-        updates.put(entry.getKey(), MessageUtil.getItemNames(locale, lep.items(), showsItemNamePath,
-            Objects.requireNonNull(lep.rootBean())));
+      if (entry.getValue() instanceof ValidatorMessageParameterCreator.ItemNameParam
+          || entry.getValue() instanceof Arg) {
+        updates.put(entry.getKey(),
+            resolveItemNameParam(locale, entry.getValue(), showsItemNamePath));
       }
     }
     map.putAll(updates);
+  }
+
+  /**
+   * Resolves {@code ItemNameParam} to the item names, including the ones nested
+   * as arguments of an {@code Arg}.
+   */
+  private static @Nullable Object resolveItemNameParam(@Nullable Locale locale,
+      @Nullable Object value, boolean showsItemNamePath) {
+    if (value instanceof ValidatorMessageParameterCreator.ItemNameParam lep) {
+      return MessageUtil.getItemNames(locale, lep.items(), showsItemNamePath,
+          Objects.requireNonNull(lep.rootBean()));
+    }
+
+    if (value instanceof Arg arg) {
+      @Nullable Object[] args = Arrays.stream(arg.getMessageArgs())
+          .map(a -> resolveItemNameParam(locale, a, showsItemNamePath)).toArray();
+      String argValue = Objects.requireNonNull((String) arg.getArgValue());
+
+      return arg.getArgKind() == Arg.ArgKind.MESSAGE_ID
+          ? Arg.fromFileKinds(arg.getFileKinds(), argValue, args)
+          : Arg.formattedString(argValue, args);
+    }
+
+    return value;
   }
 
   private static String getMessageFromBusinessViolation(Locale locale,

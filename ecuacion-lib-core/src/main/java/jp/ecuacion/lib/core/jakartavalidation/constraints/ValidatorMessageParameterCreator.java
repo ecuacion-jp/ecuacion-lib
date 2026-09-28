@@ -53,7 +53,10 @@ public interface ValidatorMessageParameterCreator {
    * <p>Place an instance of this class as a map value returned from {@link #create}
    *     when the named placeholder should be filled with the item's display name.
    *     {@link jp.ecuacion.lib.core.util.ExceptionUtil} will resolve it before the map
-   *     is passed to the message formatter.</p>
+   *     is passed to the message formatter.
+   *     It can also be placed as an argument of an
+   *     {@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg} in the map
+   *     (at any depth of nesting).</p>
    *
    * <p>For property-file-lookup parameters, put an
    *     {@link jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg} instance directly

@@ -70,9 +70,12 @@ public @interface NotStringWhen {
    *     because basically you set field names (like 'name'),
    *     but you can also set a field in a bean (like 'dept.name').</p>
    *
+   * <p>It must be set unless {@code conditions} is set.
+   *     To specify multiple conditions, use {@code conditions} instead.</p>
+   *
    * @return conditionPropertyPath
    */
-  String conditionPropertyPath();
+  String conditionPropertyPath() default "";
 
   /**
    * Specifies a value used for determination whether validation is executed or not.
@@ -209,6 +212,23 @@ public @interface NotStringWhen {
    * @return String
    */
   String conditionValueDisplayStringPropertyPath() default "";
+
+  /**
+   * Specifies multiple conditions, all of which must be satisfied (AND)
+   *     for the validation to be executed.
+   *
+   * <p>Use this instead of {@code conditionPropertyPath} and the other {@code condition*}
+   *     parameters when you need more than one condition. They cannot be used together.
+   *     See {@link Condition} for details.</p>
+   *
+   * <p>When multiple conditions are set, the message parameters
+   *     {@code conditionPropertyPathItemName} and {@code displayStringOfConditionValue}
+   *     describe the first condition only; use {@code conditionDescription}
+   *     to describe all of them.</p>
+   *
+   * @return an array of conditions
+   */
+  Condition[] conditions() default {};
 
   /**
    * Decides whether validation check is executed when the condition is not satisfied.
