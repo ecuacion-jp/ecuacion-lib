@@ -41,7 +41,7 @@ public class FalseWhenValidator extends ValidateWhenValidator<FalseWhen, Object>
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.trueWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.trueWhenConditionNotSatisfied());
   }
 
   @Override

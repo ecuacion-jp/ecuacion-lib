@@ -49,7 +49,7 @@ public class ValueOfPropertyPathWhenValidator
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.notValueOfPropertyPathWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.notValueOfPropertyPathWhenConditionNotSatisfied());
 
     this.valuePropertyPath = annotation.valuePropertyPath();
   }

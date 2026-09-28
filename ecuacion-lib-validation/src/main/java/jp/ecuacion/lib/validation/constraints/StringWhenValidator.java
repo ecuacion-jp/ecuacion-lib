@@ -45,7 +45,7 @@ public class StringWhenValidator extends ValidateWhenValidator<StringWhen, Objec
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.notStringWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.notStringWhenConditionNotSatisfied());
 
     this.string = annotation.string();
   }
