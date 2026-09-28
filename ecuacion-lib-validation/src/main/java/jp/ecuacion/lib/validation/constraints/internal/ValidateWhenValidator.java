@@ -32,26 +32,16 @@ import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
+import jp.ecuacion.lib.validation.constraints.Condition;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class ValidateWhenValidator<A extends Annotation, T> extends ClassValidator<A, T> {
-  private String conditionPropertyPath = "";
-  // Put anything to avoid null error.
-  private ConditionValue conditionPattern = ConditionValue.EMPTY;
-  // Put anything to avoid null error.
-  private ConditionOperator conditionOperator = ConditionOperator.EQUAL_TO;
-  private String[] conditionValueString = new String[] {};
-  private String conditionValueRegexp = "";
-  // Compiled once here rather than per isValid() call: the regexp itself is annotation
-  // (developer) input, immutable after initialize(), so caching it is safe (see ClassValidator's
-  // javadoc on why per-call state must not be cached in a field, which does not apply here).
-  private @Nullable Pattern compiledConditionValueRegexp;
-  private String conditionValuePropertyPath = "";
-  private boolean[] conditionValueBoolean = new boolean[] {};
-  private ConditionValueState conditionValueState = ConditionValueState.UNSPECIFIED;
+  // Put anything to avoid null error. Replaced in initialize().
+  private List<@NonNull ConditionEvaluator> conditionEvaluators = List.of();
   protected boolean validatesWhenConditionNotSatisfied;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
@@ -64,6 +54,8 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   public static final String CONDITION_VALUE_PROPERTY_PATH = "conditionValuePropertyPath";
   public static final String CONDITION_VALUE_BOOLEAN = "conditionValueBoolean";
   public static final String CONDITION_VALUE_STATE = "conditionValueState";
+  public static final String CONDITIONS = "conditions";
+  public static final String CONDITION_DESCRIPTION = "conditionDescription";
 
   public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH =
@@ -71,25 +63,53 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
+  /**
+   * Initializes the validator.
+   *
+   * <p>The condition is specified either by {@code conditionPropertyPath} and the other
+   *     {@code condition*} arguments (single condition), or by {@code conditions}
+   *     (one or more conditions, all of which must be satisfied). Specifying both,
+   *     or neither, is an error.</p>
+   */
   public void initialize(String message, String[] propertyPath, String conditionPropertyPath,
       ConditionValue conditionPattern, ConditionOperator conditionOperator,
       String[] conditionValueString, String conditionValuePattern,
       String conditionValuePropertyPath, boolean[] conditionValueBoolean,
-      ConditionValueState conditionValueState, boolean validatesWhenConditionNotSatisfied) {
+      ConditionValueState conditionValueState, Condition[] conditions,
+      boolean validatesWhenConditionNotSatisfied) {
     super.initialize(message, propertyPath);
 
-    this.conditionPropertyPath = conditionPropertyPath;
-    this.conditionPattern = resolveConditionValue(conditionPattern, conditionValueString,
-        conditionValuePattern, conditionValuePropertyPath, conditionValueBoolean,
-        conditionValueState);
-    this.conditionOperator = conditionOperator;
-    this.conditionValueString = conditionValueString;
-    this.conditionValueRegexp = conditionValuePattern;
-    this.compiledConditionValueRegexp =
-        conditionValuePattern.isEmpty() ? null : Pattern.compile(conditionValuePattern);
-    this.conditionValuePropertyPath = conditionValuePropertyPath;
-    this.conditionValueBoolean = conditionValueBoolean;
-    this.conditionValueState = conditionValueState;
+    boolean singleConditionSet = !conditionPropertyPath.isEmpty()
+        || conditionPattern != ConditionValue.UNSPECIFIED || conditionOperator != EQUAL_TO
+        || !Arrays.asList(conditionValueString)
+            .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)
+        || !conditionValuePattern.isEmpty() || !conditionValuePropertyPath.isEmpty()
+        || conditionValueBoolean.length > 0
+        || conditionValueState != ConditionValueState.UNSPECIFIED;
+
+    if (conditions.length > 0) {
+      if (singleConditionSet) {
+        throw new RuntimeException("You cannot set 'conditionPropertyPath' or other "
+            + "'condition*' parameters when 'conditions' is set.");
+      }
+
+      this.conditionEvaluators = Arrays.stream(conditions)
+          .map(c -> new ConditionEvaluator(c.propertyPath(), ConditionValue.UNSPECIFIED,
+              c.operator(), c.valueString(), c.valuePatternRegexp(), c.valuePropertyPath(),
+              c.valueBoolean(), c.valueState()))
+          .toList();
+
+    } else {
+      if (conditionPropertyPath.isEmpty()) {
+        throw new RuntimeException(
+            "Either 'conditionPropertyPath' or 'conditions' must be set.");
+      }
+
+      this.conditionEvaluators = List.of(new ConditionEvaluator(conditionPropertyPath,
+          conditionPattern, conditionOperator, conditionValueString, conditionValuePattern,
+          conditionValuePropertyPath, conditionValueBoolean, conditionValueState));
+    }
+
     this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
   }
 
@@ -201,175 +221,14 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   }
 
   protected boolean getSatisfiesCondition(Object instance) {
-    Object valueOfConditionPropertyPath =
-        PropertyPathUtil.getValue(instance, conditionPropertyPath);
-
-    return switch (conditionPattern) {
-      case NULL, NOT_NULL -> checkNull(valueOfConditionPropertyPath);
-      case EMPTY, NOT_EMPTY -> checkEmpty(valueOfConditionPropertyPath);
-      case TRUE, FALSE -> checkBoolean(valueOfConditionPropertyPath);
-      case STRING -> checkString(valueOfConditionPropertyPath);
-      case PATTERN -> checkPattern(valueOfConditionPropertyPath);
-      case VALUE_OF_PROPERTY_PATH -> checkValueOfPropertyPath(instance,
-          valueOfConditionPropertyPath);
-      // Unreachable: resolveConditionValue() replaces UNSPECIFIED before it is ever stored
-      // in conditionPattern. Kept only because the switch must be exhaustive.
-      case ConditionValue.UNSPECIFIED -> throw new AssertionError(
-          "conditionPattern must have been resolved to a concrete value in initialize().");
-    };
-  }
-
-  private boolean checkNull(@Nullable Object valueOfConditionPropertyPath) {
-    conditionValueStringMustNotSet();
-    conditionValueRegexpMustNotSet();
-    conditionValuePropertyPathMustNotSet();
-    conditionValueBooleanMustNotSet();
-    conditionValueStateMustMatchOrNotSet();
-
-    boolean isNull = valueOfConditionPropertyPath == null;
-
-    // conditionPattern NULL means "null", NOT_NULL means "not null".
-    // conditionOperator then further modifies the direction.
-    boolean patternMatchesNull = conditionPattern == NULL;
-    boolean conditionSatisfied = patternMatchesNull ? isNull : !isNull;
-    return (conditionSatisfied && conditionOperator == EQUAL_TO)
-        || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
-  }
-
-  private boolean checkEmpty(@Nullable Object valueOfConditionPropertyPath) {
-    conditionValueStringMustNotSet();
-    conditionValueRegexpMustNotSet();
-    conditionValuePropertyPathMustNotSet();
-    conditionValueBooleanMustNotSet();
-    conditionValueStateMustMatchOrNotSet();
-
-    boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
-
-    // conditionPattern EMPTY means "empty", NOT_EMPTY means "not empty".
-    // conditionOperator then further modifies the direction.
-    boolean patternMatchesEmpty = conditionPattern == ConditionValue.EMPTY;
-    boolean conditionSatisfied = patternMatchesEmpty ? isEmpty : !isEmpty;
-    return (conditionSatisfied && conditionOperator == EQUAL_TO)
-        || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
-  }
-
-  private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
-    conditionValueStringMustNotSet();
-    conditionValueRegexpMustNotSet();
-    conditionValuePropertyPathMustNotSet();
-    conditionValueStateMustNotSet();
-    conditionValueBooleanMustMatchOrNotSet();
-
-    if (valueOfConditionPropertyPath != null
-        && !(valueOfConditionPropertyPath instanceof Boolean)) {
-      throw new RuntimeException("The data type of conditionPropertyPath must be boolean");
+    // All conditions are evaluated without short-circuiting so that a misconfigured condition
+    // is always reported, regardless of the values of the preceding conditions.
+    boolean satisfiesAll = true;
+    for (ConditionEvaluator evaluator : conditionEvaluators) {
+      satisfiesAll &= evaluator.satisfies(instance);
     }
 
-    Boolean bl = (Boolean) valueOfConditionPropertyPath;
-
-    boolean validWhenBooleanTrue = (conditionOperator == EQUAL_TO && bl != null && bl)
-        || (conditionOperator == NOT_EQUAL_TO && (bl == null || !bl));
-    boolean validWhenBooleanFalse = (conditionOperator == EQUAL_TO && bl != null && !bl)
-        || (conditionOperator == NOT_EQUAL_TO && (bl == null || bl));
-
-    return conditionPattern == TRUE ? validWhenBooleanTrue : validWhenBooleanFalse;
-  }
-
-  private boolean checkString(@Nullable Object valueOfConditionPropertyPath) {
-    conditionValueRegexpMustNotSet();
-    conditionValuePropertyPathMustNotSet();
-    conditionValueBooleanMustNotSet();
-    conditionValueStateMustNotSet();
-
-    Object conditionValue =
-        valueOfConditionPropertyPath == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL
-            : valueOfConditionPropertyPath;
-
-    // datatype of valueOfConditionField must be String.
-    if (!(conditionValue instanceof String)) {
-      throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
-    }
-
-    boolean contains = Arrays.asList(conditionValueString).contains(conditionValue);
-    return (contains && conditionOperator == EQUAL_TO)
-        || (!contains && conditionOperator == NOT_EQUAL_TO);
-  }
-
-  private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
-    conditionValueStringMustNotSet();
-    conditionValuePropertyPathMustNotSet();
-    conditionValueBooleanMustNotSet();
-    conditionValueStateMustNotSet();
-
-    // Condition is considered not to be satisfied when valueOfConditionPropertyPath is null or
-    // blank.
-    // If you want the condition to be satisfied, add one more validator with conditionValue ==
-    // EMPTY.
-    if (StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath)) {
-      return false;
-    }
-
-    // datatype of valueOfConditionField must be String.
-    if (!(valueOfConditionPropertyPath instanceof String s)) {
-      throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
-    }
-
-    // Pattern must be set.
-    if (conditionValueRegexp.isEmpty()) {
-      throw new RuntimeException("'conditionValuePattern' must be set.");
-    }
-
-    Matcher m = Objects.requireNonNull(compiledConditionValueRegexp).matcher(s);
-
-    boolean satisfies = m.find();
-    return (satisfies && conditionOperator == EQUAL_TO)
-        || (!satisfies && conditionOperator == NOT_EQUAL_TO);
-  }
-
-  private boolean checkValueOfPropertyPath(Object instance,
-      @Nullable Object valueOfConditionPropertyPath) {
-    conditionValueStringMustNotSet();
-    conditionValueRegexpMustNotSet();
-    conditionValueBooleanMustNotSet();
-    conditionValueStateMustNotSet();
-
-    Object valueOfConditionValueField =
-        PropertyPathUtil.getValue(instance, conditionValuePropertyPath);
-
-    List<Object> valueListOfConditionValueField;
-    if (valueOfConditionValueField instanceof Object[] arr) {
-      valueListOfConditionValueField = new ArrayList<>(Arrays.asList(arr));
-    } else {
-      valueListOfConditionValueField = new ArrayList<>();
-      valueListOfConditionValueField.add(valueOfConditionValueField);
-    }
-
-    // dataType difference check
-    List<Object> nonnullList =
-        valueListOfConditionValueField.stream().filter(v -> v != null).toList();
-    Object firstValueOfConditionValueField = nonnullList.isEmpty() ? null : nonnullList.get(0);
-    // if either of 2 values is null you cant check difference of datatype. So both is not null.
-    if (valueOfConditionPropertyPath != null && firstValueOfConditionValueField != null) {
-      Class<?> valueOfCf = valueOfConditionPropertyPath.getClass();
-      Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
-      if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
-        throw new RuntimeException(
-            "Datatype not match. valueOfConditionField: " + valueOfConditionPropertyPath
-                + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
-      }
-    }
-
-    // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
-    valueListOfConditionValueField
-        .replaceAll(x -> x == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL : x);
-
-    boolean contains = (valueOfConditionPropertyPath == null && valueListOfConditionValueField
-        .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL))
-        || (valueOfConditionPropertyPath != null
-            && valueListOfConditionValueField.contains(valueOfConditionPropertyPath));
-
-    return (contains && conditionOperator == EQUAL_TO)
-        || (!contains && conditionOperator == NOT_EQUAL_TO);
+    return satisfiesAll;
   }
 
   /**
@@ -386,69 +245,278 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
     return !isValid(valueOfField);
   }
 
-  private void conditionValuePropertyPathMustNotSet() {
-    // when prerequisite is satisfied, fieldHoldingConditionValue must be null
-    if (!conditionValuePropertyPath.isEmpty()) {
-      throw new RuntimeException("You cannot set 'conditionValuePropertyPath' when "
-          + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
-    }
-  }
-
-  private void conditionValueStringMustNotSet() {
-    // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
-    if (!Arrays.asList(conditionValueString)
-        .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
-      throw new RuntimeException(
-          "You cannot set 'conditionValueString' when conditionValue is not 'STRING'.");
-    }
-  }
-
-  private void conditionValueRegexpMustNotSet() {
-    if (!conditionValueRegexp.isEmpty()) {
-      throw new RuntimeException(
-          "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
-    }
-  }
-
-  private void conditionValueBooleanMustNotSet() {
-    if (conditionValueBoolean.length > 0) {
-      throw new RuntimeException(
-          "You cannot set 'conditionValueBoolean' when conditionValue is not 'TRUE' or 'FALSE'.");
-    }
-  }
-
-  private void conditionValueStateMustNotSet() {
-    if (conditionValueState != ConditionValueState.UNSPECIFIED) {
-      throw new RuntimeException("You cannot set 'conditionValueState' when conditionValue is "
-          + "'STRING', 'PATTERN', 'VALUE_OF_PROPERTY_PATH', 'TRUE' or 'FALSE'.");
-    }
-  }
-
   /**
-   * Checked from {@code checkBoolean()}: {@code conditionValueBoolean} corresponds to both
-   * {@code TRUE} and {@code FALSE}, so unlike the other {@code MustNotSet} guards it is allowed
-   * to be set here — it just must agree with the already-resolved {@code conditionPattern}
-   * when it is.
+   * Holds one condition and decides whether it is satisfied.
    */
-  private void conditionValueBooleanMustMatchOrNotSet() {
-    if (conditionValueBoolean.length > 0
-        && conditionValueBoolean[0] != (conditionPattern == TRUE)) {
-      throw new RuntimeException("'conditionValueBoolean' (" + conditionValueBoolean[0]
-          + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
-    }
-  }
+  private static class ConditionEvaluator {
+    private final String conditionPropertyPath;
+    private final ConditionValue conditionPattern;
+    private final ConditionOperator conditionOperator;
+    private final String[] conditionValueString;
+    private final String conditionValueRegexp;
+    // Compiled once here rather than per isValid() call: the regexp itself is annotation
+    // (developer) input, immutable after initialize(), so caching it is safe (see
+    // ClassValidator's javadoc on why per-call state must not be cached in a field, which does
+    // not apply here).
+    private final @Nullable Pattern compiledConditionValueRegexp;
+    private final String conditionValuePropertyPath;
+    private final boolean[] conditionValueBoolean;
+    private final ConditionValueState conditionValueState;
 
-  /**
-   * Checked from {@code checkNull()} / {@code checkEmpty()}: {@code conditionValueState}
-   * corresponds to all of {@code NULL} / {@code NOT_NULL} / {@code EMPTY} / {@code NOT_EMPTY},
-   * so unlike the other {@code MustNotSet} guards it is allowed to be set here — it just must
-   * agree with the already-resolved {@code conditionPattern} when it is.
-   */
-  private void conditionValueStateMustMatchOrNotSet() {
-    if (conditionValueState != ConditionValueState.UNSPECIFIED
-        && conditionValueState != ConditionValueState.valueOf(conditionPattern.name())) {
-      throw new RuntimeException("'conditionValueState' (" + conditionValueState
-          + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
+    ConditionEvaluator(String conditionPropertyPath, ConditionValue conditionPattern,
+        ConditionOperator conditionOperator, String[] conditionValueString,
+        String conditionValuePattern, String conditionValuePropertyPath,
+        boolean[] conditionValueBoolean, ConditionValueState conditionValueState) {
+      this.conditionPropertyPath = conditionPropertyPath;
+      this.conditionPattern = resolveConditionValue(conditionPattern, conditionValueString,
+          conditionValuePattern, conditionValuePropertyPath, conditionValueBoolean,
+          conditionValueState);
+      this.conditionOperator = conditionOperator;
+      this.conditionValueString = conditionValueString;
+      this.conditionValueRegexp = conditionValuePattern;
+      this.compiledConditionValueRegexp =
+          conditionValuePattern.isEmpty() ? null : Pattern.compile(conditionValuePattern);
+      this.conditionValuePropertyPath = conditionValuePropertyPath;
+      this.conditionValueBoolean = conditionValueBoolean;
+      this.conditionValueState = conditionValueState;
+    }
+
+    boolean satisfies(Object instance) {
+      Object valueOfConditionPropertyPath =
+          PropertyPathUtil.getValue(instance, conditionPropertyPath);
+
+      return switch (conditionPattern) {
+        case NULL, NOT_NULL -> checkNull(valueOfConditionPropertyPath);
+        case EMPTY, NOT_EMPTY -> checkEmpty(valueOfConditionPropertyPath);
+        case TRUE, FALSE -> checkBoolean(valueOfConditionPropertyPath);
+        case STRING -> checkString(valueOfConditionPropertyPath);
+        case PATTERN -> checkPattern(valueOfConditionPropertyPath);
+        case VALUE_OF_PROPERTY_PATH -> checkValueOfPropertyPath(instance,
+            valueOfConditionPropertyPath);
+        // Unreachable: resolveConditionValue() replaces UNSPECIFIED before it is ever stored
+        // in conditionPattern. Kept only because the switch must be exhaustive.
+        case ConditionValue.UNSPECIFIED -> throw new AssertionError(
+            "conditionPattern must have been resolved to a concrete value in initialize().");
+      };
+    }
+
+    private boolean checkNull(@Nullable Object valueOfConditionPropertyPath) {
+      conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
+      conditionValuePropertyPathMustNotSet();
+      conditionValueBooleanMustNotSet();
+      conditionValueStateMustMatchOrNotSet();
+
+      boolean isNull = valueOfConditionPropertyPath == null;
+
+      // conditionPattern NULL means "null", NOT_NULL means "not null".
+      // conditionOperator then further modifies the direction.
+      boolean patternMatchesNull = conditionPattern == NULL;
+      boolean conditionSatisfied = patternMatchesNull ? isNull : !isNull;
+      return (conditionSatisfied && conditionOperator == EQUAL_TO)
+          || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
+    }
+
+    private boolean checkEmpty(@Nullable Object valueOfConditionPropertyPath) {
+      conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
+      conditionValuePropertyPathMustNotSet();
+      conditionValueBooleanMustNotSet();
+      conditionValueStateMustMatchOrNotSet();
+
+      boolean isEmpty = StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath);
+
+      // conditionPattern EMPTY means "empty", NOT_EMPTY means "not empty".
+      // conditionOperator then further modifies the direction.
+      boolean patternMatchesEmpty = conditionPattern == ConditionValue.EMPTY;
+      boolean conditionSatisfied = patternMatchesEmpty ? isEmpty : !isEmpty;
+      return (conditionSatisfied && conditionOperator == EQUAL_TO)
+          || (!conditionSatisfied && conditionOperator == NOT_EQUAL_TO);
+    }
+
+    private boolean checkBoolean(@Nullable Object valueOfConditionPropertyPath) {
+      conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
+      conditionValuePropertyPathMustNotSet();
+      conditionValueStateMustNotSet();
+      conditionValueBooleanMustMatchOrNotSet();
+
+      if (valueOfConditionPropertyPath != null
+          && !(valueOfConditionPropertyPath instanceof Boolean)) {
+        throw new RuntimeException("The data type of conditionPropertyPath must be boolean");
+      }
+
+      Boolean bl = (Boolean) valueOfConditionPropertyPath;
+
+      boolean validWhenBooleanTrue = (conditionOperator == EQUAL_TO && bl != null && bl)
+          || (conditionOperator == NOT_EQUAL_TO && (bl == null || !bl));
+      boolean validWhenBooleanFalse = (conditionOperator == EQUAL_TO && bl != null && !bl)
+          || (conditionOperator == NOT_EQUAL_TO && (bl == null || bl));
+
+      return conditionPattern == TRUE ? validWhenBooleanTrue : validWhenBooleanFalse;
+    }
+
+    private boolean checkString(@Nullable Object valueOfConditionPropertyPath) {
+      conditionValueRegexpMustNotSet();
+      conditionValuePropertyPathMustNotSet();
+      conditionValueBooleanMustNotSet();
+      conditionValueStateMustNotSet();
+
+      Object conditionValue =
+          valueOfConditionPropertyPath == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL
+              : valueOfConditionPropertyPath;
+
+      // datatype of valueOfConditionField must be String.
+      if (!(conditionValue instanceof String)) {
+        throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
+      }
+
+      boolean contains = Arrays.asList(conditionValueString).contains(conditionValue);
+      return (contains && conditionOperator == EQUAL_TO)
+          || (!contains && conditionOperator == NOT_EQUAL_TO);
+    }
+
+    private boolean checkPattern(@Nullable Object valueOfConditionPropertyPath) {
+      conditionValueStringMustNotSet();
+      conditionValuePropertyPathMustNotSet();
+      conditionValueBooleanMustNotSet();
+      conditionValueStateMustNotSet();
+
+      // Condition is considered not to be satisfied when valueOfConditionPropertyPath is null or
+      // blank.
+      // If you want the condition to be satisfied, add one more validator with conditionValue ==
+      // EMPTY.
+      if (StringUtil.isObjectNullOrEmpty(valueOfConditionPropertyPath)) {
+        return false;
+      }
+
+      // datatype of valueOfConditionField must be String.
+      if (!(valueOfConditionPropertyPath instanceof String s)) {
+        throw new RuntimeException("'valueOfConditionPropertyPath' must be String.");
+      }
+
+      // Pattern must be set.
+      if (conditionValueRegexp.isEmpty()) {
+        throw new RuntimeException("'conditionValuePattern' must be set.");
+      }
+
+      Matcher m = Objects.requireNonNull(compiledConditionValueRegexp).matcher(s);
+
+      boolean satisfies = m.find();
+      return (satisfies && conditionOperator == EQUAL_TO)
+          || (!satisfies && conditionOperator == NOT_EQUAL_TO);
+    }
+
+    private boolean checkValueOfPropertyPath(Object instance,
+        @Nullable Object valueOfConditionPropertyPath) {
+      conditionValueStringMustNotSet();
+      conditionValueRegexpMustNotSet();
+      conditionValueBooleanMustNotSet();
+      conditionValueStateMustNotSet();
+
+      Object valueOfConditionValueField =
+          PropertyPathUtil.getValue(instance, conditionValuePropertyPath);
+
+      List<Object> valueListOfConditionValueField;
+      if (valueOfConditionValueField instanceof Object[] arr) {
+        valueListOfConditionValueField = new ArrayList<>(Arrays.asList(arr));
+      } else {
+        valueListOfConditionValueField = new ArrayList<>();
+        valueListOfConditionValueField.add(valueOfConditionValueField);
+      }
+
+      // dataType difference check
+      List<Object> nonnullList =
+          valueListOfConditionValueField.stream().filter(v -> v != null).toList();
+      Object firstValueOfConditionValueField = nonnullList.isEmpty() ? null : nonnullList.get(0);
+      // if either of 2 values is null you cant check difference of datatype. So both is not null.
+      if (valueOfConditionPropertyPath != null && firstValueOfConditionValueField != null) {
+        Class<?> valueOfCf = valueOfConditionPropertyPath.getClass();
+        Class<?> firstValueOfCvfList = firstValueOfConditionValueField.getClass();
+        if (!firstValueOfCvfList.isAssignableFrom(valueOfCf)) {
+          throw new RuntimeException(
+              "Datatype not match. valueOfConditionField: " + valueOfConditionPropertyPath
+                  + ", valueListOfConditionValueField.get(0): " + firstValueOfConditionValueField);
+        }
+      }
+
+      // contains(null) cannot be used for list so change it to VALIDATOR_PARAMETER_NULL in advance.
+      valueListOfConditionValueField
+          .replaceAll(x -> x == null ? EclibValidationConstants.VALIDATOR_PARAMETER_NULL : x);
+
+      boolean contains = (valueOfConditionPropertyPath == null && valueListOfConditionValueField
+          .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL))
+          || (valueOfConditionPropertyPath != null
+              && valueListOfConditionValueField.contains(valueOfConditionPropertyPath));
+
+      return (contains && conditionOperator == EQUAL_TO)
+          || (!contains && conditionOperator == NOT_EQUAL_TO);
+    }
+
+    private void conditionValuePropertyPathMustNotSet() {
+      // when prerequisite is satisfied, fieldHoldingConditionValue must be null
+      if (!conditionValuePropertyPath.isEmpty()) {
+        throw new RuntimeException("You cannot set 'conditionValuePropertyPath' when "
+            + "'conditionValue' is not 'VALUE_OF_PROPERTY_PATH'.");
+      }
+    }
+
+    private void conditionValueStringMustNotSet() {
+      // when prerequisite is satisfied, conditionValueIsNotEmpty must be false
+      if (!Arrays.asList(conditionValueString)
+          .contains(EclibValidationConstants.VALIDATOR_PARAMETER_NULL)) {
+        throw new RuntimeException(
+            "You cannot set 'conditionValueString' when conditionValue is not 'STRING'.");
+      }
+    }
+
+    private void conditionValueRegexpMustNotSet() {
+      if (!conditionValueRegexp.isEmpty()) {
+        throw new RuntimeException(
+            "You cannot set 'conditionValuePattern' when conditionValue is not 'PATTERN'.");
+      }
+    }
+
+    private void conditionValueBooleanMustNotSet() {
+      if (conditionValueBoolean.length > 0) {
+        throw new RuntimeException(
+            "You cannot set 'conditionValueBoolean' when conditionValue is not 'TRUE' or 'FALSE'.");
+      }
+    }
+
+    private void conditionValueStateMustNotSet() {
+      if (conditionValueState != ConditionValueState.UNSPECIFIED) {
+        throw new RuntimeException("You cannot set 'conditionValueState' when conditionValue is "
+            + "'STRING', 'PATTERN', 'VALUE_OF_PROPERTY_PATH', 'TRUE' or 'FALSE'.");
+      }
+    }
+
+    /**
+     * Checked from {@code checkBoolean()}: {@code conditionValueBoolean} corresponds to both
+     * {@code TRUE} and {@code FALSE}, so unlike the other {@code MustNotSet} guards it is allowed
+     * to be set here — it just must agree with the already-resolved {@code conditionPattern}
+     * when it is.
+     */
+    private void conditionValueBooleanMustMatchOrNotSet() {
+      if (conditionValueBoolean.length > 0
+          && conditionValueBoolean[0] != (conditionPattern == TRUE)) {
+        throw new RuntimeException("'conditionValueBoolean' (" + conditionValueBoolean[0]
+            + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
+      }
+    }
+
+    /**
+     * Checked from {@code checkNull()} / {@code checkEmpty()}: {@code conditionValueState}
+     * corresponds to all of {@code NULL} / {@code NOT_NULL} / {@code EMPTY} / {@code NOT_EMPTY},
+     * so unlike the other {@code MustNotSet} guards it is allowed to be set here — it just must
+     * agree with the already-resolved {@code conditionPattern} when it is.
+     */
+    private void conditionValueStateMustMatchOrNotSet() {
+      if (conditionValueState != ConditionValueState.UNSPECIFIED
+          && conditionValueState != ConditionValueState.valueOf(conditionPattern.name())) {
+        throw new RuntimeException("'conditionValueState' (" + conditionValueState
+            + ") conflicts with 'conditionValue' (" + conditionPattern + ").");
+      }
     }
   }
 }

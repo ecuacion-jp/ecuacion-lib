@@ -43,7 +43,7 @@ public class NotEmptyWhenValidator extends ValidateWhenValidator<NotEmptyWhen, O
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.emptyWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.emptyWhenConditionNotSatisfied());
   }
 
   @Override

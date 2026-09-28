@@ -29,6 +29,7 @@ import java.lang.annotation.Annotation;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.validation.constant.EclibValidationConstants;
+import jp.ecuacion.lib.validation.constraints.Condition;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
 import jp.ecuacion.lib.validation.constraints.internal.ValidateWhenTestBean.TestEnum;
 import org.jspecify.annotations.Nullable;
@@ -51,6 +52,7 @@ public class ValidateWhenValidatorTest {
   };
 
   private static final String NULL = EclibValidationConstants.VALIDATOR_PARAMETER_NULL;
+  private static final Condition[] NO_CONDITIONS = new Condition[] {};
 
   // -------------------------------------------------------------------------
   // STRING condition
@@ -65,7 +67,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("EQUAL_TO: condition satisfied when fieldValue is in condValues")
     void equalTo(String[] condValues, @Nullable String fieldValue, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", STRING, EQUAL_TO,
-          condValues, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          condValues, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueString(fieldValue))).isEqualTo(expected);
     }
@@ -113,7 +115,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("NOT_EQUAL_TO: condition satisfied when fieldValue is not in condValues")
     void notEqualTo(String[] condValues, @Nullable String fieldValue, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", STRING, NOT_EQUAL_TO,
-          condValues, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          condValues, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueString(fieldValue))).isEqualTo(expected);
     }
@@ -173,7 +175,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("throws RuntimeException when regexp is not set")
       void throwsWhenRegexpNotSet() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, EQUAL_TO,
-            new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThatThrownBy(() ->
             obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")))
             .isInstanceOf(RuntimeException.class);
@@ -186,7 +188,7 @@ public class ValidateWhenValidatorTest {
         // developer-controlled annotation input that never changes after initialize()), so a
         // malformed regexp now fails fast here rather than later on first use.
         assertThatThrownBy(() -> obj.initialize("", new String[]{"field"}, "condField", PATTERN,
-            EQUAL_TO, new String[]{NULL}, "^[.*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false))
+            EQUAL_TO, new String[]{NULL}, "^[.*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false))
             .isInstanceOf(PatternSyntaxException.class);
       }
 
@@ -194,7 +196,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("returns false when conditionField value is null or blank")
       void returnsFalseForNullOrBlankConditionValue() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, EQUAL_TO,
-            new String[]{NULL}, ".*", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, ".*", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueString(null))).isFalse();
         assertThat(obj.getSatisfiesCondition(
@@ -205,7 +207,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("returns true when conditionField value matches the pattern")
       void matchesPattern() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, EQUAL_TO,
-            new String[]{NULL}, "^[A-Z]*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "^[A-Z]*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueString("ABC"))).isTrue();
         assertThat(obj.getSatisfiesCondition(
@@ -221,7 +223,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("throws RuntimeException when regexp is not set")
       void throwsWhenRegexpNotSet() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, NOT_EQUAL_TO,
-            new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThatThrownBy(() ->
             obj.getSatisfiesCondition(new ValidateWhenTestBean.ConditionValueString("test")))
             .isInstanceOf(RuntimeException.class);
@@ -234,7 +236,7 @@ public class ValidateWhenValidatorTest {
         // developer-controlled annotation input that never changes after initialize()), so a
         // malformed regexp now fails fast here rather than later on first use.
         assertThatThrownBy(() -> obj.initialize("", new String[]{"field"}, "condField", PATTERN,
-            NOT_EQUAL_TO, new String[]{NULL}, "^[.*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false))
+            NOT_EQUAL_TO, new String[]{NULL}, "^[.*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false))
             .isInstanceOf(PatternSyntaxException.class);
       }
 
@@ -242,7 +244,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("returns false when conditionField value is null or blank")
       void returnsFalseForNullOrBlankConditionValue() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, NOT_EQUAL_TO,
-            new String[]{NULL}, ".*", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, ".*", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueString(null))).isFalse();
         assertThat(obj.getSatisfiesCondition(
@@ -253,7 +255,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("returns true when conditionField value does not match the pattern")
       void doesNotMatchPattern() {
         obj.initialize("", new String[]{"field"}, "condField", PATTERN, NOT_EQUAL_TO,
-            new String[]{NULL}, "^[A-Z]*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "^[A-Z]*$", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueString("ABC"))).isFalse();
         assertThat(obj.getSatisfiesCondition(
@@ -275,7 +277,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("EQUAL_TO: condition satisfied when conditionField is empty/null")
     void equalTo(Object bean, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", EMPTY, EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
     }
 
@@ -301,7 +303,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("NOT_EQUAL_TO: condition satisfied when conditionField is not empty")
     void notEqualTo(Object bean, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", EMPTY, NOT_EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
     }
 
@@ -336,7 +338,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("TRUE / EQUAL_TO: condition satisfied when conditionField is true")
     void trueEqualTo(@Nullable Boolean condField, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", TRUE, EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
@@ -355,7 +357,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("TRUE / NOT_EQUAL_TO: condition satisfied when conditionField is not true")
     void trueNotEqualTo(@Nullable Boolean condField, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", TRUE, NOT_EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
@@ -374,7 +376,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("FALSE / EQUAL_TO: condition satisfied when conditionField is false")
     void falseEqualTo(@Nullable Boolean condField, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", FALSE, EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
@@ -393,7 +395,7 @@ public class ValidateWhenValidatorTest {
     @DisplayName("FALSE / NOT_EQUAL_TO: condition satisfied when conditionField is not false")
     void falseNotEqualTo(@Nullable Boolean condField, boolean expected) {
       obj.initialize("", new String[]{"field"}, "condField", FALSE, NOT_EQUAL_TO,
-          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+          new String[]{NULL}, "", "", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
       assertThat(obj.getSatisfiesCondition(
           new ValidateWhenTestBean.ConditionValueBoolean.Boolean(condField))).isEqualTo(expected);
     }
@@ -424,7 +426,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("throws RuntimeException when conditionValueField does not exist or types mismatch")
       void throwsOnInvalidFieldConfig() {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
 
         assertThatThrownBy(() -> obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueField.NotExist(null)))
@@ -443,7 +445,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("String: condition satisfied when condField equals fieldHoldingConditionValue")
       void stringType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -468,7 +470,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Integer: condition satisfied when condField equals fieldHoldingConditionValue")
       void integerType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -493,7 +495,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Enum: condition satisfied when condField equals fieldHoldingConditionValue")
       void enumType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -520,7 +522,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("String[]: condition satisfied when condField is in fieldHoldingConditionValue")
       void stringArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -576,7 +578,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Integer[]: condition satisfied when condField is in fieldHoldingConditionValue")
       void integerArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -609,7 +611,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Enum[]: condition satisfied when condField is in fieldHoldingConditionValue")
       void enumArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH, EQUAL_TO,
-            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -646,7 +648,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("throws RuntimeException when conditionValueField does not exist or types mismatch")
       void throwsOnInvalidFieldConfig() {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
 
         assertThatThrownBy(() -> obj.getSatisfiesCondition(
             new ValidateWhenTestBean.ConditionValueField.NotExist(null)))
@@ -665,7 +667,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("String: condition satisfied when condField does not equal")
       void stringType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -700,7 +702,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Integer: condition satisfied when condField does not equal")
       void integerType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -725,7 +727,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Enum: condition satisfied when condField does not equal")
       void enumType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -752,7 +754,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("String[]: condition satisfied when condField is not in array")
       void stringArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -808,7 +810,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Integer[]: condition satisfied when condField is not in array")
       void integerArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
@@ -841,7 +843,7 @@ public class ValidateWhenValidatorTest {
       @DisplayName("Enum[]: condition satisfied when condField is not in array")
       void enumArrayType(Object bean, boolean expected) {
         obj.initialize("", new String[]{"field"}, "condField", VALUE_OF_PROPERTY_PATH,
-            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, false);
+            NOT_EQUAL_TO, new String[]{NULL}, "", "fieldHoldingConditionValue", new boolean[] {}, ConditionValueState.UNSPECIFIED, NO_CONDITIONS, false);
         assertThat(obj.getSatisfiesCondition(bean)).isEqualTo(expected);
       }
 
