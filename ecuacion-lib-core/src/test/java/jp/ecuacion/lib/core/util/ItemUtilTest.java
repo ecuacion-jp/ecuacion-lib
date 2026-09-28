@@ -108,6 +108,10 @@ public class ItemUtilTest {
 
   private static class Employee implements ItemContainer {
     @SuppressWarnings("unused")
+    @ItemNameKeyClass("ignored")
+    private @Nullable String code;
+
+    @SuppressWarnings("unused")
     private Dept belongingDept = new Dept();
 
     @SuppressWarnings({"unused", "null"})
@@ -225,6 +229,13 @@ public class ItemUtilTest {
           .isEqualTo("dept.name");
       assertThat(ItemUtil.resolveItem("deptMap[key].name", new Employee()).getItemNameKey())
           .isEqualTo("dept.name");
+    }
+
+    @Test
+    @DisplayName("@ItemNameKeyClass at a field is ignored when itemPropertyPath is not nested")
+    void itemNameKeyClassAtFieldIgnoredWhenNotNested() {
+      assertThat(ItemUtil.resolveItem("code", new Employee()).getItemNameKey())
+          .isEqualTo("employee.code");
     }
 
     @Test

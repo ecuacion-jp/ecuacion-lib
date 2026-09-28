@@ -1106,6 +1106,21 @@ public class ExceptionUtilTest {
           .isEqualTo("'target field' at element 2 contained by 'target array'" + MSG);
     }
 
+    @Test
+    @DisplayName("@ItemNameKeyClass at a collection field: its value is used as the class part")
+    void itemNameKeyClassAtCollectionField() {
+      String MSG = " must not be null.";
+      List<TargetCls> targetList =
+          List.of(new TargetCls[]{new TargetCls("a"), new TargetCls(null)});
+
+      // Without the annotation the itemNameKey would be "annotatedTargetList.field",
+      // which is not defined in item_names. The annotation makes it "targetCls.field".
+      assertThat(validateCollection(new SingleListFieldInkc(targetList), true, false))
+          .isEqualTo("'target field'" + MSG);
+      assertThat(validateCollection(new SingleListFieldInkcConRoot(targetList), true, false))
+          .isEqualTo("'target field'" + MSG);
+    }
+
     public static record TargetCls(@NotNull @Nullable String field) {}
 
     @ItemNameKeyClass("itemNameKeyClass")
@@ -1114,6 +1129,18 @@ public class ExceptionUtilTest {
     public static record SingleList(@Valid List<TargetCls> targetList) {}
 
     public static record SingleListInkc(@Valid List<TargetClsInkc> targetList) {}
+
+    public static record SingleListFieldInkc(
+        @Valid @ItemNameKeyClass("targetCls") List<TargetCls> annotatedTargetList) {}
+
+    public static record SingleListFieldInkcConRoot(
+        @Valid @ItemNameKeyClass("targetCls") List<TargetCls> annotatedTargetList)
+        implements ItemContainer {
+      @Override
+      public Item[] customizedItems() {
+        return new Item[]{};
+      }
+    }
 
     public static record SingleListConRoot(@Valid List<TargetCls> targetList)
         implements ItemContainer {
