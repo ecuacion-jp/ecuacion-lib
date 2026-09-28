@@ -15,12 +15,14 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import java.util.List;
 import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
 import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -111,20 +113,34 @@ public class ItemUtil {
    *     actually distinguishes them, whereas {@code @ItemNameKeyClass} only ever expresses one
    *     fixed value per class.</p>
    *
-   * <p>{@code @ItemNameKeyClass} therefore only applies when {@code itemPropertyPath} is NOT
-   *     nested, where there is no path segment to fall back on and it instead replaces the
+   * <p>The exception is when {@code @ItemNameKeyClass} is placed at the field the node refers to
+   *     (e.g. {@code @ItemNameKeyClass("dept") List<Dept> deptList}). Then its value is used
+   *     instead of the node name, so that fields reached through a field whose name does not suit
+   *     as the class part (like "deptList") can share the itemNameKey (like "dept.name")
+   *     without specifying {@code itemNameKey} field by field.</p>
+   *
+   * <p>{@code @ItemNameKeyClass} placed at a class therefore only applies when
+   *     {@code itemPropertyPath} is NOT nested, 
+   *     where there is no path segment to fall back on and it instead replaces the
    *     (usually unsuitable, e.g. "userBaseRecord") raw class name of {@code ownerClass}.</p>
    *
    * @param itemPropertyPath itemPropertyPath
    * @param ownerClass the class {@code itemPropertyPath} is relative to, consulted for
-   *     {@code @ItemNameKeyClass} when {@code itemPropertyPath} is not nested
+   *     {@code @ItemNameKeyClass} placed at the class when {@code itemPropertyPath} is not nested,
+   *     or used to find the field for {@code @ItemNameKeyClass} placed at it when nested
    * @return the itemNameKey class part, already uncapitalized
    */
   public static String resolveItemNameKeyClass(String itemPropertyPath, Class<?> ownerClass) {
-    String fieldPath = PropertyPathUtil.toFieldPath(itemPropertyPath);
-    if (fieldPath.contains(".")) {
-      String parentPath = PropertyPathUtil.getPropertyPathWithoutRightMostNode(fieldPath);
-      return StringUtils.uncapitalize(PropertyPathUtil.getRightMostNode(parentPath));
+    List<@NonNull String> nodeList = PropertyPathUtil.getNodeList(itemPropertyPath);
+    if (nodeList.size() >= 2) {
+      String classPartNode = nodeList.get(nodeList.size() - 2);
+      String classPartFieldName = PropertyPathUtil.toFieldPath(classPartNode);
+      Class<?> classPartFieldOwner = PropertyPathUtil.getClass(ownerClass,
+          String.join(".", nodeList.subList(0, nodeList.size() - 2)));
+      @Nullable
+      ItemNameKeyClass an = ReflectionUtil.getDeclaredField(classPartFieldOwner, classPartFieldName)
+          .getAnnotation(ItemNameKeyClass.class);
+      return StringUtils.uncapitalize(an == null ? classPartFieldName : an.value());
     }
 
     // Since what we want to know is class, instance is not needed.
