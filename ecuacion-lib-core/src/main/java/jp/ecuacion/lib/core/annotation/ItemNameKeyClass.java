@@ -27,10 +27,27 @@ import java.lang.annotation.Target;
  *
  * <p>When validating some object, some itemNameKey is set by default.
  *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
- * 
+ *
+ * <p>It can be placed at a class or a field.</p>
+ *
+ * <ul>
+ * <li>At a class: replaces the class part of {@code itemNameKey} (which defaults to the class
+ *     name) for fields directly owned by that class,
+ *     when its itemPropertyPath is not nested (like {@code "name"}).</li>
+ * <li>At a field holding a bean, or a collection, an array or a map of beans:
+ *     replaces the class part of {@code itemNameKey} (which defaults to the field name)
+ *     for fields of that bean reached through the annotated field.
+ *     For example, with {@code @ItemNameKeyClass("dept") List<Dept> deptList},
+ *     the itemNameKey of {@code deptList[0].name} becomes {@code dept.name}
+ *     instead of {@code deptList.name}.</li>
+ * </ul>
+ *
+ * <p>Either is overridden by the class part explicitly specified
+ *     by {@code Item#itemNameKey(String)}.</p>
+ *
  * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RUNTIME)
 @Documented
 public @interface ItemNameKeyClass {
