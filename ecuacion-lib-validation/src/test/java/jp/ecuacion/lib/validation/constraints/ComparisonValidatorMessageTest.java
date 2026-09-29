@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.List;
 import java.util.Locale;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
@@ -32,8 +33,9 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Covers the case where the annotation is placed at the class level of a bean
  * that is itself nested under a root bean (e.g. referenced via a {@code @Valid} field).
- * In that case {@code baselinePropertyPathItemName} must be resolved relative to the
- * nested bean, not to the root bean.</p>
+ * In that case the itemNameKey of {@code baselinePropertyPathItemName} must be resolved
+ * in the same way as {@code propertyPath}, that is, its class part comes from the field
+ * the nested bean is reached through (or {@code @ItemNameKeyClass} placed at that field).</p>
  */
 @DisplayName("Comparison validators - message content")
 public class ComparisonValidatorMessageTest {
@@ -46,11 +48,21 @@ public class ComparisonValidatorMessageTest {
   }
 
   @Test
-  @DisplayName("baselinePropertyPathItemName is resolved relative to the nested bean, "
-      + "not the root bean")
-  public void baselinePropertyPathItemNameResolvedRelativeToNestedBean() {
+  @DisplayName("class part of baselinePropertyPathItemName is the field name "
+      + "the nested bean is reached through")
+  public void baselinePropertyPathItemNameUsesFieldName() {
     String msg = ExceptionUtil
         .getMessageList(validator.validate(new Outer()), Locale.ENGLISH).get(0);
+    assertThat(msg).isEqualTo("must be less than or equal to the value of 'end date of inner'");
+  }
+
+  @Test
+  @DisplayName("class part of baselinePropertyPathItemName is @ItemNameKeyClass "
+      + "placed at the field the nested bean is reached through")
+  public void baselinePropertyPathItemNameUsesItemNameKeyClassAtField() {
+    String msg = ExceptionUtil
+        .getMessageList(validator.validate(new OuterWithAnnotatedField()), Locale.ENGLISH)
+        .get(0);
     assertThat(msg).isEqualTo("must be less than or equal to the value of 'end date'");
   }
 
@@ -59,6 +71,14 @@ public class ComparisonValidatorMessageTest {
     @SuppressWarnings("unused")
     @Valid
     private Inner inner = new Inner();
+  }
+
+  @ItemNameKeyClass("outerBean")
+  private static class OuterWithAnnotatedField {
+    @SuppressWarnings("unused")
+    @ItemNameKeyClass("innerBean")
+    @Valid
+    private List<Inner> innerList = List.of(new Inner());
   }
 
   @ItemNameKeyClass("innerBean")

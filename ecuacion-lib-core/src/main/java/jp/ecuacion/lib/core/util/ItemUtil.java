@@ -15,11 +15,13 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import jakarta.validation.ConstraintViolation;
 import java.util.List;
 import java.util.Objects;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
@@ -95,6 +97,50 @@ public class ItemUtil {
     }
 
     return new Item(fullPropertyPath).itemNameKey(itemNameKey).showsValue(showsValue);
+  }
+
+  /**
+   * Resolves an {@link Item} from {@code cv} and {@code propertyPath} specified
+   *     at an attribute of the constraint annotation.
+   *
+   * <p>{@code propertyPath} (like {@code propertyPath}, {@code baselinePropertyPath}
+   *     or {@code conditionPropertyPath}) is relative to the bean the annotation is placed on.
+   *     It's converted to the one relative to the root bean by
+   *     {@link #getFullPropertyPath(ConstraintViolation, String)}, and then resolved by
+   *     {@link #resolveItem(String, Object)}, so every property path of a constraint annotation
+   *     obtains its {@code itemNameKey} in the same way regardless of the attribute
+   *     it is specified at.</p>
+   *
+   * @param cv ConstraintViolation
+   * @param propertyPath property path relative to the bean the annotation is placed on
+   * @return Item
+   */
+  public static Item resolveItem(ConstraintViolation<?> cv, String propertyPath) {
+    return resolveItem(getFullPropertyPath(cv, propertyPath), cv.getRootBean());
+  }
+
+  /**
+   * Returns the property path relative to the root bean of {@code cv}
+   *     from {@code propertyPath} specified at an attribute of the constraint annotation.
+   *
+   * <p>For a constraint placed at a class, {@code propertyPath} is relative to that class,
+   *     which {@code cv.getPropertyPath()} refers to.
+   *     For a constraint placed at a method, it's relative to the class that owns the method,
+   *     which the parent of {@code cv.getPropertyPath()} refers to.</p>
+   *
+   * @param cv ConstraintViolation
+   * @param propertyPath property path relative to the bean the annotation is placed on
+   * @return property path relative to the root bean
+   */
+  public static String getFullPropertyPath(ConstraintViolation<?> cv, String propertyPath) {
+    String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
+    boolean isClassValidator = ClassValidator.class.isAssignableFrom(
+        cv.getConstraintDescriptor().getConstraintValidatorClasses().get(0));
+
+    // Base differs class from method.
+    String cvPpBase = isClassValidator ? cvPp
+        : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
+    return (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".") + propertyPath;
   }
 
   /**

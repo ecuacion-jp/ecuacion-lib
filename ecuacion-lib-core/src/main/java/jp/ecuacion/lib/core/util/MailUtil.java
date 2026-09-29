@@ -107,6 +107,22 @@ public class MailUtil {
    * @param config mail configuration
    */
   public static void sendErrorMail(Throwable throwable, MailUtilConfig config) {
+    sendErrorMail(throwable, null, config);
+  }
+
+  /**
+   * Sends an error mail adding an additional message to it,
+   *     using the supplied {@link MailUtilConfig} instead of reading settings
+   *     from {@code application.properties}.
+   *
+   * @param throwable throwable
+   * @param additionalMessage additional message,
+   *     may be {@code null} if no {@code additionalMessage} is needed.
+   *     In the case of {@code null} no additional message is output.
+   * @param config mail configuration
+   */
+  public static void sendErrorMail(Throwable throwable, @Nullable String additionalMessage,
+      MailUtilConfig config) {
     Objects.requireNonNull(throwable);
 
     List<@NonNull String> errorMailAddressList =
@@ -120,7 +136,7 @@ public class MailUtil {
 
     try {
       sendMailCommon(errorMailAddressList, (List<@NonNull String>) null, false, mailTitle,
-          getErrorMailContent(throwable, null), false, config);
+          getErrorMailContent(throwable, additionalMessage), false, config);
 
     } catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -188,6 +204,29 @@ public class MailUtil {
   }
 
   /**
+   * Sends a warn mail using the supplied {@link MailUtilConfig} instead of reading settings
+   * from {@code application.properties}.
+   *
+   * <p>{@code mailToList} is passed as-is to {@link jakarta.mail.internet.InternetAddress}
+   *     without sanitization; do not pass untrusted (e.g. end-user-supplied) values.</p>
+   *
+   * @param content content, may be {@code null} if no mailbody content needed.
+   * @param mailToList list of mailadresses used for "TO" address
+   * @param config mail configuration
+   */
+  public static void sendWarnMail(String content, List<@NonNull String> mailToList,
+      MailUtilConfig config) {
+    ObjectsUtil.requireSizeNonZero(mailToList);
+
+    try {
+      sendMailCommon(mailToList, (List<@NonNull String>) null, false,
+          config.titlePrefix() + "Warn Message", content, true, config);
+    } catch (Exception ex) {
+      // do nothing.
+    }
+  }
+
+  /**
    * Provides sending text-format mail function.
    * 
    * <p>The following settings are needed to application.properties
@@ -237,6 +276,31 @@ public class MailUtil {
   }
 
   /**
+   * Provides sending text-format mail function using the supplied {@link MailUtilConfig}
+   *     instead of reading settings from {@code application.properties}.
+   *
+   * <p>{@code mailToList}, {@code mailCcList}, and {@code title} are passed as-is to
+   *     the underlying {@link jakarta.mail.internet.MimeMessage} without sanitization;
+   *     do not pass untrusted (e.g. end-user-supplied) values without validating or escaping
+   *     them first.</p>
+   *
+   * @param mailToList mailToList.
+   *     Either mailToList or mailCcList need to have at least one element.
+   * @param mailCcList mailCcList.
+   *     Either mailToList or mailCcList need to have at least one element.
+   * @param title title
+   * @param content content, may be {@code null} if no content needed.
+   * @param config mail configuration
+   * @throws Exception Exception
+   */
+  public static void sendTextMail(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, String title, String content,
+      MailUtilConfig config) throws Exception {
+
+    sendMailCommon(mailToList, mailCcList, false, title, content, true, config);
+  }
+
+  /**
    * Provides sending html-format mail function.
    * 
    * @see sendTextMail
@@ -245,6 +309,19 @@ public class MailUtil {
       @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, true, title, content, true);
+  }
+
+  /**
+   * Provides sending html-format mail function using the supplied {@link MailUtilConfig}
+   *     instead of reading settings from {@code application.properties}.
+   *
+   * @see sendTextMail
+   */
+  public static void sendHtmlMail(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList, String title, String content,
+      MailUtilConfig config) throws Exception {
+
+    sendMailCommon(mailToList, mailCcList, true, title, content, true, config);
   }
 
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
