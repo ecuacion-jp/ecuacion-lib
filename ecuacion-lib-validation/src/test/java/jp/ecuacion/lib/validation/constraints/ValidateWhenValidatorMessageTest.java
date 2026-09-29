@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
@@ -250,11 +251,21 @@ public class ValidateWhenValidatorMessageTest {
   // -------------------------------------------------------------------------
 
   @Test
-  @DisplayName("conditionPropertyPathItemName is resolved relative to the nested bean, "
-      + "not the root bean")
-  public void conditionPropertyPathItemNameResolvedRelativeToNestedBean() {
+  @DisplayName("class part of conditionPropertyPathItemName is the field name "
+      + "the nested bean is reached through")
+  public void conditionPropertyPathItemNameUsesFieldName() {
     String msg = ExceptionUtil
         .getMessageList(validator.validate(new WhenOuter()), Locale.ENGLISH).get(0);
+    assertThat(msg).isEqualTo("needs to be not empty when 'condition field of inner' is ON");
+  }
+
+  @Test
+  @DisplayName("class part of conditionPropertyPathItemName is @ItemNameKeyClass "
+      + "placed at the field the nested bean is reached through")
+  public void conditionPropertyPathItemNameUsesItemNameKeyClassAtField() {
+    String msg = ExceptionUtil
+        .getMessageList(validator.validate(new WhenOuterWithAnnotatedField()), Locale.ENGLISH)
+        .get(0);
     assertThat(msg).isEqualTo("needs to be not empty when 'condition field' is ON");
   }
 
@@ -263,6 +274,14 @@ public class ValidateWhenValidatorMessageTest {
     @SuppressWarnings("unused")
     @Valid
     private WhenInner inner = new WhenInner();
+  }
+
+  @ItemNameKeyClass("whenOuterBean")
+  private static class WhenOuterWithAnnotatedField {
+    @SuppressWarnings("unused")
+    @ItemNameKeyClass("whenInnerBean")
+    @Valid
+    private List<WhenInner> innerList = List.of(new WhenInner());
   }
 
   @ItemNameKeyClass("whenInnerBean")
