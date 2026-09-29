@@ -152,14 +152,9 @@ public class ValidateWhenValidatorMessageParameterCreator
 
   private ItemNameParam conditionItemName(ConstraintViolation<?> cv,
       ConditionAttributes condition) {
-    // This constraint (e.g. @NotNullWhen) is always class-level (@Target(TYPE)), so
-    // cv.getLeafBean() is always the exact bean instance the annotation is placed on, and
-    // the condition propertyPath is always a direct property of that same bean. Resolving
-    // relative to it directly (rather than concatenating cv.getPropertyPath() onto
-    // cv.getRootBean()) keeps the item name based on the bean's own identity
-    // (@ItemNameKeyClass or class name) regardless of how deeply that bean is nested under the
-    // root.
-    Item item = ItemUtil.resolveItem(condition.propertyPath(), cv.getLeafBean());
+    // Resolve it in the same way as propertyPath so that the itemNameKey is obtained
+    // by the same rule (like @ItemNameKeyClass placed at the field the bean is reached through).
+    Item item = ItemUtil.resolveItem(cv, condition.propertyPath());
     return new ItemNameParam(List.of(item), cv.getRootBean());
   }
 

@@ -25,12 +25,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import jp.ecuacion.lib.core.item.Item;
-import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.MultiplePropertyPathsValidator;
 import jp.ecuacion.lib.core.util.ItemUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import jp.ecuacion.lib.core.util.StringUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -153,19 +151,13 @@ public class ConstraintViolationBean<T> {
 
     boolean isMultiplePropertyPathsValidator =
         MultiplePropertyPathsValidator.class.isAssignableFrom(validatorClass);
-    boolean isClassValidator = ClassValidator.class.isAssignableFrom(validatorClass);
 
     // propertyPathList
     String cvPp = cv.getPropertyPath() == null ? "" : cv.getPropertyPath().toString();
     List<@NonNull String> ppList = null;
     if (isMultiplePropertyPathsValidator) {
-      // Base differs class from method.
-      String cvPpBase = isClassValidator ? cvPp
-          : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
-      String cvPpPrefix = (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".");
-
       ppList = Arrays.stream((String[]) embeddedParamMap.get("propertyPath"))
-          .map(p -> cvPpPrefix + p).toList();
+          .map(p -> ItemUtil.getFullPropertyPath(cv, p)).toList();
 
     } else {
       ppList = new ArrayList<>();

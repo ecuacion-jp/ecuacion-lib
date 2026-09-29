@@ -38,14 +38,10 @@ public class ComparisonValidatorMessageParameterCreator
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
-    // This constraint (e.g. @LessThanOrEqualTo) is always class-level (@Target(TYPE)), so
-    // cv.getLeafBean() is always the exact bean instance the annotation is placed on, and
-    // baselinePropertyPath is always a direct property of that same bean. Resolving relative
-    // to it directly (rather than concatenating cv.getPropertyPath() onto cv.getRootBean())
-    // keeps the item name based on the bean's own identity (@ItemNameKeyClass or class name)
-    // regardless of how deeply that bean is nested under the root.
+    // Resolve it in the same way as propertyPath so that the itemNameKey is obtained
+    // by the same rule (like @ItemNameKeyClass placed at the field the bean is reached through).
     String bpp = Objects.requireNonNull((String) paramMap.get("baselinePropertyPath"));
-    Item item = ItemUtil.resolveItem(bpp, cv.getLeafBean());
+    Item item = ItemUtil.resolveItem(cv, bpp);
     result.put("baselinePropertyPathItemName",
         new ItemNameParam(List.of(item), cv.getRootBean()));
 
