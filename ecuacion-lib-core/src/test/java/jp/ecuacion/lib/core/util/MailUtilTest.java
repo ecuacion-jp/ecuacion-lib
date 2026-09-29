@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,6 +154,41 @@ public class MailUtilTest {
     assertThat(captured.get(0).to()).containsExactly("err1@test.com", "err2@test.com");
     assertThat(captured.get(0).title()).isEqualTo("[cfg] A system error has occurred.");
     assertThat(captured.get(0).content()).contains("additional info");
+  }
+
+  @Test
+  @DisplayName("sendErrorMail with config: sent to addresses in config")
+  void sendErrorMail_config() {
+    MailUtil.sendErrorMail(new RuntimeException("test error"), config());
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).to()).containsExactly("err1@test.com", "err2@test.com");
+    assertThat(captured.get(0).title()).isEqualTo("[cfg] A system error has occurred.");
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("sendErrorMail with config: exception on sending is rethrown as RuntimeException")
+  void sendErrorMail_config_sendingFails() {
+    MailUtil.mailSender = (to, cc, html, title, content) -> {
+      throw new IllegalStateException("sending failed");
+    };
+
+    assertThatThrownBy(() -> MailUtil.sendErrorMail(new RuntimeException("test error"), config()))
+        .isInstanceOf(RuntimeException.class)
+        .hasCauseInstanceOf(IllegalStateException.class);
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("sendWarnMail with config: exception on sending is not thrown")
+  void sendWarnMail_config_sendingFails() {
+    MailUtil.mailSender = (to, cc, html, title, content) -> {
+      throw new IllegalStateException("sending failed");
+    };
+
+    assertThatCode(() -> MailUtil.sendWarnMail("Warn content", List.of("warn@test.com"), config()))
+        .doesNotThrowAnyException();
   }
 
   @Test
