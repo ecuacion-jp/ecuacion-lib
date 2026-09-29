@@ -111,6 +111,50 @@ public class MailUtilTest {
     assertThat(captured.get(0).title()).contains("Warn Message");
   }
 
+  private static MailUtil.MailUtilConfig config() {
+    return new MailUtil.MailUtilConfig("smtp.test.com", 587, false, true, true,
+        "sender@test.com", "pass", null, false, "[cfg] ", "err1@test.com,err2@test.com");
+  }
+
+  @Test
+  @DisplayName("sendTextMail with config: captured with plain-text flag")
+  void sendTextMail_config() throws Exception {
+    MailUtil.sendTextMail(List.of("to@test.com"), null, "Text Subject", "Text body", config());
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).title()).isEqualTo("Text Subject");
+    assertThat(captured.get(0).isHtml()).isFalse();
+  }
+
+  @Test
+  @DisplayName("sendHtmlMail with config: captured with HTML flag set")
+  void sendHtmlMail_config() throws Exception {
+    MailUtil.sendHtmlMail(List.of("to@test.com"), null, "HTML Subject", "<h1>Hi</h1>", config());
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).isHtml()).isTrue();
+  }
+
+  @Test
+  @DisplayName("sendWarnMail with config: title prefix is taken from config")
+  void sendWarnMail_config() {
+    MailUtil.sendWarnMail("Warn content", List.of("warn@test.com"), config());
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).title()).isEqualTo("[cfg] Warn Message");
+  }
+
+  @Test
+  @DisplayName("sendErrorMail with message and config: sent to addresses in config")
+  void sendErrorMail_withAdditionalMessage_config() {
+    MailUtil.sendErrorMail(new RuntimeException("test error"), "additional info", config());
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).to()).containsExactly("err1@test.com", "err2@test.com");
+    assertThat(captured.get(0).title()).isEqualTo("[cfg] A system error has occurred.");
+    assertThat(captured.get(0).content()).contains("additional info");
+  }
+
   @Test
   @DisplayName("sendTextMail: throws RuntimeException when both TO and CC are null")
   void sendTextMail_bothNull_throws() {
