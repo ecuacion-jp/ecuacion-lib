@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * <p>When validating some object, some itemNameKey is set by default.
  *     But sometimes it's not proper, so this annotation provides the way to change it.</p>
  *
- * <p>It can be placed at a class or a field.</p>
+ * <p>It can be placed at a class, a field, or a getter.</p>
  *
  * <ul>
  * <li>At a class: replaces the class part of {@code itemNameKey} (which defaults to the class
@@ -40,6 +40,11 @@ import java.lang.annotation.Target;
  *     For example, with {@code @ItemNameKeyClass("dept") List<Dept> deptList},
  *     the itemNameKey of {@code deptList[0].name} becomes {@code dept.name}
  *     instead of {@code deptList.name}.</li>
+ * <li>At a getter: works the same as at a field,
+ *     when the getter is used for the property because no field of the same name exists
+ *     (like {@code getDeptList()} without the field {@code deptList}).
+ *     When the field exists, the annotation at the field is used
+ *     and the one at the getter is ignored.</li>
  * </ul>
  *
  * <p>Either is overridden by the class part explicitly specified
@@ -47,7 +52,7 @@ import java.lang.annotation.Target;
  *
  * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
  */
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Retention(RUNTIME)
 @Documented
 public @interface ItemNameKeyClass {

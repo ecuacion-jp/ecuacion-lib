@@ -38,7 +38,9 @@ public @interface ClassAlwaysFalse {
    * 
    * <p>Its name is {@code propertyPath}, not {@code field} 
    *     because basically you set field names (like 'name'), 
-   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     but you can also set a field in a bean (like 'dept.name').
+   *     A getter (like {@code getName()}) is referred to instead when no field of the name
+   *     exists. See {@link jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator}.</p>
    * 
    * @return propertyPath
    */

@@ -160,7 +160,9 @@ public class ItemUtil {
    *     fixed value per class.</p>
    *
    * <p>The exception is when {@code @ItemNameKeyClass} is placed at the field the node refers to
-   *     (e.g. {@code @ItemNameKeyClass("dept") List<Dept> deptList}). Then its value is used
+   *     (e.g. {@code @ItemNameKeyClass("dept") List<Dept> deptList}), or at the getter when the
+   *     node refers to a getter because no field of the name exists
+   *     (see {@link ReflectionUtil#getBeanProperty(Class, String)}). Then its value is used
    *     instead of the node name, so that fields reached through a field whose name does not suit
    *     as the class part (like "deptList") can share the itemNameKey (like "dept.name")
    *     without specifying {@code itemNameKey} field by field.</p>
@@ -173,7 +175,8 @@ public class ItemUtil {
    * @param itemPropertyPath itemPropertyPath
    * @param ownerClass the class {@code itemPropertyPath} is relative to, consulted for
    *     {@code @ItemNameKeyClass} placed at the class when {@code itemPropertyPath} is not nested,
-   *     or used to find the field for {@code @ItemNameKeyClass} placed at it when nested
+   *     or used to find the field (or getter) for {@code @ItemNameKeyClass} placed at it
+   *     when nested
    * @return the itemNameKey class part, already uncapitalized
    */
   public static String resolveItemNameKeyClass(String itemPropertyPath, Class<?> ownerClass) {
@@ -184,7 +187,7 @@ public class ItemUtil {
       Class<?> classPartFieldOwner = PropertyPathUtil.getClass(ownerClass,
           String.join(".", nodeList.subList(0, nodeList.size() - 2)));
       @Nullable
-      ItemNameKeyClass an = ReflectionUtil.getDeclaredField(classPartFieldOwner, classPartFieldName)
+      ItemNameKeyClass an = ReflectionUtil.getBeanProperty(classPartFieldOwner, classPartFieldName)
           .getAnnotation(ItemNameKeyClass.class);
       return StringUtils.uncapitalize(an == null ? classPartFieldName : an.value());
     }

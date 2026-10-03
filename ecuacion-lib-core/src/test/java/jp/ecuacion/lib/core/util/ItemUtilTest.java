@@ -16,11 +16,16 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Valid;
+import jakarta.validation.Validation;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.item.Item;
 import jp.ecuacion.lib.core.item.ItemContainer;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassAlwaysFalse;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.MethodAlwaysFalse;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -95,7 +100,7 @@ public class ItemUtilTest {
   }
 
   @ItemNameKeyClass("department")
-  private static class Dept {
+  static class Dept {
     @SuppressWarnings("unused")
     private @Nullable String name;
   }
@@ -139,6 +144,30 @@ public class ItemUtilTest {
     @Override
     public Item[] customizedItems() {
       return new Item[] {new Item("customizedDeptList[].name").itemNameKey("custom.name")};
+    }
+  }
+
+  static class EmployeeWithGetters implements ItemContainer {
+    @SuppressWarnings({"unused", "null"})
+    private List<Dept> fieldDeptList = List.of(new Dept());
+
+    @ItemNameKeyClass("dept")
+    public List<Dept> getDeptList() {
+      return List.of(new Dept());
+    }
+
+    public Dept getBelongingDept() {
+      return new Dept();
+    }
+
+    @ItemNameKeyClass("ignored")
+    public List<Dept> getFieldDeptList() {
+      return fieldDeptList;
+    }
+
+    @Override
+    public Item[] customizedItems() {
+      return new Item[] {};
     }
   }
 
@@ -254,10 +283,105 @@ public class ItemUtilTest {
     }
 
     @Test
+    @DisplayName("class part is the property name when the node refers to a getter")
+    void classPartIsGetterPropertyName() {
+      assertThat(
+          ItemUtil.resolveItem("belongingDept.name", new EmployeeWithGetters()).getItemNameKey())
+          .isEqualTo("belongingDept.name");
+    }
+
+    @Test
+    @DisplayName("@ItemNameKeyClass at a getter replaces the property name when no field exists")
+    void itemNameKeyClassAtGetter() {
+      assertThat(
+          ItemUtil.resolveItem("deptList[0].name", new EmployeeWithGetters()).getItemNameKey())
+          .isEqualTo("dept.name");
+    }
+
+    @Test
+    @DisplayName("@ItemNameKeyClass at a getter is ignored when the field exists")
+    void itemNameKeyClassAtGetterIgnoredWhenFieldExists() {
+      assertThat(ItemUtil.resolveItem("fieldDeptList[0].name", new EmployeeWithGetters())
+          .getItemNameKey()).isEqualTo("fieldDeptList.name");
+    }
+
+    @Test
     @DisplayName("@ItemNameKeyClass at field applies also when no ItemContainer is found")
     void itemNameKeyClassAtFieldWithoutContainer() {
       assertThat(ItemUtil.resolveItem("deptList[0].name", new EmployeeWithoutContainer())
           .getItemNameKey()).isEqualTo("dept.name");
+    }
+  }
+
+  @ClassAlwaysFalse(propertyPath = "name")
+  static class CvChild {
+    @SuppressWarnings("unused")
+    private @Nullable String name;
+
+    @MethodAlwaysFalse(propertyPath = "name")
+    public boolean isAlwaysFalse() {
+      return false;
+    }
+  }
+
+  static class CvRoot {
+    @SuppressWarnings("unused")
+    @Valid
+    private CvChild child = new CvChild();
+  }
+
+  private static ConstraintViolation<?> violationOf(Object bean,
+      Class<?> annotationType) {
+    return Validation.buildDefaultValidatorFactory().getValidator().validate(bean).stream()
+        .filter(cv -> cv.getConstraintDescriptor().getAnnotation().annotationType()
+            .equals(annotationType))
+        .findFirst().orElseThrow();
+  }
+
+  @Nested
+  @DisplayName("resolveItem / getFullPropertyPath with ConstraintViolation")
+  class ResolveItemFromConstraintViolation {
+
+    @Test
+    @DisplayName("class constraint at the root bean: propertyPath is used as-is")
+    void classConstraintAtRoot() {
+      ConstraintViolation<?> cv = violationOf(new CvChild(), ClassAlwaysFalse.class);
+
+      assertThat(ItemUtil.getFullPropertyPath(cv, "name")).isEqualTo("name");
+    }
+
+    @Test
+    @DisplayName("method constraint at the root bean: propertyPath is used as-is")
+    void methodConstraintAtRoot() {
+      ConstraintViolation<?> cv = violationOf(new CvChild(), MethodAlwaysFalse.class);
+
+      assertThat(ItemUtil.getFullPropertyPath(cv, "name")).isEqualTo("name");
+    }
+
+    @Test
+    @DisplayName("class constraint at a nested bean: prefixed with the path to the bean")
+    void classConstraintAtNestedBean() {
+      ConstraintViolation<?> cv = violationOf(new CvRoot(), ClassAlwaysFalse.class);
+
+      assertThat(ItemUtil.getFullPropertyPath(cv, "name")).isEqualTo("child.name");
+    }
+
+    @Test
+    @DisplayName("method constraint at a nested bean: prefixed with the path to the bean")
+    void methodConstraintAtNestedBean() {
+      ConstraintViolation<?> cv = violationOf(new CvRoot(), MethodAlwaysFalse.class);
+
+      assertThat(ItemUtil.getFullPropertyPath(cv, "name")).isEqualTo("child.name");
+    }
+
+    @Test
+    @DisplayName("resolveItem resolves the item from the path relative to the root bean")
+    void resolveItem() {
+      ConstraintViolation<?> cv = violationOf(new CvRoot(), ClassAlwaysFalse.class);
+      Item item = ItemUtil.resolveItem(cv, "name");
+
+      assertThat(item.getPropertyPath()).isEqualTo("child.name");
+      assertThat(item.getItemNameKey()).isEqualTo("child.name");
     }
   }
 }
