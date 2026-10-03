@@ -45,7 +45,9 @@ public @interface ValueOfPropertyPathWhen {
    *
    * <p>Its name is {@code propertyPath}, not {@code field}
    *     because basically you set field names (like 'name'),
-   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     but you can also set a field in a bean (like 'dept.name').
+   *     A getter (like {@code getName()}) is referred to instead when no field of the name
+   *     exists. See {@link jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator}.</p>
    *
    * <p>The datatype is an array in order to validate multiple values at once.</p>
    *
@@ -80,7 +82,9 @@ public @interface ValueOfPropertyPathWhen {
    *
    * <p>Its name is {@code conditionPropertyPath}, not {@code conditionField}
    *     because basically you set field names (like 'name'),
-   *     but you can also set a field in a bean (like 'dept.name').</p>
+   *     but you can also set a field in a bean (like 'dept.name').
+   *     A getter (like {@code getName()}) is referred to instead when no field of the name
+   *     exists. See {@link jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator}.</p>
    *
    * <p>It must be set unless {@code conditions} is set.
    *     To specify multiple conditions, use {@code conditions} instead.</p>

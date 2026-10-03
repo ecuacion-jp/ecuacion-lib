@@ -100,7 +100,7 @@ public class ItemUtilTest {
   }
 
   @ItemNameKeyClass("department")
-  private static class Dept {
+  static class Dept {
     @SuppressWarnings("unused")
     private @Nullable String name;
   }
@@ -144,6 +144,30 @@ public class ItemUtilTest {
     @Override
     public Item[] customizedItems() {
       return new Item[] {new Item("customizedDeptList[].name").itemNameKey("custom.name")};
+    }
+  }
+
+  static class EmployeeWithGetters implements ItemContainer {
+    @SuppressWarnings({"unused", "null"})
+    private List<Dept> fieldDeptList = List.of(new Dept());
+
+    @ItemNameKeyClass("dept")
+    public List<Dept> getDeptList() {
+      return List.of(new Dept());
+    }
+
+    public Dept getBelongingDept() {
+      return new Dept();
+    }
+
+    @ItemNameKeyClass("ignored")
+    public List<Dept> getFieldDeptList() {
+      return fieldDeptList;
+    }
+
+    @Override
+    public Item[] customizedItems() {
+      return new Item[] {};
     }
   }
 
@@ -256,6 +280,29 @@ public class ItemUtilTest {
     void explicitItemNameKeyTakesPriority() {
       assertThat(ItemUtil.resolveItem("customizedDeptList[0].name", new Employee())
           .getItemNameKey()).isEqualTo("custom.name");
+    }
+
+    @Test
+    @DisplayName("class part is the property name when the node refers to a getter")
+    void classPartIsGetterPropertyName() {
+      assertThat(
+          ItemUtil.resolveItem("belongingDept.name", new EmployeeWithGetters()).getItemNameKey())
+          .isEqualTo("belongingDept.name");
+    }
+
+    @Test
+    @DisplayName("@ItemNameKeyClass at a getter replaces the property name when no field exists")
+    void itemNameKeyClassAtGetter() {
+      assertThat(
+          ItemUtil.resolveItem("deptList[0].name", new EmployeeWithGetters()).getItemNameKey())
+          .isEqualTo("dept.name");
+    }
+
+    @Test
+    @DisplayName("@ItemNameKeyClass at a getter is ignored when the field exists")
+    void itemNameKeyClassAtGetterIgnoredWhenFieldExists() {
+      assertThat(ItemUtil.resolveItem("fieldDeptList[0].name", new EmployeeWithGetters())
+          .getItemNameKey()).isEqualTo("fieldDeptList.name");
     }
 
     @Test

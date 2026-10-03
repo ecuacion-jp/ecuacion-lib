@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import jp.ecuacion.lib.core.util.PropertyPathUtil.ElementOfCollectionCannotBeObtainedException;
+import jp.ecuacion.lib.core.util.ReflectionUtil.BeanProperty;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SecondExtendedClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldTest.SimpleClass;
 import jp.ecuacion.lib.core.util.ReflectionUtilTest.getFieldValueTest.FieldValueRoot;
@@ -34,7 +36,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Tests for {@link ReflectionUtil} and related {@link PropertyPathUtil} bean-navigation methods. */
 @DisplayName("ReflectionUtil")
@@ -262,4 +267,191 @@ public class ReflectionUtilTest {
   public static class AnnotatedSubClass extends AnnotatedClass {}
 
   public static class UnannotatedClass {}
+
+  @Nested
+  @DisplayName("getBeanProperty: field first, getter when no field exists")
+  class GetBeanProperty {
+
+    @Test
+    @DisplayName("field is used when it exists")
+    void field() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "fieldOnly");
+      assertThat(p.getType()).isEqualTo(String.class);
+      assertThat(p.getValue(new PropertyBean())).isEqualTo("field");
+    }
+
+    @Test
+    @DisplayName("field takes priority over getter of the same property")
+    void fieldTakesPriorityOverGetter() {
+      assertThat(ReflectionUtil.getBeanProperty(PropertyBean.class, "both")
+          .getValue(new PropertyBean())).isEqualTo("fieldValue");
+    }
+
+    @Test
+    @DisplayName("getXxx() is used when no field exists")
+    void getter() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "getterOnly");
+      assertThat(p.getType()).isEqualTo(String.class);
+      assertThat(p.getValue(new PropertyBean())).isEqualTo("getter");
+    }
+
+    @Test
+    @DisplayName("isXxx() is used when it returns boolean")
+    void isGetter() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "active");
+      assertThat(p.getType()).isEqualTo(boolean.class);
+      assertThat(p.getValue(new PropertyBean())).isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("private getter and getter in superclass are found")
+    void privateAndInheritedGetter() {
+      assertThat(ReflectionUtil.getBeanProperty(PropertyBean.class, "privateGetter")
+          .getValue(new PropertyBean())).isEqualTo("private");
+      assertThat(ReflectionUtil.getBeanProperty(PropertySubBean.class, "getterOnly")
+          .getValue(new PropertySubBean())).isEqualTo("getter");
+    }
+
+    @Test
+    @DisplayName("generic return type and annotation of getter are obtained")
+    void genericTypeAndAnnotation() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "strList");
+      assertThat(p.getGenericType().getTypeName()).isEqualTo("java.util.List<java.lang.String>");
+      assertThat(p.getAnnotation(SampleMethodAnnotation.class)).isNotNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"wrapperBoolean", "voidReturn", "staticValue", "withArg", "none"})
+    @DisplayName("not found: isXxx() not returning boolean, void, static, with argument, none")
+    void notFound(String propertyName) {
+      assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(PropertyBean.class, propertyName))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining("Neither a field nor a getter")
+          .hasMessageContaining("'" + propertyName + "'")
+          .cause().isInstanceOf(NoSuchFieldException.class).hasMessage(propertyName);
+    }
+
+    @Test
+    @DisplayName("propertyName with index is not acceptable")
+    void propertyNameWithIndex() {
+      assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(PropertyBean.class, "values[0]"))
+          .isInstanceOf(RuntimeException.class).hasMessageContaining("not acceptable");
+    }
+
+    @Test
+    @DisplayName("not found: interface (no superclass to traverse)")
+    void notFoundInInterface() {
+      assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(Runnable.class, "value"))
+          .isInstanceOf(RuntimeException.class)
+          .cause().isInstanceOf(NoSuchFieldException.class);
+    }
+
+    @Test
+    @DisplayName("getter invoked on an object of another class throws RuntimeException")
+    void getterInvokedOnWrongObject() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "getterOnly");
+      assertThatThrownBy(() -> p.getValue(new Object()))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining(PropertyBean.class.getName() + "#getGetterOnly()")
+          .cause().isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("exception thrown by getter is wrapped with the getter name in the message")
+    void getterThrows() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "throwing");
+      assertThatThrownBy(() -> p.getValue(new PropertyBean()))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining(PropertyBean.class.getName() + "#getThrowing()")
+          .cause().isInstanceOf(IllegalStateException.class).hasMessage("thrown by getter");
+    }
+
+    @Test
+    @DisplayName("PropertyPathUtil.getValue resolves getters at every node")
+    void getValueThroughGetters() {
+      assertThat(PropertyPathUtil.getValue(new PropertyBean(), "child.value")).isEqualTo("child");
+      assertThat(PropertyPathUtil.getValue(new PropertyBean(), "childList[0].value"))
+          .isEqualTo("child");
+      assertThat(PropertyPathUtil.getValue(new PropertyBean(), "childArray[0].value"))
+          .isEqualTo("child");
+    }
+
+    @Test
+    @DisplayName("PropertyPathUtil.getClass and getBeanProperty resolve getters at every node")
+    void getClassThroughGetters() {
+      assertThat(PropertyPathUtil.getClass(PropertyBean.class, "childList[0]"))
+          .isEqualTo(GetterChild.class);
+      assertThat(PropertyPathUtil.getBeanProperty(PropertyBean.class, "child.value").getType())
+          .isEqualTo(String.class);
+    }
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public @interface SampleMethodAnnotation {}
+
+  @SuppressWarnings("unused")
+  public static class PropertyBean {
+    private String fieldOnly = "field";
+    private String both = "fieldValue";
+
+    public String getBoth() {
+      return "getterValue";
+    }
+
+    public String getGetterOnly() {
+      return "getter";
+    }
+
+    public boolean isActive() {
+      return true;
+    }
+
+    private String getPrivateGetter() {
+      return "private";
+    }
+
+    @SampleMethodAnnotation
+    public List<String> getStrList() {
+      return List.of("a");
+    }
+
+    public Boolean isWrapperBoolean() {
+      return true;
+    }
+
+    public void getVoidReturn() {}
+
+    public static String getStaticValue() {
+      return "static";
+    }
+
+    public String getWithArg(String arg) {
+      return arg;
+    }
+
+    public String getThrowing() {
+      throw new IllegalStateException("thrown by getter");
+    }
+
+    public GetterChild getChild() {
+      return new GetterChild();
+    }
+
+    public List<GetterChild> getChildList() {
+      return List.of(new GetterChild());
+    }
+
+    public GetterChild[] getChildArray() {
+      return new GetterChild[] {new GetterChild()};
+    }
+  }
+
+  public static class PropertySubBean extends PropertyBean {}
+
+  public static class GetterChild {
+    public String getValue() {
+      return "child";
+    }
+  }
 }
