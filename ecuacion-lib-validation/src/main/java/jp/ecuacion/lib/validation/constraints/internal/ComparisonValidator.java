@@ -17,7 +17,6 @@ package jp.ecuacion.lib.validation.constraints.internal;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ClassValidator;
 import jp.ecuacion.lib.core.util.PropertyPathUtil;
+import jp.ecuacion.lib.core.util.ReflectionUtil.BeanProperty;
 import jp.ecuacion.lib.core.util.StringUtil;
 import jp.ecuacion.lib.validation.constraints.enums.ComparisonType;
 import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
@@ -65,8 +65,8 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   public boolean internalIsValid(Object instance, Object[] valuesOfPropertyPaths,
       @Nullable ConstraintValidatorContext context) {
 
-    Field fieldOfBasisPropertyPath =
-        PropertyPathUtil.getField(instance.getClass(), baselinePropertyPath);
+    BeanProperty propertyOfBasisPropertyPath =
+        PropertyPathUtil.getBeanProperty(instance.getClass(), baselinePropertyPath);
     // Held in a single-element array so isValidForSinglePropertyPath can update it in place
     // (type conversion below replaces the value) while staying a local, not an instance field.
     Object[] valueOfBasisPropertyPathHolder = {
@@ -74,7 +74,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
 
     for (int i = 0; i < propertyPaths.length; i++) {
       boolean result = isValidForSinglePropertyPath(instance, propertyPaths[i],
-          valuesOfPropertyPaths[i], fieldOfBasisPropertyPath, valueOfBasisPropertyPathHolder);
+          valuesOfPropertyPaths[i], propertyOfBasisPropertyPath, valueOfBasisPropertyPathHolder);
 
       if (!result) {
         return false;
@@ -85,21 +85,23 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
   }
 
   protected boolean isValidForSinglePropertyPath(Object instance, String propertyPath,
-      @Nullable Object valueOfPropertyPath, Field fieldOfBasisPropertyPath,
+      @Nullable Object valueOfPropertyPath, BeanProperty propertyOfBasisPropertyPath,
       Object[] valueOfBasisPropertyPathHolder) {
 
-    Field fieldOfPropertyPath = PropertyPathUtil.getField(instance.getClass(), propertyPath);
+    BeanProperty propertyOfPropertyPath =
+        PropertyPathUtil.getBeanProperty(instance.getClass(), propertyPath);
 
     // Throws an exception when the types of two PropertyPaths differ.
-    if (!fieldOfPropertyPath.getType().isAssignableFrom(fieldOfBasisPropertyPath.getType())) {
+    if (!propertyOfPropertyPath.getType()
+        .isAssignableFrom(propertyOfBasisPropertyPath.getType())) {
       throw new RuntimeException(
-          "Types of two propertyPath differ. propertyPath: " + fieldOfPropertyPath.getType()
-              + ", basisPropertyPath: " + fieldOfBasisPropertyPath.getType());
+          "Types of two propertyPath differ. propertyPath: " + propertyOfPropertyPath.getType()
+              + ", basisPropertyPath: " + propertyOfBasisPropertyPath.getType());
     }
 
     Object valueOfBasisPropertyPath = valueOfBasisPropertyPathHolder[0];
 
-    // True when one of valueOfField or fieldOfBasisPropertyPath is empty.
+    // True when one of valueOfPropertyPath or valueOfBasisPropertyPath is empty.
     boolean isValueOfPropertyPathEmpty = StringUtil.isObjectNullOrEmpty(valueOfPropertyPath);
     boolean isValueOfBasisPropertyPathEmpty =
         StringUtil.isObjectNullOrEmpty(valueOfBasisPropertyPath);
@@ -162,7 +164,7 @@ public abstract class ComparisonValidator<A extends Annotation, T> extends Class
     // Throws an exception when rtn == null, which means the type of propertyPath is unexpected.
     if (validWhenLessThanBasis == null) {
       throw new RuntimeException("The type of propertyPath is unexpected. type: "
-          + fieldOfPropertyPath.getType().getCanonicalName());
+          + propertyOfPropertyPath.getType().getCanonicalName());
     }
 
     return comparisonType.isValidWhenLessThanBasis() ? validWhenLessThanBasis

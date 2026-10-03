@@ -31,7 +31,17 @@ import org.jspecify.annotations.Nullable;
  *     attribute whose elements are non-empty strings identifying the fields associated
  *     with the constraint. An empty array or an element that is an empty string is
  *     rejected at initialization time by {@link MultiplePropertyPathsValidator#initialize}.</p>
- * 
+ *
+ * <p>Each node of a propertyPath (like {@code name}, or {@code dept} and {@code name}
+ *     in {@code dept.name}) is resolved to a field first, and to a getter
+ *     ({@code getName()}, or {@code isName()} returning primitive {@code boolean};
+ *     {@code isName()} returning {@code Boolean} is not a getter)
+ *     when no field of the name exists, just as Jakarta Validation validates
+ *     the return value of a getter for constraints placed at the getter.
+ *     The same applies to the other propertyPath attributes of the annotation,
+ *     like {@code conditionPropertyPath} or {@code baselinePropertyPath}.
+ *     See {@link jp.ecuacion.lib.core.util.ReflectionUtil#getBeanProperty(Class, String)}.</p>
+ *
  * <p>Jakarta Validation has the feature to create multiple ConstraintViolations 
  *     out of one validator using 
  *     {@code ConstraintValidatorContext.disableDefaultConstraintViolation()} 

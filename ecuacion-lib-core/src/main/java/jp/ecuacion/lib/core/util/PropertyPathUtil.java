@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import jp.ecuacion.lib.core.util.ReflectionUtil.BeanProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -326,11 +327,34 @@ public class PropertyPathUtil {
   }
 
   /**
+   * Returns a {@link BeanProperty} by navigating the dot-separated {@code propertyPath}.
+   *
+   * <p>Each node is resolved to a field, or to a getter when no field of the name exists.
+   *     See {@link ReflectionUtil#getBeanProperty(Class, String)}.</p>
+   *
+   * @param cls starting class
+   * @param propertyPath dot-separated path (e.g. {@code "dept.name"}) or simple name
+   * @return the resolved {@link BeanProperty}
+   */
+  public static BeanProperty getBeanProperty(Class<?> cls, String propertyPath) {
+    if (propertyPath.contains(".")) {
+      String leftMost = propertyPath.substring(0, propertyPath.indexOf("."));
+      String theRest = propertyPath.substring(leftMost.length() + 1);
+      return getBeanProperty(ReflectionUtil.getBeanProperty(cls, leftMost).getType(), theRest);
+    }
+
+    return ReflectionUtil.getBeanProperty(cls, propertyPath);
+  }
+
+  /**
    * Returns the Java class at the end of the given {@code propertyPath} starting from
    * {@code rootBeanClass}.
    *
    * <p>Supports collection notation (e.g. {@code "list[0]"}, {@code "map[key]"})
    *     and resolves generic type arguments for parameterized types.</p>
+   *
+   * <p>Each node is resolved to a field, or to a getter when no field of the name exists.
+   *     See {@link ReflectionUtil#getBeanProperty(Class, String)}.</p>
    *
    * <p>When {@code propertyPath} is empty, {@code rootBeanClass} itself is returned.</p>
    *
@@ -344,8 +368,9 @@ public class PropertyPathUtil {
       String nodeWithoutCollectionPart = toFieldPath(node);
 
       try {
-        Field tmpField = ReflectionUtil.getDeclaredField(tmpClass, nodeWithoutCollectionPart);
-        tmpClass = tmpField.getType();
+        BeanProperty tmpProperty =
+            ReflectionUtil.getBeanProperty(tmpClass, nodeWithoutCollectionPart);
+        tmpClass = tmpProperty.getType();
 
         if (!node.contains("[")) {
           continue;
@@ -354,7 +379,7 @@ public class PropertyPathUtil {
         // Count the number of "[" in propertyPath.
         int count = node.length() - node.replaceAll("\\[", "").length();
 
-        Type type = tmpField.getGenericType();
+        Type type = tmpProperty.getGenericType();
         for (int i = 0; i < count; i++) {
           if (type instanceof Class<?> cls && cls.isArray()) {
             // Array: use component type
@@ -382,14 +407,17 @@ public class PropertyPathUtil {
   }
 
   /**
-   * Returns a field value by navigating {@code propertyPath} from {@code object}.
+   * Returns a property value by navigating {@code propertyPath} from {@code object}.
    *
    * <p>Supports dot-separated paths (e.g. {@code "dept.name"}) and collection index
    *     notation (e.g. {@code "list[0]"}).</p>
    *
+   * <p>Each node is resolved to a field, or to a getter when no field of the name exists.
+   *     See {@link ReflectionUtil#getBeanProperty(Class, String)}.</p>
+   *
    * @param object root object
-   * @param propertyPath path from root object to the target field
-   * @return field value, or {@code null} if the field holds {@code null}
+   * @param propertyPath path from root object to the target property
+   * @return property value, or {@code null} if the property holds {@code null}
    */
   public static @Nullable Object getValue(Object object, String propertyPath) {
     while (true) {
@@ -408,9 +436,8 @@ public class PropertyPathUtil {
           // It's string because it can be non-number value when the validated object is Map.
           String index = extractIndex(propertyPath);
 
-          Field rootField =
-              ReflectionUtil.getDeclaredField(object.getClass(), fieldName);
-          Object objs = ReflectionUtil.getFieldValue(object, rootField);
+          Object objs = ReflectionUtil.getBeanProperty(object.getClass(), fieldName)
+              .getValue(object);
 
           // Resolve the field for array or List.
           // Occur an exception for any other collections
@@ -433,8 +460,8 @@ public class PropertyPathUtil {
           }
 
         } else {
-          Field rootField = ReflectionUtil.getDeclaredField(object.getClass(), propertyPath);
-          return ReflectionUtil.getFieldValue(object, rootField);
+          return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath)
+              .getValue(object);
         }
       }
     }
