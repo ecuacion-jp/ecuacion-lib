@@ -332,6 +332,31 @@ public class ReflectionUtilTest {
     }
 
     @Test
+    @DisplayName("propertyName with index is not acceptable")
+    void propertyNameWithIndex() {
+      assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(PropertyBean.class, "values[0]"))
+          .isInstanceOf(RuntimeException.class).hasMessageContaining("not acceptable");
+    }
+
+    @Test
+    @DisplayName("not found: interface (no superclass to traverse)")
+    void notFoundInInterface() {
+      assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(Runnable.class, "value"))
+          .isInstanceOf(RuntimeException.class)
+          .cause().isInstanceOf(NoSuchFieldException.class);
+    }
+
+    @Test
+    @DisplayName("getter invoked on an object of another class throws RuntimeException")
+    void getterInvokedOnWrongObject() {
+      BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "getterOnly");
+      assertThatThrownBy(() -> p.getValue(new Object()))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining(PropertyBean.class.getName() + "#getGetterOnly()")
+          .cause().isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("exception thrown by getter is wrapped with the getter name in the message")
     void getterThrows() {
       BeanProperty p = ReflectionUtil.getBeanProperty(PropertyBean.class, "throwing");
