@@ -72,7 +72,7 @@
 		<!-- gpg -->
 		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.8</org.apache.maven.plugins.maven-gpg-plugin.version>
 		<!-- central publishing -->
-		<org.sonatype.central.central-publishing-maven-plugin.version>0.11.0</org.sonatype.central.central-publishing-maven-plugin.version>
+		<org.sonatype.central.central-publishing-maven-plugin.version>0.12.0</org.sonatype.central.central-publishing-maven-plugin.version>
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
 		<wagon.skip>true</wagon.skip>
 		<!-- wagon: needed here (not just ecuacion-lib-dependencies) so that ecuacion-lib-parent
