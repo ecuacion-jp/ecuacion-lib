@@ -41,12 +41,12 @@
 		<com.mycila.license-maven-plugin.version>5.1.2</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>14.1.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>14.3.0</com.puppycrawl.tools.checkstyle.version>
 		<!-- spotbugs -->
-		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.4.1</com.github.spotbugs.spotbugs-maven-plugin.version>
-		<com.github.spotbugs.spotbugs.version>4.10.4</com.github.spotbugs.spotbugs.version>
+		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.5.0</com.github.spotbugs.spotbugs-maven-plugin.version>
+		<com.github.spotbugs.spotbugs.version>4.10.5</com.github.spotbugs.spotbugs.version>
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.14.1</com.uber.nullaway.version>
+		<com.uber.nullaway.version>0.14.2</com.uber.nullaway.version>
 		<com.google.errorprone.error_prone_core.version>2.50.0</com.google.errorprone.error_prone_core.version>
 		<!-- source jar -->
 		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
