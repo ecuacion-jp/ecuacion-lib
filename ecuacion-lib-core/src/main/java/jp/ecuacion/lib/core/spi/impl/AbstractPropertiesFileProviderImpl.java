@@ -56,8 +56,9 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
         .findModule(Objects.requireNonNull(moduleName)).orElse(null);
     if (module != null) {
       try {
-        String bundleName = baseFilename + (locale.toString().isEmpty() ? "" : "_")
-            + locale.toString() + ".properties";
+        // Locale#toString() cannot be used because it returns strings like "zh__#Hant"
+        // for locales with scripts or extensions.
+        String bundleName = toBundleName(baseFilename, locale) + ".properties";
         InputStream is = module.getResourceAsStream(bundleName);
 
         if (is != null) {
