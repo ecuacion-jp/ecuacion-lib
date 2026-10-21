@@ -2,12 +2,12 @@
 
 ## What is it?
 
-An optional add-on module that provides business-friendly Japanese validation messages for
-`ecuacion-lib-core` and `ecuacion-lib-validation` constraints.
+An optional add-on module that provides business-friendly English and Japanese validation
+messages for `ecuacion-lib-core` and `ecuacion-lib-validation` constraints.
 
 Without this module, the library uses neutral messages aligned with Hibernate Validator's
 standard wording (e.g. `must not be null`). Adding this module switches to more
-user-facing messages (e.g. `This field is required.`).
+user-facing messages (e.g. `is required`).
 
 ## Message Examples
 
@@ -15,20 +15,21 @@ Adding this module changes validation messages from neutral technical wording to
 
 | Constraint | Without this module (default) | With this module |
 | --- | --- | --- |
-| `@NotNull` | `must not be null` | `This field is required.` |
-| `@NotEmpty` | `must not be empty` | `This field is required.` |
-| `@Size(min=2, max=10)` | `size must be between 2 and 10` | `Please enter between 2 and 10 characters.` |
-| `@Max(100)` | `must be less than or equal to 100` | `Please enter a value of 100 or less.` |
-| `@Email` | `must be a well-formed email address` | `Please enter a valid email address.` |
+| `@NotNull` | `must not be null` | `is required` |
+| `@NotEmpty` | `must not be empty` | `is required` |
+| `@Size(min=2, max=10)` | `size must be between 2 and 10` | `must be between 2 and 10 characters` |
+| `@Max(100)` | `must be less than or equal to 100` | `must be 100 or less` |
+| `@Email` | `must be a well-formed email address` | `must be a valid email address` |
 
-`ValidationMessagesWithItemNames` variants include the field name for even clearer messages, e.g. `"Email Address" is required.`
+`ValidationMessagesWithItemNames` variants include the field name for even clearer messages, e.g. `'Email Address' is required`.
 
 ## Covered Constraints
 
 | Scope | Examples |
 | --- | --- |
-| Jakarta standard constraints (`@NotNull`, `@Size`, ...) | `This field is required.`, `Please enter between {min} and {max} characters.`, ... |
-| ecuacion-lib-validation field constraints (`@SizeString`, `@BooleanString`, ...) | `Please enter between {min} and {max} characters.`, ... |
+| Jakarta standard constraints (`@NotNull`, `@Size`, ...) | `is required`, `must be between {min} and {max} characters`, ... |
+| ecuacion-lib-validation field constraints (`@SizeString`, `@BooleanString`, ...) | `must be between {min} and {max} characters`, `must be an integer`, ... |
+| ecuacion-lib-validation class constraints (`@NotEmptyWhen`, `@AnyNotEmpty`, ...) | `must be provided when 'Type' is on, and blank otherwise`, `at least one of {0} must be provided`, ... |
 
 ## Dependent Ecuacion Libraries
 

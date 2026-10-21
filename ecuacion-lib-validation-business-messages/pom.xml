@@ -31,7 +31,9 @@
 	<build>
 		<plugins>
 
-			<!-- wagon: skip because this module has no real javadoc/tests/coverage to upload -->
+			<!-- wagon: skip because this module has no real Java code. Its javadoc is generated only
+				from the marker class (BusinessMessagesModule) and there is no code to measure coverage
+				for. The tests only check message wording, so their reports are not uploaded either. -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>wagon-maven-plugin</artifactId>

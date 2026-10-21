@@ -36,7 +36,7 @@ public class RegistrationForm {
 
 **Optional: `ecuacion-lib-validation-business-messages`**
 
-Adds business-friendly messages (e.g. `This field is required.`) for both Jakarta standard
+Adds business-friendly messages (e.g. `is required`) for both Jakarta standard
 and ecuacion-lib-validation constraints. Without it, neutral Hibernate-Validator-aligned messages are used.
 
 `ecuacion-lib` and other ecuacion libraries, utilities and apps depend fully on `Jakarta EE`.
