@@ -243,7 +243,7 @@ public class ValidateWhenValidatorMessageTest {
     String msg = ExceptionUtil
         .getMessageList(validator.validate(new EmptyEqualToBean(null, null)), Locale.ITALIAN)
         .get(0);
-    assertThat(msg).isEqualTo("needs to be not empty when 'condition value' is empty");
+    assertThat(msg).isEqualTo("non deve essere vuoto quando 'condition value' è vuoto");
   }
 
   // -------------------------------------------------------------------------
