@@ -104,8 +104,10 @@ public class ConstraintViolationBean<T> {
     this.constraintViolationPropertyPath = constraintViolationPropertyPath;
     this.invalidValue = invalidValue;
     this.constraintDescriptor = constraintDescriptor;
+    // Pass annotation attributes so that ${...} EL expressions in the message
+    // (like ${inclusive == true ? ...}) can be evaluated.
     String msg = PropertiesFileUtil.getValidationMessage(Locale.ENGLISH,
-        messageTemplate.replace("{", "").replace("}", ""), new HashMap<>());
+        messageTemplate.replace("{", "").replace("}", ""), new HashMap<>(embeddedParameterMap));
     this.message = msg;
     this.messageTemplate = messageTemplate;
     this.resolvedMessage = resolvedMessage;
@@ -121,9 +123,7 @@ public class ConstraintViolationBean<T> {
     embeddedParamMap.put("annotation", validatorClass);
     embeddedParamMap.put("itemAttributes", itemList.toArray(Item[]::new));
 
-    if (embeddedParameterMap != null) {
-      this.embeddedParamMap.putAll(embeddedParameterMap);
-    }
+    this.embeddedParamMap.putAll(embeddedParameterMap);
   }
 
   /**
