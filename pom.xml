@@ -82,7 +82,7 @@
 
 		<!-- properties for ecuacion build: paths and urls -->
 		<repository.ecuacion-repo-sftp-root>sftp://maven-repo.ecuacion.jp/home/ytbiz/www/maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-sftp-root>
-		<repository.ecuacion-repo-http-root>http://maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-http-root>
+		<repository.ecuacion-repo-http-root>https://maven-repo.ecuacion.jp/repository</repository.ecuacion-repo-http-root>
 		<remote-location.docs-work>sftp://docs.ecuacion.jp/home/ytbiz/my-data/scripts/work</remote-location.docs-work>
 		
 	</properties>
@@ -228,7 +228,7 @@
 				<repository>
 					<id>ecuacion-repo-http</id>
 					<name>ecuacion-repo-http</name>
-					<url>https://maven-repo.ecuacion.jp/repository</url>
+					<url>${repository.ecuacion-repo-http-root}</url>
 				</repository>
 			</repositories>
 			<distributionManagement>
