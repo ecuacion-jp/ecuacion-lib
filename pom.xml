@@ -73,6 +73,10 @@
 		<org.apache.maven.plugins.maven-gpg-plugin.version>3.2.8</org.apache.maven.plugins.maven-gpg-plugin.version>
 		<!-- central publishing -->
 		<org.sonatype.central.central-publishing-maven-plugin.version>0.12.0</org.sonatype.central.central-publishing-maven-plugin.version>
+		<!-- Deployment name shown in the Central Portal. Projects inheriting this POM override
+		     this property (rather than the plugin configuration inside the maven-central profile)
+		     in every POM on their modules' <parent> chains, so the name is set consistently. -->
+		<central-publishing.deploymentName>ecuacion-lib-${project.version}</central-publishing.deploymentName>
 		<!-- wagon upload is off by default; enabled only via ecuacion-repository profile -->
 		<wagon.skip>true</wagon.skip>
 		<!-- wagon: needed here (not just ecuacion-lib-dependencies) so that ecuacion-lib-parent
@@ -205,7 +209,7 @@
 						<configuration>
 							<publishingServerId>central</publishingServerId>
 							<autoPublish>false</autoPublish>
-							<deploymentName>ecuacion-lib-${project.version}</deploymentName>
+							<deploymentName>${central-publishing.deploymentName}</deploymentName>
 							<!-- sha256/sha512 are optional per Maven Central's requirements; skipping
 								them keeps only the required md5/sha1 checksums and cuts published
 								file count (relevant to Central's publishing rate limits). -->
