@@ -372,7 +372,6 @@
 									<jar
 										destfile="${project.build.directory}/${project.build.finalName}-javadoc.jar"
 										basedir="${project.build.directory}/empty-javadoc-src"
-										whenempty="create"
 										unless:set="javadoc.jar.exists"/>
 								</target>
 							</configuration>
@@ -538,6 +537,22 @@
 	</dependencyManagement>
 
 	<profiles>
+
+		<!--
+			Skips spotbugs in modules without main sources (e.g. pom-packaging modules), where
+			it has no classes to analyze and only logs "No files found to generate report on."
+		-->
+		<profile>
+			<id>spotbugs-skip-without-sources</id>
+			<activation>
+				<file>
+					<missing>${basedir}/src/main/java</missing>
+				</file>
+			</activation>
+			<properties>
+				<spotbugs.skip>true</spotbugs.skip>
+			</properties>
+		</profile>
 		<!--
 			This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
 			No explicit -P option is required.
