@@ -1,0 +1,146 @@
+site_name: ecuacion-lib reference
+site_url: https://ecuacion-jp.github.io/ecuacion-lib/
+repo_url: https://github.com/ecuacion-jp/ecuacion-lib
+repo_name: ecuacion-jp/ecuacion-lib
+edit_uri: ""
+copyright: "&copy; ecuacion consulting  All rights reserved."
+
+docs_dir: docs
+exclude_docs: |
+  requirements.txt
+
+# version-util is not linked from the navigation (same as the former references app).
+not_in_nav: |
+  util/version-util*.md
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+extra_javascript:
+  - assets/javascripts/lang-redirect.js
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+      # Keep non-ASCII (Japanese) characters in heading anchors.
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: ja
+          name: 日本語
+          build: true
+          site_name: ecuacion-lib リファレンス
+          nav_translations:
+            Common Topics: 共通事項など
+            Validation: バリデーション関連
+            Violation: Violation関連
+            General Topics: 共通事項など
+            Custom Validators: 独自バリデーター
+            Data Types: データ型操作系
+            Java Object / Class: Javaオブジェクト・クラス操作系
+            System Resources: システムリソース系
+            Core Library Integration: ライブラリコア連携
+            Other Features: その他機能
+
+# Page titles come from the H1 of each page, so they are localized automatically.
+nav:
+  - Home: index.md
+  - Common Topics:
+      - Validation:
+          - concepts/jakarta-validation-terms.md
+          - item/item-property-path.md
+          - concepts/item-and-name-key.md
+      - Violation:
+          - concepts/violations-overview.md
+  - Item:
+      - item/item.md
+      - item/item-container.md
+      - item/item-container-search.md
+      - item/item-name-key.md
+      - messaging/item-name-in-message.md
+      - item/collection-property-path.md
+      - messaging/collection-item-name.md
+      - messaging/item-name-path.md
+      - messaging/item-name-display.md
+  - violation:
+      - validation/violation.md
+      - validation/business-violation.md
+      - validation/jakarta-validation.md
+      - validation/message-parameters.md
+  - jakarta validation:
+      - General Topics:
+          - validator/blank-handling.md
+          - validator/standard-annotation-messages.md
+      - Custom Validators:
+          - validator/overview.md
+          - validator/property-path-safety.md
+          - validator/when.md
+          - validator/comparison.md
+          - validator/pattern-with-description.md
+          - validator/field.md
+          - validator/collection.md
+  - util:
+      - Data Types:
+          - util/string-util.md
+          - util/date-time-api-util.md
+          - util/enum-util.md
+      - Java Object / Class:
+          - util/reflection-util.md
+          - util/property-path-util.md
+      - System Resources:
+          - util/file-util.md
+          - util/log-util.md
+          - util/mail-util.md
+      - PropertiesFileUtil:
+          - properties-file-util/basic-usage.md
+          - properties-file-util/loading-rules.md
+          - properties-file-util/validation-messages.md
+          - properties-file-util/cross-file-reference.md
+          - properties-file-util/args.md
+      - Core Library Integration:
+          - item/item-util.md
+          - util/message-util.md
+          - util/exception-util.md
+  - Other Features:
+      - other/require-annotations.md
+      - other/logging.md
+      - other/spi.md
+      - other/named-module.md

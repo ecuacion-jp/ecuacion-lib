@@ -1,0 +1,4 @@
+# Pinned: MkDocs 2.0 drops the plugin system that mkdocs-static-i18n relies on.
+mkdocs==1.6.1
+mkdocs-material==9.7.7
+mkdocs-static-i18n==1.3.1
