@@ -8,6 +8,10 @@ copyright: "&copy; ecuacion consulting  All rights reserved."
 docs_dir: docs
 exclude_docs: |
   requirements.txt
+  hooks/
+
+hooks:
+  - docs/hooks/toc_slugify.py
 
 # version-util is not linked from the navigation (same as the former references app).
 not_in_nav: |
@@ -35,6 +39,9 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 
+extra_css:
+  - assets/stylesheets/extra.css
+
 extra_javascript:
   - assets/javascripts/lang-redirect.js
 
@@ -44,10 +51,7 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
-      # Keep non-ASCII (Japanese) characters in heading anchors.
-      slugify: !!python/object/apply:pymdownx.slugs.slugify
-        kwds:
-          case: lower
+      # slugify is set in docs/hooks/toc_slugify.py (keeps Japanese characters in anchors).
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.superfences
