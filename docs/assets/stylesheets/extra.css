@@ -1,0 +1,13 @@
+/* Material for MkDocs renders tables in a smaller font (0.64rem) than body text (0.8rem).
+   Use the same size as the surrounding text. */
+.md-typeset table:not([class]) {
+  font-size: inherit;
+}
+
+/* Headings are light (h1, h2: 300 / h3: 400) by default, which makes pages look flat.
+   Make them bold. */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  font-weight: 700;
+}
