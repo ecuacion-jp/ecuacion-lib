@@ -22,7 +22,7 @@ everything that should stay opt-in rather than being forced onto those general a
   report generation).
 
 `ecuacion-lib-dependencies` deliberately does **not** hold version pins for external libraries that
-overlap with Spring Boot's own `dependencyManagement` (`hibernate-validator`, `expressly`,
+overlap with Spring Boot's own `dependencyManagement` (`hibernate-validator`, `jakarta.el`,
 `jakarta.validation-api`, `jakarta.servlet-api`, `jakarta.mail-api`, `slf4j-api`,
 `jackson-databind`, `commons-lang3`). Those live in a separate module, `ecuacion-lib-bom`: since
 `ecuacion-splib-dependencies` uses `ecuacion-lib-dependencies` as its own **parent POM** (for the
