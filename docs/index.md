@@ -82,7 +82,7 @@ for details.
 
 ## Setup
 
-`ecuacion-lib-core`/`ecuacion-lib-validation` depend on `hibernate-validator`/`expressly` (needed if you
+`ecuacion-lib-core`/`ecuacion-lib-validation` depend on `hibernate-validator`/`jakarta.el` (needed if you
 use validation features) and `org.eclipse.angus:angus-mail` (needed if you use `MailUtil`) with
 `provided` scope. Since `provided` does not propagate transitively, these must be added explicitly on
 the application side. Which of the following 3 patterns you choose depends on how much you want to
@@ -104,8 +104,8 @@ automate version management for these libraries and for `ecuacion-lib-xxx` itsel
     <version>(version)</version>
 </dependency>
 <dependency>
-    <groupId>org.glassfish.expressly</groupId>
-    <artifactId>expressly</artifactId>
+    <groupId>org.glassfish</groupId>
+    <artifactId>jakarta.el</artifactId>
     <version>(version)</version>
 </dependency>
 ```
@@ -142,8 +142,8 @@ versions above yourself.
         <version>(version)</version>
     </dependency>
     <dependency>
-        <groupId>org.glassfish.expressly</groupId>
-        <artifactId>expressly</artifactId>
+        <groupId>org.glassfish</groupId>
+        <artifactId>jakarta.el</artifactId>
         <version>(version)</version>
     </dependency>
 </dependencies>
@@ -179,15 +179,15 @@ so its version no longer needs to be specified.
         <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.glassfish.expressly</groupId>
-        <artifactId>expressly</artifactId>
+        <groupId>org.glassfish</groupId>
+        <artifactId>jakarta.el</artifactId>
     </dependency>
 </dependencies>
 ```
 
 `ecuacion-lib-bom`'s parent POM is `ecuacion-lib-parent`, and a BOM import also carries over its
 parent's `dependencyManagement`. So importing `ecuacion-lib-bom` alone means none of
-`ecuacion-lib-validation`, `hibernate-validator`, or `expressly` need a version specified — there is
+`ecuacion-lib-validation`, `hibernate-validator`, or `jakarta.el` need a version specified — there is
 no need to separately import `ecuacion-lib-parent` as well.
 
 ### If you use business-oriented validation messages

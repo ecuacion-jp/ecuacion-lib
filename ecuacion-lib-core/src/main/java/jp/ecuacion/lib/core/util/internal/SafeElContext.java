@@ -24,6 +24,7 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.ListELResolver;
 import jakarta.el.MapELResolver;
 import jakarta.el.StandardELContext;
+import java.util.Iterator;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -123,6 +124,16 @@ class SafeElContext extends StandardELContext {
     @Override
     public @Nullable Class<?> getType(@Nullable ELContext context, @Nullable Object base,
         @Nullable Object property) {
+      return null;
+    }
+
+    // Raw Iterator (rather than Iterator<FeatureDescriptor>) avoids a compile-time reference to
+    // java.beans.FeatureDescriptor, which lives in the java.desktop module that this project's
+    // module-info does not (and should not, for one deprecated, unused legacy method) require.
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public @Nullable Iterator getFeatureDescriptors(@Nullable ELContext context,
+        @Nullable Object base) {
       return null;
     }
   }

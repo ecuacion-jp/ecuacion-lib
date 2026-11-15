@@ -13,3 +13,6 @@ updates:
           - "*"
     ignore:
       - dependency-name: "jp.ecuacion.*:*"
+      # Held at 9.1.5.Final until 16.5.0 (see ecuacion-lib-bom/pom.xml). Remove this entry then.
+      - dependency-name: "org.hibernate.validator:hibernate-validator"
+        versions: [">= 9.1.6"]
