@@ -71,7 +71,7 @@ Jakarta Validation 標準アノテーションと ecuacion-lib-validation 独自
 
 ## セットアップ
 
-`ecuacion-lib-core`・`ecuacion-lib-validation` は `hibernate-validator`・`jakarta.el`（validation
+`ecuacion-lib-core`・`ecuacion-lib-validation` は `hibernate-validator`・`expressly`（validation
 機能を使う場合に必要）、`org.eclipse.angus:angus-mail`（`MailUtil` を使う場合に必要）に
 `provided` スコープで依存しています。`provided` は推移的に伝播しないため、これらはアプリ側で明示的に追加する必要があります。これらのライブラリ、および `ecuacion-lib-xxx` 自体のバージョンをどこまで自動管理したいかによって、以下の3パターンがあります。
 
@@ -91,8 +91,8 @@ Jakarta Validation 標準アノテーションと ecuacion-lib-validation 独自
     <version>（バージョン）</version>
 </dependency>
 <dependency>
-    <groupId>org.glassfish</groupId>
-    <artifactId>jakarta.el</artifactId>
+    <groupId>org.glassfish.expressly</groupId>
+    <artifactId>expressly</artifactId>
     <version>（バージョン）</version>
 </dependency>
 ```
@@ -129,8 +129,8 @@ Jakarta Validation 標準アノテーションと ecuacion-lib-validation 独自
         <version>（バージョン）</version>
     </dependency>
     <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>jakarta.el</artifactId>
+        <groupId>org.glassfish.expressly</groupId>
+        <artifactId>expressly</artifactId>
         <version>（バージョン）</version>
     </dependency>
 </dependencies>
@@ -166,15 +166,15 @@ Jakarta Validation 標準アノテーションと ecuacion-lib-validation 独自
         <artifactId>hibernate-validator</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>jakarta.el</artifactId>
+        <groupId>org.glassfish.expressly</groupId>
+        <artifactId>expressly</artifactId>
     </dependency>
 </dependencies>
 ```
 
 `ecuacion-lib-bom` は `ecuacion-lib-parent` を親 POM としており、BOM インポートは親の
 dependencyManagement も引き継ぐため、`ecuacion-lib-bom` だけをインポートすれば
-`ecuacion-lib-validation`・`hibernate-validator`・`jakarta.el` のいずれもバージョン指定が不要になります。`ecuacion-lib-parent` を別途インポートする必要はありません。
+`ecuacion-lib-validation`・`hibernate-validator`・`expressly` のいずれもバージョン指定が不要になります。`ecuacion-lib-parent` を別途インポートする必要はありません。
 
 ### ビジネス向けバリデーションメッセージを使う場合
 
