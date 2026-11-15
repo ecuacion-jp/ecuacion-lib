@@ -86,6 +86,7 @@ module jp.ecuacion.lib.core {
   // ecuacion lib / sutil / splib: messages
   uses jp.ecuacion.lib.core.spi.MessagesUtilExcelTableProvider;
   uses jp.ecuacion.lib.core.spi.MessagesUtilExcelReportToPdfProvider;
+  uses jp.ecuacion.lib.core.spi.MessagesUtilPdfCommonProvider;
 
   // ecuacion-lib-core
   provides jp.ecuacion.lib.core.spi.MessagesLibCoreProvider

@@ -41,30 +41,36 @@
 		<com.mycila.license-maven-plugin.version>5.1.2</com.mycila.license-maven-plugin.version>
 		<!-- checkstyle -->
 		<org.apache.maven.plugins.maven-checkstyle-plugin.version>3.6.0</org.apache.maven.plugins.maven-checkstyle-plugin.version>
-		<com.puppycrawl.tools.checkstyle.version>14.3.0</com.puppycrawl.tools.checkstyle.version>
+		<com.puppycrawl.tools.checkstyle.version>14.4.0</com.puppycrawl.tools.checkstyle.version>
 		<!-- spotbugs -->
 		<com.github.spotbugs.spotbugs-maven-plugin.version>4.10.5.0</com.github.spotbugs.spotbugs-maven-plugin.version>
 		<com.github.spotbugs.spotbugs.version>4.10.5</com.github.spotbugs.spotbugs.version>
 		<!-- nullaway / error prone -->
-		<com.uber.nullaway.version>0.14.2</com.uber.nullaway.version>
-		<com.google.errorprone.error_prone_core.version>2.50.0</com.google.errorprone.error_prone_core.version>
+		<com.uber.nullaway.version>0.14.3</com.uber.nullaway.version>
+		<com.google.errorprone.error_prone_core.version>2.52.0</com.google.errorprone.error_prone_core.version>
 		<!-- source jar -->
 		<org.apache.maven.plugins.maven-source-plugin.version>3.4.0</org.apache.maven.plugins.maven-source-plugin.version>
 		<!-- wagon: uploads javadoc/allure/jacoco reports to the ecuacion docs server -->
-		<org.codehaus.mojo.wagon-maven-plugin.version>3.1.0</org.codehaus.mojo.wagon-maven-plugin.version>
+		<org.codehaus.mojo.wagon-maven-plugin.version>3.2.0</org.codehaus.mojo.wagon-maven-plugin.version>
 		<!-- antrun: zips allure/jacoco reports for upload -->
 		<org.apache.maven.plugins.maven-antrun-plugin.version>3.2.0</org.apache.maven.plugins.maven-antrun-plugin.version>
 		<!-- allure -->
 		<io.qameta.allure.allure-maven.version>3.1.0</io.qameta.allure.allure-maven.version>
-		<io.qameta.allure.allure-jupiter.version>3.0.0</io.qameta.allure.allure-jupiter.version>
+		<io.qameta.allure.allure-jupiter.version>3.1.1</io.qameta.allure.allure-jupiter.version>
+		<!-- allure-maven installs Node.js and the allure npm package into this directory
+		     before generating a report. Its default is ${project.basedir}/.allure (per module),
+		     which makes every module of a fresh checkout download and install them again.
+		     A shared directory lets later builds skip the install step (paths inside are
+		     versioned as node-<ver> / allure-<ver>, so different versions can coexist). -->
+		<allure.install.directory>${user.home}/.m2/allure</allure.install.directory>
 		<!-- jacoco -->
-		<org.jacoco.jacoco-maven-plugin.version>0.8.15</org.jacoco.jacoco-maven-plugin.version>
+		<org.jacoco.jacoco-maven-plugin.version>0.8.16</org.jacoco.jacoco-maven-plugin.version>
 		<!-- javadoc jar -->
 		<org.apache.maven.plugins.maven-javadoc-plugin.version>3.12.0</org.apache.maven.plugins.maven-javadoc-plugin.version>
 		<!-- jspecify -->
 		<org.jspecify.jspecify.version>1.0.1</org.jspecify.jspecify.version>
 		<!-- enforcer: minimum Maven version required to build ecuacion library modules -->
-		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.6.3</org.apache.maven.plugins.maven-enforcer-plugin.version>
+		<org.apache.maven.plugins.maven-enforcer-plugin.version>3.7.0</org.apache.maven.plugins.maven-enforcer-plugin.version>
 
 	</properties>
 	
