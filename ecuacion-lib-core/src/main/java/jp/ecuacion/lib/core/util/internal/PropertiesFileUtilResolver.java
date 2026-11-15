@@ -407,9 +407,12 @@ public class PropertiesFileUtilResolver {
           sb.append(tuple.getRight());
 
         } else {
-          sb.append(expressionFactory
+          // ValueExpression#getValue is generic since Jakarta EL 6.0; binding it to String first
+          // avoids an ambiguous StringBuilder#append overload.
+          String value = expressionFactory
               .createValueExpression(elContext, "${" + tuple.getRight() + "}", String.class)
-              .getValue(elContext));
+              .getValue(elContext);
+          sb.append(value);
         }
       }
     }
