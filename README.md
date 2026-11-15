@@ -82,7 +82,7 @@ This project follows the spirit of [Semantic Versioning](https://semver.org/). M
 
 ## Documentation
 
-- Official reference documentation - [ecuacion-references-lib](https://references.ecuacion.jp/ecuacion-references-lib/public/showMarkdown/page?id=home)
+- Official reference documentation - [ecuacion-lib reference](https://ecuacion-jp.github.io/ecuacion-lib/)
 - javadoc - [javadoc.io](https://javadoc.io/doc/jp.ecuacion.lib/)
 
 ## Installation

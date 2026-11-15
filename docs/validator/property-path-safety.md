@@ -1,0 +1,91 @@
+# Guarding propertyPath Against Renames
+
+## Overview
+
+Class-level validators (`@XxxWhen`, `@GreaterThan`/`@LessThan`, `@AnyNotNull`, etc.) reference fields
+(or getters, when no such field exists) through string attributes such as `propertyPath`, `conditionPropertyPath`, `conditionValuePropertyPath`,
+and `baselinePropertyPath`. These strings are resolved via reflection when validation runs, so if a
+referenced field is renamed, the compiler cannot catch the mismatch — Java annotation elements must be
+compile-time constants, so a type-safe field reference (a method reference, a `KProperty`-like handle)
+cannot be used here.
+
+This page describes two practical ways to catch a broken `propertyPath` early anyway.
+
+---
+
+## Mitigation 1: One Validation Test per Annotated Class
+
+Every field-reference string above is resolved unconditionally, on every `validate()` call, regardless
+of the field's value. `ClassValidator.internalIsValid` resolves all `propertyPath` values before
+delegating to the validator's own logic, and `ValidateWhenValidator.getSatisfiesCondition` resolves
+`conditionPropertyPath` (and `conditionValuePropertyPath`, when `VALUE_OF_PROPERTY_PATH` is used) the
+same way. If any of these strings no longer names a real field (or getter), resolution throws a `RuntimeException`
+— independent of what the test data actually contains.
+
+This means a single test that calls `Validator#validate` once against an instance of the annotated
+class is enough to catch a rename: if the test still passes, every `propertyPath` referenced by that
+class's annotations still resolves.
+
+```java
+class UserProfileValidationTest {
+
+  @Test
+  void validatorPropertyPathsResolve() {
+    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    // The field values don't matter: this test exists only to force every
+    // propertyPath / conditionPropertyPath / conditionValuePropertyPath referenced by
+    // UserProfile's annotations to be resolved once, so a rename breaks the build.
+    validator.validate(new UserProfile());
+  }
+}
+```
+
+Points to keep in mind:
+
+- The test data's content is irrelevant — the test exists purely to trigger field resolution.
+- If any annotation on the class specifies `groups`, pass that group explicitly to `validate()`;
+  otherwise that annotation is skipped and its `propertyPath` is not resolved.
+- One test per annotated class is enough. There is no need to cover every annotation instance
+  separately, since all of a class's `propertyPath`s are resolved together on every call.
+
+---
+
+## Mitigation 2: Compile-Time-Checked Field Names
+
+Instead of writing field names as raw string literals, reference them through generated constants (for
+example Lombok's `@FieldNameConstants`, or a hand-written constants class). A field rename then breaks
+the constant reference at compile time, before the test above even runs.
+
+```java
+@FieldNameConstants
+public record UserProfile(String name, Dept dept) {}
+
+@NotEmptyWhen(
+    propertyPath = UserProfile.Fields.name,
+    conditionPropertyPath = "...",
+    ...
+)
+```
+
+For nested paths (e.g. `"dept.name"`), only the individual segments can be constant references; the
+`.` separator still has to be a literal:
+
+```java
+propertyPath = UserProfile.Fields.dept + "." + Dept.Fields.name
+```
+
+This does not require any change to `ecuacion-lib-validation` itself — it is purely an
+application-side coding convention.
+
+---
+
+## Which One to Use
+
+| Approach | When the mismatch is caught | Cost |
+| -------- | ---------------------------- | ---- |
+| Mitigation 1 (validation test) | Test run (e.g. in CI) | Low — one test per annotated class |
+| Mitigation 2 (field name constants) | Compile time | Medium — needs a constants mechanism (e.g. Lombok) adopted project-wide |
+
+The two are complementary rather than exclusive: Mitigation 1 is cheap enough to add regardless, and
+Mitigation 2 is worth adopting on top of it when the project already has (or is willing to add) a
+field-name-constant convention.
