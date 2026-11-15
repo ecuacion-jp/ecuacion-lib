@@ -48,8 +48,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.expressly</groupId>
-			<artifactId>expressly</artifactId>
+			<groupId>org.glassfish</groupId>
+			<artifactId>jakarta.el</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -75,7 +75,7 @@
 	</dependencies>
 
 	<!-- Imports version pins for the unversioned dependencies above (jakarta.validation-api,
-		jakarta.mail-api, hibernate-validator, expressly, angus-mail, slf4j-api, commons-lang3). See
+		jakarta.mail-api, hibernate-validator, jakarta.el, angus-mail, slf4j-api, commons-lang3). See
 		ecuacion-lib-bom's own pom.xml for why this is a BOM import here rather than a pin in
 		ecuacion-lib-dependencies (this module's <parent>). -->
 	<dependencyManagement>
