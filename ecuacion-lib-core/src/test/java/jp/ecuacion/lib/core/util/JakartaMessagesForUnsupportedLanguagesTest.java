@@ -56,6 +56,7 @@ public class JakartaMessagesForUnsupportedLanguagesTest {
 
   @SuppressWarnings("unused")
   private static class Bean {
+    @SuppressWarnings("MultipleNullnessAnnotations")
     @NotNull
     private @Nullable String field = null;
   }

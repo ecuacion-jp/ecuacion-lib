@@ -246,7 +246,11 @@
 					</executions>
 				</plugin>
 
-				<!-- maven-source-plugin (outputs a jar of source) -->
+				<!-- maven-source-plugin (outputs a jar of source)
+				     Uses jar-no-fork instead of jar: jar forks a validate..generate-sources
+				     mini-build, which re-runs compile-for-javadoc after the main jar was built
+				     and resets the project artifact's file to target/classes
+				     ("Overwriting artifact's file ..." warning on every module). -->
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
@@ -255,7 +259,7 @@
 						<execution>
 							<phase>package</phase>
 							<goals>
-								<goal>jar</goal>
+								<goal>jar-no-fork</goal>
 							</goals>
 						</execution>
 					</executions>
@@ -368,7 +372,6 @@
 									<jar
 										destfile="${project.build.directory}/${project.build.finalName}-javadoc.jar"
 										basedir="${project.build.directory}/empty-javadoc-src"
-										whenempty="create"
 										unless:set="javadoc.jar.exists"/>
 								</target>
 							</configuration>
@@ -534,6 +537,22 @@
 	</dependencyManagement>
 
 	<profiles>
+
+		<!--
+			Skips spotbugs in modules without main sources (e.g. pom-packaging modules), where
+			it has no classes to analyze and only logs "No files found to generate report on."
+		-->
+		<profile>
+			<id>spotbugs-skip-without-sources</id>
+			<activation>
+				<file>
+					<missing>${basedir}/src/main/java</missing>
+				</file>
+			</activation>
+			<properties>
+				<spotbugs.skip>true</spotbugs.skip>
+			</properties>
+		</profile>
 		<!--
 			This profile is automatically activated when spotbugs-exclude.xml exists in the module directory.
 			No explicit -P option is required.
@@ -577,6 +596,10 @@
 			results to report on) opt out with `-Dallure.report.skip=true`, avoiding the
 			Node.js/npm bootstrap the plugin performs on every module even when there is
 			nothing to report.
+			The file condition (ANDed with the property one) also leaves out modules without
+			src/test (pom-packaging modules and modules with no tests), which have no results
+			and would otherwise only log "Allure report was skipped because there is no
+			results directories found."
 		-->
 		<profile>
 			<id>allure-report</id>
@@ -584,6 +607,9 @@
 				<property>
 					<name>!allure.report.skip</name>
 				</property>
+				<file>
+					<exists>${basedir}/src/test</exists>
+				</file>
 			</activation>
 			<build>
 				<plugins>
@@ -702,15 +728,12 @@
 		</profile>
 
 		<!--
-			maven-source-plugin's `jar` goal declares executePhase=generate-sources, so Maven
-			forks a full validate..generate-sources mini-build for it before the mojo itself
-			runs. That fork happens at the Maven-core level, before the mojo's own `skip`
-			check, so passing -Dmaven.source.skip=true still pays for a second checkstyle /
-			jacoco:prepare-agent / license:format / compile-for-javadoc pass per module. Gating
-			the plugin's binding itself behind this default-on profile, keyed off the same
-			property, lets a consumer build that never wants the source jar (e.g. ecuacion-utils'
-			CI, which only needs the installed classes jar) avoid the fork entirely instead of
-			just skipping the mojo's own work.
+			Gates maven-source-plugin's binding behind this default-on profile, keyed off
+			-Dmaven.source.skip, so a consumer build that never wants the source jar (e.g.
+			ecuacion-utils' CI, which only needs the installed classes jar) skips it entirely.
+			This was originally needed because the `jar` goal forks a validate..generate-sources
+			mini-build before its own `skip` check; the plugin now uses `jar-no-fork` (see its
+			pluginManagement entry), so the fork no longer happens either way.
 		-->
 		<profile>
 			<id>source-jar</id>
