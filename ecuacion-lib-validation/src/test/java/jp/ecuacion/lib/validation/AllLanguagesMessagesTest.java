@@ -89,6 +89,7 @@ public class AllLanguagesMessagesTest {
       conditionValuePatternRegexp = "^a.*$")
   @SuppressWarnings("unused")
   private static class Bean {
+    @SuppressWarnings("MultipleNullnessAnnotations")
     @NotNull
     private @Nullable String nn = null;
     @Size(min = 2, max = 3)
