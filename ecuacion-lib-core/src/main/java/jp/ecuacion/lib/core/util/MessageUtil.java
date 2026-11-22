@@ -83,8 +83,11 @@ public class MessageUtil {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < collectionLayerList.size(); i++) {
       String itemNameKeyPart = collectionLayerList.get(i);
-      String tmp = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("["));
-      String index = tmp.substring(1, tmp.indexOf("]"));
+      // Positions are searched in the masked string
+      // so that characters in the toString() value of a map key are not misinterpreted.
+      String maskedPart = PropertyPathUtil.maskBracketContents(itemNameKeyPart);
+      int openPos = maskedPart.lastIndexOf('[');
+      String index = itemNameKeyPart.substring(openPos + 1, maskedPart.indexOf(']', openPos));
 
       KeywordAndIndex ki = determineKeyword(itemNameKeyPart, index);
       String itemNamePath = PropertiesFileUtil.getMessage(locale, ipf + ki.keyword(), ki.index());
@@ -99,18 +102,18 @@ public class MessageUtil {
 
   private static List<@NonNull String> extractCollectionLayers(String rightMostNode) {
     List<@NonNull String> layers = new ArrayList<>();
+    // Positions are searched in the masked string
+    // so that characters in the toString() value of a map key are not misinterpreted.
+    String masked = PropertyPathUtil.maskBracketContents(rightMostNode);
     while (true) {
-      if (rightMostNode.contains("<K>")) {
-        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
-        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("<K>"));
-
-      } else if (rightMostNode.contains("[")) {
-        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("[")));
-        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("["));
-
-      } else {
+      int cutPos = masked.contains("<K>") ? masked.lastIndexOf("<K>") : masked.lastIndexOf('[');
+      if (cutPos < 0) {
         break;
       }
+
+      layers.add(rightMostNode.substring(cutPos));
+      rightMostNode = rightMostNode.substring(0, cutPos);
+      masked = masked.substring(0, cutPos);
     }
     return layers.reversed();
   }
@@ -123,8 +126,9 @@ public class MessageUtil {
       // Map key access via @Valid cascade (e.g., targetMap<K>[keyRep] -> layer "<K>[keyRep]")
       return new KeywordAndIndex("mapKey", index);
 
-    } else if (itemNameKeyPart.contains("<")) {
-      String elType = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"));
+    } else if (PropertyPathUtil.maskBracketContents(itemNameKeyPart).contains("<")) {
+      String elType = itemNameKeyPart.substring(
+          PropertyPathUtil.maskBracketContents(itemNameKeyPart).lastIndexOf("<"));
       String keyword = switch (elType) {
         case PropertyPathUtil.EL_LIST -> "order";
         case PropertyPathUtil.EL_SET -> "any";

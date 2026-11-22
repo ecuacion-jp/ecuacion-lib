@@ -36,9 +36,9 @@ public class ItemUtil {
   }
 
   private static ItemContext resolveItemContext(Object rootBean, String fullPropertyPath) {
-    String fullPropertyPath1stPart = fullPropertyPath.contains(".")
-        ? fullPropertyPath.substring(0, fullPropertyPath.indexOf("."))
-        : null;
+    int firstDotPos = PropertyPathUtil.maskBracketContents(fullPropertyPath).indexOf('.');
+    String fullPropertyPath1stPart =
+        firstDotPos >= 0 ? fullPropertyPath.substring(0, firstDotPos) : null;
 
     Object firstChild = null;
     try {
@@ -138,8 +138,9 @@ public class ItemUtil {
         cv.getConstraintDescriptor().getConstraintValidatorClasses().get(0));
 
     // Base differs class from method.
+    int lastDotPos = PropertyPathUtil.maskBracketContents(cvPp).lastIndexOf('.');
     String cvPpBase = isClassValidator ? cvPp
-        : (cvPp.contains(".") ? cvPp.substring(0, cvPp.lastIndexOf(".")) : "");
+        : (lastDotPos >= 0 ? cvPp.substring(0, lastDotPos) : "");
     return (StringUtils.isEmpty(cvPpBase) ? "" : cvPpBase + ".") + propertyPath;
   }
 
