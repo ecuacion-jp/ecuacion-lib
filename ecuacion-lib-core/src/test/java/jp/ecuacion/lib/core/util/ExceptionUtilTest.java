@@ -64,10 +64,10 @@ public class ExceptionUtilTest {
   }
 
   // shared helper used by BasicCollectionTypes and CustomObjectsInCollections
-  private static String validateCollection(Object object, boolean isMsgWithItemName,
+  private static String validateCollection(Object object, boolean showsItemName,
       boolean showsItemNamePath) {
     Violations violations = new Violations().validate(object).withMessageParameters(
-        p -> p.isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath));
+        p -> p.showsItemName(showsItemName).showsItemNamePath(showsItemNamePath));
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 
@@ -170,11 +170,11 @@ public class ExceptionUtilTest {
   @DisplayName("item name and item name path - non-collection values")
   class NonCollectionValues {
 
-    private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemNamePath) {
+    private String getMsg(Object obj, boolean showsItemName, boolean showsItemNamePath) {
       return ExceptionUtil.getMessageList(
           (new Violations().validate(obj)
               .withMessageParameters(p -> p.showsItemNamePath(showsItemNamePath))),
-          Locale.ENGLISH, isMsgWithItemName).get(0);
+          Locale.ENGLISH, showsItemName).get(0);
     }
 
     @Test
@@ -1367,7 +1367,7 @@ public class ExceptionUtilTest {
     }
 
     @Test
-    @DisplayName("with isMessagesWithItemNamesAsDefault flag: delegates correctly")
+    @DisplayName("with showsItemNameAsDefault flag: delegates correctly")
     void withFlag() {
       ViolationException ve =
           new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
@@ -1436,18 +1436,18 @@ public class ExceptionUtilTest {
   class MessageFromBusinessViolationBranches {
 
     @Test
-    @DisplayName("isMessagesWithItemNamesAsDefault=true: uses withItemName message lookup")
-    void isMessageWithItemNameTrue() {
+    @DisplayName("showsItemNameAsDefault=true: uses withItemName message lookup")
+    void showsItemNameAsDefaultTrue() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
       assertThat(msgs).containsExactly("message 1.");
     }
 
     @Test
-    @DisplayName("explicit isMessageWithItemName(false): overrides default")
-    void explicitIsMessageWithItemNameFalse() {
+    @DisplayName("explicit showsItemName(false): overrides default")
+    void explicitShowsItemNameFalse() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.isMessageWithItemName(false));
+          .withMessageParameters(p -> p.showsItemName(false));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
       assertThat(msgs).containsExactly("message 1.");
     }
@@ -1581,7 +1581,7 @@ public class ExceptionUtilTest {
   class BusinessViolationWithItemNameKeys {
 
     @Test
-    @DisplayName("itemNameKeys are resolved when isMessagesWithItemNamesAsDefault=true")
+    @DisplayName("itemNameKeys are resolved when showsItemNameAsDefault=true")
     void itemNameKeysResolved() {
       BusinessViolation bv = new BusinessViolation(
           new String[]{"singleLayer.field"}, new String[]{}, "MSG1");
@@ -1606,12 +1606,12 @@ public class ExceptionUtilTest {
     }
 
     @Test
-    @DisplayName("{item_name} is resolved even when isMessagesWithItemNamesAsDefault=false")
+    @DisplayName("{item_name} is resolved even when showsItemNameAsDefault=false")
     void itemNameResolvedWithoutItemNameMode() {
       BusinessViolation bv = new BusinessViolation(new String[]{"singleLayer.field"},
           new String[]{}, "MSG_WITH_ITEM_NAME_AND_ARG", "argValue");
       Violations v = new Violations().add(bv);
-      // isMessagesWithItemNamesAsDefault=false: the message is looked up in
+      // showsItemNameAsDefault=false: the message is looked up in
       // messages.properties (not messages_with_item_names.properties), but {item_name} in it
       // must still be resolved, mirroring the ConstraintViolation message path where {0} is
       // replaced by the item name regardless of which message file the text came from.

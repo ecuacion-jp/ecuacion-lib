@@ -293,8 +293,14 @@ public class Violations {
    *     understandable error messages especially for non-display-value validations 
    *     (like validation errors for uploaded excel files).</p>
    * 
-   * <p>{@code isMessageWithItemName}: You'll get message with itemName 
+   * <p>{@code showsItemName}: You'll get message with itemName 
    *     when {@code true} is specified.
+   *     Default value is {@code null}, which means the {@code showsItemNameAsDefault} argument
+   *     of {@code ExceptionUtil.getMessageList(...)} is adopted.</p>
+   * 
+   * <p>{@code showsItemNamePath}: You'll get message with itemNamePath
+   *     (the item names of the parent objects) when {@code true} is specified.
+   *     It works only when the message with itemName is used.
    *     Default value is {@code false}.</p>
    * 
    * <p>{@code messagePrefix} and {@code messagePostfix}: Used
@@ -311,7 +317,7 @@ public class Violations {
    */
   public static class MessageParameters {
 
-    private @Nullable Boolean isMessageWithItemName;
+    private @Nullable Boolean showsItemName;
     private boolean showsItemNamePath = false;
     private @Nullable Arg messagePrefix;
     private @Nullable Arg messagePostfix;
@@ -323,18 +329,46 @@ public class Violations {
     public MessageParameters() {}
 
     /**
-     * Returns isMessageWithItemName.
+     * Returns the value of showsItemName.
+     * 
+     * <p>{@code null} means it's not specified for this instance
+     *     and the system default value is adopted.</p>
      */
-    public @Nullable Boolean isMessageWithItemName() {
-      return isMessageWithItemName;
+    public @Nullable Boolean showsItemName() {
+      return showsItemName;
     }
 
     /**
-     * Sets isMessageWithItemName.
+     * Sets showsItemName and returns this.
+     * 
+     * <p>When {@code true}, the message with itemName is used.
+     *     When {@code null}, the system default value
+     *     ({@code showsItemNameAsDefault} argument of {@code ExceptionUtil.getMessageList(...)})
+     *     is adopted.</p>
      */
-    public MessageParameters isMessageWithItemName(@Nullable Boolean isMessageWithItemName) {
-      this.isMessageWithItemName = isMessageWithItemName;
+    public MessageParameters showsItemName(@Nullable Boolean showsItemName) {
+      this.showsItemName = showsItemName;
       return this;
+    }
+
+    /**
+     * Returns the value of showsItemName.
+     *
+     * @deprecated Use {@link #showsItemName()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "16.5.0")
+    public @Nullable Boolean isMessageWithItemName() {
+      return showsItemName();
+    }
+
+    /**
+     * Sets showsItemName and returns this.
+     *
+     * @deprecated Use {@link #showsItemName(Boolean)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "16.5.0")
+    public MessageParameters isMessageWithItemName(@Nullable Boolean isMessageWithItemName) {
+      return showsItemName(isMessageWithItemName);
     }
 
     /**
