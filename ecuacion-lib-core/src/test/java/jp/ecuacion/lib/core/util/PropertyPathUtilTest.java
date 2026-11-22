@@ -275,5 +275,79 @@ public class PropertyPathUtilTest {
     void mapKey() {
       assertThat(PropertyPathUtil.toIndexlessPath("strMap<K>[]." + MK)).isEqualTo("strMap<K>[]");
     }
+
+    @Test
+    @DisplayName("already normalized shorthand path is unchanged (idempotent)")
+    void idempotent() {
+      assertThat(PropertyPathUtil.toIndexlessPath("nestedList[][]")).isEqualTo("nestedList[][]");
+      assertThat(PropertyPathUtil.toIndexlessPath("nestedMap<K>[]<K>[].name"))
+          .isEqualTo("nestedMap<K>[]<K>[].name");
+      assertThat(PropertyPathUtil.toIndexlessPath("list[]<K>[]")).isEqualTo("list[]<K>[]");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // map keys whose toString() contains characters of the propertyPath syntax
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("map key containing '.', '[', ']' or '<' in its toString()")
+  class MapKeyWithSyntaxCharacters {
+
+    @Test
+    @DisplayName("maskBracketContents replaces only the contents of [...] with '_'")
+    void maskBracketContents() {
+      assertThat(PropertyPathUtil.maskBracketContents("map[1.5]." + MV))
+          .isEqualTo("map[___]." + MV);
+      // balanced brackets in the contents (toString() of a List key)
+      assertThat(PropertyPathUtil.maskBracketContents("map<K>[[a, b]]." + MK))
+          .isEqualTo("map<K>[______]." + MK);
+      // "]" not followed by ".", "[", "<" or the end is treated as the contents
+      assertThat(PropertyPathUtil.maskBracketContents("map[a]b]." + MV))
+          .isEqualTo("map[___]." + MV);
+      // unbalanced "[" in the contents
+      assertThat(PropertyPathUtil.maskBracketContents("map[a[b]." + MV))
+          .isEqualTo("map[___]." + MV);
+      // "<" in the contents
+      assertThat(PropertyPathUtil.maskBracketContents("map[a<K>b]." + MV))
+          .isEqualTo("map[_____]." + MV);
+      // empty brackets and paths without brackets are unchanged
+      assertThat(PropertyPathUtil.maskBracketContents("list[][].name"))
+          .isEqualTo("list[][].name");
+      assertThat(PropertyPathUtil.maskBracketContents("bean.field")).isEqualTo("bean.field");
+    }
+
+    @Test
+    @DisplayName("toIndexlessPath removes the whole key")
+    void toIndexlessPath() {
+      assertThat(PropertyPathUtil.toIndexlessPath("map[1.5]." + MV)).isEqualTo("map[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("map[a]b]." + MV)).isEqualTo("map[]");
+      assertThat(PropertyPathUtil.toIndexlessPath("map[a[b]." + MV)).isEqualTo("map[]");
+      // Map<List<String>, ?>: key is a List
+      assertThat(PropertyPathUtil.toIndexlessPath("map<K>[[x, null]]." + MK + "[1]." + L))
+          .isEqualTo("map<K>[][]");
+      // key is a bean with the default toString() (package name contains ".")
+      assertThat(PropertyPathUtil.toIndexlessPath("map<K>[jp.example.User@1a2b].name"))
+          .isEqualTo("map<K>[].name");
+    }
+
+    @Test
+    @DisplayName("getRightMostNode and getNodeList do not split at '.' in a key")
+    void nodes() {
+      assertThat(getRightMostNode("bean.map[1.5]." + MV)).isEqualTo("map[1.5]." + MV);
+      assertThat(getRightMostNode("bean.map<K>[jp.example.User@1a2b].name")).isEqualTo("name");
+      assertThat(PropertyPathUtil.getNodeList("bean.map<K>[jp.example.User@1a2b].name"))
+          .containsExactly("bean", "map<K>[jp.example.User@1a2b]", "name");
+      assertThat(PropertyPathUtil.getPropertyPathWithoutRightMostNode("map[1.5].name"))
+          .isEqualTo("map[1.5]");
+    }
+
+    @Test
+    @DisplayName("toFieldPath removes the whole key")
+    void toFieldPath() {
+      assertThat(PropertyPathUtil.toFieldPath("bean.map[1.5]." + MV)).isEqualTo("bean.map");
+      assertThat(PropertyPathUtil.toFieldPath("map<K>[jp.example.User@1a2b].name"))
+          .isEqualTo("map.name");
+    }
   }
 }

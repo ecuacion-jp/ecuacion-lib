@@ -84,6 +84,90 @@ public class PropertyPathUtil {
   public static final String[] COLLECTION_ELS =
       new String[] {EL_LIST, EL_SET, EL_MAP_KEY, EL_MAP_VAL};
 
+  /** The character that replaces the contents of {@code [...]} in masked propertyPaths. */
+  private static final char MASK_CHAR = '_';
+
+  /**
+   * Returns a string of the same length as {@code propertyPath}
+   *     in which the contents of every {@code [...]} part are replaced with {@code '_'}.
+   *
+   * <p>The contents of {@code [...]} are an index or the {@code toString()} value of a map key.
+   *     The latter can be any string, so it may contain characters
+   *     that have a meaning in the propertyPath syntax, like {@code "."}, {@code "["},
+   *     {@code "]"} or {@code "<K>"}
+   *     (e.g. {@code map[1.5].<map value>} or {@code map<K>[[a, b]].<map key>}).<br>
+   *     Searching for the positions of such characters in the returned string
+   *     instead of the original one prevents them from being misinterpreted.
+   *     Substrings are to be taken from the original string at the found positions.</p>
+   *
+   * <p>The closing {@code "]"} of a {@code [...]} part is the first {@code "]"}
+   *     at which the bracket depth reaches 0 or less 
+   *     and which is followed by the end of the string,
+   *     {@code "."}, {@code "["} or {@code "<"}.
+   *     If no {@code "]"} satisfies it, the first {@code "]"} followed by one of them is used.
+   *     Thus balanced brackets in contents (like the {@code toString()} value of a {@code List})
+   *     and a {@code "]"} not followed by these characters are handled correctly.
+   *     Contents containing an unbalanced {@code "]"} immediately followed by
+   *     one of these characters cannot be distinguished from the end of the contents.</p>
+   *
+   * @param propertyPath propertyPath
+   * @return masked propertyPath
+   */
+  static String maskBracketContents(String propertyPath) {
+    char[] chars = propertyPath.toCharArray();
+    int i = 0;
+    while (i < chars.length) {
+      if (chars[i] != '[') {
+        i++;
+        continue;
+      }
+
+      int close = findClosingBracket(propertyPath, i);
+      if (close < 0) {
+        break;
+      }
+
+      Arrays.fill(chars, i + 1, close, MASK_CHAR);
+      i = close + 1;
+    }
+
+    return new String(chars);
+  }
+
+  private static int findClosingBracket(String propertyPath, int openPos) {
+    int depth = 1;
+    int fallback = -1;
+    for (int j = openPos + 1; j < propertyPath.length(); j++) {
+      char ch = propertyPath.charAt(j);
+      if (ch == '[') {
+        depth++;
+
+      } else if (ch == ']') {
+        depth--;
+        if (isEndOfBracketPart(propertyPath, j + 1)) {
+          if (depth <= 0) {
+            return j;
+          }
+
+          if (fallback < 0) {
+            fallback = j;
+          }
+        }
+      }
+    }
+
+    return fallback;
+  }
+
+  private static boolean isEndOfBracketPart(String propertyPath, int nextPos) {
+    if (nextPos >= propertyPath.length()) {
+      return true;
+    }
+
+    char next = propertyPath.charAt(nextPos);
+    return next == '.' || next == '[' || next == '<';
+  }
+
   /**
    * Returns right most node from propertyPath.
    *
@@ -115,13 +199,18 @@ public class PropertyPathUtil {
     String rightMostNode = "";
 
     String pp = propertyPath;
+    String masked = maskBracketContents(propertyPath);
     while (true) {
-      String removingString = pp.contains(".") ? pp.substring(pp.lastIndexOf(".") + 1) : pp;
-      pp = pp.contains(".") ? pp.substring(0, pp.lastIndexOf(".")) : "";
+      int lastDotPos = masked.lastIndexOf('.');
+      String removingString = lastDotPos >= 0 ? pp.substring(lastDotPos + 1) : pp;
+      final String maskedRemovingString =
+          lastDotPos >= 0 ? masked.substring(lastDotPos + 1) : masked;
+      pp = lastDotPos >= 0 ? pp.substring(0, lastDotPos) : "";
+      masked = lastDotPos >= 0 ? masked.substring(0, lastDotPos) : "";
 
       rightMostNode = removingString + (rightMostNode.isEmpty() ? "" : ".") + rightMostNode;
 
-      if (Arrays.stream(COLLECTION_ELS).anyMatch(removingString::contains)) {
+      if (Arrays.stream(COLLECTION_ELS).anyMatch(maskedRemovingString::contains)) {
         continue;
       }
 
@@ -143,7 +232,7 @@ public class PropertyPathUtil {
    * </ul>
    */
   public static String getPropertyPathWithoutRightMostNode(String propertyPath) {
-    if (propertyPath.contains(".")) {
+    if (maskBracketContents(propertyPath).contains(".")) {
       String rtn = propertyPath.substring(0,
           propertyPath.length() - getRightMostNode(propertyPath).length());
 
@@ -177,14 +266,18 @@ public class PropertyPathUtil {
   }
 
   private static String toFieldPathFromNode(String node) {
-    node = node.contains("<K>") ? node.substring(0, node.indexOf("<K>")) : node;
-    node = node.contains("[") ? node.substring(0, node.indexOf("[")) : node;
+    String masked = maskBracketContents(node);
+    int keyPos = masked.indexOf("<K>");
+    int bracketPos = masked.indexOf('[');
+    int endPos = keyPos < 0 ? bracketPos : (bracketPos < 0 ? keyPos : Math.min(keyPos, bracketPos));
 
-    return node;
+    return endPos < 0 ? node : node.substring(0, endPos);
   }
 
   private static String extractIndex(String node) {
-    return node.substring(node.indexOf("[") + 1, node.indexOf("]"));
+    String masked = maskBracketContents(node);
+    int openPos = masked.indexOf('[');
+    return node.substring(openPos + 1, masked.indexOf(']', openPos));
   }
 
   /**
@@ -204,8 +297,8 @@ public class PropertyPathUtil {
    * </table>
    */
   public static String toFieldPath(String propertyPath) {
-    List<@NonNull String> nodeList = getNodeList(propertyPath).stream()
-        .map(PropertyPathUtil::toFieldPathFromNode).toList();
+    List<@NonNull String> nodeList =
+        getNodeList(propertyPath).stream().map(PropertyPathUtil::toFieldPathFromNode).toList();
     return String.join(".", nodeList);
   }
 
@@ -271,27 +364,28 @@ public class PropertyPathUtil {
    */
   public static String toIndexlessPath(String propertyPath) {
     StringBuilder sb = new StringBuilder();
-    String tmpPropertyPath = propertyPath;
+    // Positions are searched in the masked string
+    // so that "[" or "]" in the toString() value of a map key is not misinterpreted.
+    String masked = maskBracketContents(propertyPath);
 
     // Remove characters between "[" and "]".
-    while (true) {
-      if (tmpPropertyPath.isEmpty()) {
-        break;
-
-      } else if (!tmpPropertyPath.contains("]")) {
-        sb.append(tmpPropertyPath);
+    int pos = 0;
+    while (pos < propertyPath.length()) {
+      int openPos = masked.indexOf('[', pos);
+      int closePos = openPos < 0 ? -1 : masked.indexOf(']', openPos);
+      if (closePos < 0) {
+        sb.append(propertyPath.substring(pos));
         break;
       }
 
-      sb.append(tmpPropertyPath.substring(0, tmpPropertyPath.indexOf("[")) + "[]");
-      tmpPropertyPath = tmpPropertyPath.substring(tmpPropertyPath.indexOf("]") + 1);
+      sb.append(propertyPath, pos, openPos).append("[]");
+      pos = closePos + 1;
     }
 
     // Remove element keywords.
-    tmpPropertyPath = sb.toString();
-    List<@NonNull String> list =
-        Arrays.asList(
-            new String[] {".<list element>", ".<iterable element>", ".<map key>", ".<map value>"});
+    String tmpPropertyPath = sb.toString();
+    List<@NonNull String> list = Arrays.asList(
+        new String[] {".<list element>", ".<iterable element>", ".<map key>", ".<map value>"});
     for (String keyword : list) {
       while (true) {
         if (tmpPropertyPath.contains(keyword)) {
@@ -372,12 +466,13 @@ public class PropertyPathUtil {
             ReflectionUtil.getBeanProperty(tmpClass, nodeWithoutCollectionPart);
         tmpClass = tmpProperty.getType();
 
-        if (!node.contains("[")) {
+        String maskedNode = maskBracketContents(node);
+        if (!maskedNode.contains("[")) {
           continue;
         }
 
         // Count the number of "[" in propertyPath.
-        int count = node.length() - node.replaceAll("\\[", "").length();
+        int count = maskedNode.length() - maskedNode.replace("[", "").length();
 
         Type type = tmpProperty.getGenericType();
         for (int i = 0; i < count; i++) {
@@ -388,9 +483,8 @@ public class PropertyPathUtil {
             // Collection or Map: use type argument
             Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
             // Map value access (no <K> in node): use 2nd type arg; others use 1st
-            boolean isMapValueAccess = !node.contains("<K>")
-                && Map.class.isAssignableFrom(
-                    (Class<?>) ((ParameterizedType) type).getRawType());
+            boolean isMapValueAccess = !maskedNode.contains("<K>")
+                && Map.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType());
             type = typeArgs[isMapValueAccess ? 1 : 0];
           }
         }
@@ -421,11 +515,12 @@ public class PropertyPathUtil {
    */
   public static @Nullable Object getValue(Object object, String propertyPath) {
     while (true) {
-      if (propertyPath.contains(".")) {
+      int firstDotPos = maskBracketContents(propertyPath).indexOf('.');
+      if (firstDotPos >= 0) {
         @NonNull
-        String leftMostOfPropertyPath = propertyPath.substring(0, propertyPath.indexOf("."));
+        String leftMostOfPropertyPath = propertyPath.substring(0, firstDotPos);
         @NonNull
-        String theRestOfPropertyPath = propertyPath.substring(propertyPath.indexOf(".") + 1);
+        String theRestOfPropertyPath = propertyPath.substring(firstDotPos + 1);
 
         return getValue(Objects.requireNonNull(getValue(object, leftMostOfPropertyPath)),
             theRestOfPropertyPath);
@@ -436,8 +531,8 @@ public class PropertyPathUtil {
           // It's string because it can be non-number value when the validated object is Map.
           String index = extractIndex(propertyPath);
 
-          Object objs = ReflectionUtil.getBeanProperty(object.getClass(), fieldName)
-              .getValue(object);
+          Object objs =
+              ReflectionUtil.getBeanProperty(object.getClass(), fieldName).getValue(object);
 
           // Resolve the field for array or List.
           // Occur an exception for any other collections
@@ -460,8 +555,7 @@ public class PropertyPathUtil {
           }
 
         } else {
-          return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath)
-              .getValue(object);
+          return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath).getValue(object);
         }
       }
     }

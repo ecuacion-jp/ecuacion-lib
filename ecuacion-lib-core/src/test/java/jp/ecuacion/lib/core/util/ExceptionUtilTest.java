@@ -820,6 +820,33 @@ public class ExceptionUtilTest {
     }
 
     @Test
+    @DisplayName("Map key whose toString() contains '.', '[' or ']': key shown as it is")
+    void mapKeyWithPropertyPathSyntaxCharacters() {
+      Map<String, LocalDate> strDateMap = new HashMap<>();
+      String msg = null;
+
+      // propertyPath: strDateMap[1.5].<map value>
+      strDateMap.put("1.5", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [1.5] contained by 'string date map' must not be null.");
+
+      // propertyPath: strDateMap[a]b].<map value>
+      strDateMap.clear();
+      strDateMap.put("a]b", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [a]b] contained by 'string date map' must not be null.");
+
+      // propertyPath: strDateMap[[x]].<map value>
+      strDateMap.clear();
+      strDateMap.put("[x]", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [[x]] contained by 'string date map' must not be null.");
+    }
+
+    @Test
     @DisplayName("nested Set and Map: item path reflects nesting depth")
     void multipleLayersOtherThanList() {
       String msg = null;
