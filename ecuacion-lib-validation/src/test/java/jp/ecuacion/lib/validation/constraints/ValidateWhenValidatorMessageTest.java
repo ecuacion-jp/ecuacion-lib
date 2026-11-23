@@ -122,6 +122,9 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new PatternWhenTest(), "needs to match the pattern \"\\d+\"" + postfix),
         Arguments.of(new NotPatternWhenTest(),
             "needs to not match the pattern \"\\d+\"" + postfix),
+        // description exists in ValidationMessagesPatternDescriptions: the value is shown
+        Arguments.of(new PatternWhenWithResolvedDescTest(),
+            "needs to match the pattern \"alphanumeric, \".\", \"-\" and \"_\"\"" + postfix),
         // description does not exist in the properties file: the string itself is shown
         Arguments.of(new PatternWhenWithDescTest(),
             "needs to match the pattern \"digits only\"" + postfix),
@@ -428,6 +431,15 @@ public class ValidateWhenValidatorMessageTest {
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class PatternWhenWithDescTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d+", description = "embeddedParameter",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithResolvedDescTest {
     private String field = "abc";
     private boolean conditionField = true;
   }
