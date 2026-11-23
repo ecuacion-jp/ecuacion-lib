@@ -126,10 +126,8 @@ public class PropertiesFileUtilBundleReader {
    */
   public static final ThreadLocal<String> bundleNameForModule = new ThreadLocal<>();
 
-  /**
-   * Stores a specified locale to control the candidate locales in java 9 module system.
-   */
-  public static final ThreadLocal<Locale> specifiedLocale = new ThreadLocal<>();
+  private static final Control NO_FALLBACK_CONTROL =
+      Control.getNoFallbackControl(Control.FORMAT_PROPERTIES);
 
   /**
    * Constructs a new instance with {@code PropertiesFileUtilPropFileKindEnum}.
@@ -294,13 +292,12 @@ public class PropertiesFileUtilBundleReader {
 
     try {
       bundleNameForModule.set(bundleId);
-      specifiedLocale.set(locale);
 
       // java 9 module system
       try {
         String bundle = "jp.ecuacion.lib.core."
             + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
-        return ResourceBundle.getBundle(bundle, locale);
+        return getBundleWithoutDefaultLocaleFallback(bundle, locale);
 
       } catch (MissingResourceException ex) {
         // do nothing.
@@ -310,7 +307,7 @@ public class PropertiesFileUtilBundleReader {
       try {
         String bundle = "jp.ecuacion.lib.core.test."
             + StringUtil.getUpperCamelFromSnake(bundleId.replaceAll("-", "_"));
-        return ResourceBundle.getBundle(bundle, locale);
+        return getBundleWithoutDefaultLocaleFallback(bundle, locale);
 
       } catch (MissingResourceException ex) {
         // do nothing.
@@ -329,8 +326,29 @@ public class PropertiesFileUtilBundleReader {
 
     } finally {
       bundleNameForModule.remove();
-      specifiedLocale.remove();
     }
+  }
+
+  /**
+   * Obtains a {@code ResourceBundle} in java 9 module system
+   *     without the fallback to the default locale.
+   *
+   * <p>{@code ResourceBundle.getBundle} falls back to the default locale
+   *     when only the base bundle is found for the requested locale,
+   *     and {@code ResourceBundle.Control} cannot be used to prevent it in java 9 module system.
+   *     So when the obtained bundle is not one of the candidates of the requested locale,
+   *     which means it is obtained by the fallback, the base bundle is obtained instead.</p>
+   *
+   * @throws MissingResourceException when no bundle is found for the requested locale
+   */
+  private static ResourceBundle getBundleWithoutDefaultLocaleFallback(String baseName,
+      Locale locale) {
+    ResourceBundle bundle = ResourceBundle.getBundle(baseName, locale);
+    if (NO_FALLBACK_CONTROL.getCandidateLocales(baseName, locale).contains(bundle.getLocale())) {
+      return bundle;
+    }
+
+    return ResourceBundle.getBundle(baseName, Locale.ROOT);
   }
 
   private @Nullable String getValueAndDuplicationCheck(

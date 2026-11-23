@@ -127,6 +127,13 @@ public class MiscValidatorsTest {
           .isEqualTo("must match \"alphanumeric, \".\", \"-\" and \"_\"\"");
     }
 
+    @Test
+    @DisplayName("Japanese message shows description in 「」")
+    void japaneseMessage() {
+      assertThat(ExceptionUtil.getMessageList(validator.validate(new Bean("abc")), Locale.JAPANESE)
+          .get(0)).isEqualTo("「digits only」に合致する値にしてください");
+    }
+
     private String getMessage(Object bean) {
       return ExceptionUtil.getMessageList(validator.validate(bean), Locale.ENGLISH).get(0);
     }
