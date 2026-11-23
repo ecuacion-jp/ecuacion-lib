@@ -1148,6 +1148,87 @@ public class ExceptionUtilTest {
           .isEqualTo("'target field'" + MSG);
     }
 
+    @Test
+    @DisplayName("itemNamePath: nested object below a collection element")
+    void nestedObjectBelowCollectionElement() {
+      NestedInElement obj = new NestedInElement(List.of(
+          new NestedInElement.Order(new NestedInElement.Address("1")),
+          new NestedInElement.Order(new NestedInElement.Address(null))));
+
+      assertThat(validateCollection(obj, true, false)).isEqualTo("'zip code' must not be null.");
+      assertThat(validateCollection(obj, true, true)).isEqualTo(
+          "'zip code' at element 2 contained by 'order list' > 'address' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: Map value in a nested object")
+    void mapValueInNestedObject() {
+      Map<String, TargetCls> map = new HashMap<>();
+      map.put("key1", new TargetCls(null));
+      MapInChild obj = new MapInChild(new MapInChild.Child(map));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at 'child field' "
+          + "> element with key [key1] contained by 'target map' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: field of a bean Map key")
+    void mapKeyBean() {
+      // toString() of the key (a record) is "TargetCls[field=null]", which contains brackets.
+      SingleMapKey obj = new SingleMapKey();
+      obj.targetMapKey.put(new TargetCls(null), "v");
+
+      assertThat(validateCollection(obj, true, false)).isEqualTo("'target field' must not be null.");
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at some key element "
+          + "of key-value data contained by 'target map key' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: List of beans in a Map value")
+    void listOfBeansInMapValue() {
+      MapOfList obj = new MapOfList();
+      obj.targetMapList.put("key1", List.of(new TargetCls("a"), new TargetCls(null)));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at element with "
+          + "key [key1] > element 2 contained by 'target map list' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: Map key containing '.' in a nested object")
+    void mapKeyWithDotInNestedObject() {
+      DotKeyInChild obj = new DotKeyInChild(new DotKeyInChild.Child());
+      obj.child().targetMapValue.put("1.5", new TargetCls(null));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at 'child field' "
+          + "> element with key [1.5] contained by 'target map value' must not be null.");
+    }
+
+    public static record NestedInElement(@Valid List<Order> orderList) {
+      public static record Order(@Valid Address address) {}
+
+      public static record Address(@NotNull @Nullable String zip) {}
+    }
+
+    public static record MapInChild(@Valid Child child) {
+      public static record Child(@Valid Map<String, TargetCls> targetMap) {}
+    }
+
+    // The following classes are not records, since @Valid is placed on a type argument
+    // (see the comment on SingleArray).
+    public static class SingleMapKey {
+      final Map<@Valid TargetCls, String> targetMapKey = new HashMap<>();
+    }
+
+    public static class MapOfList {
+      final Map<String, List<@Valid TargetCls>> targetMapList = new HashMap<>();
+    }
+
+    public static record DotKeyInChild(@Valid Child child) {
+      public static class Child {
+        final Map<String, @Valid TargetCls> targetMapValue = new HashMap<>();
+      }
+    }
+
     public static record TargetCls(@NotNull @Nullable String field) {}
 
     @ItemNameKeyClass("itemNameKeyClass")
