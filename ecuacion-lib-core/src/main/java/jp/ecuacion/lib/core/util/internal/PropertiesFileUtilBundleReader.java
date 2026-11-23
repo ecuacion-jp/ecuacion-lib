@@ -337,7 +337,9 @@ public class PropertiesFileUtilBundleReader {
    *     when only the base bundle is found for the requested locale,
    *     and {@code ResourceBundle.Control} cannot be used to prevent it in java 9 module system.
    *     So when the obtained bundle is not one of the candidates of the requested locale,
-   *     which means it is obtained by the fallback, the base bundle is obtained instead.</p>
+   *     which means it is obtained by the fallback, the base bundle is obtained instead.
+   *     The base bundle is also checked in the same way,
+   *     since the fallback occurs also when the base bundle does not exist.</p>
    *
    * @throws MissingResourceException when no bundle is found for the requested locale
    */
@@ -348,7 +350,13 @@ public class PropertiesFileUtilBundleReader {
       return bundle;
     }
 
-    return ResourceBundle.getBundle(baseName, Locale.ROOT);
+    ResourceBundle baseBundle = ResourceBundle.getBundle(baseName, Locale.ROOT);
+    if (Locale.ROOT.equals(baseBundle.getLocale())) {
+      return baseBundle;
+    }
+
+    throw new MissingResourceException(
+        "No bundle for the locale without the fallback to the default locale.", baseName, "");
   }
 
   private @Nullable String getValueAndDuplicationCheck(
