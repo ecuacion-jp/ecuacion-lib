@@ -69,6 +69,13 @@ public @interface PatternWhen {
 
   /**
    * Specifies description for the property value regular expression.
+   *
+   * <p>It is shown in the error message instead of {@code regexp}.
+   *     The value is resolved from {@code ValidationMessagesPatternDescriptions.properties},
+   *     and the specified string itself is shown when the key does not exist.
+   *     When it is empty, {@code regexp} itself is shown.</p>
+   *
+   * @return description
    */
   String description() default "";
 

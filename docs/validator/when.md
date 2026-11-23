@@ -232,6 +232,10 @@ public class CancelForm { ... }
 public class AddressForm { ... }
 ```
 
+When `description` is specified, the error message shows it instead of the regular expression.
+It is looked up in `ValidationMessagesPatternDescriptions.properties`, and the specified string itself is shown when the key does not exist.
+When it is omitted, the regular expression itself is shown.
+
 ### @StringWhen — Validate That Value Is a Specific String (string[])
 
 ```java
