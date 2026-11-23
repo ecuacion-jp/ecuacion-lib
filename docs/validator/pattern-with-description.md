@@ -35,7 +35,7 @@ jp.ecuacion.lib.validation.constraints.PatternWithDescription.message = Please e
 
 `ecuacion-lib-validation` includes a default message, so the default is used if you do not define your own.
 
-Leaving `description` empty embeds the `regexp` itself in `{description}`.
+When `description` is omitted, the regular expression itself is shown in the message.
 
 ---
 

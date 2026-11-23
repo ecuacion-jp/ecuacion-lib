@@ -18,9 +18,6 @@ package jp.ecuacion.lib.validation.constraints.internal;
 import jakarta.validation.ConstraintViolation;
 import java.util.Map;
 import java.util.Objects;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -29,10 +26,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>In addition to the parameters for the condition, it creates {@code description},
  *     which describes the regular expression that the validated value must (or must not) match.
- *     It behaves the same way as {@code conditionValuePatternDescription} on the condition side:
- *     when {@code description} is empty, the regular expression itself is used.
- *     Otherwise it is resolved from {@code ValidationMessagesPatternDescriptions.properties},
- *     and the specified string itself is used when the key does not exist.</p>
+ *     See {@link PatternDescriptionParameter} for how it is created.</p>
  */
 public class PatternWhenValidatorMessageParameterCreator
     extends ValidateWhenValidatorMessageParameterCreator {
@@ -44,17 +38,9 @@ public class PatternWhenValidatorMessageParameterCreator
       Map<@NonNull String, @Nullable Object> paramMap) {
     Map<@NonNull String, @Nullable Object> result = super.create(cv, paramMap);
 
-    String description = (String) paramMap.get(DESCRIPTION);
-    if (StringUtils.isEmpty(description)) {
-      result.put(DESCRIPTION, Objects.requireNonNull((String) paramMap.get("regexp")));
-
-    } else {
-      result.put(DESCRIPTION,
-          Arg.fromFileKinds(
-              new PropertiesFileUtilFileKindEnum[] {
-                  PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-              Objects.requireNonNull(description)));
-    }
+    result.put(DESCRIPTION, PatternDescriptionParameter.of(
+        Objects.requireNonNull((String) paramMap.get("regexp")),
+        Objects.requireNonNullElse((String) paramMap.get(DESCRIPTION), "")));
 
     return result;
   }
