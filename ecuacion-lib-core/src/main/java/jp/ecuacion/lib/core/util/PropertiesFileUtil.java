@@ -25,8 +25,10 @@ import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VAL
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS;
 import static jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_WITH_ITEM_NAMES;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
@@ -169,9 +171,11 @@ public class PropertiesFileUtil {
   public static String getMessage(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> namedArgs, @Nullable Object... positionalArgs) {
     String template = PropertiesFileUtilResolver.getProp(locale, MESSAGES, key);
-    template = PropertiesFileUtilFormatter.formatWithArgs(template, namedArgs);
-    return PropertiesFileUtilFormatter.formatWithArgs(locale, template,
-        PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs));
+    Object[] args = PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs);
+    // MessageFormat is applied only when positional arguments exist.
+    template = PropertiesFileUtilFormatter.formatWithNamedArgs(template, namedArgs,
+        args.length > 0);
+    return PropertiesFileUtilFormatter.formatWithArgs(locale, template, args);
   }
 
   /**
@@ -234,9 +238,11 @@ public class PropertiesFileUtil {
   public static String getMessageWithItemName(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> namedArgs, @Nullable Object... positionalArgs) {
     String template = PropertiesFileUtilResolver.getProp(locale, MESSAGES_WITH_ITEM_NAMES, key);
-    template = PropertiesFileUtilFormatter.formatWithArgs(template, namedArgs);
-    return PropertiesFileUtilFormatter.formatWithArgs(locale, template,
-        PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs));
+    Object[] args = PropertiesFileUtilResolver.resolveArgElements(locale, positionalArgs);
+    // MessageFormat is applied only when positional arguments exist.
+    template = PropertiesFileUtilFormatter.formatWithNamedArgs(template, namedArgs,
+        args.length > 0);
+    return PropertiesFileUtilFormatter.formatWithArgs(locale, template, args);
   }
 
   /**
@@ -360,10 +366,8 @@ public class PropertiesFileUtil {
    */
   public static String getValidationMessage(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> argMap) {
-    String template = PropertiesFileUtilResolver.getProp(locale, VALIDATION_MESSAGES, key, argMap);
-
-    return PropertiesFileUtilFormatter.formatWithArgs(template,
-        PropertiesFileUtilResolver.resolveArgElementsInMap(locale, argMap));
+    return formatValidationMessage(locale,
+        PropertiesFileUtilResolver.getProp(locale, VALIDATION_MESSAGES, key, argMap), argMap);
   }
 
   /**
@@ -376,6 +380,29 @@ public class PropertiesFileUtil {
   public static String getValidationMessage(String key,
       Map<@NonNull String, @Nullable Object> argMap) {
     return getValidationMessage(null, key, argMap);
+  }
+
+  /**
+   * Returns the localized value in ValidationMessages[WithItemNames][_locale].properties,
+   *     with item names substituted at {@code {0}}.
+   *
+   * <p>{@code {0}} is substituted by {@link java.text.MessageFormat}
+   *     only when the template contains it. Whether it is contained is judged by the template,
+   *     not by the substituted message, so {@code {0}} in the values of {@code argMap}
+   *     is not mistaken for the placeholder.</p>
+   *
+   * <p>It is used only in ecuacion libraries.</p>
+   */
+  static String getValidationMessage(@Nullable Locale locale, String key,
+      Map<@NonNull String, @Nullable Object> argMap, boolean withItemName,
+      Supplier<String> itemNamesSupplier) {
+    String template = PropertiesFileUtilResolver.getProp(locale,
+        withItemName ? VALIDATION_MESSAGES_WITH_ITEM_NAMES : VALIDATION_MESSAGES, key, argMap);
+    String message = formatValidationMessage(locale, template, argMap);
+
+    return hasItemNamePlaceholder(template)
+        ? MessageFormat.format(message, itemNamesSupplier.get())
+        : message;
   }
 
   /**
@@ -418,11 +445,8 @@ public class PropertiesFileUtil {
    */
   public static String getValidationMessageWithItemName(@Nullable Locale locale, String key,
       Map<@NonNull String, @Nullable Object> argMap) {
-    String template = PropertiesFileUtilResolver.getProp(locale,
-        VALIDATION_MESSAGES_WITH_ITEM_NAMES, key, argMap);
-
-    return PropertiesFileUtilFormatter.formatWithArgs(template,
-        PropertiesFileUtilResolver.resolveArgElementsInMap(locale, argMap));
+    return formatValidationMessage(locale, PropertiesFileUtilResolver.getProp(locale,
+        VALIDATION_MESSAGES_WITH_ITEM_NAMES, key, argMap), argMap);
   }
 
   /**
@@ -436,6 +460,24 @@ public class PropertiesFileUtil {
   public static String getValidationMessageWithItemName(String key,
       Map<@NonNull String, @Nullable Object> argMap) {
     return getValidationMessageWithItemName(null, key, argMap);
+  }
+
+  /**
+   * Substitutes named placeholders in a template of ValidationMessages[WithItemNames].
+   *
+   * <p>A template with {@code {0}} (a placeholder for item names) is formatted
+   *     by {@link java.text.MessageFormat} afterwards, so the values are escaped for it.
+   *     {@code {0}} itself is left in the result.</p>
+   */
+  private static String formatValidationMessage(@Nullable Locale locale, String template,
+      Map<@NonNull String, @Nullable Object> argMap) {
+    return PropertiesFileUtilFormatter.formatWithNamedArgs(template,
+        PropertiesFileUtilResolver.resolveArgElementsInMap(locale, argMap),
+        hasItemNamePlaceholder(template));
+  }
+
+  private static boolean hasItemNamePlaceholder(String template) {
+    return template.contains("{0}");
   }
 
   /**

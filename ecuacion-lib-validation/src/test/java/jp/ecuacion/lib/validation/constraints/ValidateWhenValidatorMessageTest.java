@@ -137,7 +137,19 @@ public class ValidateWhenValidatorMessageTest {
   void patternDescriptionWithItemNameTest() {
     assertThat(ExceptionUtil
         .getMessageList(validator.validate(new PatternWhenWithDescTest()), Locale.ENGLISH, true)
-        .get(0)).startsWith("'field' needs to match the pattern \"digits only\" when ");
+        .get(0)).isEqualTo("'field' needs to match the pattern \"digits only\""
+            + " when 'condition field' is ON.");
+  }
+
+  @Test
+  @DisplayName("braces in the regexp are displayed as they are")
+  void bracesInRegexpTest() {
+    assertThat(getMessage(new PatternWhenWithBracesTest()))
+        .isEqualTo("needs to match the pattern \"\\d{3}\" when 'condition field' is ON");
+    assertThat(ExceptionUtil
+        .getMessageList(validator.validate(new PatternWhenWithBracesTest()), Locale.ENGLISH, true)
+        .get(0)).isEqualTo("'field' needs to match the pattern \"\\d{3}\""
+            + " when 'condition field' is ON.");
   }
 
   @ParameterizedTest(name = "{0}")
@@ -431,6 +443,15 @@ public class ValidateWhenValidatorMessageTest {
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class PatternWhenWithDescTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d{3}",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithBracesTest {
     private String field = "abc";
     private boolean conditionField = true;
   }

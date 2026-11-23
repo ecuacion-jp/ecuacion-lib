@@ -1683,7 +1683,7 @@ public class ExceptionUtilTest {
       // Before the fix, "{0}" in the template was hijacked by the item name (via
       // namedArgs.put("0", itemName)) before messageArgs were ever applied by MessageFormat,
       // so messageArgs[0] ("argValue") could never appear in the message.
-      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+      assertThat(msgs.get(0)).isEqualTo("'test field': argValue");
     }
 
     @Test
@@ -1698,7 +1698,40 @@ public class ExceptionUtilTest {
       // replaced by the item name regardless of which message file the text came from.
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs).hasSize(1);
-      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+      assertThat(msgs.get(0)).isEqualTo("'test field': argValue");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Special characters in the values of named placeholders
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("special characters in the values of named placeholders")
+  class SpecialCharactersInNamedPlaceholderValues {
+
+    @ItemNameKeyClass("SingleLayer")
+    public static class PatternWithBraces {
+      @Pattern(regexp = "\\d{3}")
+      private String field = "O'Brien {x}";
+    }
+
+    @Test
+    @DisplayName("ConstraintViolation with item names: ', { and } are displayed as they are")
+    void constraintViolationWithItemName() {
+      assertThat(ExceptionUtil
+          .getMessageList(new Violations().validate(new PatternWithBraces()), Locale.ENGLISH,
+              true)
+          .get(0)).isEqualTo("'test field' must match \"\\d{3}\". (input: O'Brien {x})");
+    }
+
+    @Test
+    @DisplayName("BusinessViolation with message args: ' in {item_name} is displayed as it is")
+    void businessViolationWithMessageArgs() {
+      BusinessViolation bv = new BusinessViolation(new String[] {"singleLayer.field"},
+          new String[] {}, "MSG_WITH_ITEM_NAME_AND_ARG", "it's {0}");
+      assertThat(ExceptionUtil.getMessageList(new Violations().add(bv), Locale.ENGLISH, true)
+          .get(0)).isEqualTo("'test field': it's {0}");
     }
   }
 }
