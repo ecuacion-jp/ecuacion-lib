@@ -36,7 +36,7 @@ jp.ecuacion.lib.validation.constraints.PatternWithDescription.message = 「{desc
 `ecuacion-lib-validation` にはデフォルトのメッセージが含まれているため、
 独自に定義しない場合はデフォルトが使われます。
 
-`description` を空にすると `regexp` そのものが `{description}` に埋め込まれます。
+`description` を省略した場合は、正規表現がそのままメッセージに表示されます。
 
 ---
 

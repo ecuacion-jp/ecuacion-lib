@@ -78,7 +78,12 @@ public @interface PatternWithDescription {
 
   /**
    * Stores description to add description string to the message to users.
-   * 
+   *
+   * <p>It is shown in the error message instead of {@code regexp}.
+   *     The value is resolved from {@code ValidationMessagesPatternDescriptions.properties},
+   *     and the specified string itself is shown when the key does not exist.
+   *     When it is empty, {@code regexp} itself is shown.</p>
+   *
    * @return description
    */
   String description() default "";

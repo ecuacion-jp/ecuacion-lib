@@ -18,6 +18,8 @@ package jp.ecuacion.lib.validation.constraints;
 import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Locale;
+import jp.ecuacion.lib.core.util.ExceptionUtil;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -113,8 +115,31 @@ public class MiscValidatorsTest {
       assertThat(validator.validate(new Bean("abc"))).hasSize(1);
     }
 
+    @Test
+    @DisplayName("message shows description, or the regexp when description is empty")
+    void message() {
+      // description is empty: the regexp itself is shown
+      assertThat(getMessage(new NoDescBean("abc"))).isEqualTo("must match \"\\d{3}\"");
+      // description does not exist in the properties file: the string itself is shown
+      assertThat(getMessage(new Bean("abc"))).isEqualTo("must match \"digits only\"");
+      // description exists in ValidationMessagesPatternDescriptions: the value is shown
+      assertThat(getMessage(new ResolvedDescBean("abc")))
+          .isEqualTo("must match \"alphanumeric, \".\", \"-\" and \"_\"\"");
+    }
+
+    private String getMessage(Object bean) {
+      return ExceptionUtil.getMessageList(validator.validate(bean), Locale.ENGLISH).get(0);
+    }
+
     private static record Bean(
         @PatternWithDescription(regexp = "\\d+", description = "digits only")
+        @Nullable String value) {}
+
+    private static record NoDescBean(
+        @PatternWithDescription(regexp = "\\d{3}") @Nullable String value) {}
+
+    private static record ResolvedDescBean(
+        @PatternWithDescription(regexp = "\\d+", description = "embeddedParameter")
         @Nullable String value) {}
   }
 
