@@ -16,15 +16,21 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
@@ -90,12 +96,68 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new NotStringWhenTest(),
             "needs to not be a specific value when 'condition field' is ON"),
         Arguments.of(new PatternWhenTest(),
-            "needs to match the pattern when 'condition field' is ON"),
+            "needs to match the pattern \"\\d+\" when 'condition field' is ON"),
         Arguments.of(new NotPatternWhenTest(),
-            "needs to not match the pattern when 'condition field' is ON"),
+            "needs to not match the pattern \"\\d+\" when 'condition field' is ON"),
         Arguments.of(new ValueOfPropertyPathWhenTest(),
             "needs to be the value of a specific field when 'condition field' is ON")
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // description of @PatternWhen / @NotPatternWhen (the regexp of the validated value)
+  // -------------------------------------------------------------------------
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("patternDescriptionAndExpectedMessage")
+  @DisplayName("description of @PatternWhen / @NotPatternWhen is shown in the message")
+  void patternDescriptionTest(Object bean, String expectedMessage) {
+    assertThat(getMessage(bean)).isEqualTo(expectedMessage);
+  }
+
+  static Stream<Arguments> patternDescriptionAndExpectedMessage() {
+    String postfix = " when 'condition field' is ON";
+    return Stream.of(
+        // description is empty: the regexp itself is shown
+        Arguments.of(new PatternWhenTest(), "needs to match the pattern \"\\d+\"" + postfix),
+        Arguments.of(new NotPatternWhenTest(),
+            "needs to not match the pattern \"\\d+\"" + postfix),
+        // description does not exist in the properties file: the string itself is shown
+        Arguments.of(new PatternWhenWithDescTest(),
+            "needs to match the pattern \"digits only\"" + postfix),
+        Arguments.of(new NotPatternWhenWithDescTest(),
+            "needs to not match the pattern \"digits only\"" + postfix));
+  }
+
+  @Test
+  @DisplayName("description of @PatternWhen is shown in the message with item names")
+  void patternDescriptionWithItemNameTest() {
+    assertThat(ExceptionUtil
+        .getMessageList(validator.validate(new PatternWhenWithDescTest()), Locale.ENGLISH, true)
+        .get(0)).startsWith("'field' needs to match the pattern \"digits only\" when ");
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("patternWhenMessageParameterCreators")
+  @DisplayName("description is resolved from ValidationMessagesPatternDescriptions")
+  void patternDescriptionIsResolvedFromPatternDescriptions(Object bean,
+      ValidatorMessageParameterCreator creator) {
+    ConstraintViolation<Object> cv = validator.validate(bean).iterator().next();
+    Map<String, @Nullable Object> params =
+        creator.create(cv, new HashMap<>(cv.getConstraintDescriptor().getAttributes()));
+
+    assertThat(params.get("description")).isInstanceOfSatisfying(Arg.class, arg -> {
+      assertThat(arg.getFileKinds()).containsExactly(
+          PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS);
+      assertThat(arg.getArgValue()).isEqualTo("digits only");
+    });
+  }
+
+  static Stream<Arguments> patternWhenMessageParameterCreators() {
+    return Stream.of(
+        Arguments.of(new PatternWhenWithDescTest(), new PatternWhenMessageParameterCreator()),
+        Arguments.of(new NotPatternWhenWithDescTest(),
+            new NotPatternWhenMessageParameterCreator()));
   }
 
   // -------------------------------------------------------------------------
@@ -357,6 +419,24 @@ public class ValidateWhenValidatorMessageTest {
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class NotPatternWhenTest {
+    private String field = "123";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d+", description = "digits only",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithDescTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("NotPatternWhenTest")
+  @NotPatternWhen(propertyPath = "field", regexp = "\\d+", description = "digits only",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class NotPatternWhenWithDescTest {
     private String field = "123";
     private boolean conditionField = true;
   }

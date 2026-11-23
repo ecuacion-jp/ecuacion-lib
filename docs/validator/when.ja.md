@@ -223,6 +223,10 @@ public class CancelForm { ... }
 public class AddressForm { ... }
 ```
 
+`description` を指定すると、エラーメッセージに正規表現の代わりにその文言が表示されます。
+文言は `ValidationMessagesPatternDescriptions.properties` から探し、キーがなければ指定した文字列をそのまま表示します。
+省略した場合は、正規表現がそのまま表示されます。
+
 ### @StringWhen — 特定の文字列であることを検証（string[]）
 
 ```java
