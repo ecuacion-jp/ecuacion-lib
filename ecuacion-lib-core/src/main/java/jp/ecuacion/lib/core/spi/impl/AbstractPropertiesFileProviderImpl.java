@@ -30,7 +30,10 @@ import org.jspecify.annotations.Nullable;
  * 
  * <p>It's used when the app is in java 9 module system.</p>
  * 
- * <p>This removes the default locale, which is the locale of OS,
+ * <p>It returns the bundle of the requested locale as it is, regardless of the caller,
+ *     because {@code ResourceBundle} caches the result per locale.
+ *     The fallback to the default locale, which is the locale of OS,
+ *     is removed by {@code PropertiesFileUtilBundleReader} instead
  *     to avoid the result depends on the execution environment.</p>
  */
 public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourceBundleProvider {
@@ -40,12 +43,7 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
    */
   @Override
   public @Nullable ResourceBundle getBundle(@Nullable String baseName, @Nullable Locale locale) {
-    Locale specifiedLocale = PropertiesFileUtilBundleReader.specifiedLocale.get();
-
-    // remove default locale if not specified.
-    if (locale == null || (!locale.getLanguage().isEmpty()
-        && !specifiedLocale.getLanguage().equals(Locale.getDefault().getLanguage())
-        && locale.getLanguage().equals(Locale.getDefault().getLanguage()))) {
+    if (locale == null) {
       return null;
     }
 
