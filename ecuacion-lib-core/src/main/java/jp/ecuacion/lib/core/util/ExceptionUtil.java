@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
@@ -390,21 +391,22 @@ public class ExceptionUtil {
       boolean isMessageDefined =
           showsItemName ? PropertiesFileUtil.hasValidationMessageWithItemName(messageKey)
               : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
+      Supplier<String> itemNamesSupplier = () -> MessageUtil.getItemNames(locale,
+          bean.getItemList(), messageParameters.showsItemNamePath(), bean.getRootBean());
       if (isMessageDefined) {
-        message = showsItemName
-            ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
-            : PropertiesFileUtil.getValidationMessage(locale, messageKey, map);
+        // {0} is replaced to itemName in it.
+        message = PropertiesFileUtil.getValidationMessage(locale, messageKey, map, showsItemName,
+            itemNamesSupplier);
       } else {
         // No entry in ecuacion-lib properties files; re-interpolate for the target locale.
         message = getDefaultInterpolator().interpolate(bean.getMessageTemplate(),
             new DefaultMessageContext(bean.getConstraintDescriptor(), bean.getInvalidValueObject()),
             locale != null ? locale : Locale.getDefault());
-      }
 
-      // Replace {0} to itemName.
-      if (message.contains("{0}")) {
-        message = MessageFormat.format(message, MessageUtil.getItemNames(locale, bean.getItemList(),
-            messageParameters.showsItemNamePath(), bean.getRootBean()));
+        // Replace {0} to itemName.
+        if (message.contains("{0}")) {
+          message = MessageFormat.format(message, itemNamesSupplier.get());
+        }
       }
 
       message = applyPrefixAndPostfix(message, locale, messageParameters);

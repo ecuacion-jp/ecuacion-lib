@@ -69,52 +69,88 @@ public class PropertiesFileUtilFormatterTest {
   }
 
   // -------------------------------------------------------------------------
-  // formatWithArgs
+  // formatWithNamedArgs
   // -------------------------------------------------------------------------
 
   @Nested
-  @DisplayName("formatWithArgs")
-  class SubstituteNamedPlaceholders {
+  @DisplayName("formatWithNamedArgs")
+  class FormatWithNamedArgs {
 
     @Test
     @DisplayName("replaces {key} with corresponding value from map")
     void basicSubstitution() {
       Map<@NonNull String, @Nullable Object> map = Map.of("min", 3, "max", 20);
-      assertThat(PropertiesFileUtilFormatter.formatWithArgs(
-          "{min} 以上 {max} 以下", map))
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs(
+          "{min} 以上 {max} 以下", map, false))
           .isEqualTo("3 以上 20 以下");
     }
 
     @Test
-    @DisplayName("null value in map: replaced with empty string literal ''")
+    @DisplayName("null value in map: replaced with empty string")
     void nullValue() {
       Map<@NonNull String, @Nullable Object> map = new HashMap<>();
       map.put("val", null);
-      assertThat(PropertiesFileUtilFormatter.formatWithArgs("{val}", map))
-          .isEqualTo("''");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("[{val}]", map, false))
+          .isEqualTo("[]");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("[{val}]", map, true))
+          .isEqualTo("[]");
     }
 
     @Test
-    @DisplayName("braces in value are escaped to prevent MessageFormat errors")
-    void bracesInValueAreEscaped() {
-      Map<@NonNull String, @Nullable Object> map = Map.of("key", "{escaped}");
-      assertThat(PropertiesFileUtilFormatter.formatWithArgs("{key}", map))
-          .isEqualTo("'{'escaped'}'");
+    @DisplayName("not escaped for MessageFormat: value is substituted as it is")
+    void notEscaped() {
+      Map<@NonNull String, @Nullable Object> map = Map.of("key", "it's {escaped}");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("{key}", map, false))
+          .isEqualTo("it's {escaped}");
+    }
+
+    @Test
+    @DisplayName("escaped for MessageFormat: value is quoted and its ' is doubled")
+    void escaped() {
+      Map<@NonNull String, @Nullable Object> map = Map.of("key", "it's {escaped}");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("{key}", map, true))
+          .isEqualTo("'it''s {escaped}'");
+    }
+
+    @Test
+    @DisplayName("escaped for MessageFormat: value without special characters is not quoted")
+    void escapedWithoutSpecialCharacters() {
+      Map<@NonNull String, @Nullable Object> map = Map.of("key", "plain");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("{key}", map, true))
+          .isEqualTo("plain");
+    }
+
+    @Test
+    @DisplayName("escaped value is displayed as it is after MessageFormat")
+    void escapedValueAfterMessageFormat() {
+      Map<@NonNull String, @Nullable Object> map = Map.of("key", "it's {0} '{1}' ''");
+      String formatted =
+          PropertiesFileUtilFormatter.formatWithNamedArgs("{0}: {key}", map, true);
+      assertThat(PropertiesFileUtilFormatter.formatWithArgs(null, formatted,
+          new Object[] {"'item'"})).isEqualTo("'item': it's {0} '{1}' ''");
+    }
+
+    @Test
+    @DisplayName("placeholder in a substituted value is not substituted again")
+    void singlePass() {
+      Map<@NonNull String, @Nullable Object> map = Map.of("a", "{b}", "b", "B");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("{a} {b}", map, false))
+          .isEqualTo("{b} B");
     }
 
     @Test
     @DisplayName("placeholder not in map: left unchanged")
     void placeholderNotInMap() {
       Map<@NonNull String, @Nullable Object> map = Map.of("other", "value");
-      assertThat(PropertiesFileUtilFormatter.formatWithArgs("{missing}", map))
-          .isEqualTo("{missing}");
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs("{missing} {0}", map, true))
+          .isEqualTo("{missing} {0}");
     }
 
     @Test
     @DisplayName("no placeholders: returns message unchanged")
     void noPlaceholders() {
-      assertThat(PropertiesFileUtilFormatter.formatWithArgs(
-          "no placeholders here", Map.of()))
+      assertThat(PropertiesFileUtilFormatter.formatWithNamedArgs(
+          "no placeholders here", Map.of(), false))
           .isEqualTo("no placeholders here");
     }
   }

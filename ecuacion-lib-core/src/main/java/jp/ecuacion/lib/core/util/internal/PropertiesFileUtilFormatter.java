@@ -18,8 +18,8 @@ package jp.ecuacion.lib.core.util.internal;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jp.ecuacion.lib.core.util.LocaleUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -56,26 +56,58 @@ public class PropertiesFileUtilFormatter {
     return new MessageFormat(template, effectiveLocale).format(args);
   }
 
+  private static final Pattern NAMED_PLACEHOLDER = Pattern.compile("\\{([^{}]+)\\}");
+
   /**
    * Formats {@code template} by substituting named placeholders (e.g., {@code {min}},
    * {@code {max}}) with the corresponding values from {@code argMap}.
    *
+   * <p>The template is scanned once, so placeholders contained in the substituted values
+   *     are not substituted again. Placeholders not in {@code argMap}
+   *     (like {@code {0}}) are left unchanged. A {@code null} value is substituted
+   *     with an empty string.</p>
+   *
+   * <p>When the result is formatted by {@link java.text.MessageFormat} afterwards,
+   *     specify {@code true} to {@code escapesForMessageFormat}.
+   *     Then each value is quoted so that {@code '}, {@code {} and {@code }} in it
+   *     are displayed as they are after {@code MessageFormat}.
+   *     Otherwise the values are substituted as they are.</p>
+   *
    * @param template the template containing named placeholders
    * @param argMap map of placeholder name to value
+   * @param escapesForMessageFormat whether the result is formatted by {@code MessageFormat}
    * @return the template with all named placeholders replaced
    */
-  public static String formatWithArgs(String template,
-      Map<@NonNull String, @Nullable Object> argMap) {
-    String result = template;
+  public static String formatWithNamedArgs(String template,
+      Map<@NonNull String, @Nullable Object> argMap, boolean escapesForMessageFormat) {
+    Matcher matcher = NAMED_PLACEHOLDER.matcher(template);
+    StringBuilder sb = new StringBuilder();
 
-    for (Entry<@NonNull String, @Nullable Object> entry : argMap.entrySet()) {
-      // Escape "{" and "}" to prevent errors at MessageFormat.
-      result = result.replace("{" + entry.getKey() + "}",
-          entry.getValue() == null ? "''"
-              : Objects.requireNonNull(entry.getValue()).toString().replace("{", "'{'").replace("}",
-                  "'}'"));
+    while (matcher.find()) {
+      String name = matcher.group(1);
+      if (!argMap.containsKey(name)) {
+        matcher.appendReplacement(sb, Matcher.quoteReplacement(matcher.group()));
+        continue;
+      }
+
+      Object value = argMap.get(name);
+      String str = value == null ? "" : value.toString();
+      matcher.appendReplacement(sb,
+          Matcher.quoteReplacement(escapesForMessageFormat ? escapeForMessageFormat(str) : str));
     }
 
-    return result;
+    matcher.appendTail(sb);
+    return sb.toString();
+  }
+
+  /**
+   * Escapes {@code value} so that {@link java.text.MessageFormat} outputs it as it is.
+   */
+  private static String escapeForMessageFormat(String value) {
+    if (value.indexOf('\'') < 0 && value.indexOf('{') < 0 && value.indexOf('}') < 0) {
+      return value;
+    }
+
+    return "'" + value.replace("'", "''") + "'";
   }
 }
