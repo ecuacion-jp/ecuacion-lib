@@ -81,7 +81,7 @@ public class AllLanguagesMessagesTest {
   @AnyNotEmpty(propertyPath = {"a", "b"})
   @GreaterThan(propertyPath = "small", baselinePropertyPath = "large")
   @NotEmptyWhen(propertyPath = "field", conditionPropertyPath = "cond",
-      conditionValueBoolean = true, emptyWhenConditionNotSatisfied = true)
+      conditionValueBoolean = true, oppositeWhenConditionNotSatisfied = true)
   @StringWhen(propertyPath = "str", string = {"x"}, conditions = {
       @Condition(propertyPath = "cond2", valueString = {"p", "q"}),
       @Condition(propertyPath = "cond", valueBoolean = true)})

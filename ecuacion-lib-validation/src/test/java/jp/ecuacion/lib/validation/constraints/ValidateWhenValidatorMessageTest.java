@@ -308,7 +308,7 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new NullNotEqualToBean(null, "a"), p2 + "is not null"),
         Arguments.of(new NotNullEqualToBean(null, "a"), p2 + "is not null"),
         Arguments.of(new NotNullNotEqualToBean(null, null), p2 + "is null"),
-        // emptyWhenConditionNotSatisfied
+        // oppositeWhenConditionNotSatisfied
         Arguments.of(new EmptyWhenConditionNotSatisfiedBean(null, null),
             p2 + "is empty, and empty when otherwise")
     );
@@ -707,7 +707,7 @@ public class ValidateWhenValidatorMessageTest {
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.EMPTY, emptyWhenConditionNotSatisfied = true)
+      conditionValue = ConditionValue.EMPTY, oppositeWhenConditionNotSatisfied = true)
   public static record EmptyWhenConditionNotSatisfiedBean(@Nullable String value,
       @Nullable String condValue) {}
 

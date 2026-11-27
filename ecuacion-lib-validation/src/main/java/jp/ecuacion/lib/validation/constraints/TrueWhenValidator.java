@@ -41,7 +41,8 @@ public class TrueWhenValidator extends ValidateWhenValidator<TrueWhen, Object> {
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.conditions(), annotation.falseWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.oppositeWhenConditionNotSatisfied()
+            || annotation.falseWhenConditionNotSatisfied());
   }
 
   @Override

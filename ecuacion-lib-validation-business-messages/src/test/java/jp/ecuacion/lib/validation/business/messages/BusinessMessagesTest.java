@@ -71,7 +71,7 @@ public class BusinessMessagesTest {
   }
 
   @NotNullWhen(propertyPath = "field", conditionPropertyPath = "cond",
-      conditionValueBoolean = true, nullWhenConditionNotSatisfied = true)
+      conditionValueBoolean = true, oppositeWhenConditionNotSatisfied = true)
   @SuppressWarnings("unused")
   private static class NotNullWhenBean {
     private String field = null;
@@ -79,7 +79,7 @@ public class BusinessMessagesTest {
   }
 
   @NullWhen(propertyPath = "field", conditionPropertyPath = "cond",
-      conditionValueBoolean = true, notNullWhenConditionNotSatisfied = true)
+      conditionValueBoolean = true, oppositeWhenConditionNotSatisfied = true)
   @SuppressWarnings("unused")
   private static class NullWhenBean {
     private String field = "a";

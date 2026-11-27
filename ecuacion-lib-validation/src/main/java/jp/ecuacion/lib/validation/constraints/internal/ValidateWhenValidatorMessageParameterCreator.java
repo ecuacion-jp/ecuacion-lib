@@ -78,12 +78,15 @@ public class ValidateWhenValidatorMessageParameterCreator
     }
     result.put(ValidateWhenValidator.CONDITION_DESCRIPTION, conditionDescription);
 
-    // validatesWhenConditionNotSatisfied
-    // Each When-validator annotation must have exactly one parameter whose name ends with
-    // "ConditionNotSatisfied". That convention allows automatic lookup without a switch statement.
-    String conditionNotSatisfiedKey = Objects.requireNonNull(paramMap.keySet().stream()
-        .filter(k -> k.endsWith("WhenConditionNotSatisfied")).toList().get(0));
-    boolean bl = (boolean) Objects.requireNonNull(paramMap.get(conditionNotSatisfiedKey));
+    // oppositeWhenConditionNotSatisfied
+    // (message parameter: validatesWhenConditionNotSatisfiedDescription)
+    // Each When-validator annotation has "oppositeWhenConditionNotSatisfied" and
+    // a deprecated validator-specific parameter (like "falseWhenConditionNotSatisfied").
+    // Both end with "WhenConditionNotSatisfied", and the opposite is validated
+    // when either of them is true.
+    boolean bl = paramMap.entrySet().stream()
+        .filter(e -> e.getKey().endsWith("WhenConditionNotSatisfied"))
+        .anyMatch(e -> Boolean.TRUE.equals(e.getValue()));
 
     String paramKey = ValidateWhenValidator.VALIDATES_WHEN_CONDITION_NOT_SATISFIED + "Description";
     if (bl) {
