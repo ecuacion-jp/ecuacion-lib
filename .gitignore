@@ -152,3 +152,6 @@ products/
 
 # MkDocs build output
 /site/
+
+# Python bytecode cache (e.g. created by MkDocs hooks)
+__pycache__/
