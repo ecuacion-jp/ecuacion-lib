@@ -28,10 +28,10 @@ import jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString;
 
 /**
  * Is valid when the value of {@code propertyPath} is 
- *     greater than the value of {@code basisPropertyPath}.
+ *     greater than the value of {@code baselinePropertyPath}.
  * 
  * <p>It returns valid when the value of {@code propertyPath} 
- *     or {@code basisPropertyPath} is {@code null} or blank string.</p>
+ *     or {@code baselinePropertyPath} is {@code null} or an empty string.</p>
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
