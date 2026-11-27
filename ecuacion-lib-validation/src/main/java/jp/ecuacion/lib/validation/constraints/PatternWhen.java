@@ -249,10 +249,28 @@ public @interface PatternWhen {
   Condition[] conditions() default {};
 
   /**
-   * Decides whether validation check is executed when the condition is not satisfied.
+   * Validates the opposite when the condition is not satisfied.
+   *
+   * <p>When {@code true}, {@code propertyPath} needs to be
+   *     a value which does not match {@code regexp}
+   *     when the condition is not satisfied.
+   *     When {@code false} (default), {@code propertyPath} is not validated
+   *     when the condition is not satisfied.</p>
    *
    * @return boolean
    */
+  boolean oppositeWhenConditionNotSatisfied() default false;
+
+  /**
+   * Validates the opposite when the condition is not satisfied.
+   *
+   * <p>This has the same meaning as {@link #oppositeWhenConditionNotSatisfied()}.
+   *     When either of them is {@code true}, the opposite is validated.</p>
+   *
+   * @return boolean
+   * @deprecated Use {@link #oppositeWhenConditionNotSatisfied()} instead.
+   */
+  @Deprecated(forRemoval = true, since = "16.5.0")
   boolean notPatternWhenConditionNotSatisfied() default false;
 
   /**

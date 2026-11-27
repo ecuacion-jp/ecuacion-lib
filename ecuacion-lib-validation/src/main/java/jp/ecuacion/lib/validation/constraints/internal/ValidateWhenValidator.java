@@ -42,7 +42,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class ValidateWhenValidator<A extends Annotation, T> extends ClassValidator<A, T> {
   // Put anything to avoid null error. Replaced in initialize().
   private List<@NonNull ConditionEvaluator> conditionEvaluators = List.of();
-  protected boolean validatesWhenConditionNotSatisfied;
+  protected boolean oppositeWhenConditionNotSatisfied;
 
   public static final String CONDITION_PROPERTY_PATH = "conditionPropertyPath";
   public static final String CONDITION_PROPERTY_PATH_ITEM_NAME_KEY =
@@ -60,6 +60,9 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   public static final String DISPLAY_STRING_OF_CONDITION_VALUE = "displayStringOfConditionValue";
   public static final String CONDITION_VALUE_PROPERTY_PATH_DISPLAY_STRING_PROPERTY_PATH =
       "conditionValueDisplayStringPropertyPath";
+  // Used as the name of the message parameter "{validatesWhenConditionNotSatisfiedDescription}"
+  // and in the message keys "*.messagePart.validatesWhenConditionNotSatisfied".
+  // They are kept as they are because applications may refer to them in their own messages.
   public static final String VALIDATES_WHEN_CONDITION_NOT_SATISFIED =
       "validatesWhenConditionNotSatisfied";
 
@@ -76,7 +79,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       String[] conditionValueString, String conditionValuePattern,
       String conditionValuePropertyPath, boolean[] conditionValueBoolean,
       ConditionValueState conditionValueState, Condition[] conditions,
-      boolean validatesWhenConditionNotSatisfied) {
+      boolean oppositeWhenConditionNotSatisfied) {
     super.initialize(message, propertyPath);
 
     boolean singleConditionSet = !conditionPropertyPath.isEmpty()
@@ -110,7 +113,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
           conditionValuePropertyPath, conditionValueBoolean, conditionValueState));
     }
 
-    this.validatesWhenConditionNotSatisfied = validatesWhenConditionNotSatisfied;
+    this.oppositeWhenConditionNotSatisfied = oppositeWhenConditionNotSatisfied;
   }
 
   /**
@@ -211,7 +214,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
       return isValid(valueOfField);
 
     } else {
-      if (validatesWhenConditionNotSatisfied) {
+      if (oppositeWhenConditionNotSatisfied) {
         return isValidWhenConditionNotSatisfied(valueOfField);
 
       } else {
@@ -232,7 +235,7 @@ public abstract class ValidateWhenValidator<A extends Annotation, T> extends Cla
   }
 
   /**
-   * Is called when {@code validatesWhenConditionNotSatisfied} is {@code true}.
+   * Is called when {@code oppositeWhenConditionNotSatisfied} is {@code true}.
    *
    * <p>The default implementation returns {@code !isValid(valueOfField)},
    *     which validates the inverse condition.

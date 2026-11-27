@@ -126,8 +126,8 @@ public class WhenValidatorsMultipleConditionsTest {
     }
 
     @Test
-    @DisplayName("emptyWhenConditionNotSatisfied validates when not all conditions are satisfied")
-    void emptyWhenConditionNotSatisfied() {
+    @DisplayName("opposite is validated when not all conditions are satisfied")
+    void oppositeWhenConditionNotSatisfied() {
       assertThat(validator.validate(new NotSatisfiedBean(null, "OTHER", "a"))).hasSize(1);
       assertThat(validator.validate(new NotSatisfiedBean("x", "OTHER", "a"))).isEmpty();
       assertThat(validator.validate(new NotSatisfiedBean("x", "OTHER", null))).hasSize(1);
@@ -224,8 +224,8 @@ public class WhenValidatorsMultipleConditionsTest {
     }
 
     @Test
-    @DisplayName("with emptyWhenConditionNotSatisfied")
-    void emptyWhenConditionNotSatisfied() {
+    @DisplayName("with oppositeWhenConditionNotSatisfied")
+    void oppositeWhenConditionNotSatisfied() {
       assertThat(getMessage(new NotSatisfiedBean(null, "OTHER", "a"), Locale.ENGLISH))
           .isEqualTo("needs to be not empty when 'type' is 'OTHER' and 'status' is not empty"
               + ", and empty when otherwise");
@@ -270,7 +270,7 @@ public class WhenValidatorsMultipleConditionsTest {
   @NotEmptyWhen(propertyPath = "value", conditions = {
       @Condition(propertyPath = "type", valueString = "OTHER"),
       @Condition(propertyPath = "status", valueState = ConditionValueState.NOT_EMPTY)},
-      emptyWhenConditionNotSatisfied = true)
+      oppositeWhenConditionNotSatisfied = true)
   public static record NotSatisfiedBean(@Nullable String value, String type,
       @Nullable String status) {}
 
