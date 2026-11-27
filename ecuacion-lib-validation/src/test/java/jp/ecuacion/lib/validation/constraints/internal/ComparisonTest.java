@@ -200,4 +200,23 @@ public class ComparisonTest {
         validator.validate(new ComparisonTestBean.NullPropertyPath.BothNullBean());
     assertThat(setBothNull).isEmpty();
   }
+
+  @SuppressWarnings("null")
+  @Test
+  public void emptyPropertyPath() {
+    // propertyPath side is "" -> valid (skipped before type conversion, so no exception)
+    Set<ConstraintViolation<ComparisonTestBean.EmptyPropertyPath.PropertyPathEmptyBean>> setPropertyPathEmpty =
+        validator.validate(new ComparisonTestBean.EmptyPropertyPath.PropertyPathEmptyBean());
+    assertThat(setPropertyPathEmpty).isEmpty();
+
+    // baselinePropertyPath side is "" -> valid
+    Set<ConstraintViolation<ComparisonTestBean.EmptyPropertyPath.BaselinePropertyPathEmptyBean>> setBaselineEmpty =
+        validator.validate(new ComparisonTestBean.EmptyPropertyPath.BaselinePropertyPathEmptyBean());
+    assertThat(setBaselineEmpty).isEmpty();
+
+    // both "" -> valid
+    Set<ConstraintViolation<ComparisonTestBean.EmptyPropertyPath.BothEmptyBean>> setBothEmpty =
+        validator.validate(new ComparisonTestBean.EmptyPropertyPath.BothEmptyBean());
+    assertThat(setBothEmpty).isEmpty();
+  }
 }

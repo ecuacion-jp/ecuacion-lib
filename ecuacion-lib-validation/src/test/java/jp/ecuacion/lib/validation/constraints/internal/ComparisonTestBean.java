@@ -207,6 +207,34 @@ public class ComparisonTestBean {
     }
   }
 
+  /**
+   * Uses typeConversionFromString = NUMBER so that an exception is thrown
+   *     if an empty string is not skipped before the type conversion.
+   */
+  public static class EmptyPropertyPath {
+
+    @GreaterThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class PropertyPathEmptyBean {
+      private String amount = "";
+      private String limit = "2,000";
+    }
+
+    @GreaterThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class BaselinePropertyPathEmptyBean {
+      private String amount = "1,000";
+      private String limit = "";
+    }
+
+    @GreaterThan(propertyPath = "amount", baselinePropertyPath = "limit",
+        typeConversionFromString = jp.ecuacion.lib.validation.constraints.enums.TypeConversionFromString.NUMBER)
+    public static class BothEmptyBean {
+      private String amount = "";
+      private String limit = "";
+    }
+  }
+
   public static class TypeConversionFromStringBeans {
 
     @LessThan(propertyPath = "amount", baselinePropertyPath = "limit",
