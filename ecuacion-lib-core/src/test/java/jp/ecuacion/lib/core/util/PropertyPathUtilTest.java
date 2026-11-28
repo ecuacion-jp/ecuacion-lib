@@ -16,7 +16,10 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
@@ -354,6 +357,7 @@ public class PropertyPathUtilTest {
 
   @Nested
   @DisplayName("getValue with a null intermediate value")
+  @SuppressWarnings("unused") // fields are read via reflection
   class GetValueWithNullIntermediateValue {
 
     public static class Dept {
@@ -398,6 +402,98 @@ public class PropertyPathUtilTest {
       emp.deptList = List.of(new Dept());
       assertThat(PropertyPathUtil.getValue(emp, "dept.name")).isEqualTo("dept1");
       assertThat(PropertyPathUtil.getValue(emp, "deptList[0].name")).isEqualTo("dept1");
+    }
+  }
+
+  @Nested
+  @DisplayName("getValue with the notation of collections")
+  @SuppressWarnings("unused") // fields are read via reflection
+  class GetValueWithCollections {
+
+    public static class Dept {
+      private String name;
+
+      Dept(String name) {
+        this.name = name;
+      }
+    }
+
+    public static class Holder {
+      private List<String> strList = List.of("a", "b");
+      private List<List<String>> nestedList = List.of(List.of("x0", "x1"), List.of("y0"));
+      private int[] intArray = {10, 20};
+      private List<Dept> deptList = List.of(new Dept("d0"));
+      private Map<String, String> strMap = Map.of("k1", "v1");
+      private Map<Integer, Dept> intKeyMap = Map.of(5, new Dept("d5"));
+      private Map<String, List<String>> listMap = Map.of("k", List.of("e0", "e1"));
+      private Set<String> strSet = Set.of("s");
+      private Map<Object, String> ambiguousMap = new java.util.HashMap<>();
+    }
+
+    private final Holder holder = new Holder();
+
+    @Test
+    @DisplayName("List: <list element> and nested indices")
+    void list() {
+      assertThat(PropertyPathUtil.getValue(holder, "strList[1]")).isEqualTo("b");
+      assertThat(PropertyPathUtil.getValue(holder, "strList[1].<list element>")).isEqualTo("b");
+      assertThat(PropertyPathUtil.getValue(holder, "nestedList[0][1]")).isEqualTo("x1");
+      assertThat(PropertyPathUtil.getValue(holder,
+          "nestedList[0].<list element>[1].<list element>")).isEqualTo("x1");
+      assertThat(PropertyPathUtil.getValue(holder, "deptList[0].name")).isEqualTo("d0");
+    }
+
+    @Test
+    @DisplayName("array including primitive array")
+    void array() {
+      assertThat(PropertyPathUtil.getValue(holder, "intArray[1]")).isEqualTo(20);
+      assertThat(PropertyPathUtil.getValue(holder, "intArray[1].<list element>")).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("Map value: obtained by the string expression of the key")
+    void mapValue() {
+      assertThat(PropertyPathUtil.getValue(holder, "strMap[k1]")).isEqualTo("v1");
+      assertThat(PropertyPathUtil.getValue(holder, "strMap[k1].<map value>")).isEqualTo("v1");
+      assertThat(PropertyPathUtil.getValue(holder, "intKeyMap[5].name")).isEqualTo("d5");
+      assertThat(PropertyPathUtil.getValue(holder, "listMap[k].<map value>[1].<list element>"))
+          .isEqualTo("e1");
+    }
+
+    @Test
+    @DisplayName("Map key: obtained by <K>")
+    void mapKey() {
+      assertThat(PropertyPathUtil.getValue(holder, "strMap<K>[k1].<map key>")).isEqualTo("k1");
+      assertThat(PropertyPathUtil.getValue(holder, "intKeyMap<K>[5].<map key>")).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("Map: null when no key matches")
+    void mapKeyNotFound() {
+      assertThat(PropertyPathUtil.getValue(holder, "strMap[none].<map value>")).isNull();
+      assertThat(PropertyPathUtil.getValue(holder, "strMap<K>[none].<map key>")).isNull();
+    }
+
+    @Test
+    @DisplayName("Map: exception when two or more keys have the same string expression")
+    void mapAmbiguousKey() {
+      holder.ambiguousMap.put(1, "int");
+      holder.ambiguousMap.put("1", "string");
+      assertThatThrownBy(() -> PropertyPathUtil.getValue(holder, "ambiguousMap[1].<map value>"))
+          .isInstanceOf(PropertyPathUtil.ElementOfCollectionCannotBeObtainedException.class);
+    }
+
+    @Test
+    @DisplayName("Set: exception since the element cannot be identified")
+    void set() {
+      assertThatThrownBy(() -> PropertyPathUtil.getValue(holder, "strSet[].<iterable element>"))
+          .isInstanceOf(PropertyPathUtil.ElementOfCollectionCannotBeObtainedException.class);
+    }
+
+    @Test
+    @DisplayName("empty propertyPath returns the object itself")
+    void emptyPath() {
+      assertThat(PropertyPathUtil.getValue(holder, "")).isSameAs(holder);
     }
   }
 }

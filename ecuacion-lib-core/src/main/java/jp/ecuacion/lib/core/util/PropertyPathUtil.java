@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -274,12 +275,6 @@ public class PropertyPathUtil {
     return endPos < 0 ? node : node.substring(0, endPos);
   }
 
-  private static String extractIndex(String node) {
-    String masked = maskBracketContents(node);
-    int openPos = masked.indexOf('[');
-    return node.substring(openPos + 1, masked.indexOf(']', openPos));
-  }
-
   /**
    * Converts a propertyPath to a plain field path by removing all collection notation
    * ({@code [index]}, {@code <list element>}, etc.).
@@ -503,8 +498,35 @@ public class PropertyPathUtil {
   /**
    * Returns a property value by navigating {@code propertyPath} from {@code object}.
    *
-   * <p>Supports dot-separated paths (e.g. {@code "dept.name"}) and collection index
-   *     notation (e.g. {@code "list[0]"}).</p>
+   * <p>Supports dot-separated paths (e.g. {@code "dept.name"}) and the notation of collections
+   *     used in the propertyPath of Jakarta Validation.</p>
+   *
+   * <table border="1">
+   * <caption>Supported collections</caption>
+   * <tr><th>collection</th><th>example of propertyPath</th><th>value</th></tr>
+   * <tr><td>array, {@code List}</td>
+   *     <td>{@code list[0]}, {@code list[0].<list element>}, {@code list[0].name}</td>
+   *     <td>the element at the index</td></tr>
+   * <tr><td>nested array, {@code List}</td>
+   *     <td>{@code list[0][1]}, {@code list[0].<list element>[1].<list element>}</td>
+   *     <td>the element at the indices</td></tr>
+   * <tr><td>{@code Map} (value)</td>
+   *     <td>{@code map[key]}, {@code map[key].<map value>}, {@code map[key].name}</td>
+   *     <td>the value of the entry</td></tr>
+   * <tr><td>{@code Map} (key)</td><td>{@code map<K>[key].<map key>}</td>
+   *     <td>the key of the entry</td></tr>
+   * </table>
+   *
+   * <p>The key of a {@code Map} in the propertyPath is compared with
+   *     {@code String.valueOf(key)} of each entry,
+   *     since Jakarta Validation puts the {@code toString()} value of the key in the propertyPath.
+   *     {@code null} is returned when no key matches.
+   *     {@link ElementOfCollectionCannotBeObtainedException} is thrown
+   *     when two or more keys match.</p>
+   *
+   * <p>{@link ElementOfCollectionCannotBeObtainedException} is also thrown for {@code Set}
+   *     and other collections, since the propertyPath (like {@code set[].<iterable element>})
+   *     does not identify the element.</p>
    *
    * <p>Each node is resolved to a field, or to a getter when no field of the name exists.
    *     See {@link ReflectionUtil#getBeanProperty(Class, String)}.</p>
@@ -513,59 +535,94 @@ public class PropertyPathUtil {
    *     (e.g. {@code dept} of {@code "dept.name"}, or {@code list} of {@code "list[0]"}),
    *     {@code null} is returned, since the target property does not have a value either.</p>
    *
+   * <p>When {@code propertyPath} is empty, {@code object} itself is returned.</p>
+   *
    * @param object root object
    * @param propertyPath path from root object to the target property
    * @return property value, or {@code null} if the property or an intermediate value of the path
    *     holds {@code null}
    */
   public static @Nullable Object getValue(Object object, String propertyPath) {
-    int firstDotPos = maskBracketContents(propertyPath).indexOf('.');
-    if (firstDotPos >= 0) {
-      @NonNull
-      String leftMostOfPropertyPath = propertyPath.substring(0, firstDotPos);
-      @NonNull
-      String theRestOfPropertyPath = propertyPath.substring(firstDotPos + 1);
+    Object current = object;
+    for (String node : getNodeList(propertyPath)) {
+      if (current == null) {
+        return null;
+      }
 
-      Object intermediateValue = getValue(object, leftMostOfPropertyPath);
-      return intermediateValue == null ? null
-          : getValue(intermediateValue, theRestOfPropertyPath);
+      current = getValueOfNode(current, node);
+    }
 
-    } else {
-      if (propertyPath.contains("[")) {
-        String fieldName = toFieldPathFromNode(propertyPath);
-        // It's string because it can be non-number value when the validated object is Map.
-        String index = extractIndex(propertyPath);
+    return current;
+  }
 
-        Object objs =
-            ReflectionUtil.getBeanProperty(object.getClass(), fieldName).getValue(object);
-        if (objs == null) {
-          return null;
-        }
+  /**
+   * Returns the value of a node (like {@code name}, {@code list[0].<list element>}
+   *     or {@code map<K>[key].<map key>}) of {@code object}.
+   */
+  private static @Nullable Object getValueOfNode(Object object, String node) {
+    Object value = ReflectionUtil.getBeanProperty(object.getClass(), toFieldPathFromNode(node))
+        .getValue(object);
 
-        // Resolve the field for array or List.
-        // Occur an exception for any other collections
-        // because it's impossible to specify the element in Set
-        // (since the propertyPath is like "childSet[]")
-        // and Map (since the propertyPath is like "childMap[test]"
-        // where test is the key of them map entry. Any type can be key and
-        // it's impossible to resolve it).
-        if (objs instanceof Object[] arr) {
-          return arr[Integer.parseInt(index)];
+    // Positions are searched in the masked string
+    // so that "[" or "]" in the toString() value of a map key is not misinterpreted.
+    String masked = maskBracketContents(node);
+    int pos = 0;
+    while (true) {
+      int openPos = masked.indexOf('[', pos);
+      if (openPos < 0) {
+        return value;
+      }
 
-        } else if (objs instanceof List<?> list) {
-          return list.get(Integer.parseInt(index));
+      if (value == null) {
+        return null;
+      }
 
-        } else {
-          throw new ElementOfCollectionCannotBeObtainedException(
-              "Multiple value types other than array and List "
-                  + "are not supported. The type of value: "
-                  + objs.getClass().getCanonicalName());
-        }
+      int closePos = masked.indexOf(']', openPos);
+      String indexOrKey = node.substring(openPos + 1, closePos);
+      boolean isMapKey = masked.startsWith("<K>", openPos - 3);
+      value = getElement(value, indexOrKey, isMapKey);
+      pos = closePos + 1;
+    }
+  }
 
-      } else {
-        return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath).getValue(object);
+  private static @Nullable Object getElement(Object collection, String indexOrKey,
+      boolean isMapKey) {
+    if (collection instanceof Map<?, ?> map) {
+      Map.Entry<?, ?> entry = findMapEntry(map, indexOrKey);
+      return entry == null ? null : (isMapKey ? entry.getKey() : entry.getValue());
+    }
+
+    if (!isMapKey && collection.getClass().isArray()) {
+      return Array.get(collection, Integer.parseInt(indexOrKey));
+    }
+
+    if (!isMapKey && collection instanceof List<?> list) {
+      return list.get(Integer.parseInt(indexOrKey));
+    }
+
+    // Set and other collections: the element cannot be identified
+    // since the propertyPath is like "set[].<iterable element>".
+    throw new ElementOfCollectionCannotBeObtainedException(
+        "Collections other than array, List and Map are not supported "
+            + "since the element cannot be identified by the propertyPath. The type of value: "
+            + collection.getClass().getCanonicalName());
+  }
+
+  private static Map.@Nullable Entry<?, ?> findMapEntry(Map<?, ?> map, String keyString) {
+    List<Map.Entry<?, ?>> matched = new ArrayList<>();
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      if (String.valueOf(entry.getKey()).equals(keyString)) {
+        matched.add(entry);
       }
     }
+
+    if (matched.size() > 1) {
+      throw new ElementOfCollectionCannotBeObtainedException(
+          "The entry of the map cannot be identified since two or more keys have the same "
+              + "string expression. (key: " + keyString + ")");
+    }
+
+    return matched.isEmpty() ? null : matched.get(0);
   }
 
   /**
@@ -583,7 +640,10 @@ public class PropertyPathUtil {
   }
 
   /**
-   * Is thrown when getValue method called for non-ordered collections: Sets and Map keys.
+   * Is thrown when the element of a collection cannot be identified by the propertyPath
+   *     in {@code getValue}: elements of {@code Set} and other collections
+   *     other than array, {@code List} and {@code Map},
+   *     or entries of {@code Map} whose keys have the same string expression.
    */
   public static class ElementOfCollectionCannotBeObtainedException extends RuntimeException {
 
