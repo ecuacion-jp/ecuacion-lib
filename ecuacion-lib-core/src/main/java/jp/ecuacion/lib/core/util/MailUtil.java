@@ -18,10 +18,10 @@ package jp.ecuacion.lib.core.util;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
-import jakarta.mail.NoSuchProviderException;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
+import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.io.PrintStream;
@@ -44,7 +44,7 @@ import org.jspecify.annotations.Nullable;
  * Provides mail-related utility methods.
  */
 public class MailUtil {
-  private static DetailLogger dtlLog = new DetailLogger(MailUtil.class);
+  private static final DetailLogger dtlLog = new DetailLogger(MailUtil.class);
   private static final String APP_PREFIX = "jp.ecuacion.lib.core.mail.";
 
   /**
@@ -86,16 +86,22 @@ public class MailUtil {
 
   /**
    * Sends an error mail.
-   * 
-   * <p>This is used in exception handler 
+   *
+   * <p>This is used in exception handler
    *     to notify system administrator the occurence of an error.</p>
-   * 
+   *
    * <p>The mail is sent to the addresses defined in {@code application.properties}
    *     with key {@code jp.ecuacion.lib.core.mail.address-csv-on-system-error}.</p>
-   *     
-   * @param throwable throwable
+   *
+   * <p>Exceptions occurred while sending the mail are logged and not thrown
+   *     so as not to get in the way of the error handling.
+   *     Exceptions caused by the settings (like a missing key in
+   *     {@code application.properties}) are thrown as {@code RuntimeException}.</p>
+   *
+   * @param throwable throwable. Can be {@code null},
+   *     since error handling should not throw an exception even in that case.
    */
-  public static void sendErrorMail(Throwable throwable) {
+  public static void sendErrorMail(@Nullable Throwable throwable) {
     sendErrorMail(throwable, (String) null);
   }
 
@@ -103,10 +109,11 @@ public class MailUtil {
    * Sends an error mail using the supplied {@link MailUtilConfig} instead of reading settings
    * from {@code application.properties}.
    *
-   * @param throwable throwable
+   * @param throwable throwable. Can be {@code null}.
    * @param config mail configuration
+   * @see #sendErrorMail(Throwable)
    */
-  public static void sendErrorMail(Throwable throwable, MailUtilConfig config) {
+  public static void sendErrorMail(@Nullable Throwable throwable, MailUtilConfig config) {
     sendErrorMail(throwable, null, config);
   }
 
@@ -115,18 +122,19 @@ public class MailUtil {
    *     using the supplied {@link MailUtilConfig} instead of reading settings
    *     from {@code application.properties}.
    *
-   * @param throwable throwable
+   * @param throwable throwable. Can be {@code null}.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    * @param config mail configuration
+   * @see #sendErrorMail(Throwable)
    */
-  public static void sendErrorMail(Throwable throwable, @Nullable String additionalMessage,
-      MailUtilConfig config) {
-    Objects.requireNonNull(throwable);
+  public static void sendErrorMail(@Nullable Throwable throwable,
+      @Nullable String additionalMessage, MailUtilConfig config) {
+    Objects.requireNonNull(config);
 
     List<@NonNull String> errorMailAddressList =
-        Arrays.asList(config.addressCsvOnSystemError().split(","));
+        splitAddressCsv(config.addressCsvOnSystemError());
 
     if (errorMailAddressList.isEmpty()) {
       return;
@@ -146,23 +154,22 @@ public class MailUtil {
   /**
    * Sends an error mail adding an additional message to it.
    *
-   * @param throwable throwable.
+   * @param throwable throwable. Can be {@code null}.
    * @param additionalMessage additional message,
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
+   * @see #sendErrorMail(Throwable)
    */
-  public static void sendErrorMail(Throwable throwable, @Nullable String additionalMessage) {
-    Objects.requireNonNull(throwable);
+  public static void sendErrorMail(@Nullable Throwable throwable,
+      @Nullable String additionalMessage) {
+    List<@NonNull String> errorMailAddressList =
+        splitAddressCsv(getApp("address-csv-on-system-error"));
 
-    List<@NonNull String> errorMailAddressList = Arrays.asList(
-        PropertiesFileUtil.getApplication(APP_PREFIX + "address-csv-on-system-error").split(","));
-
-    if (errorMailAddressList == null || errorMailAddressList.isEmpty()) {
+    if (errorMailAddressList.isEmpty()) {
       return;
     }
 
-    String mailTitle = PropertiesFileUtil.getApplication(APP_PREFIX + "title-prefix")
-        + "A system error has occurred.";
+    String mailTitle = getApp("title-prefix") + "A system error has occurred.";
 
     try {
       sendMailCommon(errorMailAddressList, (List<@NonNull String>) null, false, mailTitle,
@@ -173,12 +180,18 @@ public class MailUtil {
     }
   }
 
-  private static String getErrorMailContent(Throwable e, @Nullable String additionalMessage) {
-    StringBuilder msgSb = new StringBuilder();
-    msgSb
-        .append(ExceptionLogUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n");
+  /*
+   * Splits comma-separated addresses.
+   * Each address is trimmed, and empty ones (like "" or "a@example.com,,b@example.com") are
+   * ignored.
+   */
+  private static List<@NonNull String> splitAddressCsv(String csv) {
+    return Arrays.stream(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+  }
 
-    return msgSb.toString();
+  private static String getErrorMailContent(@Nullable Throwable e,
+      @Nullable String additionalMessage) {
+    return ExceptionLogUtil.getErrLogString(e, additionalMessage, Locale.getDefault()) + "\n";
   }
 
   /**
@@ -187,19 +200,24 @@ public class MailUtil {
    * <p>{@code mailToList} is passed as-is to {@link jakarta.mail.internet.InternetAddress}
    *     without sanitization; do not pass untrusted (e.g. end-user-supplied) values.</p>
    *
+   * <p>Exceptions occurred while sending the mail are logged and not thrown.
+   *     Exceptions caused by the settings (like a missing key in
+   *     {@code application.properties}) are thrown as {@code RuntimeException}.</p>
+   *
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    */
-  public static void sendWarnMail(String content, List<@NonNull String> mailToList) {
+  public static void sendWarnMail(@Nullable String content, List<@NonNull String> mailToList) {
     ObjectsUtil.requireSizeNonZero(mailToList);
 
-    String envSpecStr = PropertiesFileUtil.getApplication(APP_PREFIX + "title-prefix");
+    String envSpecStr = getApp("title-prefix");
 
     try {
       sendMailCommon(mailToList, (List<@NonNull String>) null, false, envSpecStr + "Warn Message",
-          content, true);
+          content, false);
+
     } catch (Exception ex) {
-      // do nothing.
+      throw new RuntimeException(ex);
     }
   }
 
@@ -210,43 +228,47 @@ public class MailUtil {
    * <p>{@code mailToList} is passed as-is to {@link jakarta.mail.internet.InternetAddress}
    *     without sanitization; do not pass untrusted (e.g. end-user-supplied) values.</p>
    *
+   * <p>Exceptions occurred while sending the mail are logged and not thrown.</p>
+   *
    * @param content content, may be {@code null} if no mailbody content needed.
    * @param mailToList list of mailadresses used for "TO" address
    * @param config mail configuration
    */
-  public static void sendWarnMail(String content, List<@NonNull String> mailToList,
+  public static void sendWarnMail(@Nullable String content, List<@NonNull String> mailToList,
       MailUtilConfig config) {
     ObjectsUtil.requireSizeNonZero(mailToList);
+    Objects.requireNonNull(config);
 
     try {
       sendMailCommon(mailToList, (List<@NonNull String>) null, false,
-          config.titlePrefix() + "Warn Message", content, true, config);
+          config.titlePrefix() + "Warn Message", content, false, config);
+
     } catch (Exception ex) {
-      // do nothing.
+      throw new RuntimeException(ex);
     }
   }
 
   /**
    * Provides sending text-format mail function.
-   * 
+   *
    * <p>The following settings are needed to application.properties
    *     to send mails with this object.</p>
-   * 
+   *
    * <pre>
-   * # true or false
-   * SMTP_AUTHENTICATION=true
-   * #Normally "true" if the port number is 465, "false" if 587
-   * SMTP_SSL_ENABLED=true
    * jp.ecuacion.lib.core.mail.smtp.server=smtp.gmail.com
    * jp.ecuacion.lib.core.mail.smtp.port=465
    * jp.ecuacion.lib.core.mail.smtp.sender=info@ecuacion.jp
    * jp.ecuacion.lib.core.mail.smtp.password=(password)
+   * # true or false
+   * jp.ecuacion.lib.core.mail.smtp.authentication=true
+   * # Normally "true" if the port number is 465, "false" if 587
+   * jp.ecuacion.lib.core.mail.smtp.ssl-enabled=true
    * jp.ecuacion.lib.core.mail.title-prefix=[app-name: staging environment]
    * jp.ecuacion.lib.core.mail.address-csv-on-system-error=info@ecuacion.jp
    * # true or false. Logs the full SMTP protocol exchange, including the Base64-encoded
    * # credentials sent during authentication -- do not enable in production.
    * jp.ecuacion.lib.core.mail.debug=false
-   * # true or false. Applies only when SMTP_SSL_ENABLED is false (STARTTLS on port 587).
+   * # true or false. Applies only when smtp.ssl-enabled is false (STARTTLS on port 587).
    * # true (default) fails the connection rather than falling back to plaintext when the
    * # server doesn't support STARTTLS. Setting this to false lets SMTP authentication
    * # happen over an unencrypted connection if the server lacks STARTTLS support --
@@ -270,7 +292,8 @@ public class MailUtil {
    * @throws Exception Exception
    */
   public static void sendTextMail(@Nullable List<@NonNull String> mailToList,
-      @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
+      @Nullable List<@NonNull String> mailCcList, String title, @Nullable String content)
+      throws Exception {
 
     sendMailCommon(mailToList, mailCcList, false, title, content, true);
   }
@@ -294,7 +317,7 @@ public class MailUtil {
    * @throws Exception Exception
    */
   public static void sendTextMail(@Nullable List<@NonNull String> mailToList,
-      @Nullable List<@NonNull String> mailCcList, String title, String content,
+      @Nullable List<@NonNull String> mailCcList, String title, @Nullable String content,
       MailUtilConfig config) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, false, title, content, true, config);
@@ -302,11 +325,12 @@ public class MailUtil {
 
   /**
    * Provides sending html-format mail function.
-   * 
-   * @see sendTextMail
+   *
+   * @see #sendTextMail(List, List, String, String)
    */
   public static void sendHtmlMail(@Nullable List<@NonNull String> mailToList,
-      @Nullable List<@NonNull String> mailCcList, String title, String content) throws Exception {
+      @Nullable List<@NonNull String> mailCcList, String title, @Nullable String content)
+      throws Exception {
 
     sendMailCommon(mailToList, mailCcList, true, title, content, true);
   }
@@ -315,10 +339,10 @@ public class MailUtil {
    * Provides sending html-format mail function using the supplied {@link MailUtilConfig}
    *     instead of reading settings from {@code application.properties}.
    *
-   * @see sendTextMail
+   * @see #sendTextMail(List, List, String, String, MailUtilConfig)
    */
   public static void sendHtmlMail(@Nullable List<@NonNull String> mailToList,
-      @Nullable List<@NonNull String> mailCcList, String title, String content,
+      @Nullable List<@NonNull String> mailCcList, String title, @Nullable String content,
       MailUtilConfig config) throws Exception {
 
     sendMailCommon(mailToList, mailCcList, true, title, content, true, config);
@@ -326,17 +350,17 @@ public class MailUtil {
 
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
       @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
-      String content, boolean throwsException, MailUtilConfig config) throws Exception {
+      @Nullable String content, boolean throwsException, MailUtilConfig config)
+      throws Exception {
     Objects.requireNonNull(title);
+    Objects.requireNonNull(config);
+    requireRecipients(mailToList, mailCcList);
+    String body = content == null ? "" : content;
 
-    if ((mailToList == null || mailToList.isEmpty())
-        && (mailCcList == null || mailCcList.isEmpty())) {
-      throw new RuntimeException(
-          "Either mailToList or mailCcList need to have at least one element.");
-    }
-
-    if (mailSender != null) {
-      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title, content);
+    MailSender sender = mailSender;
+    if (sender != null) {
+      sendSafely(() -> sender.send(mailToList, mailCcList, isHtmlFormat, title, body),
+          throwsException);
       return;
     }
 
@@ -344,28 +368,25 @@ public class MailUtil {
         new MailUtilEmailServer(config.smtpServer(), String.valueOf(config.port()),
             config.sslEnabled(), config.needsAuthentication(), config.starttlsRequired());
 
-    sendMailInternal(config.sender(), config.password(), mailToList, mailCcList, isHtmlFormat,
-        title, content,
-        new MailUtilEmail(serverInfo,
-            new MailUtilEmailContent(config.sender(), config.bounceAddress()),
-            new MailUtilEmailSettings(config.debug())),
-        throwsException);
+    MailUtilEmail emailInfo = new MailUtilEmail(serverInfo,
+        new MailUtilEmailContent(config.sender(), config.bounceAddress()),
+        new MailUtilEmailSettings(config.debug()));
+
+    sendSafely(() -> sendMailInternal(config.sender(), config.password(), mailToList, mailCcList,
+        isHtmlFormat, title, body, emailInfo), throwsException);
   }
 
   private static void sendMailCommon(@Nullable List<@NonNull String> mailToList,
       @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
-      String content, boolean throwsException) throws Exception {
+      @Nullable String content, boolean throwsException) throws Exception {
     Objects.requireNonNull(title);
+    requireRecipients(mailToList, mailCcList);
+    String body = content == null ? "" : content;
 
-    // Either mailToList or mailCcList need to have one element at least
-    if ((mailToList == null || mailToList.isEmpty())
-        && (mailCcList == null || mailCcList.isEmpty())) {
-      throw new RuntimeException(
-          "Either mailToList or mailCcList need to have at least one element.");
-    }
-
-    if (mailSender != null) {
-      Objects.requireNonNull(mailSender).send(mailToList, mailCcList, isHtmlFormat, title, content);
+    MailSender sender = mailSender;
+    if (sender != null) {
+      sendSafely(() -> sender.send(mailToList, mailCcList, isHtmlFormat, title, body),
+          throwsException);
       return;
     }
 
@@ -385,10 +406,21 @@ public class MailUtil {
     // javaMail settings
     boolean debug = hasApp("debug") && Boolean.parseBoolean(getApp("debug"));
 
-    sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title, content,
-        new MailUtilEmail(serverInfo, new MailUtilEmailContent(mailFrom, bounceAddress),
-            new MailUtilEmailSettings(debug)),
-        throwsException);
+    MailUtilEmail emailInfo = new MailUtilEmail(serverInfo,
+        new MailUtilEmailContent(mailFrom, bounceAddress), new MailUtilEmailSettings(debug));
+
+    sendSafely(() -> sendMailInternal(mailFrom, pass, mailToList, mailCcList, isHtmlFormat, title,
+        body, emailInfo), throwsException);
+  }
+
+  /* Either mailToList or mailCcList need to have one element at least. */
+  private static void requireRecipients(@Nullable List<@NonNull String> mailToList,
+      @Nullable List<@NonNull String> mailCcList) {
+    if ((mailToList == null || mailToList.isEmpty())
+        && (mailCcList == null || mailCcList.isEmpty())) {
+      throw new RuntimeException(
+          "Either mailToList or mailCcList need to have at least one element.");
+    }
   }
 
   private static String getApp(String postfix) {
@@ -399,85 +431,25 @@ public class MailUtil {
     return PropertiesFileUtil.hasApplication(APP_PREFIX + postfix);
   }
 
+  /** Mail sending procedure, which may throw an exception. */
+  @FunctionalInterface
+  private interface SendingProcedure {
+    void send() throws Exception;
+  }
+
   /**
-   * Mail sending internal procedure.
+   * Executes the mail sending procedure.
    *
    * <p>Since mail sending procedure is an additional function
    *     when sending system-error mails for administrators,
    *     it has the option that all the exceptions can be caught
-   *     not to get in the way of business logic</p>
+   *     not to get in the way of business logic.<br>
+   *     In both cases the exception is logged.</p>
    */
-  private static void sendMailInternal(String mailFrom, String pass,
-      @Nullable List<@NonNull String> mailToList, @Nullable List<@NonNull String> mailCcList,
-      boolean isHtmlFormat, String title, String content, MailUtilEmail emailInfo,
-      boolean throwsException) throws Exception {
+  private static void sendSafely(SendingProcedure procedure, boolean throwsException)
+      throws Exception {
     try {
-      // Finish when the number of senders is zero.
-      if ((mailToList == null || mailToList.isEmpty())
-          && (mailCcList == null || mailCcList.isEmpty())) {
-        dtlLog.info("mail:no TO or CC specified.");
-        return;
-      }
-
-      Objects.requireNonNull(mailToList);
-
-      Session session = null;
-      // Change procedure whether an authentication is needed or not.
-      // Both branches use getInstance (not getDefaultInstance), which always creates a
-      // fresh Session from the given Properties. getDefaultInstance would instead return
-      // a JVM-wide shared Session created on the first call, silently ignoring the
-      // Properties passed on every subsequent call.
-      if (emailInfo.getServerInfo().isNeedsAuthentication()) {
-        session = Session.getInstance(emailInfo.getProperties(), new MyAuth(mailFrom, pass));
-      } else {
-        session = Session.getInstance(emailInfo.getProperties());
-      }
-
-      session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());
-      // Pass log output to DetailLogger.
-      session.setDebugOut(
-          new PrintStream(new MailUtilLogOutputStream(), true, StandardCharsets.UTF_8));
-
-      InternetAddress[] addressTo = new InternetAddress[mailToList.size()];
-      for (int i = 0; i < mailToList.size(); i++) {
-        addressTo[i] = new InternetAddress(mailToList.get(i));
-      }
-
-      // Create message
-      Message msg = new MimeMessage(session);
-      msg.setFrom(new InternetAddress(mailFrom));
-      @SuppressWarnings("JavaUtilDate")
-      var sentDate = new Date();
-      msg.setSentDate(sentDate);
-      msg.setRecipients(Message.RecipientType.TO, addressTo);
-      ((MimeMessage) msg).setSubject(title, "UTF-8");
-      if (isHtmlFormat) {
-        ((MimeMessage) msg).setContent(content, "text/html; charset=\"UTF-8\"");
-      } else {
-        ((MimeMessage) msg).setText(content, "UTF-8");
-      }
-
-      // Retry when an exception occurs.
-      for (int i = 0; i < 3; i++) {
-        try {
-          // Connect and send to smtp server.
-          sendMailToSmtp(emailInfo.getServerInfo().isNeedsAuthentication(), msg,
-              emailInfo.getServerInfo().getSmtpServer(), mailFrom, pass, session, addressTo);
-          break;
-        } catch (Exception e) {
-          if (i < 2) {
-            dtlLog.info("Mail sending failed. Retry in 1 second.");
-            Thread.sleep(1000);
-
-          } else {
-            dtlLog.info(
-                "Mail sending failed. Procedure finished since retry did not improve anything.");
-            throw e;
-          }
-        }
-      }
-
-      dtlLog.trace("Mail successfully sent" + emailInfo.getDebugLogMessage());
+      procedure.send();
 
     } catch (Throwable th1) {
 
@@ -505,24 +477,110 @@ public class MailUtil {
     }
   }
 
+  /** Mail sending internal procedure. */
+  private static void sendMailInternal(String mailFrom, String pass,
+      @Nullable List<@NonNull String> mailToList, @Nullable List<@NonNull String> mailCcList,
+      boolean isHtmlFormat, String title, String content, MailUtilEmail emailInfo)
+      throws Exception {
+
+    Session session = null;
+    // Change procedure whether an authentication is needed or not.
+    // Both branches use getInstance (not getDefaultInstance), which always creates a
+    // fresh Session from the given Properties. getDefaultInstance would instead return
+    // a JVM-wide shared Session created on the first call, silently ignoring the
+    // Properties passed on every subsequent call.
+    if (emailInfo.getServerInfo().isNeedsAuthentication()) {
+      session = Session.getInstance(emailInfo.getProperties(), new MyAuth(mailFrom, pass));
+    } else {
+      session = Session.getInstance(emailInfo.getProperties());
+    }
+
+    session.setDebug(emailInfo.getSettingInfo().getOutputsDebugLog());
+    // Pass log output to DetailLogger.
+    session.setDebugOut(
+        new PrintStream(new MailUtilLogOutputStream(), true, StandardCharsets.UTF_8));
+
+    Message msg =
+        createMessage(session, mailFrom, mailToList, mailCcList, isHtmlFormat, title, content);
+
+    // Retry when an exception occurs.
+    for (int i = 0; i < 3; i++) {
+      try {
+        // Connect and send to smtp server.
+        sendMailToSmtp(emailInfo.getServerInfo().isNeedsAuthentication(), msg,
+            emailInfo.getServerInfo().getSmtpServer(), mailFrom, pass, session);
+        break;
+      } catch (Exception e) {
+        if (i < 2) {
+          dtlLog.info("Mail sending failed. Retry in 1 second.");
+          Thread.sleep(1000);
+
+        } else {
+          dtlLog.info(
+              "Mail sending failed. Procedure finished since retry did not improve anything.");
+          throw e;
+        }
+      }
+    }
+
+    dtlLog.trace("Mail successfully sent" + emailInfo.getDebugLogMessage());
+  }
+
+  /* Creates a message. Package-private for tests. */
+  static MimeMessage createMessage(Session session, String mailFrom,
+      @Nullable List<@NonNull String> mailToList, @Nullable List<@NonNull String> mailCcList,
+      boolean isHtmlFormat, String title, String content) throws MessagingException {
+    MimeMessage msg = new MimeMessage(session);
+    msg.setFrom(new InternetAddress(mailFrom));
+    @SuppressWarnings("JavaUtilDate")
+    var sentDate = new Date();
+    msg.setSentDate(sentDate);
+    if (mailToList != null && !mailToList.isEmpty()) {
+      msg.setRecipients(Message.RecipientType.TO, toAddresses(mailToList));
+    }
+    if (mailCcList != null && !mailCcList.isEmpty()) {
+      msg.setRecipients(Message.RecipientType.CC, toAddresses(mailCcList));
+    }
+    msg.setSubject(title, "UTF-8");
+    if (isHtmlFormat) {
+      msg.setContent(content, "text/html; charset=\"UTF-8\"");
+    } else {
+      msg.setText(content, "UTF-8");
+    }
+
+    return msg;
+  }
+
+  private static InternetAddress[] toAddresses(List<@NonNull String> addressList)
+      throws AddressException {
+    InternetAddress[] addresses = new InternetAddress[addressList.size()];
+    for (int i = 0; i < addressList.size(); i++) {
+      addresses[i] = new InternetAddress(addressList.get(i));
+    }
+
+    return addresses;
+  }
+
   /** Strategy interface for sending mail; package-private to allow substitution in tests. */
   @FunctionalInterface
   interface MailSender {
     void send(@Nullable List<@NonNull String> mailToList,
         @Nullable List<@NonNull String> mailCcList, boolean isHtmlFormat, String title,
-        @Nullable String content) throws Exception;
+        String content) throws Exception;
   }
 
   static @Nullable MailSender mailSender = null;
 
   private static void sendMailToSmtp(boolean doesNeedAuthentication, Message msg, String smtpSrv,
-      String mailFrom, String pass, Session session, InternetAddress[] addressTo)
-      throws NoSuchProviderException, MessagingException {
+      String mailFrom, String pass, Session session) throws MessagingException {
     // Connect and send to smtp server.
+    // The recipients are both TO and CC.
     if (doesNeedAuthentication) {
-      Transport tp = session.getTransport("smtp");
-      tp.connect(smtpSrv, mailFrom, pass);
-      tp.sendMessage(msg, addressTo);
+      try (Transport tp = session.getTransport("smtp")) {
+        tp.connect(smtpSrv, mailFrom, pass);
+        tp.sendMessage(msg, msg.getAllRecipients());
+      }
+
     } else {
       Transport.send(msg);
     }
@@ -530,8 +588,8 @@ public class MailUtil {
 
   static class MyAuth extends Authenticator {
 
-    private String mailFrom;
-    private String pass;
+    private final String mailFrom;
+    private final String pass;
 
     public MyAuth(String mailFrom, String pass) {
       this.mailFrom = mailFrom;
