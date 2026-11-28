@@ -96,20 +96,17 @@ public class ReflectionUtil {
     Objects.requireNonNull(classOfTargetInstance);
     Objects.requireNonNull(annotationClass);
 
-    while (true) {
-      // No more ancestors
-      // Equals to null when it's an anonymous class created directly from Interface.
-      if (classOfTargetInstance == null || classOfTargetInstance == Object.class) {
-        return Optional.empty();
-      }
-
-      A an = (A) classOfTargetInstance.getAnnotation(annotationClass);
+    // getSuperclass() returns null for interfaces and primitive types,
+    // which means there are no more ancestors to search.
+    for (Class<?> c = classOfTargetInstance; c != null && c != Object.class;
+        c = c.getSuperclass()) {
+      A an = c.getAnnotation(annotationClass);
       if (an != null) {
         return Optional.of(an);
       }
-
-      classOfTargetInstance = Objects.requireNonNull(classOfTargetInstance.getSuperclass());
     }
+
+    return Optional.empty();
   }
 
   /**

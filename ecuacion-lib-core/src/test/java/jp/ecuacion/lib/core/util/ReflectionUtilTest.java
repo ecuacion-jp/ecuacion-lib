@@ -245,6 +245,19 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  public void searchAnnotationPlacedAtClass_interfaceAndPrimitive() {
+    // interfaces and primitive types have no superclass: returns empty instead of throwing
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
+        UnannotatedInterface.class, SampleAnnotation.class)).isEmpty();
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(int.class, SampleAnnotation.class))
+        .isEmpty();
+
+    // annotation on the interface itself
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
+        AnnotatedInterface.class, SampleAnnotation.class)).isPresent();
+  }
+
+  @Test
   @SuppressWarnings({"null", "NullAway"})
   public void searchAnnotationPlacedAtClass_nullArgumentThrows() {
     assertThatThrownBy(
@@ -273,6 +286,11 @@ public class ReflectionUtilTest {
 
   @SampleAnnotation
   public static class AnnotatedClass {}
+
+  public interface UnannotatedInterface {}
+
+  @SampleAnnotation
+  public interface AnnotatedInterface {}
 
   public static class AnnotatedSubClass extends AnnotatedClass {}
 
