@@ -24,6 +24,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -32,6 +33,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.Nullable;
 
@@ -94,19 +97,24 @@ public class FileUtil {
 
   /**
    * Concatenates file paths.
-   * 
+   *
+   * <p>Empty strings in {@code paths} are ignored.</p>
+   *
    * @param paths paths
    * @return the concatenated path
    */
   public static String concatFilePaths(String... paths) {
+    Objects.requireNonNull(paths);
+
     String concatPath = "";
     for (String path : paths) {
-      if (concatPath.isEmpty()) {
-        concatPath = path;
+      Objects.requireNonNull(path);
 
-      } else {
-        concatPath = concatTwoFilePaths(concatPath, path);
+      if (path.isEmpty()) {
+        continue;
       }
+
+      concatPath = concatPath.isEmpty() ? path : concatTwoFilePaths(concatPath, path);
     }
 
     return concatPath;
@@ -136,13 +144,13 @@ public class FileUtil {
     // such as "/path/to/dir/.".
     // If "/./" is present or if the string ends with "/.",
     // a process has been added to remove the "/.".
-    if (rtnStr.endsWith("/.")) {
-      rtnStr = rtnStr.substring(0, rtnStr.length() - 2);
+    // "/./" is replaced repeatedly since "/././" becomes "/./" after one replacement.
+    while (rtnStr.contains("/./")) {
+      rtnStr = rtnStr.replace("/./", "/");
     }
 
-    if (rtnStr.indexOf("/./") >= 0) {
-      rtnStr =
-          rtnStr.substring(0, rtnStr.indexOf("/./")) + rtnStr.substring(rtnStr.indexOf("/./") + 2);
+    if (rtnStr.endsWith("/.")) {
+      rtnStr = rtnStr.substring(0, rtnStr.length() - 2);
     }
 
     // If there is a trailing "/", remove it
@@ -154,33 +162,39 @@ public class FileUtil {
   }
 
   /**
-   * Changes the path separator to "/".
-   * 
+   * Obtains the parent directory path of a path.
+   *
+   * <p>The path is cleaned by {@link #cleanPathStrWithSlash(String)} first,
+   *     so the separator of the returned path is always {@code /}.<br>
+   *     When the path has no separator (like {@code file.txt}), an empty string is returned.</p>
+   *
    * @param origPath original path
-   * @return the separator changed path
+   * @return the parent directory path
    */
   public static String getParentDirPath(String origPath) {
     Objects.requireNonNull(origPath);
 
     // The separator used is now unified to "/".
     String path = cleanPathStrWithSlash(origPath);
-    return path.substring(0, path.lastIndexOf("/"));
+    int index = path.lastIndexOf("/");
+    return index < 0 ? "" : path.substring(0, index);
   }
 
   /**
    * Obtains filename from a path.
-   * 
-   * <p>Both "/" and "\" are treated as the separator.</p>
-   * 
-   * @param path path
+   *
+   * <p>Both "/" and "\" are treated as the separator.<br>
+   *     When the path has no separator (like {@code file.txt}), the path itself is returned.</p>
+   *
+   * @param origPath path
    * @return filename
    */
-  public static String getFileNameFromFilePath(String path) {
-    Objects.requireNonNull(path);
+  public static String getFileNameFromFilePath(String origPath) {
+    Objects.requireNonNull(origPath);
 
-    // To avoid any impact whether or not there is a path separator ("/" or "\")
-    // at the end of getParentDirPath, remove the leading path separator.
-    return path.substring(getParentDirPath(path).length()).replace("\\", "").replace("/", "");
+    // The separator used is now unified to "/", and the trailing "/" is removed.
+    String path = cleanPathStrWithSlash(origPath);
+    return path.substring(path.lastIndexOf("/") + 1);
   }
 
   /**
@@ -210,6 +224,23 @@ public class FileUtil {
 
   /* ■□■□ File Lock ■□■□ */
 
+  /*
+   * Lock files locked by this JVM through lock().
+   *
+   * On some platforms (e.g. POSIX), closing any file descriptor of a file
+   * releases all the locks held by the JVM on that file,
+   * even if the locks were acquired through another channel.
+   * So a file locked by this JVM is not opened again by lock() and isLocked().
+   */
+  private static final Set<Path> LOCKED_PATHS = ConcurrentHashMap.newKeySet();
+
+  /* Channels returned by lock(), mapped to their lock file paths. Used in release(). */
+  private static final Map<FileChannel, Path> CHANNEL_PATHS = new ConcurrentHashMap<>();
+
+  private static Path lockKey(File file) {
+    return file.toPath().toAbsolutePath().normalize();
+  }
+
   /**
    * Obtains the lock of the designated file.
    * 
@@ -231,25 +262,53 @@ public class FileUtil {
       throws IOException {
     Objects.requireNonNull(lockFile);
 
-    FileChannel channel =
-        FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-
-    // Attempts to lock a file. If lockedObject is null instead of throwing an exception,
-    // it may mean that the lock acquisition failed.
-    FileLock lockedObject = channel.tryLock();
-    if (lockedObject == null) {
+    // Already locked by this JVM.
+    // The file is not opened since closing it releases the existing lock on some platforms.
+    Path key = lockKey(lockFile);
+    if (!LOCKED_PATHS.add(key)) {
       throw new OverlappingFileLockException();
     }
 
-    // Comparison of timestamps displayed on the screen
-    if (version != null) {
-      String fileTimestamp = getLockFileVersion(lockFile);
-      if (!version.equals(fileTimestamp)) {
-        throw new OverlappingFileLockException();
-      }
+    FileChannel channel;
+    try {
+      channel =
+          FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+
+    } catch (IOException | RuntimeException ex) {
+      LOCKED_PATHS.remove(key);
+      throw ex;
     }
 
-    return Pair.of(channel, lockedObject);
+    try {
+      // Attempts to lock a file. If lockedObject is null instead of throwing an exception,
+      // it may mean that the lock acquisition failed.
+      FileLock lockedObject = channel.tryLock();
+      if (lockedObject == null) {
+        throw new OverlappingFileLockException();
+      }
+
+      // Comparison of timestamps displayed on the screen
+      if (version != null) {
+        String fileTimestamp = getLockFileVersion(lockFile);
+        if (!version.equals(fileTimestamp)) {
+          throw new OverlappingFileLockException();
+        }
+      }
+
+      CHANNEL_PATHS.put(channel, key);
+      return Pair.of(channel, lockedObject);
+
+    } catch (IOException | RuntimeException ex) {
+      // Closing the channel also releases the lock if it has been acquired.
+      try {
+        channel.close();
+      } catch (IOException closeEx) {
+        ex.addSuppressed(closeEx);
+      }
+
+      LOCKED_PATHS.remove(key);
+      throw ex;
+    }
   }
 
   /**
@@ -274,6 +333,12 @@ public class FileUtil {
     // Error if file does not exist
     if (!file.exists()) {
       throw new FileNotFoundException("File not found.");
+    }
+
+    // Locked by this JVM through lock().
+    // The file is not opened since closing it releases the lock on some platforms.
+    if (LOCKED_PATHS.contains(lockKey(file))) {
+      return true;
     }
 
     // If the file is read-only, it cannot be locked and will always return false.
@@ -308,6 +373,10 @@ public class FileUtil {
         return false;
       }
 
+    } catch (OverlappingFileLockException ignored) {
+      // Locked by this JVM without using lock().
+      return true;
+
     } finally {
       try {
         if (lock != null) {
@@ -331,26 +400,41 @@ public class FileUtil {
   /**
    * Releases the lock.
    * 
-   * <p>The timestamp string is written to the lock file right before the lock is released.</p>
-   * 
+   * <p>The timestamp string is written to the lock file right before the lock is released.<br>
+   *     The channel is also closed.</p>
+   *
    * @param channelAndLock the return object of the method {@code lock}.
    * @throws IOException IOException
    */
   public static void release(Pair<FileChannel, FileLock> channelAndLock) throws IOException {
+    Objects.requireNonNull(channelAndLock);
+
     FileChannel channel = channelAndLock.getLeft();
     final FileLock lockedObject = channelAndLock.getRight();
 
-    // Write timestamp string to update lockFile (which string is not used though).
-    @SuppressWarnings("JavaTimeDefaultTimeZone")
-    byte[] bytes = LocalDateTime.now().toString().getBytes(StandardCharsets.UTF_8);
+    try {
+      // Write timestamp string to update lockFile (which string is not used though).
+      @SuppressWarnings("JavaTimeDefaultTimeZone")
+      byte[] bytes = LocalDateTime.now().toString().getBytes(StandardCharsets.UTF_8);
 
-    ByteBuffer src = ByteBuffer.allocate(bytes.length);
-    src.put(bytes);
-    src.position(0);
+      ByteBuffer src = ByteBuffer.allocate(bytes.length);
+      src.put(bytes);
+      src.position(0);
 
-    channel.write(src);
+      // Truncate first so that no bytes of the previous (longer) timestamp remain.
+      channel.truncate(0);
+      channel.write(src, 0);
 
-    lockedObject.release();
+      lockedObject.release();
+
+    } finally {
+      channel.close();
+
+      Path key = CHANNEL_PATHS.remove(channel);
+      if (key != null) {
+        LOCKED_PATHS.remove(key);
+      }
+    }
   }
 
   /**
@@ -360,12 +444,20 @@ public class FileUtil {
    * 
    * <p>If the file does not exist, this method creates it.</p>
    *
+   * @param lockFile lockFile
    * @return The timestamp string in yyyy-mm-dd-hh-mi-ss.SSS format.
    *     To ignore the time offset, the time is always treated as UTC.
+   * @throws IOException IOException
    */
   public static String getLockFileVersion(File lockFile) throws IOException {
+    Objects.requireNonNull(lockFile);
+
     // Create a directory if not exists.
-    Objects.requireNonNull(lockFile.getParentFile()).mkdirs();
+    // The parent is null when lockFile is a relative path without a directory (like "x.lock").
+    File parent = lockFile.getParentFile();
+    if (parent != null) {
+      parent.mkdirs();
+    }
 
     // Create a file if not exists.
     if (!lockFile.exists()) {
