@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
@@ -41,6 +40,7 @@ import jp.ecuacion.lib.validation.constraints.NotEmptyWhen;
 import jp.ecuacion.lib.validation.constraints.PatternWhen;
 import jp.ecuacion.lib.validation.constraints.SizeString;
 import jp.ecuacion.lib.validation.constraints.StringWhen;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,9 +55,9 @@ public class AllLanguagesMessagesTest {
 
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-  static Stream<Locale> locales() throws IOException {
+  static Stream<@NonNull Locale> locales() throws IOException {
     try (Stream<Path> files = Files.list(Path.of("../ecuacion-lib-core/src/main/resources"))) {
-      List<Locale> list = files.map(p -> p.getFileName().toString())
+      var list = files.map(p -> p.getFileName().toString())
           .filter(n -> n.matches("^messages_lib_core_.+\\.properties$"))
           .map(n -> n.replaceFirst("^messages_lib_core_(.+)\\.properties$", "$1"))
           .map(l -> Locale.forLanguageTag(l.replace('_', '-'))).toList();
@@ -70,7 +70,7 @@ public class AllLanguagesMessagesTest {
   @DisplayName("messages have no unresolved placeholders")
   void noUnresolvedPlaceholders(Locale locale) {
     for (boolean withItemNames : new boolean[] {false, true}) {
-      List<String> messages =
+      var messages =
           ExceptionUtil.getMessageList(validator.validate(new Bean()), locale, withItemNames);
 
       assertThat(messages).hasSize(13).allSatisfy(m -> assertThat(m).isNotBlank()

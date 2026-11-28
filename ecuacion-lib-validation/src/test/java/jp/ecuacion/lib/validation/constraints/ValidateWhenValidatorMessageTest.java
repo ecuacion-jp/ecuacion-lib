@@ -16,14 +16,12 @@
 package jp.ecuacion.lib.validation.constraints;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
@@ -34,6 +32,7 @@ import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -115,7 +114,7 @@ public class ValidateWhenValidatorMessageTest {
     assertThat(getMessage(bean)).isEqualTo(expectedMessage);
   }
 
-  static Stream<Arguments> patternDescriptionAndExpectedMessage() {
+  static Stream<@NonNull Arguments> patternDescriptionAndExpectedMessage() {
     String postfix = " when 'condition field' is ON";
     return Stream.of(
         // description is empty: the regexp itself is shown
@@ -157,8 +156,8 @@ public class ValidateWhenValidatorMessageTest {
   @DisplayName("description is resolved from ValidationMessagesPatternDescriptions")
   void patternDescriptionIsResolvedFromPatternDescriptions(Object bean,
       ValidatorMessageParameterCreator creator) {
-    ConstraintViolation<Object> cv = validator.validate(bean).iterator().next();
-    Map<String, @Nullable Object> params =
+    var cv = validator.validate(bean).iterator().next();
+    var params =
         creator.create(cv, new HashMap<>(cv.getConstraintDescriptor().getAttributes()));
 
     assertThat(params.get("description")).isInstanceOfSatisfying(Arg.class, arg -> {
@@ -168,7 +167,7 @@ public class ValidateWhenValidatorMessageTest {
     });
   }
 
-  static Stream<Arguments> patternWhenMessageParameterCreators() {
+  static Stream<@NonNull Arguments> patternWhenMessageParameterCreators() {
     return Stream.of(
         Arguments.of(new PatternWhenWithDescTest(), new PatternWhenMessageParameterCreator()),
         Arguments.of(new NotPatternWhenWithDescTest(),

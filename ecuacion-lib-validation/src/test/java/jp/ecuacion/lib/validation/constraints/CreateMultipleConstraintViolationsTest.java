@@ -53,7 +53,7 @@ public class CreateMultipleConstraintViolationsTest {
     @Test
     @DisplayName("default: one violation with empty propertyPath")
     void defaultFactory() {
-      Set<ConstraintViolation<ReturnTrueBean>> set = defaultValidator.validate(new ReturnTrueBean());
+      var set = defaultValidator.validate(new ReturnTrueBean());
       assertThat(set).hasSize(1);
       assertThat(propertyPaths(set)).containsExactly("");
     }
@@ -61,7 +61,7 @@ public class CreateMultipleConstraintViolationsTest {
     @Test
     @DisplayName("factory: one violation for each propertyPath")
     void multipleFactory() {
-      Set<ConstraintViolation<ReturnTrueBean>> set =
+      var set =
           multipleValidator.validate(new ReturnTrueBean());
       assertThat(set).hasSize(2);
       assertThat(propertyPaths(set)).containsExactlyInAnyOrder("startDate", "endDate");
@@ -81,7 +81,7 @@ public class CreateMultipleConstraintViolationsTest {
     @Test
     @DisplayName("default: one violation with the getter's property name")
     void defaultFactory() {
-      Set<ConstraintViolation<AssertTrueBean>> set =
+      var set =
           defaultValidator.validate(new AssertTrueBean());
       assertThat(set).hasSize(1);
       assertThat(propertyPaths(set)).containsExactly("dateRangeValid");
@@ -90,7 +90,7 @@ public class CreateMultipleConstraintViolationsTest {
     @Test
     @DisplayName("factory: one violation for each propertyPath, prefixed by the getter's name")
     void multipleFactory() {
-      Set<ConstraintViolation<AssertTrueBean>> set =
+      var set =
           multipleValidator.validate(new AssertTrueBean());
       assertThat(set).hasSize(2);
       assertThat(propertyPaths(set)).containsExactlyInAnyOrder("dateRangeValid.startDate",
