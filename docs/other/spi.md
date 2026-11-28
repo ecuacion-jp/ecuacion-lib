@@ -35,6 +35,8 @@ An interface is provided for each properties file type.
 | `ItemNamesProvider` / `ItemNamesBaseProvider` / `ItemNamesCoreProvider` | item_names.properties |
 | `EnumNamesProvider` / `EnumNamesBaseProvider` / `EnumNamesCoreProvider` | enum_names.properties |
 | `ApplicationProvider` / `ApplicationBaseProvider` / `ApplicationCoreProvider` / `ApplicationProfileProvider` / `ApplicationCoreProfileProvider` | application.properties |
+| `ValidationMessagesProvider` | ValidationMessages.properties |
+| `ValidationMessagesWithItemNamesProvider` | ValidationMessagesWithItemNames.properties |
 | `ValidationMessagesPatternDescriptionsProvider` | ValidationMessagesPatternDescriptions.properties |
 
 ---
