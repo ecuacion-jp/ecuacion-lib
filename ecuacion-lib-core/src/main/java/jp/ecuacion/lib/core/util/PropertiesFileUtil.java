@@ -78,6 +78,19 @@ import org.jspecify.annotations.Nullable;
  * <li><b>EL expression support</b> — {@code ${1 + 1}} in a value is evaluated via
  *     the Jakarta Expression Language processor.</li>
  * </ul>
+ *
+ * <p><b>{@code null} locale</b> — when {@code locale} is {@code null} or omitted,
+ *     properties files are selected with {@code Locale.ROOT}
+ *     (like {@code messages.properties}),
+ *     while arguments (numbers, dates, ...) are formatted with
+ *     {@link LocaleUtil#getFallbackLocale()}.</p>
+ *
+ * <p><b>Existence check</b> — {@code has*()} methods check the files without a locale only.
+ *     Files with a locale (like {@code messages_ja.properties}) are supposed to have
+ *     the same keys as the file without a locale.</p>
+ *
+ * <p><b>Empty key</b> — {@code get*()} methods throw {@code IllegalArgumentException}
+ *     when the key is empty, while {@code has*()} methods return {@code false}.</p>
  */
 public class PropertiesFileUtil {
 
@@ -130,7 +143,8 @@ public class PropertiesFileUtil {
   /**
    * Returns the localized value in messages_xxx.properties.
    *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param args message arguments; {@link Arg} instances and plain {@code Object}s may be mixed
    * @return the value (message) of the property key (message ID)
@@ -142,7 +156,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the value in messages_xxx.properties using the default locale.
+   * Returns the value in messages_xxx.properties with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @param args message arguments; {@link Arg} instances and plain {@code Object}s may be mixed
@@ -161,7 +175,8 @@ public class PropertiesFileUtil {
    *     so they do not conflict with positional placeholders processed by
    *     {@link java.text.MessageFormat}.</p>
    *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param namedArgs named placeholder map (e.g., {@code "item_name"} to item display name)
    * @param positionalArgs positional arguments for {@link java.text.MessageFormat};
@@ -193,7 +208,8 @@ public class PropertiesFileUtil {
   /**
    * Returns the localized value in messagesWithItemNames_xxx.properties.
    *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param args message arguments; {@link Arg} instances and plain {@code Object}s may be mixed
    * @return the value (message) of the property key (message ID)
@@ -206,7 +222,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the value in messagesWithItemNames_xxx.properties using the default locale.
+   * Returns the value in messagesWithItemNames_xxx.properties with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @param args message arguments; {@link Arg} instances and plain {@code Object}s may be mixed
@@ -228,7 +244,8 @@ public class PropertiesFileUtil {
    * <p>Falls back to {@code messages.properties} when the key is not found
    *     in {@code messages_with_item_names.properties}.</p>
    *
-   * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param namedArgs named placeholder map (e.g., {@code "item_name"} to item display name)
    * @param positionalArgs positional arguments for {@link java.text.MessageFormat};
@@ -287,8 +304,8 @@ public class PropertiesFileUtil {
   /**
    * Returns the localized item name in item_names_xxx.properties.
    * 
-   * @param locale locale, may be {@code null} 
-   *     which is treated as {@code Locale.ROOT}.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @return the value of the property
    */
@@ -297,7 +314,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the localized item name in item_names_xxx.properties using the default locale.
+   * Returns the localized item name in item_names_xxx.properties with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @return the value of the property
@@ -324,8 +341,8 @@ public class PropertiesFileUtil {
    * <p>Falls back to {@code messages.properties} when the key is not found
    *     in {@code enum_names.properties}.</p>
    *
-   * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @return the value of the property
    */
@@ -334,7 +351,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the localized enum name in enum_names_xxx.properties using the default locale.
+   * Returns the localized enum name in enum_names_xxx.properties with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @return the value of the property
@@ -358,8 +375,8 @@ public class PropertiesFileUtil {
   /**
    * Returns the localized value in ValidationMessages[_locale].properties.
    *
-   * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param argMap annotation attribute map used for named placeholder substitution
    * @return the value of the property
@@ -371,7 +388,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns the value in ValidationMessages[_locale].properties using the default locale.
+   * Returns the value in ValidationMessages[_locale].properties with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @param argMap annotation attribute map used for placeholder substitution
@@ -406,7 +423,7 @@ public class PropertiesFileUtil {
   }
 
   /**
-   * Returns true when the key exists in ValidationMessages[_xx].properties (locale-independent).
+   * Returns true when the key exists in ValidationMessages.properties (without a locale).
    *
    * @param key the key of the property
    * @return boolean value that shows whether properties has the key
@@ -437,8 +454,8 @@ public class PropertiesFileUtil {
    * <p>Falls back to {@code ValidationMessages.properties} when the key is not found
    *     in {@code ValidationMessagesWithItemNames.properties}.</p>
    *
-   * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @param argMap annotation attribute map used for named placeholder substitution
    * @return the value of the property. Return the key string when the key does not exist.
@@ -451,7 +468,7 @@ public class PropertiesFileUtil {
 
   /**
    * Returns the value in ValidationMessagesWithItemNames_xxx.properties
-   * using the default locale.
+   * with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @param argMap annotation attribute map used for placeholder substitution
@@ -495,8 +512,8 @@ public class PropertiesFileUtil {
   /**
    * Returns the localized value in ValidationMessagesPatternDescriptions[_locale].properties.
    *
-   * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   * @param locale locale, may be {@code null},
+   *     which is treated as {@code Locale.ROOT} (see the class description).
    * @param key the key of the property
    * @return the value of the property
    */
@@ -507,7 +524,7 @@ public class PropertiesFileUtil {
 
   /**
    * Returns the value in ValidationMessagesPatternDescriptions[_locale].properties
-   * using the default locale.
+   * with {@code Locale.ROOT}.
    *
    * @param key the key of the property
    * @return the value of the property
@@ -709,14 +726,19 @@ public class PropertiesFileUtil {
      *
      * <p>{@link Arg} instances and plain {@code Object}s may be freely mixed.</p>
      *
-     * @param fileKinds file kinds to search
+     * @param fileKinds file kinds to search. It must not be empty.
      * @param messageId the key to resolve
      * @param args arguments substituted into the resolved message;
      *     {@link Arg} instances and plain {@code Object}s may be mixed
      * @return Arg
+     * @throws IllegalArgumentException when {@code fileKinds} is empty
      */
     public static Arg fromFileKinds(@NonNull PropertiesFileUtilFileKindEnum[] fileKinds,
         String messageId, @Nullable Object... args) {
+      if (fileKinds.length == 0) {
+        throw new IllegalArgumentException("fileKinds must not be empty.");
+      }
+
       return new Arg(fileKinds, messageId, args);
     }
 
@@ -762,7 +784,8 @@ public class PropertiesFileUtil {
      *     (e.g., a message prefix) rather than as part of a
      *     {@link java.text.MessageFormat} pattern.</p>
      *
-     * @param locale locale, may be {@code null} which means no {@code Locale} specified.
+     * @param locale locale, may be {@code null},
+     *     which is treated as {@code Locale.ROOT} (see the class description).
      * @return the string representation of this resolved {@code Arg}
      */
     public String resolveAsString(@Nullable Locale locale) {
@@ -770,7 +793,7 @@ public class PropertiesFileUtil {
     }
 
     /**
-     * Resolves this {@code Arg} to a {@link String} using the default locale.
+     * Resolves this {@code Arg} to a {@link String} with {@code Locale.ROOT}.
      *
      * <p>Equivalent to {@link #resolveAsString(Locale) resolveAsString(null)}.</p>
      *
