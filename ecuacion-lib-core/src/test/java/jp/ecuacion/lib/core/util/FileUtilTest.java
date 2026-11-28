@@ -88,6 +88,24 @@ public class FileUtilTest {
     void pipe() {
       assertThat(FileUtil.getFileSavableName("a|b")).isEqualTo("a__pipe__b");
     }
+
+    @Test
+    @DisplayName("consecutive dots are replaced")
+    void dots() {
+      assertThat(FileUtil.getFileSavableName("a..b")).isEqualTo("a__dots__b");
+    }
+
+    @Test
+    @DisplayName("control characters are removed")
+    void controlCharacters() {
+      assertThat(FileUtil.getFileSavableName("a\u0000b\nc")).isEqualTo("abc");
+    }
+
+    @Test
+    @DisplayName("dots joined by removing control characters are also replaced")
+    void dotsJoinedByRemovingControlCharacters() {
+      assertThat(FileUtil.getFileSavableName(".\u0000.")).isEqualTo("__dots__");
+    }
   }
 
   @Nested

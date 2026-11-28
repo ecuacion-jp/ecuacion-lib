@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,17 +45,22 @@ public class FileUtil {
    */
   private FileUtil() {}
 
-  private static final Map<String, String> SAVABLE_NAME_REPLACEMENTS = Map.ofEntries(
+  /*
+   * Replacements applied in list order. The order matters:
+   * control characters must be removed before consecutive dots are replaced,
+   * otherwise ".\u0000." would become ".." after the dots replacement.
+   */
+  private static final List<Map.Entry<String, String>> SAVABLE_NAME_REPLACEMENTS = List.of(
+      // Control characters (NUL, newline, etc.) have no legitimate place in a file name and can
+      // cause file-creation errors or log/header injection if passed through unchanged.
+      Map.entry("[\\x00-\\x1F\\x7F]", ""),
       Map.entry("\\\\", "__yen__"), Map.entry("/", "__slash__"), Map.entry(":", "__colon__"),
       Map.entry("\\*", "__asterisk__"), Map.entry("\\?", "__question__"),
       Map.entry("\"", "__dquotation__"), Map.entry("<", "__lessthan__"),
       Map.entry(">", "__morethan__"), Map.entry("\\|", "__pipe__"),
       // 2 or more consecutive dots (e.g. "..") would otherwise pass through unchanged and could
       // be used for path traversal (e.g. "..") if the caller concatenates the result into a path.
-      Map.entry("\\.{2,}", "__dots__"),
-      // Control characters (NUL, newline, etc.) have no legitimate place in a file name and can
-      // cause file-creation errors or log/header injection if passed through unchanged.
-      Map.entry("[\\x00-\\x1F\\x7F]", ""));
+      Map.entry("\\.{2,}", "__dots__"));
 
   /**
    * Changes argument filename into file-savable name.
@@ -63,7 +69,7 @@ public class FileUtil {
     Objects.requireNonNull(origName);
 
     String rtn = origName;
-    for (Map.Entry<String, String> entry : SAVABLE_NAME_REPLACEMENTS.entrySet()) {
+    for (Map.Entry<String, String> entry : SAVABLE_NAME_REPLACEMENTS) {
       rtn = rtn.replaceAll(entry.getKey(), entry.getValue());
     }
 
