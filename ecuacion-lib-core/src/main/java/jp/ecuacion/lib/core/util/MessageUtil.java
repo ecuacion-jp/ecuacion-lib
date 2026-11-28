@@ -127,8 +127,8 @@ public class MessageUtil {
       return new KeywordAndIndex("mapKey", index);
 
     } else if (PropertyPathUtil.maskBracketContents(itemNameKeyPart).contains("<")) {
-      String elType = itemNameKeyPart.substring(
-          PropertyPathUtil.maskBracketContents(itemNameKeyPart).lastIndexOf("<"));
+      String elType = itemNameKeyPart
+          .substring(PropertyPathUtil.maskBracketContents(itemNameKeyPart).lastIndexOf("<"));
       String keyword = switch (elType) {
         case PropertyPathUtil.EL_LIST -> "order";
         case PropertyPathUtil.EL_SET -> "any";
@@ -195,7 +195,9 @@ public class MessageUtil {
    * Wraps each value with display symbols and joins them with a separator.
    *
    * <p>Values are treated as literal strings without any property-key resolution.
-   * Use this when the values themselves are already the final display strings.</p>
+   * Use this when the values themselves are already the final display strings.<br>
+   * {@code #{...}}, braces and quotes in the values are also displayed as they are,
+   * so values from untrusted input (like an end-user-supplied value) can be passed.</p>
    *
    * <p>Example (with English default symbols {@code '...'} and separator {@code ", "}):</p>
    * <pre>
@@ -204,14 +206,32 @@ public class MessageUtil {
    * </pre>
    */
   public static Arg formatValues(String[] values) {
-    return Arg
-        .formattedString(StringUtil.getSeparatedValuesString(Objects.requireNonNull(values),
-            VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL));
+    Objects.requireNonNull(values);
+
+    // Values are passed as arguments, not embedded into the template,
+    // so that #{...}, braces and quotes in them are not interpreted.
+    return Arg.formattedString(placeholderTemplate(values.length), (Object[]) values);
+  }
+
+  /*
+   * Returns the template like 
+   * "#{prependSymbol}{0}#{appendSymbol}#{separator}#{prependSymbol}{1}..."
+   * for the number of values.
+   */
+  private static String placeholderTemplate(int numberOfValues) {
+    List<@NonNull String> placeholders = new ArrayList<>();
+    for (int i = 0; i < numberOfValues; i++) {
+      placeholders.add("{" + i + "}");
+    }
+
+    return StringUtil.getSeparatedValuesString(placeholders.toArray(String[]::new), VALUE_SEPARATOR,
+        VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
   }
 
   /**
    * Resolves each value as a property key, then wraps with display symbols and joins with
    * a separator. If a value is not found as a property key, it is used as a literal string.
+   * An empty string is also used as a literal string (an empty string is not a key).
    *
    * <p>Searches across messages, item_names, enum_names, and constants (in that order).</p>
    *
@@ -232,17 +252,12 @@ public class MessageUtil {
     PropertiesFileUtilFileKindEnum[] fileKinds = new PropertiesFileUtilFileKindEnum[] {
         PropertiesFileUtilFileKindEnum.MESSAGES, PropertiesFileUtilFileKindEnum.ITEM_NAMES,
         PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS};
-    List<@NonNull Arg> argList =
-        Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
+    // An empty string is not a key, so it is passed as a literal string.
+    @Nullable
+    Object[] args = Arrays.stream(Objects.requireNonNull(values))
+        .map(str -> str.isEmpty() ? str : Arg.fromFileKinds(fileKinds, str)).toArray();
 
-    List<@NonNull String> placeholders = new ArrayList<>();
-    for (int i = 0; i < argList.size(); i++) {
-      placeholders.add("{" + i + "}");
-    }
-
-    String template = StringUtil.getSeparatedValuesString(placeholders.toArray(String[]::new),
-        VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
-    return Arg.formattedString(template, (Object[]) argList.toArray(Arg[]::new));
+    return Arg.formattedString(placeholderTemplate(args.length), args);
   }
 
 }
