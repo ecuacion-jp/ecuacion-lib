@@ -24,6 +24,7 @@ import jp.ecuacion.lib.core.util.ObjectsUtil.RequireElementNonNullException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireElementsNonDuplicatedException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireNonEmptyException;
 import jp.ecuacion.lib.core.util.ObjectsUtil.RequireSizeNonZeroException;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -176,6 +177,19 @@ public class ObjectsUtilTest {
     void emptyStringElementThrows() {
       assertThatThrownBy(() -> ObjectsUtil.requireElementNonEmpty(new String[]{"a", ""}))
           .isInstanceOf(RequireElementNonEmptyException.class);
+    }
+
+    @Test
+    @DisplayName("@Nullable elements are accepted and checked")
+    void nullableElements() {
+      @Nullable String[] arr = {"a", "b"};
+      assertThat(ObjectsUtil.requireElementNonEmpty(arr)).containsExactly("a", "b");
+
+      List<@Nullable String> list = Arrays.asList("a", null);
+      assertThatThrownBy(() -> ObjectsUtil.requireElementNonEmpty(list))
+          .isInstanceOf(RequireElementNonEmptyException.class);
+      assertThat(ObjectsUtil.requireElementNonEmpty(Arrays.<@Nullable String>asList("a", "b")))
+          .containsExactly("a", "b");
     }
   }
 

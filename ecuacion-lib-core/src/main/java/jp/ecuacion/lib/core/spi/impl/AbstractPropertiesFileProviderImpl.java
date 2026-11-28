@@ -49,9 +49,11 @@ public abstract class AbstractPropertiesFileProviderImpl extends AbstractResourc
 
     // Obtain resource from module.
     String baseFilename = PropertiesFileUtilBundleReader.bundleNameForModule.get();
+    // moduleName is null when the file is not of an ecuacion module (like "messages" of an app).
+    // In that case the file is obtained from the module of this provider by super.getBundle.
     String moduleName = getModuleName(baseFilename);
-    Module module = Objects.requireNonNull(ModuleLayer.boot())
-        .findModule(Objects.requireNonNull(moduleName)).orElse(null);
+    Module module = moduleName == null ? null
+        : Objects.requireNonNull(ModuleLayer.boot()).findModule(moduleName).orElse(null);
     if (module != null) {
       try {
         // Locale#toString() cannot be used because it returns strings like "zh__#Hant"

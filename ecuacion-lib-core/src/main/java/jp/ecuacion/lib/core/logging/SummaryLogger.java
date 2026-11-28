@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 /**
@@ -47,33 +48,27 @@ public class SummaryLogger extends AbstractLogger {
   /** 
    * Logs message with "info" loglevel.
    *
-   * @param message message to log. 
-   *     Cannot be {@code null} since it's used by another library or framework,
-   *     and not by developers.
+   * @param message message to log. Can be {@code null}.
    */
-  public void info(String message) {
+  public void info(@Nullable String message) {
     log(Level.INFO, message);
   }
 
   /** 
    * Logs message with "warn" loglevel.
    *
-   * @param message message to log. 
-   *     Cannot be {@code null} since it's used by another library or framework,
-   *     and not by developers.
+   * @param message message to log. Can be {@code null}.
    */
-  public void warn(String message) {
+  public void warn(@Nullable String message) {
     log(Level.WARN, message);
   }
 
   /** 
    * Logs message with "error" loglevel.
    *
-   * @param message message to log.
-   *     Cannot be {@code null} since it's used by another library or framework,
-   *     and not by developers.
+   * @param message message to log. Can be {@code null}.
    */
-  public void error(String message) {
+  public void error(@Nullable String message) {
     log(Level.ERROR, message);
   }
 }

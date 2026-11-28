@@ -85,7 +85,7 @@ public class ObjectsUtil {
    *     if the argument value does not match the condition.
    * 
    * @param <T> The class of the argument array
-   * @param objects Any object, {@code null} is acceptable.
+   * @param objects Any objects. It must not be {@code null}, but its elements may be {@code null}.
    * @return the argument
    */
   public static <T extends @Nullable Object> T[] requireSizeNonZero(T[] objects) {
@@ -154,10 +154,13 @@ public class ObjectsUtil {
    * Validates that elements of an array are not {@code null} or empty
    *     and throws {@code RequireElementNonEmptyException} if any element is.
    *
-   * @param strings Any strings.
+   * @param strings Any strings. It must not be {@code null},
+   *     but its elements may be {@code null} (they are checked).
    * @return the argument
    */
-  public static String[] requireElementNonEmpty(@RequireElementNonEmpty String[] strings) {
+  @SuppressWarnings("null")
+  public static String[] requireElementNonEmpty(
+      @RequireElementNonEmpty @Nullable String[] strings) {
 
     for (String string : strings) {
       if (StringUtils.isEmpty(string)) {
@@ -165,21 +168,27 @@ public class ObjectsUtil {
       }
     }
 
-    return strings;
+    // All the elements are checked to be non-null above.
+    String[] nonNullStrings = strings;
+    return nonNullStrings;
   }
 
   /**
    * Validates that elements of a collection are not {@code null} or empty
    *     and throws {@code RequireElementNonEmptyException} if any element is.
    *
-   * @param collection Any collection, {@code null} is acceptable.
+   * @param collection Any collection. It must not be {@code null},
+   *     but its elements may be {@code null} (they are checked).
    * @return the argument
    */
+  @SuppressWarnings({"null", "unchecked"})
   public static Collection<String> requireElementNonEmpty(
-      @RequireElementNonEmpty Collection<String> collection) {
-    requireElementNonEmpty(collection.toArray(String[]::new));
+      @RequireElementNonEmpty Collection<? extends @Nullable String> collection) {
+    requireElementNonEmpty(collection.toArray(new @Nullable String[0]));
 
-    return collection;
+    // All the elements are checked to be non-null above.
+    Collection<String> nonNullCollection = (Collection<String>) collection;
+    return nonNullCollection;
   }
 
   /**
@@ -187,7 +196,7 @@ public class ObjectsUtil {
    *     and throws {@code RequireElementsNonDuplicatedException} if any duplicate is found.
    *
    * @param <T> The class of the argument array
-   * @param objects Any object, {@code null} is acceptable.
+   * @param objects Any objects. It must not be {@code null}.
    * @return the argument
    */
   public static <T> T[] requireElementsNonDuplicated(@RequireElementNonNull T[] objects) {
@@ -201,7 +210,7 @@ public class ObjectsUtil {
    *     and throws {@code RequireElementsNonDuplicatedException} if any duplicate is found.
    *
    * @param <T> The class of the argument collection
-   * @param collection Any collection, {@code null} is acceptable.
+   * @param collection Any collection. It must not be {@code null}.
    * @return the argument
    */
   public static <T> Collection<T> requireElementsNonDuplicated(

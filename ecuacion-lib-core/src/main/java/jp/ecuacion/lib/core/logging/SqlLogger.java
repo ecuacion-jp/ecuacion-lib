@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.logging;
 
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
 /**
@@ -39,22 +40,18 @@ public class SqlLogger extends AbstractLogger {
   /** 
    * Logs message with "trace" loglevel.
    *
-   * @param message message to log.
-   *     Cannot be {@code null} since it's used by another library or framework,
-   *     and not by developers.
+   * @param message message to log. Can be {@code null}.
    */
-  public void trace(String message) {
+  public void trace(@Nullable String message) {
     log(Level.TRACE, message);
   }
 
   /** 
    * Logs message with "debug" loglevel.
    *
-   * @param message message to log.
-   *     Cannot be {@code null} since it's used by another library or framework,
-   *     and not by developers.
+   * @param message message to log. Can be {@code null}.
    */
-  public void debug(String message) {
+  public void debug(@Nullable String message) {
     log(Level.DEBUG, message);
   }
 }
