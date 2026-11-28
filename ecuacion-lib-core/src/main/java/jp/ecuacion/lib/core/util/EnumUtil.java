@@ -165,8 +165,14 @@ public class EnumUtil {
     }
 
     // The following is the case that optionMap.size() == 1
-    String optionKey = optionMap.keySet().stream().toList().get(0);
-    String optionValue = optionMap.get(optionKey);
+    String rawOptionKey = optionMap.keySet().stream().toList().get(0);
+    String optionValue = optionMap.get(rawOptionKey);
+
+    // Option keys are accepted both in lower camel case ("including")
+    // and in upper snake case ("INCLUDING"). matchesOption uses lower camel case.
+    String optionKey = rawOptionKey.equals(rawOptionKey.toUpperCase(Locale.ROOT))
+        ? StringUtil.getLowerCamelFromSnake(rawOptionKey)
+        : rawOptionKey;
 
     return enumInfo.getValueList().stream()
         .filter(value -> matchesOption(value, optionKey, Objects.requireNonNull(optionValue)))

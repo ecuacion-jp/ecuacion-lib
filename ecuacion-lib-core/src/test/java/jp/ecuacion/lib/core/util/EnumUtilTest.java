@@ -151,6 +151,17 @@ public class EnumUtilTest {
           TestEnum.class, null, "including=VALUE_A,excluding=VALUE_B"))
           .isInstanceOf(RuntimeException.class);
     }
+
+    @Test
+    @DisplayName("option key in upper snake case works in the same way as lower camel case")
+    void upperSnakeCaseKey() {
+      var list = EnumUtil.getListForHtmlSelect(TestEnum.class, null, "INCLUDING=VALUE_A|VALUE_C");
+      assertThat(list).extracting(arr -> arr[0]).containsExactly("A", "C");
+
+      list = EnumUtil.getListForHtmlSelect(TestEnum.class, null,
+          "FIRST_CHAR_OF_CODE_GREATER_THAN_OR_EQUAL_TO=B");
+      assertThat(list).extracting(arr -> arr[0]).containsExactly("B", "C");
+    }
   }
 
   // -------------------------------------------------------------------------
