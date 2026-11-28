@@ -92,7 +92,7 @@ public class DetailLogger extends AbstractLogger {
   }
 
   /**
-   * Logs exception message with "error" loglevel.
+   * Logs exception message with "warn" loglevel.
    *
    * @param th exception to log
    */
@@ -104,7 +104,7 @@ public class DetailLogger extends AbstractLogger {
   /**
    * Logs message with "error" loglevel.
    *
-   * @param message message to log
+   * @param message message to log. Can be {@code null}.
    */
   public void error(@Nullable String message) {
     log(Level.ERROR, message);
@@ -113,7 +113,7 @@ public class DetailLogger extends AbstractLogger {
   /**
    * Logs error.
    * 
-   * @param throwable throwable
+   * @param throwable throwable. Can be {@code null}.
    */
   public void error(@Nullable Throwable throwable) {
     error(throwable, ExceptionUtil.SYSTEM_ERROR_OCCURED_SIGN);
@@ -122,8 +122,9 @@ public class DetailLogger extends AbstractLogger {
   /**
    * Logs error.
    * 
-   * @param throwable throwable
-   * @param additionalMessage additionalMessage
+   * @param throwable throwable. Can be {@code null}.
+   * @param additionalMessage additionalMessage. Can be {@code null}.
+   *     In the case of {@code null} or an empty string, no additional message is output.
    */
   public void error(@Nullable Throwable throwable, @Nullable String additionalMessage) {
     // Output to detailLog
