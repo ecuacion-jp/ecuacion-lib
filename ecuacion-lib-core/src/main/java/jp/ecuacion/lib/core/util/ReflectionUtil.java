@@ -92,8 +92,7 @@ public class ReflectionUtil {
    * @throws NullPointerException when {@code classOfTargetInstance}
    *     or {@code annotationClass} is {@code null}
    */
-  @SuppressWarnings("null")
-  public static <A extends Annotation> @NonNull Optional<@NonNull A> searchAnnotationPlacedAtClass(
+  public static <A extends Annotation> Optional<@NonNull A> searchAnnotationPlacedAtClass(
       Class<?> classOfTargetInstance, Class<A> annotationClass) {
     Objects.requireNonNull(classOfTargetInstance);
     Objects.requireNonNull(annotationClass);

@@ -179,14 +179,14 @@ public class ConstraintViolationBean<T> {
    * 
    * @return String
    */
-  @SuppressWarnings("null")
   @Override
   public String toString() {
     return "message:" + getMessage() + "\n" + "annotation:" + getValidatorClass() + "\n"
         + "rootClassName:" + Objects.requireNonNull(getRootBean()).getClass().getName() + "\n"
         + "leafClassName:" + getLeafBean().getClass().getName() + "\n" + "propertyPath:"
-        + StringUtil.getCsv(getItemList().stream().map(Item::getPropertyPath).toList()) + "\n"
-        + "invalidValue:" + getInvalidValue();
+        + StringUtil.getCsv(
+            getItemList().stream().map(Item::getPropertyPath).toArray(String[]::new))
+        + "\n" + "invalidValue:" + getInvalidValue();
   }
 
   public T getRootBean() {
