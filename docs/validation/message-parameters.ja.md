@@ -11,6 +11,20 @@ violations.withMessageParameters(p -> p
     .messagePrefix("upload.row.prefix"));
 ```
 
+同じ設定を複数の `Violations` で使う場合は、`Violations.newMessageParameters()` で作成したインスタンスを
+`messageParameters(...)` で設定することもできます。現在の設定は `messageParameters()` で取得できます。
+
+```java
+Violations.MessageParameters params = Violations.newMessageParameters()
+    .showsItemName(true)
+    .messagePrefix("upload.row.prefix");
+
+new Violations().messageParameters(params).validate(row1).throwIfAny();
+```
+
+`messageParameters(...)` はインスタンスをコピーせずにそのまま保持します。
+そのため、設定後に `withMessageParameters()` などで変更すると、同じインスタンスを設定した他の `Violations` にも反映されます。
+
 ---
 
 ## showsItemName — 項目名あり/なしのメッセージ切り替え

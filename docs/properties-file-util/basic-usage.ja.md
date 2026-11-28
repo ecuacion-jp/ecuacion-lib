@@ -31,6 +31,7 @@ Locale 列に ✓ があるメソッドは、Locale 引数を省略するか `nu
 
 `hasXxx(...)` によるキーの存在確認は、ロケールなしのファイルに対して行います。
 ロケール付きのファイル（`messages_ja.properties` など）は、ロケールなしのファイルと同じキーを持つ前提です。
+ただし `hasValidationMessage(locale, key)` だけは例外で、指定したロケールのファイルに対して確認します（`null` の場合は `Locale.ROOT`）。
 
 キーに空文字を渡すと、`getXxx(...)` は `IllegalArgumentException` をスローし、`hasXxx(...)` は `false` を返します。
 
