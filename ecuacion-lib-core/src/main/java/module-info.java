@@ -80,6 +80,12 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesBaseProvider;
   uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesCoreProvider;
 
+  // apps: ValidationMessages
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesProvider;
+
+  // apps: ValidationMessagesWithItemNames
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesProvider;
+
   // apps: ValidationMessagesPatternDescriptions
   uses jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsProvider;
 

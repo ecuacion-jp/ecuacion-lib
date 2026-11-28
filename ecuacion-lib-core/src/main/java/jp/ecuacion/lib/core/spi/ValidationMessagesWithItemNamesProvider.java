@@ -18,7 +18,7 @@ package jp.ecuacion.lib.core.spi;
 import java.util.spi.ResourceBundleProvider;
 
 /**
- * Is a {@code ResourceBundleProvider} for messages in app projects.
+ * Is a {@code ResourceBundleProvider} for ValidationMessagesWithItemNames in app projects.
  */
 public interface ValidationMessagesWithItemNamesProvider extends ResourceBundleProvider {
 }
