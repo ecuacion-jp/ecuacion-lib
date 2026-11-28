@@ -135,6 +135,23 @@ public class FileUtilTest {
     void threePaths() {
       assertThat(FileUtil.concatFilePaths("a", "b", "c")).isEqualTo("a/b/c");
     }
+
+    @Test
+    @DisplayName("empty strings are ignored")
+    void emptyStringsIgnored() {
+      assertThat(FileUtil.concatFilePaths("", "a", "", "b", "")).isEqualTo("a/b");
+      assertThat(FileUtil.concatFilePaths("", "")).isEqualTo("");
+    }
+
+    @Test
+    @DisplayName("null element throws NullPointerException")
+    @SuppressWarnings({"null", "NullAway"})
+    void nullElement() {
+      assertThatThrownBy(() -> FileUtil.concatFilePaths((String) null))
+          .isInstanceOf(NullPointerException.class);
+      assertThatThrownBy(() -> FileUtil.concatFilePaths("a", null))
+          .isInstanceOf(NullPointerException.class);
+    }
   }
 
   @Nested
@@ -170,6 +187,14 @@ public class FileUtilTest {
     void dotInMiddle() {
       assertThat(FileUtil.cleanPathStrWithSlash("/a/./b")).isEqualTo("/a/b");
     }
+
+    @Test
+    @DisplayName("all /./ are removed")
+    void multipleDots() {
+      assertThat(FileUtil.cleanPathStrWithSlash("/a/./b/./c")).isEqualTo("/a/b/c");
+      assertThat(FileUtil.cleanPathStrWithSlash("/a/././b")).isEqualTo("/a/b");
+      assertThat(FileUtil.cleanPathStrWithSlash("a/./.")).isEqualTo("a");
+    }
   }
 
   @Nested
@@ -187,6 +212,12 @@ public class FileUtilTest {
     void backslash() {
       assertThat(FileUtil.getParentDirPath("a\\b\\c.txt")).isEqualTo("a/b");
     }
+
+    @Test
+    @DisplayName("path without separator returns empty string")
+    void noSeparator() {
+      assertThat(FileUtil.getParentDirPath("c.txt")).isEqualTo("");
+    }
   }
 
   @Nested
@@ -203,6 +234,20 @@ public class FileUtilTest {
     @DisplayName("filename extracted from backslash-separated path")
     void backslashPath() {
       assertThat(FileUtil.getFileNameFromFilePath("a\\b\\c.txt")).isEqualTo("c.txt");
+    }
+
+    @Test
+    @DisplayName("path without separator returns the path itself")
+    void noSeparator() {
+      assertThat(FileUtil.getFileNameFromFilePath("c.txt")).isEqualTo("c.txt");
+    }
+
+    @Test
+    @DisplayName("path to be cleaned returns the correct filename")
+    void pathToBeCleaned() {
+      assertThat(FileUtil.getFileNameFromFilePath("/a//b/c.txt")).isEqualTo("c.txt");
+      assertThat(FileUtil.getFileNameFromFilePath("/a/./c.txt")).isEqualTo("c.txt");
+      assertThat(FileUtil.getFileNameFromFilePath("/a/b/")).isEqualTo("b");
     }
   }
 
@@ -255,6 +300,20 @@ public class FileUtilTest {
       String version = FileUtil.getLockFileVersion(lockFile);
       assertThat(version).matches("\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}\\.\\d{3}");
     }
+
+    @Test
+    @DisplayName("relative path without a directory is accepted")
+    void relativePathWithoutDirectory() throws IOException {
+      File lockFile = new File("FileUtilTest-" + System.nanoTime() + ".lock");
+      try {
+        assertThat(lockFile.getParentFile()).isNull();
+        String version = FileUtil.getLockFileVersion(lockFile);
+        assertThat(lockFile.exists()).isTrue();
+        assertThat(version).matches("\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}\\.\\d{3}");
+      } finally {
+        lockFile.delete();
+      }
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -305,6 +364,40 @@ public class FileUtilTest {
       String version = FileUtil.getLockFileVersion(lockFile);
       assertThat(version).matches("\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}\\.\\d{3}");
     }
+
+    @Test
+    @DisplayName("lock with wrong version: the lock is not left, so it can be locked again")
+    void lockAgainAfterWrongVersion(@TempDir Path tempDir) throws IOException {
+      File lockFile = tempDir.resolve("test.lock").toFile();
+      lockFile.createNewFile();
+      assertThatThrownBy(() -> FileUtil.lock(lockFile, "wrong-version"))
+          .isInstanceOf(OverlappingFileLockException.class);
+      var result = FileUtil.lock(lockFile, null);
+      FileUtil.release(result);
+    }
+
+    @Test
+    @DisplayName("lock twice in the same JVM: throws OverlappingFileLockException")
+    void lockTwice(@TempDir Path tempDir) throws IOException {
+      File lockFile = tempDir.resolve("test.lock").toFile();
+      var result = FileUtil.lock(lockFile, null);
+      try {
+        assertThatThrownBy(() -> FileUtil.lock(lockFile, null))
+            .isInstanceOf(OverlappingFileLockException.class);
+      } finally {
+        FileUtil.release(result);
+      }
+    }
+
+    @Test
+    @DisplayName("release: closes the channel, so it can be locked again")
+    void releaseClosesChannel(@TempDir Path tempDir) throws IOException {
+      File lockFile = tempDir.resolve("test.lock").toFile();
+      var result = FileUtil.lock(lockFile, null);
+      FileUtil.release(result);
+      assertThat(result.getLeft().isOpen()).isFalse();
+      FileUtil.release(FileUtil.lock(lockFile, null));
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -329,6 +422,19 @@ public class FileUtilTest {
       File file = tempDir.resolve("test.txt").toFile();
       file.createNewFile();
       assertThat(FileUtil.isLocked(file.getAbsolutePath())).isFalse();
+    }
+
+    @Test
+    @DisplayName("file locked by lock() in the same JVM returns true")
+    void lockedInSameJvmReturnsTrue(@TempDir Path tempDir) throws IOException {
+      File lockFile = tempDir.resolve("test.lock").toFile();
+      var result = FileUtil.lock(lockFile, null);
+      try {
+        assertThat(FileUtil.isLocked(lockFile.getAbsolutePath())).isTrue();
+      } finally {
+        FileUtil.release(result);
+      }
+      assertThat(FileUtil.isLocked(lockFile.getAbsolutePath())).isFalse();
     }
 
     @Test
