@@ -179,6 +179,7 @@ public class ItemUtil {
    *     or used to find the field (or getter) for {@code @ItemNameKeyClass} placed at it
    *     when nested
    * @return the itemNameKey class part, already uncapitalized
+   * @throws IllegalArgumentException when the value of {@code @ItemNameKeyClass} is empty
    */
   public static String resolveItemNameKeyClass(String itemPropertyPath, Class<?> ownerClass) {
     List<@NonNull String> nodeList = PropertyPathUtil.getNodeList(itemPropertyPath);
@@ -190,12 +191,27 @@ public class ItemUtil {
       @Nullable
       ItemNameKeyClass an = ReflectionUtil.getBeanProperty(classPartFieldOwner, classPartFieldName)
           .getAnnotation(ItemNameKeyClass.class);
-      return StringUtils.uncapitalize(an == null ? classPartFieldName : an.value());
+      return StringUtils.uncapitalize(an == null ? classPartFieldName
+          : valueOf(an, classPartFieldOwner.getName() + "#" + classPartFieldName));
     }
 
     // Since what we want to know is class, instance is not needed.
     return ReflectionUtil.searchAnnotationPlacedAtClass(ownerClass, ItemNameKeyClass.class)
-        .map(ItemNameKeyClass::value).map(StringUtils::uncapitalize)
+        .map(an -> valueOf(an, ownerClass.getName() + " (or its superclass)"))
+        .map(StringUtils::uncapitalize)
         .orElseGet(() -> StringUtils.uncapitalize(ownerClass.getSimpleName()));
+  }
+
+  /*
+   * Returns the value of @ItemNameKeyClass.
+   * An empty value is a mistake of the setting, which would make the itemNameKey like ".name".
+   */
+  private static String valueOf(ItemNameKeyClass an, String placedAt) {
+    if (an.value().isEmpty()) {
+      throw new IllegalArgumentException(
+          "The value of @ItemNameKeyClass must not be empty. Placed at: " + placedAt);
+    }
+
+    return an.value();
   }
 }
