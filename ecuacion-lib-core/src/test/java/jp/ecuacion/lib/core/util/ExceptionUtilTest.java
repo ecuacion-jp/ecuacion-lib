@@ -1640,16 +1640,26 @@ public class ExceptionUtilTest {
   class MessageListSetEdgeCases {
 
     @Test
-    @DisplayName("throws RuntimeException when constraint violation set is empty")
-    void emptySet_throws() {
-      try {
-        ExceptionUtil.getMessageList(new HashSet<>(), Locale.ENGLISH, false,
-            Violations.newMessageParameters());
-        org.junit.jupiter.api.Assertions.fail();
-      } catch (RuntimeException ex) {
-        assertThat(ex.getMessage()).contains("zero");
-      }
+    @DisplayName("returns an empty list when constraint violation set is empty")
+    void emptySet_returnsEmptyList() {
+      assertThat(ExceptionUtil.getMessageList(new HashSet<>(), Locale.ENGLISH, false,
+          Violations.newMessageParameters())).isEmpty();
     }
+
+    @Test
+    @DisplayName("literal message: {0} is replaced literally, keeping quotes and braces")
+    void literalMessageWithItemNamePlaceholder() {
+      Set<ConstraintViolation<LiteralMessageBean>> set =
+          Validation.buildDefaultValidatorFactory().getValidator()
+              .validate(new LiteralMessageBean());
+      assertThat(ExceptionUtil.getMessageList(set, Locale.ENGLISH))
+          .singleElement().asString().endsWith(" can't be null {x}").doesNotContain("{0}");
+    }
+  }
+
+  public static class LiteralMessageBean {
+    @NotNull(message = "{0} can't be null {x}")
+    public @Nullable String value;
   }
 
   // -------------------------------------------------------------------------
