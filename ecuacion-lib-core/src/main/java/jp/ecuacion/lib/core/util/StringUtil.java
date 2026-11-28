@@ -273,7 +273,7 @@ public class StringUtil {
    * @param array list of string.
    * @return csv with spaces after commas.
    */
-  public static String getCsvWithSpace(String[] array) {
+  public static String getCsvWithSpace(String... array) {
     return getSeparatedValuesString(array, ", ");
   }
 
