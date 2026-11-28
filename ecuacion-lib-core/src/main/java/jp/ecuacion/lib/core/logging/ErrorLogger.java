@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.logging;
 import java.util.Locale;
 import jp.ecuacion.lib.core.logging.internal.AbstractLogger;
 import jp.ecuacion.lib.core.util.ExceptionLogUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.event.Level;
 
@@ -73,7 +74,7 @@ public class ErrorLogger extends AbstractLogger {
   /**
    * Logs system error.
    * 
-   * @param throwable throwable
+   * @param throwable throwable. Can be {@code null}.
    */
   public void logSystemError(@Nullable Throwable throwable) {
     logSystemError(throwable, null);
@@ -82,8 +83,9 @@ public class ErrorLogger extends AbstractLogger {
   /**
    * Logs system error.
    * 
-   * @param throwable throwable
-   * @param additionalMessage additionalMessage
+   * @param throwable throwable. Can be {@code null}.
+   * @param additionalMessage additionalMessage. Can be {@code null}.
+   *     In the case of {@code null} or an empty string, no additional message is output.
    */
   public void logSystemError(@Nullable Throwable throwable, @Nullable String additionalMessage) {
 
@@ -98,7 +100,8 @@ public class ErrorLogger extends AbstractLogger {
               .replace("\n", " ");
     }
 
-    String additionalMsg = additionalMessage == null ? "" : " (" + additionalMessage + ")";
+    String additionalMsg =
+        StringUtils.isEmpty(additionalMessage) ? "" : " (" + additionalMessage + ")";
     log(Level.ERROR, "A system error has occurred: " + throwableMessage + additionalMsg);
   }
 }

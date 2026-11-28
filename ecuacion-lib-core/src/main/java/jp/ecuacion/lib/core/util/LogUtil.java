@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  * Provides multiple-logger-used fixed procedures.
  */
 public class LogUtil {
-  private static ErrorLogger errLog = new ErrorLogger();
+  private static final ErrorLogger errLog = new ErrorLogger();
 
   /**
    * Prevents other classes from instantiating it.
@@ -32,28 +32,35 @@ public class LogUtil {
   private LogUtil() {}
 
   /**
-  * Logs throwable.
-  *
-  * @param detailLog DetailLogger instance
-  * @param throwable throwable
-  */
-  public static void logSystemError(DetailLogger detailLog, Throwable throwable) {
+   * Logs a system error to both {@code ErrorLogger} and {@code DetailLogger}.
+   *
+   * <p>{@code ErrorLogger} logs a one-line message for surveillance,
+   *     and {@code DetailLogger} logs the details including the stack trace.</p>
+   *
+   * @param detailLog DetailLogger instance
+   * @param throwable throwable. Can be {@code null},
+   *     since logging should not throw an exception even in that case.
+   */
+  public static void logSystemError(DetailLogger detailLog, @Nullable Throwable throwable) {
     logSystemError(detailLog, throwable, null);
   }
 
   /**
-   * Logs throwable.
+   * Logs a system error to both {@code ErrorLogger} and {@code DetailLogger}.
+   *
+   * <p>{@code ErrorLogger} logs a one-line message for surveillance,
+   *     and {@code DetailLogger} logs the details including the stack trace.</p>
    * 
    * @param detailLog DetailLogger instance
-   * @param throwable throwable
+   * @param throwable throwable. Can be {@code null},
+   *     since logging should not throw an exception even in that case.
    * @param additionalMessage additionalMessage,
    *     may be {@code null} if no {@code additionalMessage} is needed.
-   *     In the case of {@code null}, no additional message is output.
+   *     In the case of {@code null} or an empty string, no additional message is output.
    */
-  public static void logSystemError(DetailLogger detailLog, Throwable throwable,
+  public static void logSystemError(DetailLogger detailLog, @Nullable Throwable throwable,
       @Nullable String additionalMessage) {
     Objects.requireNonNull(detailLog);
-    Objects.requireNonNull(throwable);
 
     errLog.logSystemError(throwable, additionalMessage);
     detailLog.error(throwable, additionalMessage);
