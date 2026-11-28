@@ -174,8 +174,19 @@ public class EnumUtil {
         ? StringUtil.getLowerCamelFromSnake(rawOptionKey)
         : rawOptionKey;
 
+    if (optionValue == null) {
+      throw new IllegalArgumentException("The value of the option is not specified. "
+          + "Specify it like '" + rawOptionKey + "=value'. (option: " + rawOptionKey + ")");
+    }
+
+    if (optionValue.isEmpty() && (optionKey.equals("firstCharOfCodeLessThanOrEqualTo")
+        || optionKey.equals("firstCharOfCodeGreaterThanOrEqualTo"))) {
+      throw new IllegalArgumentException(
+          "The value of the option must not be empty. (option: " + rawOptionKey + ")");
+    }
+
     return enumInfo.getValueList().stream()
-        .filter(value -> matchesOption(value, optionKey, Objects.requireNonNull(optionValue)))
+        .filter(value -> matchesOption(value, optionKey, optionValue))
         .map(value -> new String[] {value.getCode(), value.getLabel()})
         .toList();
   }
