@@ -383,7 +383,11 @@ public class PropertiesFileUtilBundleReader {
   }
 
   /**
-   * Returns {@code true} when the key exists in any properties file (locale-independent).
+   * Returns {@code true} when the key exists in any properties file without a locale
+   *     (like {@code messages.properties}).
+   *
+   * <p>Files with a locale (like {@code messages_ja.properties}) are not checked,
+   *     since they are supposed to have the same keys as the file without a locale.</p>
    *
    * @param key the key to check
    * @return {@code true} if the key exists
@@ -420,7 +424,7 @@ public class PropertiesFileUtilBundleReader {
   }
 
   /**
-   * Obtains raw value from a key using the default locale
+   * Obtains raw value from a key with {@code Locale.ROOT}
    * (no {@code #{...}} or {@code ${...}} processing).
    *
    * @param key the key of the property
@@ -469,7 +473,7 @@ public class PropertiesFileUtilBundleReader {
     Objects.requireNonNull(key);
 
     if (StringUtils.isEmpty(key)) {
-      throw new RuntimeException("Message ID is blank.");
+      throw new IllegalArgumentException("The key must not be empty.");
     }
 
     try {

@@ -384,6 +384,26 @@ public class PropertiesFileUtilTest {
     }
 
     @Test
+    @DisplayName("fromFileKinds with empty fileKinds: throws IllegalArgumentException")
+    void fromFileKindsWithEmptyFileKinds() {
+      assertThatThrownBy(
+          () -> Arg.fromFileKinds(new PropertiesFileUtilFileKindEnum[] {}, "MSG1"))
+          .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("empty key: get* throws IllegalArgumentException, has* returns false")
+    void emptyKey() {
+      assertThatThrownBy(() -> PropertiesFileUtil.getMessage(""))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("The key must not be empty.");
+      assertThatThrownBy(() -> PropertiesFileUtil.getApplication(""))
+          .isInstanceOf(IllegalArgumentException.class);
+      assertThat(PropertiesFileUtil.hasMessage("")).isFalse();
+      assertThat(PropertiesFileUtil.getApplicationOrElse("", "default")).isEqualTo("default");
+    }
+
+    @Test
     @DisplayName("itemName(key): resolves from item_names properties")
     void itemName() {
       Arg arg = Arg.itemName("singleLayer.field");

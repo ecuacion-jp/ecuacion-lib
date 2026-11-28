@@ -182,7 +182,9 @@ public class PropertiesFileUtilResolver {
   }
 
   /**
-   * Returns whether the given key exists in the specified file kind (locale-independent).
+   * Returns whether the given key exists in the specified file kind without a locale.
+   *
+   * <p>See {@link PropertiesFileUtilBundleReader#hasProp(String)}.</p>
    *
    * @param fileKind the file kind
    * @param key the key of the property
