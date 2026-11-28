@@ -34,6 +34,9 @@ String msg = PropertiesFileUtil.getMessage(Locale.JAPANESE, "amount.label", 1234
 
 `Object...` なので、`String` も `Integer` も `Date` もそのまま渡せます。
 
+引数がない場合は `MessageFormat` を通さず、値をそのまま返します。
+そのため、`'` を `''` と書いた場合、引数があれば `'` と表示されますが、引数がなければ `''` のまま表示されます（Spring の `MessageSource` のデフォルトと同じ挙動です）。
+
 ---
 
 ## Arg を使う

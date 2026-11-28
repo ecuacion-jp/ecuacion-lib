@@ -73,6 +73,8 @@ Internally, processing is dispatched based on the exception type as follows:
 
 Since `ConstraintViolationException` can hold multiple violations, the return value is always a `List`.
 Regular exceptions also return a `List` (with 1 element).
+However, for an exception whose `getMessage()` is `null` (like `new NullPointerException()`), an empty list is returned.
+An empty list is also returned when there are no violations (like an empty `Set` or `Violations`).
 
 ---
 
@@ -92,19 +94,20 @@ List<String> messages = ExceptionUtil.getMessageList(constraintViolationSet, Loc
 
 ---
 
-## isMessagesWithItemNamesAsDefault Parameter
+## showsItemNameAsDefault Parameter
 
-Some overloads have an `isMessagesWithItemNamesAsDefault` flag.
+Some overloads have an `showsItemNameAsDefault` flag.
+Overloads without this flag treat it as `false`.
 
 ```java
-// Setting true prioritizes messages_with_item_names.properties
+// Setting true prioritizes messages with item names
 List<String> messages = ExceptionUtil.getMessageList(throwable, Locale.ENGLISH, true);
 ```
 
-Setting it to `true` prioritizes `ValidationMessagesWithItemNames.properties`
-for resolving validation messages.
-This is a value set as the system default by frameworks such as splib.
+Setting it to `true` prioritizes the message files with item names when resolving messages:
+`ValidationMessagesWithItemNames.properties` for Jakarta Validation violations, and
+`messages_with_item_names.properties` for `BusinessViolation`.
 
-When `MessageParameters.isMessageWithItemName` is explicitly set to `true` / `false` per Violation,
+When `MessageParameters.showsItemName` is explicitly set to `true` / `false` per Violation,
 that value takes priority over this default.
-For details on the relationship with `isMessageWithItemName`, see **violation > MessageParameters**.
+For details on the relationship with `showsItemName`, see **violation > MessageParameters**.

@@ -7,6 +7,8 @@
 
 デフォルト（日本語）では `「名前」` のように `「」` で囲まれます。
 
+項目名入りのメッセージにする設定（`showsItemName`）方法の詳細は [MessageParameters > showsItemName](../validation/message-parameters.md#showsitemname--項目名ありなしのメッセージ切り替え) を参照してください。
+
 ---
 
 ## デフォルト値

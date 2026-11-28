@@ -7,6 +7,8 @@ and the delimiter used when listing multiple item names (separator).
 
 The default (English) wraps item names in single quotes like `'name'`.
 
+For details on how to set up messages with item names (`showsItemName`), see [MessageParameters > showsItemName](../validation/message-parameters.md#showsitemname--switching-between-messages-withwithout-item-names).
+
 ---
 
 ## Default Values

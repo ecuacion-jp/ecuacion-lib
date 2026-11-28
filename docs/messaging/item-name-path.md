@@ -15,6 +15,8 @@ With itemNamePath:
 'zipCode' of 'Address' must not be null
 ```
 
+For details on how to set up the display of itemNamePath (`showsItemNamePath`), see [MessageParameters > showsItemNamePath](../validation/message-parameters.md#showsitemnamepath--displaying-the-item-name-path).
+
 ---
 
 ## How It Works

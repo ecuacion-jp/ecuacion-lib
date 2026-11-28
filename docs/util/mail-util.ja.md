@@ -24,6 +24,16 @@ MailUtil.sendTextMail(List.of("admin@example.com"), null, "件名", "本文");
 MailUtil.sendHtmlMail(null, List.of("cc@example.com"), "件名", "<b>本文</b>");
 ```
 
+`sendTextMail` / `sendHtmlMail` は TO と CC のどちらか一方だけでも送信できます（もう一方は `null` または空のリストにします）。
+本文（`content`）に `null` を渡すと、空の本文で送信します。
+
+エラー処理の妨げにならないよう、`sendErrorMail` / `sendWarnMail` は送信時の例外をログに出力するだけで、スローしません。
+ただし、`application.properties` のキーが不足しているなどの設定の誤りは `RuntimeException` としてスローします。
+また、`sendErrorMail` の `throwable` には `null` も渡せます。
+`sendTextMail` / `sendHtmlMail` は送信時の例外をログに出力したうえでスローします。
+
+各メソッドには、`application.properties` の代わりに `MailUtilConfig` で設定を渡すオーバーロードもあります。
+
 ---
 
 ## application.properties の設定
@@ -40,9 +50,20 @@ MailUtil.sendHtmlMail(null, List.of("cc@example.com"), "件名", "<b>本文</b>"
 | `smtp.password` | SMTP パスワード（Gmail の場合はアプリパスワード） | `xxxx xxxx xxxx xxxx` |
 | `smtp.authentication` | SMTP 認証の有無（`true` / `false`） | `true` |
 
-※1 `MailUtil` は、サーバーが提示する TLS 証明書が接続先のホスト名と一致するかを常に検証します（`mail.smtp.ssl.checkserveridentity`。この検証を無効化する設定はありません）。自ドメイン（例: `mail.example.com`）専用の TLS 証明書が存在しない場合——共有レンタルサーバーでよくある、
-メールサーバーがホスティング事業者側の共有ドメイン用の証明書を提示するケース——自ドメインのホスト名で接続しようとするとエラーになります。その場合は、自ドメインではなく、実際に証明書が発行されているオリジナルのホスト名を `smtp.server` に設定してください（ホスティング事業者に確認するか、
-`openssl s_client -starttls smtp -connect <host>:587` で証明書の CN を確認できます）。
+#### ※1 TLS 証明書のホスト名検証
+
+`MailUtil` は、サーバーの TLS 証明書が接続先ホスト名と一致するかを常に検証します
+（`mail.smtp.ssl.checkserveridentity`。無効化する設定はありません）。
+
+共有レンタルサーバーなどで自ドメイン（例: `mail.example.com`）用の証明書が無い場合、
+自ドメインのホスト名で接続するとエラーになります。
+その場合は、証明書が実際に発行されているホスト名（ホスティング事業者のホスト名）を `smtp.server` に設定してください。
+
+証明書のホスト名は、ホスティング事業者に確認するか、次のコマンドで CN を確認できます。
+
+```bash
+openssl s_client -starttls smtp -connect <host>:587
+```
 
 ### 任意
 
@@ -58,7 +79,7 @@ MailUtil.sendHtmlMail(null, List.of("cc@example.com"), "件名", "<b>本文</b>"
 | キー（プレフィックス省略） | 説明 | 例 |
 | --- | --- | --- |
 | `title-prefix` | メール件名の先頭に付与する文字列 | `[MyApp: staging]` |
-| `address-csv-on-system-error` | `sendErrorMail` の送信先（カンマ区切りで複数可）※2 | `admin@example.com,ops@example.com` |
+| `address-csv-on-system-error` | `sendErrorMail` の送信先（カンマ区切りで複数可。各アドレス前後の空白と空の要素は無視。送信先が1つも無い場合は送信しない）※2 | `admin@example.com,ops@example.com` |
 
 ※2 `sendWarnMail` / `sendTextMail` / `sendHtmlMail` では送信先を引数で指定するため不要です。
 

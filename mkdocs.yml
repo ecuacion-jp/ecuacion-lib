@@ -76,8 +76,10 @@ plugins:
             Common Topics: 共通事項など
             Validation: バリデーション関連
             Violation: Violation関連
-            General Topics: 共通事項など
             Custom Validators: 独自バリデーター
+            General: 共通事項
+            Validator Details: バリデータ別詳細
+            Collections: collection関連
             Data Types: データ型操作系
             Java Object / Class: Javaオブジェクト・クラス操作系
             System Resources: システムリソース系
@@ -90,8 +92,7 @@ nav:
   - Common Topics:
       - Validation:
           - concepts/jakarta-validation-terms.md
-          - item/item-property-path.md
-          - concepts/item-and-name-key.md
+          - concepts/item-terms.md
       - Violation:
           - concepts/violations-overview.md
   - Item:
@@ -100,27 +101,30 @@ nav:
       - item/item-container-search.md
       - item/item-name-key.md
       - messaging/item-name-in-message.md
-      - item/collection-property-path.md
-      - messaging/collection-item-name.md
       - messaging/item-name-path.md
       - messaging/item-name-display.md
+      - Collections:
+          - item/collection-property-path.md
+          - messaging/collection-item-name.md
   - violation:
       - validation/violation.md
       - validation/business-violation.md
       - validation/jakarta-validation.md
       - validation/message-parameters.md
-  - jakarta validation:
-      - General Topics:
-          - validator/blank-handling.md
-          - validator/standard-annotation-messages.md
-      - Custom Validators:
+      - validator/standard-annotation-messages.md
+  - Custom Validators:
+      - General:
           - validator/overview.md
+          - validator/blank-handling.md
           - validator/property-path-safety.md
+      - Validator Details:
           - validator/when.md
           - validator/comparison.md
+          - validator/collection.md
           - validator/pattern-with-description.md
           - validator/field.md
-          - validator/collection.md
+          - validator/assertion.md
+      - validator/class-method-validator-notes.md
   - util:
       - Data Types:
           - util/string-util.md

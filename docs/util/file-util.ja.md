@@ -9,6 +9,8 @@
 ### ファイル保存可能な名前への変換
 
 ファイル名に使用できない文字（`\`, `/`, `:`, `*`, `?`, `"`, `<`, `>`, `|`）を対応する文字列に置換します。
+パストラバーサルを防ぐため、2つ以上連続した `.` も `__dots__` に置換します。
+また、改行などの制御文字は除去します。
 
 ```java
 FileUtil.getFileSavableName("report: 2024/01/15");
@@ -26,9 +28,12 @@ FileUtil.concatFilePaths("/base/dir/", "/sub/dir");
 // → "/base/dir/sub/dir"
 ```
 
+空文字の要素は無視します。
+
 ### パスのクリーニング
 
 区切り文字を `/` に統一し、重複区切りや末尾の `/` を除去します。
+`/./` や末尾の `/.` も除去します。
 
 ```java
 FileUtil.cleanPathStrWithSlash("/path//to\\file/");
@@ -39,12 +44,16 @@ FileUtil.cleanPathStrWithSlash("/path//to\\file/");
 
 ```java
 FileUtil.getParentDirPath("/path/to/file.txt"); // "/path/to"
+FileUtil.getParentDirPath("file.txt");          // ""
 ```
+
+区切り文字を含まないパスの場合は空文字を返します。
 
 ### パスからファイル名を取得
 
 ```java
 FileUtil.getFileNameFromFilePath("/path/to/file.txt"); // "file.txt"
+FileUtil.getFileNameFromFilePath("file.txt");          // "file.txt"
 ```
 
 ---
@@ -52,25 +61,11 @@ FileUtil.getFileNameFromFilePath("/path/to/file.txt"); // "file.txt"
 ## ファイルサイズ
 
 ```java
-FileUtil.getFileSizeInMb(10_485_760L);      // "10.0"
-FileUtil.getFileSizeInMbWithUnit(10_485_760L); // "10.0 MB"
+FileUtil.getFileSizeInMb(10_000_000L);         // "10.0"
+FileUtil.getFileSizeInMbWithUnit(10_000_000L); // "10.0 MB"
 ```
 
-小数点以下1桁（0.1 MB 精度）に丸めて返します。
-
----
-
-## 相対パス判定・ワイルドカード展開
-
-```java
-FileUtil.isRelativePath("relative/path"); // true
-FileUtil.isRelativePath("/absolute/path"); // false
-
-FileUtil.containsWildCard("/path/to/*.txt"); // true
-
-// ワイルドカードにマッチするパスの一覧を返す（"**" は非対応）
-List<String> paths = FileUtil.getPathListFromPathWithWildcard("/path/to/*.txt");
-```
+1 MB を 1,000,000 バイトとして計算し、小数点以下1桁（0.1 MB 精度）に丸めて返します。
 
 ---
 
@@ -100,6 +95,7 @@ boolean locked = FileUtil.isLocked("/tmp/myapp.lock");
 ```
 
 ロックが取得済みの場合、`lock(...)` は `OverlappingFileLockException` をスローします。
+`release(...)` はロックを解放し、`FileChannel` もクローズします。
 
 ### 楽観的排他制御
 

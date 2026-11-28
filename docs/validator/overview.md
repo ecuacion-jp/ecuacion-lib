@@ -1,5 +1,10 @@
 # Custom Validators Overview
 
+!!! note "Requires ecuacion-lib-validation"
+    To use the features described in the pages under the "Custom Validators" menu, you need to add
+    `ecuacion-lib-validation` as a dependency (`ecuacion-lib-core` alone is not enough).
+    See [Home](../index.md) for the module structure.
+
 ## Overview
 
 The `ecuacion-lib-validation` module provides custom validators that complement the standard Jakarta Validation
@@ -29,6 +34,7 @@ how to catch it anyway.
 
 A name specified in `propertyPath`, `conditionPropertyPath`, `baselinePropertyPath` and so on (each node, for a nested path like `"dept.name"`)
 is resolved to the field of that name first, and to a getter (`getName()`, or `isName()` returning primitive `boolean`; `isName()` returning `Boolean` is not treated as a getter) when no such field exists.
+This definition of a getter follows the Jakarta Validation specification, which is based on the JavaBeans naming conventions.
 Just as with standard Jakarta Validation constraints placed on a getter, the return value of the getter becomes the validated value, so a property without a field can also be specified.
 
 ```java

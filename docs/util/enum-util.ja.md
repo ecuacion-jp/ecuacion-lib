@@ -59,6 +59,8 @@ List<String[]> items = EnumUtil.getListForHtmlSelect(
 ### フィルタリングオプション
 
 オプション文字列で要素を絞り込むことができます。
+`firstCharOfCodeLessThanOrEqualTo` / `firstCharOfCodeGreaterThanOrEqualTo` は、
+ステータスをコードの数値で表し、進捗ごとに数値が増えていく場合などに、一定以上（または以下）のステータスの要素に絞り込む用途に使用します。
 
 | オプション | 説明 | 例 |
 | --- | --- | --- |

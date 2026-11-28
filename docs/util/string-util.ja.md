@@ -4,6 +4,10 @@
 Apache Commons Lang の `StringUtils` が提供するメソッドとは重複しないものを実装しています。
 `StringUtils` にない操作が必要な場合はこちらを使用してください。
 
+null や空文字の扱いは、基本的に `StringUtils` と同様の挙動を目指しています（空文字を渡すと空文字を返す、など）。
+ただし、ecuacion-lib は JSpecify を導入し `@NullMarked` を基本としているため、戻り値に `null` は返しません。
+そのため、`StringUtils` では `null` を返すような場合でも、`StringUtil` では引数に `null` を渡すと `NullPointerException` になります。
+
 ---
 
 ## ケース変換
@@ -38,9 +42,21 @@ StringUtil.getLowerSnakeFromCamel("UserName"); // "user_name"
 
 ## 数値フォーマット
 
+数値の文字列に桁区切りを付けます。
+
 ```java
-StringUtil.toCurrencyFormat("1234567"); // "1,234,567"
+StringUtil.toNumberWithGroupingSeparators("1234567");    // "1,234,567"
+StringUtil.toNumberWithGroupingSeparators("1234567.50"); // "1,234,567.50"
+
+StringUtil.toNumberWithGroupingSeparators("1234567.50", Locale.GERMANY); // "1.234.567,50"
 ```
+
+ロケールを指定しない場合は、デフォルトロケールによらず、桁区切りは `,`、小数点は `.` になります。
+ロケールを指定すると、そのロケールの桁区切り・小数点を使います。
+
+整数・小数のどちらも扱え、桁数の上限はありません。小数点以下の桁数は入力のまま保持します（丸めません）。
+
+以前の `toCurrencyFormat` は非推奨です。デフォルトロケールに依存し、整数（`int` の範囲）しか扱えないため、`toNumberWithGroupingSeparators` を使用してください。
 
 ---
 

@@ -11,6 +11,8 @@ file path manipulation, file locking, and file size conversion.
 
 Replaces characters that cannot be used in file names (`\`, `/`, `:`, `*`, `?`, `"`, `<`, `>`, `|`)
 with corresponding strings.
+To prevent path traversal, 2 or more consecutive `.` are also replaced with `__dots__`.
+Control characters such as newlines are removed.
 
 ```java
 FileUtil.getFileSavableName("report: 2024/01/15");
@@ -28,9 +30,12 @@ FileUtil.concatFilePaths("/base/dir/", "/sub/dir");
 // → "/base/dir/sub/dir"
 ```
 
+Empty string elements are ignored.
+
 ### Cleaning Paths
 
 Normalizes separators to `/` and removes duplicate separators and trailing `/`.
+`/./` and a trailing `/.` are also removed.
 
 ```java
 FileUtil.cleanPathStrWithSlash("/path//to\\file/");
@@ -41,12 +46,16 @@ FileUtil.cleanPathStrWithSlash("/path//to\\file/");
 
 ```java
 FileUtil.getParentDirPath("/path/to/file.txt"); // "/path/to"
+FileUtil.getParentDirPath("file.txt");          // ""
 ```
+
+If the path contains no separator, an empty string is returned.
 
 ### Getting the File Name from a Path
 
 ```java
 FileUtil.getFileNameFromFilePath("/path/to/file.txt"); // "file.txt"
+FileUtil.getFileNameFromFilePath("file.txt");          // "file.txt"
 ```
 
 ---
@@ -54,25 +63,11 @@ FileUtil.getFileNameFromFilePath("/path/to/file.txt"); // "file.txt"
 ## File Size
 
 ```java
-FileUtil.getFileSizeInMb(10_485_760L);      // "10.0"
-FileUtil.getFileSizeInMbWithUnit(10_485_760L); // "10.0 MB"
+FileUtil.getFileSizeInMb(10_000_000L);         // "10.0"
+FileUtil.getFileSizeInMbWithUnit(10_000_000L); // "10.0 MB"
 ```
 
-Returns rounded to 1 decimal place (0.1 MB precision).
-
----
-
-## Relative Path Check and Wildcard Expansion
-
-```java
-FileUtil.isRelativePath("relative/path"); // true
-FileUtil.isRelativePath("/absolute/path"); // false
-
-FileUtil.containsWildCard("/path/to/*.txt"); // true
-
-// Returns a list of paths matching the wildcard ("**" not supported)
-List<String> paths = FileUtil.getPathListFromPathWithWildcard("/path/to/*.txt");
-```
+1 MB is calculated as 1,000,000 bytes, and the result is rounded to 1 decimal place (0.1 MB precision).
 
 ---
 
@@ -102,6 +97,7 @@ boolean locked = FileUtil.isLocked("/tmp/myapp.lock");
 ```
 
 If the lock is already acquired, `lock(...)` throws an `OverlappingFileLockException`.
+`release(...)` releases the lock and also closes the `FileChannel`.
 
 ### Optimistic Locking
 

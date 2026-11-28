@@ -52,15 +52,10 @@ jp.ecuacion.lib.validation.constraints.PatternWithDescription.message = 「{desc
 private String firstName;
 ```
 
-キーに対応する説明文は以下のいずれかのファイルに定義します。
+キーに対応する説明文は、パターン説明専用の `ValidationMessagesPatternDescriptions.properties` に定義します。
 
 ```properties
-# ValidationMessages.properties（他のメッセージと混在させる場合）
-description.firstName = 英語圏の名前の記述ルール（1文字目大文字・以降小文字）
-```
-
-```properties
-# ValidationMessagesPatternDescriptions.properties（推奨：descriptionだけをまとめる場合）
+# ValidationMessagesPatternDescriptions.properties
 description.firstName = 英語圏の名前の記述ルール（1文字目大文字・以降小文字）
 ```
 
@@ -70,6 +65,5 @@ description.firstName = 英語圏の名前の記述ルール（1文字目大文�
 「英語圏の名前の記述ルール（1文字目大文字・以降小文字）」の形式で入力してください
 ```
 
-`ValidationMessagesPatternDescriptions.properties` はパターン説明専用ファイルです。
-`ValidationMessages.properties` に他のメッセージと混在させるより可読性が高まるため推奨します。
 ローカライズ版は `ValidationMessagesPatternDescriptions_ja.properties` のようにサフィックスを付けます。
+キーが見つからない場合は、`description` に指定した文字列がそのまま表示されます。

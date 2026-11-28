@@ -58,6 +58,9 @@ List<String[]> items = EnumUtil.getListForHtmlSelect(
 ### Filtering Options
 
 Elements can be filtered using an option string.
+`firstCharOfCodeLessThanOrEqualTo` / `firstCharOfCodeGreaterThanOrEqualTo` are used, for example,
+when a status is expressed by the number of its code which increases as it progresses,
+to narrow down the elements to statuses at or above (or at or below) a certain level.
 
 | Option | Description | Example |
 | --- | --- | --- |

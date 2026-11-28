@@ -77,7 +77,10 @@ Year must be 4 digits; month, day, hour, minute, and second must all be 2 digits
 ```java
 DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00+09:00");
 DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00 +09:00");
+DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00-05:00");
+DateTimeApiUtil.getOffsetDateTime("2024-01-15T01:30:00Z");
 ```
 
-Supports all LocalDateTime formats with an offset part (e.g., `+09:00`) appended.
+Supports all LocalDateTime formats with an offset part appended.
+The offset can be positive like `+09:00`, negative like `-05:00`, or `Z` which means UTC.
 Forms with a space before the offset are also accepted.

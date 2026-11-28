@@ -52,15 +52,11 @@ in a properties file, you can localize the description.
 private String firstName;
 ```
 
-The description text for the key can be defined in any of the following files:
+The description text for the key is defined in `ValidationMessagesPatternDescriptions.properties`,
+a dedicated file for pattern descriptions.
 
 ```properties
-# ValidationMessages.properties (when mixing with other messages)
-description.firstName = First letter uppercase, rest lowercase (e.g., John)
-```
-
-```properties
-# ValidationMessagesPatternDescriptions.properties (recommended: for descriptions only)
+# ValidationMessagesPatternDescriptions.properties
 description.firstName = First letter uppercase, rest lowercase (e.g., John)
 ```
 
@@ -70,6 +66,5 @@ Result:
 Please enter in the correct format (First letter uppercase, rest lowercase (e.g., John))
 ```
 
-`ValidationMessagesPatternDescriptions.properties` is a dedicated file for pattern descriptions.
-It is recommended over mixing with other messages in `ValidationMessages.properties` for better readability.
 For localized versions, add a suffix like `ValidationMessagesPatternDescriptions_ja.properties`.
+When the key is not found, the string specified in `description` is shown as it is.

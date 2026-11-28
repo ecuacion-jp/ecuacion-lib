@@ -19,7 +19,8 @@ SPI の登録が必要になります。`PropertiesFileUtil` は内部で `Resou
 `.properties` ファイルを読み込んでおり、モジュールシステム環境ではこの読み込みに
 SPI の登録が必要になるためです。
 
-アプリの各モジュールが独自の `.properties` ファイルを持つ場合、
+アプリの各モジュールが、`PropertiesFileUtil` で読み込む `.properties` ファイル
+（`messages.properties`、`application.properties` など。[下表](#spi-インターフェースの種類) 参照）を持つ場合、
 そのモジュールに対応する SPI 実装を登録する必要があります。
 
 ---
@@ -42,7 +43,7 @@ SPI の登録が必要になるためです。
 
 ## module-info.java の設定
 
-アプリモジュールが `.properties` ファイルを持つ場合、以下の2点が必要です。
+アプリモジュールが、`PropertiesFileUtil` で読み込む `.properties` ファイル（上表の `messages.properties`、`application.properties` など）を持つ場合、以下の2点が必要です。
 
 ### 1. SPI 実装クラスの作成
 

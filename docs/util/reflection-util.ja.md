@@ -51,9 +51,15 @@ Object value = ReflectionUtil.getFieldValue(bean, field);
 ## プロパティの取得（フィールド、またはgetter）
 
 `getBeanProperty` は、まず同名のフィールドを（スーパークラスを含めて）検索し、存在しない場合は getter を検索します。
-getter は JavaBeans の命名規則に従い、引数なし・非 static で戻り値のある `getXxx()`、またはプリミティブの `boolean` を返す `isXxx()` が対象です。
+
+getter は JavaBeans の命名規則に従い、以下が対象です。
+getter も、アクセス修飾子に関わらずスーパークラスを含めて検索します。
+
+- 引数なし・非 static で戻り値のある `getXxx()`
+- プリミティブの `boolean` を返す `isXxx()`
+
 `Boolean`（ラッパー型）を返す `isXxx()` は、JavaBeans の命名規則に従い getter として扱われないため注意してください（`getXxx()` という名前にしてください）。
-getter もアクセス修飾子に関わらず、スーパークラスを含めて検索します。
+
 どちらも見つからない場合は、`NoSuchFieldException` を cause に持つ `RuntimeException` をスローします。
 
 戻り値の `BeanProperty` は、フィールドと getter の違いを吸収し、型・アノテーション・値を同じ方法で取得できます。
