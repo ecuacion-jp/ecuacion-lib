@@ -120,10 +120,15 @@ public class ReflectionUtil {
    * @param cls starting class
    * @param simpleFieldName field name without path notation
    * @return {@link Field}
+   * @throws IllegalArgumentException when {@code simpleFieldName} is empty
    */
   public static Field getDeclaredField(Class<?> cls, String simpleFieldName) {
     Objects.requireNonNull(cls);
     Objects.requireNonNull(simpleFieldName);
+
+    if (simpleFieldName.isEmpty()) {
+      throw new IllegalArgumentException("fieldName must not be empty.");
+    }
 
     if (simpleFieldName.contains("[")) {
       throw new RuntimeException(
@@ -163,12 +168,18 @@ public class ReflectionUtil {
    * @param cls starting class
    * @param simplePropertyName property name without path notation
    * @return {@link BeanProperty}
+   * @throws IllegalArgumentException when {@code simplePropertyName} is empty
    * @throws RuntimeException with {@link NoSuchFieldException} as its cause
    *     when neither the field nor the getter is found
    */
   public static BeanProperty getBeanProperty(Class<?> cls, String simplePropertyName) {
     Objects.requireNonNull(cls);
     Objects.requireNonNull(simplePropertyName);
+
+    // An empty name would resolve "get()" or "is()" as a getter.
+    if (simplePropertyName.isEmpty()) {
+      throw new IllegalArgumentException("propertyName must not be empty.");
+    }
 
     if (simplePropertyName.contains("[")) {
       throw new RuntimeException("propertyName with index (like value[0]) not acceptable. "
