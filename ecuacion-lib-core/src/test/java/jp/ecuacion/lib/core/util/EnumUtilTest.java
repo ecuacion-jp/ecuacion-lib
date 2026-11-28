@@ -76,6 +76,12 @@ public class EnumUtilTest {
     void nonExistentCodeReturnsFalse() {
       assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, "Z")).isFalse();
     }
+
+    @Test
+    @DisplayName("null code returns false")
+    void nullCodeReturnsFalse() {
+      assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, null)).isFalse();
+    }
   }
 
   // -------------------------------------------------------------------------

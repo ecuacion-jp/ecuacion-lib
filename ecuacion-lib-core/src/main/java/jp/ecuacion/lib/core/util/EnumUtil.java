@@ -85,13 +85,19 @@ public class EnumUtil {
 
   /**
    * Returns true if the argument code exists in the enum class.
+   *
+   * <p>It returns {@code false} when {@code code} is {@code null},
+   *     since {@code null} is not a code of any enum value.</p>
    * 
    * @param <T> any enum class
    * @param enumClass enum class
-   * @param code code
-   * @return enum value
+   * @param code code, may be {@code null}
+   * @return {@code true} if the code exists in the enum class
    */
-  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, String code) {
+  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, @Nullable String code) {
+    if (code == null) {
+      return false;
+    }
 
     try {
       T anEnum = getEnumFromCode(enumClass, code);
