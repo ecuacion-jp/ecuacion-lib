@@ -312,7 +312,8 @@ public class EmbeddedVariableUtil {
    * @throws VariableNotFoundException VariableNotFoundException
    */
   public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
-      String endSymbol, Function<String, String> valueGetterFromKey, @Nullable Options options) {
+      @RequireNonEmpty String endSymbol, Function<String, String> valueGetterFromKey,
+      @Nullable Options options) {
 
     Objects.requireNonNull(valueGetterFromKey);
 

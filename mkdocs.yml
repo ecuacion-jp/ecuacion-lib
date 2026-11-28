@@ -128,6 +128,7 @@ nav:
   - util:
       - Data Types:
           - util/string-util.md
+          - util/embedded-variable-util.md
           - util/date-time-api-util.md
           - util/enum-util.md
       - Java Object / Class:
@@ -136,6 +137,7 @@ nav:
       - System Resources:
           - util/file-util.md
           - util/log-util.md
+          - util/exception-log-util.md
           - util/mail-util.md
       - PropertiesFileUtil:
           - properties-file-util/basic-usage.md
