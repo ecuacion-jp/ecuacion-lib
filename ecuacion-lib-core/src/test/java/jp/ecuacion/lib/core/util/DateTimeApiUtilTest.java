@@ -136,6 +136,32 @@ public class DateTimeApiUtilTest {
   }
 
   @Test
+  @DisplayName("getOffsetDateTime parses a negative offset")
+  public void getOffsetDateTime_negativeOffset() {
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01-05:00")).isEqualTo(
+        OffsetDateTime.of(2001, 1, 1, 1, 1, 1, 0, ZoneOffset.ofHours(-5)));
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01T01:01:01 -05:30")).isEqualTo(
+        OffsetDateTime.of(2001, 1, 1, 1, 1, 1, 0, ZoneOffset.ofHoursMinutes(-5, -30)));
+  }
+
+  @Test
+  @DisplayName("getOffsetDateTime parses 'Z' as UTC")
+  public void getOffsetDateTime_zulu() {
+    OffsetDateTime expected = OffsetDateTime.of(2001, 1, 1, 1, 1, 1, 0, ZoneOffset.UTC);
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01T01:01:01Z")).isEqualTo(expected);
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01 Z")).isEqualTo(expected);
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01T01:01:01.123Z"))
+        .isEqualTo(expected.withNano(123_000_000));
+  }
+
+  @Test
+  @DisplayName("getOffsetDateTime still parses a positive offset other than +00:00")
+  public void getOffsetDateTime_positiveOffset() {
+    assertThat(DateTimeApiUtil.getOffsetDateTime("2001-01-01 01:01:01+09:00")).isEqualTo(
+        OffsetDateTime.of(2001, 1, 1, 1, 1, 1, 0, ZoneOffset.ofHours(9)));
+  }
+
+  @Test
   @DisplayName("getLocalDateTimeDisplayString(OffsetDateTime, null) uses system default zone")
   public void getLocalDateTimeDisplayString_offsetDateTime_nullZone() {
     OffsetDateTime dateTime =

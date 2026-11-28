@@ -27,7 +27,8 @@ import org.jspecify.annotations.Nullable;
  */
 public class DateTimeApiUtil {
 
-  private static final String REG_OF_DIFF = "\\+[0-9]{2}:[0-9]{2}";
+  // "+09:00", "-05:00" or "Z" (UTC)
+  private static final String REG_OF_DIFF = "([+-][0-9]{2}:[0-9]{2}|Z)";
   private static final String FM_OF_DIFF = "[xxx][xx][X]";
 
   private static final String REG_OF_DATE_DASHES = "[0-9]{4}-[0-9]{2}-[0-9]{2}";
@@ -143,6 +144,9 @@ public class DateTimeApiUtil {
    * <li>(localDateTime-part)+09:00</li>
    * <li>(localDateTime-part) +09:00</li>
    * </ul>
+   *
+   * <p>The offset can be positive ({@code +09:00}), negative ({@code -05:00})
+   *     or {@code Z} which means UTC ({@code +00:00}).</p>
    * 
    * @param dateTimeString dateTimeString
    * @return OffsetDateTime
