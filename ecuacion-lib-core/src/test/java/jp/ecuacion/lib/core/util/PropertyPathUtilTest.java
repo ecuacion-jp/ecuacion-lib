@@ -496,4 +496,70 @@ public class PropertyPathUtilTest {
       assertThat(PropertyPathUtil.getValue(holder, "")).isSameAs(holder);
     }
   }
+
+  @Nested
+  @DisplayName("getClass with generic element types")
+  @SuppressWarnings("unused") // fields are read via reflection
+  class GetClassWithGenericElementTypes {
+
+    // Only the declared types are used, so the fields are not initialized.
+    public static class Holder<T extends Number> {
+      private @Nullable List<String> strList;
+      private @Nullable List<List<String>> nestedList;
+      private @Nullable Map<String, List<Integer>> listMap;
+      private @Nullable Map<String, Map<Integer, String>> nestedMap;
+      private @Nullable List<? extends Number> wildcardList;
+      private @Nullable List<T> typeVariableList;
+      private List<String> @Nullable [] genericArray;
+    }
+
+    @Test
+    @DisplayName("element type which is not parameterized (works as before)")
+    void simple() {
+      assertThat(PropertyPathUtil.getClass(Holder.class, "strList[0].<list element>"))
+          .isEqualTo(String.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class,
+          "nestedList[0].<list element>[1].<list element>")).isEqualTo(String.class);
+    }
+
+    @Test
+    @DisplayName("element type which is parameterized: the raw type is returned")
+    void parameterized() {
+      assertThat(PropertyPathUtil.getClass(Holder.class, "nestedList[0]")).isEqualTo(List.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "listMap[k]")).isEqualTo(List.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "listMap[k].<map value>[0]"))
+          .isEqualTo(Integer.class);
+    }
+
+    @Test
+    @DisplayName("map key and value of nested maps")
+    void nestedMap() {
+      assertThat(PropertyPathUtil.getClass(Holder.class, "nestedMap<K>[a].<map key>"))
+          .isEqualTo(String.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "nestedMap[a].<map value>"))
+          .isEqualTo(Map.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "nestedMap[a].<map value>[1]"))
+          .isEqualTo(String.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class,
+          "nestedMap[a].<map value><K>[1].<map key>")).isEqualTo(Integer.class);
+    }
+
+    @Test
+    @DisplayName("wildcard type and type variable: the upper bound is returned")
+    void wildcardAndTypeVariable() {
+      assertThat(PropertyPathUtil.getClass(Holder.class, "wildcardList[0]"))
+          .isEqualTo(Number.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "typeVariableList[0]"))
+          .isEqualTo(Number.class);
+    }
+
+    @Test
+    @DisplayName("array of a generic type")
+    void genericArray() {
+      assertThat(PropertyPathUtil.getClass(Holder.class, "genericArray[0]"))
+          .isEqualTo(List.class);
+      assertThat(PropertyPathUtil.getClass(Holder.class, "genericArray[0][1]"))
+          .isEqualTo(String.class);
+    }
+  }
 }

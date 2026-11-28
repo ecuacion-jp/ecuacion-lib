@@ -17,8 +17,11 @@ package jp.ecuacion.lib.core.util;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -466,26 +469,30 @@ public class PropertyPathUtil {
           continue;
         }
 
-        // Count the number of "[" in propertyPath.
-        int count = maskedNode.length() - maskedNode.replace("[", "").length();
-
         Type type = tmpProperty.getGenericType();
-        for (int i = 0; i < count; i++) {
+        // Each "[" means an access to an element of an array, a collection or a map.
+        for (int pos = maskedNode.indexOf('['); pos >= 0; pos = maskedNode.indexOf('[', pos + 1)) {
+          type = upperBound(type);
           if (type instanceof Class<?> cls && cls.isArray()) {
-            // Array: use component type
-            type = cls.getComponentType();
+            // Array: use component type (not null since cls is an array)
+            type = Objects.requireNonNull(cls.getComponentType());
+
+          } else if (type instanceof GenericArrayType gat) {
+            // Array of a generic type (like List<String>[]): use component type
+            type = gat.getGenericComponentType();
+
           } else {
             // Collection or Map: use type argument
-            Type[] typeArgs = ((ParameterizedType) type).getActualTypeArguments();
-            // Map value access (no <K> in node): use 2nd type arg; others use 1st
-            boolean isMapValueAccess = !maskedNode.contains("<K>")
-                && Map.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType());
+            ParameterizedType pt = (ParameterizedType) type;
+            Type[] typeArgs = pt.getActualTypeArguments();
+            // Map value access ("map[key]", not "map<K>[key]"): use 2nd type arg; others use 1st
+            boolean isMapValueAccess = !maskedNode.startsWith("<K>", pos - 3)
+                && Map.class.isAssignableFrom((Class<?>) pt.getRawType());
             type = typeArgs[isMapValueAccess ? 1 : 0];
           }
         }
 
-        tmpClass = type instanceof Class<?> c ? c
-            : Class.forName(Objects.requireNonNull(type).getTypeName());
+        tmpClass = toClass(type);
 
       } catch (Exception ex) {
         throw new RuntimeException(ex);
@@ -493,6 +500,46 @@ public class PropertyPathUtil {
     }
 
     return tmpClass;
+  }
+
+  /**
+   * Returns the upper bound of a wildcard type (like {@code ? extends Number})
+   *     or a type variable (like {@code T extends Number}), or {@code type} itself otherwise.
+   */
+  private static Type upperBound(Type type) {
+    if (type instanceof WildcardType wt) {
+      return upperBound(wt.getUpperBounds()[0]);
+    }
+
+    if (type instanceof TypeVariable<?> tv) {
+      return upperBound(tv.getBounds()[0]);
+    }
+
+    return type;
+  }
+
+  /**
+   * Returns the class of {@code type}.
+   *
+   * <p>The raw type is used for a parameterized type (like {@code List<String>}),
+   *     and the upper bound is used for a wildcard type or a type variable.</p>
+   */
+  private static Class<?> toClass(Type type) {
+    Type bound = upperBound(type);
+    if (bound instanceof Class<?> cls) {
+      return cls;
+    }
+
+    if (bound instanceof ParameterizedType pt) {
+      return (Class<?>) pt.getRawType();
+    }
+
+    if (bound instanceof GenericArrayType gat) {
+      return Array.newInstance(toClass(gat.getGenericComponentType()), 0).getClass();
+    }
+
+    throw new IllegalArgumentException("The class of the type cannot be obtained. (type: "
+        + bound.getTypeName() + ")");
   }
 
   /**
