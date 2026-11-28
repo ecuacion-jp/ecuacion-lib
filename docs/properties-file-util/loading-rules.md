@@ -100,26 +100,37 @@ without preventing application-specific customization.
 
 ---
 
-## Resolving `${...}` Placeholders in application.properties
+## Replacing the Source of application.properties
 
-Settings such as passwords are normally read as plain text from `application.properties`.
-Since that file is typically committed to source control, avoid writing real secrets into it
-directly. Instead, write a `${...}` placeholder (e.g. `some.key=${SOME_ENV_VAR}`) and register
-an external resolver so the value is supplied from an environment variable or another external
-source at runtime.
+By registering a resolver with `setApplicationResolver(...)`, you can replace the source of `application.properties` keys with the resolver.
+It is an extension point for passing already-resolved values to ecuacion-lib when a framework has its own configuration mechanism
+(external files, environment variables, profiles and so on, combined with its own precedence rules).
+`ecuacion-splib` automatically registers a resolver that returns values through Spring's `Environment`.
 
 ```java
-PropertiesFileUtil.setExternalPlaceholderResolver(value -> System.getenv().getOrDefault(value, value));
+// Returns the value for the key, or null when the key does not exist
+PropertiesFileUtil.setApplicationResolver(key -> environment.getProperty(key));
 ```
 
-ecuacion-lib itself has no built-in notion of environment variables or any framework's property
-sources; `setExternalPlaceholderResolver(...)` is only an extension point. Framework-specific
-modules such as `ecuacion-splib` wire this up automatically, resolving `${...}` through Spring's
-`Environment`. Pass `null` to clear a previously registered resolver.
+When a resolver is registered, `application.properties` lookups (`getApplication*` / `hasApplication`) consult **only the resolver**.
 
-This resolution applies only to `application[_xxx].properties` values; `messages.properties`,
-`ValidationMessages.properties`, etc. are not affected. (For `${...}` EL expression evaluation
-in `ValidationMessages` files, see [ValidationMessages](validation-messages.md).)
+- The `application.properties` on the classpath and JVM system properties are not consulted.
+- A key for which the resolver returns `null` is treated as nonexistent.
+
+Pass `null` to clear a registered resolver. After clearing, values are obtained from the `application.properties` on the classpath (with JVM system properties taking precedence) as before.
+
+`messages.properties`, `ValidationMessages.properties`, etc. are not affected.
+
+### `${...}` Placeholders and Secrets
+
+ecuacion-lib itself does not resolve `${...}` placeholders in `application.properties` values (it returns the string as is).
+With `ecuacion-splib`, values whose `${...}` are resolved by Spring's `Environment` are returned through the resolver.
+
+Since `application.properties` is typically committed to source control, avoid writing secrets such as passwords into it directly.
+Instead, write `some.key=${SOME_ENV_VAR}` and let Spring or the like resolve it from an environment variable.
+When using ecuacion-lib alone, you can also supply values as JVM system properties (`-D` at startup) (see [JVM System Properties Take Precedence Over Every File](#jvm-system-properties-take-precedence-over-every-file)).
+
+(For `${...}` EL expression evaluation in `ValidationMessages` files, see [ValidationMessages](validation-messages.md).)
 
 ---
 

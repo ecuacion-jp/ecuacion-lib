@@ -8,11 +8,11 @@
 `getMessage()` などと異なり、内部的には `Map<String, Object>` を引数として使います。
 これは Jakarta Validation のアノテーション属性が `{value}`, `{min}`, `{max}` のような名前付きプレースホルダーを使用するためです。
 
-| ファイル名 | メソッド | フォールバック先 |
-| --- | --- | --- |
-| `ValidationMessages[_xxx].properties` | `getValidationMessage(...)` | なし |
-| `ValidationMessagesWithItemNames[_xxx].properties` | `getValidationMessageWithItemName(...)` | `ValidationMessages` |
-| `ValidationMessagesPatternDescriptions[_xxx].properties` | `getValidationMessagePatternDescription(...)` | なし |
+| ファイル名 | 取得メソッド | 存在確認メソッド | フォールバック先 |
+| --- | --- | --- | --- |
+| `ValidationMessages[_xxx].properties` | `getValidationMessage(...)` | `hasValidationMessage(...)` | なし |
+| `ValidationMessagesWithItemNames[_xxx].properties` | `getValidationMessageWithItemName(...)` | `hasValidationMessageWithItemName(...)` | `ValidationMessages` |
+| `ValidationMessagesPatternDescriptions[_xxx].properties` | `getValidationMessagePatternDescription(...)` | `hasValidationMessagePatternDescription(...)` | なし |
 
 基本的には Jakarta Validation の処理により自動でメッセージ生成されるため、アプリ開発者が明示的にこれらのメッセージファイルからメッセージを取得することはありません。
 アプリ開発者が直接関わるのは以下の場面です。

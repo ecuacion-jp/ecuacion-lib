@@ -11,6 +11,20 @@ violations.withMessageParameters(p -> p
     .messagePrefix("upload.row.prefix"));
 ```
 
+To use the same settings for multiple `Violations`, you can also create an instance with
+`Violations.newMessageParameters()` and set it with `messageParameters(...)`. The current settings can be obtained with `messageParameters()`.
+
+```java
+Violations.MessageParameters params = Violations.newMessageParameters()
+    .showsItemName(true)
+    .messagePrefix("upload.row.prefix");
+
+new Violations().messageParameters(params).validate(row1).throwIfAny();
+```
+
+`messageParameters(...)` keeps the instance as is without copying it.
+So if you change it after setting (for example with `withMessageParameters()`), the change also affects other `Violations` set with the same instance.
+
 ---
 
 ## showsItemName — Switching Between Messages With/Without Item Names
