@@ -18,8 +18,15 @@ package jp.ecuacion.lib.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import jakarta.mail.Address;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import jp.ecuacion.lib.core.util.internal.PropertiesFileUtilBundleReader;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -168,15 +175,119 @@ public class MailUtilTest {
 
   @SuppressWarnings("null")
   @Test
-  @DisplayName("sendErrorMail with config: exception on sending is rethrown as RuntimeException")
+  @DisplayName("sendErrorMail with config: exception on sending is not thrown")
   void sendErrorMail_config_sendingFails() {
     MailUtil.mailSender = (to, cc, html, title, content) -> {
       throw new IllegalStateException("sending failed");
     };
 
-    assertThatThrownBy(() -> MailUtil.sendErrorMail(new RuntimeException("test error"), config()))
-        .isInstanceOf(RuntimeException.class)
-        .hasCauseInstanceOf(IllegalStateException.class);
+    assertThatCode(() -> MailUtil.sendErrorMail(new RuntimeException("test error"), config()))
+        .doesNotThrowAnyException();
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("sendWarnMail: exception on sending is not thrown")
+  void sendWarnMail_sendingFails() {
+    MailUtil.mailSender = (to, cc, html, title, content) -> {
+      throw new IllegalStateException("sending failed");
+    };
+
+    assertThatCode(() -> MailUtil.sendWarnMail("Warn content", List.of("warn@test.com")))
+        .doesNotThrowAnyException();
+  }
+
+  @SuppressWarnings("null")
+  @Test
+  @DisplayName("sendTextMail: exception on sending is thrown")
+  void sendTextMail_sendingFails() {
+    MailUtil.mailSender = (to, cc, html, title, content) -> {
+      throw new IllegalStateException("sending failed");
+    };
+
+    assertThatThrownBy(() -> MailUtil.sendTextMail(List.of("to@test.com"), null, "t", "b"))
+        .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  @DisplayName("sendTextMail: CC only is accepted")
+  void sendTextMail_ccOnly() throws Exception {
+    MailUtil.sendTextMail(null, List.of("cc@test.com"), "CC Subject", "body");
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).cc()).containsExactly("cc@test.com");
+  }
+
+  @Test
+  @DisplayName("null content is sent as an empty string")
+  void nullContent() throws Exception {
+    MailUtil.sendTextMail(List.of("to@test.com"), null, "title", null);
+    MailUtil.sendWarnMail(null, List.of("warn@test.com"));
+
+    assertThat(captured).hasSize(2);
+    assertThat(captured.get(0).content()).isEqualTo("");
+    assertThat(captured.get(1).content()).isEqualTo("");
+  }
+
+  @Test
+  @DisplayName("sendErrorMail: null throwable is accepted")
+  void sendErrorMail_nullThrowable() {
+    MailUtil.sendErrorMail(null);
+    MailUtil.sendErrorMail(null, config());
+
+    assertThat(captured).hasSize(2);
+  }
+
+  private static MailUtil.MailUtilConfig config(String addressCsvOnSystemError) {
+    return new MailUtil.MailUtilConfig("smtp.test.com", 587, false, true, true,
+        "sender@test.com", "pass", null, false, "[cfg] ", addressCsvOnSystemError);
+  }
+
+  @Test
+  @DisplayName("sendErrorMail: addresses are trimmed and empty ones are ignored")
+  void sendErrorMail_addressCsv() {
+    MailUtil.sendErrorMail(new RuntimeException("e"), config(" a@test.com,, b@test.com ,"));
+
+    assertThat(captured).hasSize(1);
+    assertThat(captured.get(0).to()).containsExactly("a@test.com", "b@test.com");
+  }
+
+  @Test
+  @DisplayName("sendErrorMail: nothing is sent when no address is set")
+  void sendErrorMail_noAddress() {
+    MailUtil.sendErrorMail(new RuntimeException("e"), config(""));
+    MailUtil.sendErrorMail(new RuntimeException("e"), config(" , "));
+
+    assertThat(captured).isEmpty();
+  }
+
+  @Test
+  @DisplayName("createMessage: TO and CC are set to the message")
+  void createMessage() throws Exception {
+    MimeMessage msg = MailUtil.createMessage(Session.getInstance(new Properties()),
+        "sender@test.com", List.of("to@test.com"), List.of("cc1@test.com", "cc2@test.com"),
+        false, "title", "body");
+
+    assertThat(addresses(msg.getRecipients(Message.RecipientType.TO)))
+        .containsExactly("to@test.com");
+    assertThat(addresses(msg.getRecipients(Message.RecipientType.CC)))
+        .containsExactly("cc1@test.com", "cc2@test.com");
+    assertThat(addresses(msg.getAllRecipients()))
+        .containsExactly("to@test.com", "cc1@test.com", "cc2@test.com");
+  }
+
+  @Test
+  @DisplayName("createMessage: CC only is accepted")
+  void createMessage_ccOnly() throws Exception {
+    MimeMessage msg = MailUtil.createMessage(Session.getInstance(new Properties()),
+        "sender@test.com", null, List.of("cc@test.com"), false, "title", "body");
+
+    assertThat(msg.getRecipients(Message.RecipientType.TO)).isNull();
+    assertThat(addresses(msg.getAllRecipients())).containsExactly("cc@test.com");
+  }
+
+  private static List<String> addresses(Address[] addresses) {
+    return Arrays.stream(addresses).map(a -> ((InternetAddress) a).getAddress()).toList();
   }
 
   @SuppressWarnings("null")
