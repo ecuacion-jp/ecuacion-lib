@@ -50,7 +50,7 @@ import java.lang.annotation.Target;
  * <p>Either is overridden by the class part explicitly specified
  *     by {@code Item#itemNameKey(String)}.</p>
  *
- * @see <a href="URL">https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md</a>
+ * @see <a href="https://github.com/ecuacion-jp/ecuacion-jp.github.io/blob/main/documentation/common/naming-convention.md">naming convention</a>
  */
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Retention(RUNTIME)
@@ -59,6 +59,9 @@ public @interface ItemNameKeyClass {
 
   /**
    * Specifies {@code ItemNameKeyClass}.
+   *
+   * <p>It must not be empty. An empty value causes {@code IllegalArgumentException}
+   *     when the itemNameKey is resolved.</p>
    */
   String value();
 }
