@@ -102,8 +102,8 @@ public class StringUtil {
   /**
    * Returns a lowerSnakeCase string from a camel case string.
    * 
-   * @param camelCaseString snakeCaseString, may be null.
-   * @return camel case string, may be null when camelCaseString is null.
+   * @param camelCaseString camel case string
+   * @return lower snake case string
    */
   public static String getLowerSnakeFromCamel(String camelCaseString) {
     // uncapitalized
