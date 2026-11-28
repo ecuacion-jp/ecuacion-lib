@@ -20,7 +20,6 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
 import jakarta.validation.metadata.ConstraintDescriptor;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,6 +29,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import jp.ecuacion.lib.core.exception.ConstraintViolationExceptionWithParameters;
 import jp.ecuacion.lib.core.exception.ViolationException;
 import jp.ecuacion.lib.core.item.Item;
@@ -95,7 +95,12 @@ public class ExceptionUtil {
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
       Set<ConstraintViolation<T>> constraintViolations) {
@@ -103,7 +108,14 @@ public class ExceptionUtil {
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @param locale locale, may be {@code null} which is treated as the fallback locale
+   *     (see {@link LocaleUtil#getFallbackLocale()}).
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
       Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale) {
@@ -111,84 +123,98 @@ public class ExceptionUtil {
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
    * 
-   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
-   *     messageParameters.isMessageWithItemName value is adopted
-   *     when messageParameters.isMessageWithItemName is not null
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
-   *     so messageParameters.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
-      Set<ConstraintViolation<T>> constraintViolationSet,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(constraintViolationSet, null, isMessagesWithItemNamesAsDefault);
+      Set<ConstraintViolation<T>> constraintViolations,
+      boolean showsItemNameAsDefault) {
+    return getMessageList(constraintViolations, null, showsItemNameAsDefault);
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
    * 
-   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
-   *     messageParameters.isMessageWithItemName value is adopted
-   *     when messageParameters.isMessageWithItemName is not null
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
-   *     so messageParameters.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @param locale locale, may be {@code null} which is treated as the fallback locale
+   *     (see {@link LocaleUtil#getFallbackLocale()}).
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
-      Set<ConstraintViolation<T>> constraintViolationSet, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
+      Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale,
+      boolean showsItemNameAsDefault) {
 
-    return getMessageList(constraintViolationSet, locale, isMessagesWithItemNamesAsDefault,
+    return getMessageList(constraintViolations, locale, showsItemNameAsDefault,
         Violations.newMessageParameters());
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
    * 
-   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
-   *     messageParameters.isMessageWithItemName value is adopted
-   *     when messageParameters.isMessageWithItemName is not null
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
-   *     so messageParameters.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
+   * @param messageParameters messageParameters
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
-      Set<ConstraintViolation<T>> constraintViolations, boolean isMessagesWithItemNamesAsDefault,
+      Set<ConstraintViolation<T>> constraintViolations, boolean showsItemNameAsDefault,
       MessageParameters messageParameters) {
 
-    return getMessageList(constraintViolations, null, isMessagesWithItemNamesAsDefault,
+    return getMessageList(constraintViolations, null, showsItemNameAsDefault,
         messageParameters);
   }
 
   /**
-   * Returns Exception message list.
+   * Returns message list from {@code ConstraintViolation}s.
+   *
+   * <p>An empty list is returned when {@code constraintViolations} is empty.</p>
    * 
-   * <p>Even if {@code isMessagesWithItemNamesAsDefault} is non-null value,
-   *     messageParameters.isMessageWithItemName value is adopted
-   *     when messageParameters.isMessageWithItemName is not null
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isMessagesWithItemNamesAsDefault} is assumed to a system default value
-   *     so messageParameters.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
+   *
+   * @param constraintViolations constraintViolations
+   * @param locale locale, may be {@code null} which is treated as the fallback locale
+   *     (see {@link LocaleUtil#getFallbackLocale()}).
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
+   * @param messageParameters messageParameters
+   * @return a list of messages
    */
   public static <T> List<@NonNull String> getMessageList(
       Set<ConstraintViolation<T>> constraintViolations, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, MessageParameters messageParameters) {
-
-    if (constraintViolations.isEmpty()) {
-      throw new RuntimeException("Size of ConstraintViolation is zero.");
-    }
+      boolean showsItemNameAsDefault, MessageParameters messageParameters) {
 
     Locale nonNullLocale = locale == null ? LocaleUtil.getFallbackLocale() : locale;
     List<@NonNull String> result = new ArrayList<>();
     for (ConstraintViolation<T> cv : constraintViolations) {
       result
-          .add(getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+          .add(getMessageFromConstraintViolation(nonNullLocale, showsItemNameAsDefault,
               cv, ConstraintViolationBean.createConstraintViolationBean(cv), messageParameters));
     }
     return result;
@@ -243,23 +269,18 @@ public class ExceptionUtil {
    * but one ConstraintViolationException can have multiple messages 
    * so the return type is not a {@code String}, but a {@code List<@NonNull String>}.</p>
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
    *
    * @param throwable throwable
-   * @param isMessagesWithItemNamesAsDefault 
-   *     isValidationMessagesWithItemNames, may be {@code null} 
-   *     which is treated as the fallback locale (see {@link LocaleUtil#getFallbackLocale()}).
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Throwable throwable,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(throwable, null, isMessagesWithItemNamesAsDefault);
+      boolean showsItemNameAsDefault) {
+    return getMessageList(throwable, null, showsItemNameAsDefault);
   }
 
   /**
@@ -273,30 +294,25 @@ public class ExceptionUtil {
    * but one ConstraintViolationException can have multiple messages 
    * so the return type is not a {@code String}, but a {@code List<@NonNull String>}.</p>
    * 
-   * <p>Even if {@code isValidationMessagesWithItemNames} is non-null value, 
-   *     ConstraintViolationBean.isMessageWithItemName value is adopted 
-   *     when ConstraintViolationBean.isMessageWithItemName is not null 
-   *     (= explicitly specified by the caller).<br>
-   *     {@code isValidationMessagesWithItemNames} is assumed to a system default value
-   *     so ConstraintViolationBean.isMessageWithItemName, specified for each validation
-   *     overcomes it.</p>
+   * <p>{@code showsItemNameAsDefault} is the system default value.
+   *     When {@link MessageParameters#showsItemName()} is not {@code null}
+   *     (= explicitly specified for each validation), it takes priority over
+   *     {@code showsItemNameAsDefault}.</p>
    *
    * @param throwable throwable
    * @param locale locale, may be {@code null} 
    *     which is treated as the fallback locale (see {@link LocaleUtil#getFallbackLocale()}).
-   * @param isMessagesWithItemNamesAsDefault true 
-   *     when itemName needed for messages.
-   *     
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Throwable throwable, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
+      boolean showsItemNameAsDefault) {
     Objects.requireNonNull(throwable);
     Locale nonNullLocale = locale == null ? LocaleUtil.getFallbackLocale() : locale;
 
     // Handle ViolationException first.
     if (throwable instanceof ViolationException ve) {
-      return getMessageList(ve.getViolations(), locale, isMessagesWithItemNamesAsDefault);
+      return getMessageList(ve.getViolations(), locale, showsItemNameAsDefault);
     }
 
     List<@NonNull String> rtnList = new ArrayList<>();
@@ -310,7 +326,7 @@ public class ExceptionUtil {
 
       for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
         rtnList.add(
-            getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault, cv,
+            getMessageFromConstraintViolation(nonNullLocale, showsItemNameAsDefault, cv,
                 ConstraintViolationBean.createConstraintViolationBean(cv), params));
       }
       return rtnList;
@@ -350,12 +366,12 @@ public class ExceptionUtil {
    * Returns message list from {@link Violations}.
    *
    * @param violations violations
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Violations violations,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return getMessageList(violations, null, isMessagesWithItemNamesAsDefault);
+      boolean showsItemNameAsDefault) {
+    return getMessageList(violations, null, showsItemNameAsDefault);
   }
 
   /**
@@ -367,22 +383,22 @@ public class ExceptionUtil {
    * @param violations violations
    * @param locale locale, may be {@code null} which is treated as the fallback locale
    *     (see {@link LocaleUtil#getFallbackLocale()}).
-   * @param isMessagesWithItemNamesAsDefault true when item names are shown in messages by default.
+   * @param showsItemNameAsDefault true when item names are shown in messages by default.
    * @return a list of messages
    */
   public static List<@NonNull String> getMessageList(Violations violations, @Nullable Locale locale,
-      boolean isMessagesWithItemNamesAsDefault) {
+      boolean showsItemNameAsDefault) {
     List<@NonNull String> result = new ArrayList<>();
     Locale nonNullLocale = locale == null ? LocaleUtil.getFallbackLocale() : locale;
 
     for (ConstraintViolation<?> cv : violations.getConstraintViolations()) {
-      result.add(getMessageFromConstraintViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+      result.add(getMessageFromConstraintViolation(nonNullLocale, showsItemNameAsDefault,
           cv, ConstraintViolationBean.createConstraintViolationBean(cv),
           violations.messageParameters()));
     }
 
     for (BusinessViolation bv : violations.getBusinessViolations()) {
-      result.add(getMessageFromBusinessViolation(nonNullLocale, isMessagesWithItemNamesAsDefault,
+      result.add(getMessageFromBusinessViolation(nonNullLocale, showsItemNameAsDefault,
           bv, violations.messageParameters()));
     }
 
@@ -390,7 +406,7 @@ public class ExceptionUtil {
   }
 
   private static String getMessageFromConstraintViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, ConstraintViolation<?> cv,
+      boolean showsItemNameAsDefault, ConstraintViolation<?> cv,
       ConstraintViolationBean<?> bean, MessageParameters messageParameters) {
     String message = null;
     try {
@@ -405,28 +421,31 @@ public class ExceptionUtil {
       // Resolve ItemNameParam (item names) before formatWithArgs.
       resolveItemNameParams(locale, map, messageParameters.showsItemNamePath());
 
-      boolean isMessageWithItemName =
-          resolveIsMessageWithItemName(messageParameters, isMessagesWithItemNamesAsDefault);
+      boolean showsItemName =
+          resolveShowsItemName(messageParameters, showsItemNameAsDefault);
 
       String messageKey = bean.getMessageTemplate().replace("{", "").replace("}", "");
       boolean isMessageDefined =
-          isMessageWithItemName ? PropertiesFileUtil.hasValidationMessageWithItemName(messageKey)
+          showsItemName ? PropertiesFileUtil.hasValidationMessageWithItemName(messageKey)
               : PropertiesFileUtil.hasValidationMessage(locale, messageKey);
+      Supplier<String> itemNamesSupplier = () -> MessageUtil.getItemNames(locale,
+          bean.getItemList(), messageParameters.showsItemNamePath(), bean.getRootBean());
       if (isMessageDefined) {
-        message = isMessageWithItemName
-            ? PropertiesFileUtil.getValidationMessageWithItemName(locale, messageKey, map)
-            : PropertiesFileUtil.getValidationMessage(locale, messageKey, map);
+        // {0} is replaced to itemName in it.
+        message = PropertiesFileUtil.getValidationMessage(locale, messageKey, map, showsItemName,
+            itemNamesSupplier);
       } else {
         // No entry in ecuacion-lib properties files; re-interpolate for the target locale.
         message = getDefaultInterpolator().interpolate(bean.getMessageTemplate(),
             new DefaultMessageContext(bean.getConstraintDescriptor(), bean.getInvalidValueObject()),
-            locale != null ? locale : Locale.getDefault());
-      }
+            locale);
 
-      // Replace {0} to itemName.
-      if (message.contains("{0}")) {
-        message = MessageFormat.format(message, MessageUtil.getItemNames(locale, bean.getItemList(),
-            messageParameters.showsItemNamePath(), bean.getRootBean()));
+        // Replace {0} to itemName.
+        // The interpolated message is not a MessageFormat pattern,
+        // so it is replaced literally (MessageFormat would remove "'" and fail with "{").
+        if (message.contains("{0}")) {
+          message = message.replace("{0}", itemNamesSupplier.get());
+        }
       }
 
       message = applyPrefixAndPostfix(message, locale, messageParameters);
@@ -439,14 +458,14 @@ public class ExceptionUtil {
 
   /**
    * Resolves whether the message should be built with the item name, giving priority to
-   * {@link MessageParameters#isMessageWithItemName()} when it is explicitly specified over
-   * {@code isMessagesWithItemNamesAsDefault}.
+   * {@link MessageParameters#showsItemName()} when it is explicitly specified over
+   * {@code showsItemNameAsDefault}.
    */
-  private static boolean resolveIsMessageWithItemName(MessageParameters messageParameters,
-      boolean isMessagesWithItemNamesAsDefault) {
-    return messageParameters.isMessageWithItemName() != null
-        ? Objects.requireNonNull(messageParameters.isMessageWithItemName())
-        : isMessagesWithItemNamesAsDefault;
+  private static boolean resolveShowsItemName(MessageParameters messageParameters,
+      boolean showsItemNameAsDefault) {
+    return messageParameters.showsItemName() != null
+        ? Objects.requireNonNull(messageParameters.showsItemName())
+        : showsItemNameAsDefault;
   }
 
   /**
@@ -529,15 +548,15 @@ public class ExceptionUtil {
   }
 
   private static String getMessageFromBusinessViolation(Locale locale,
-      boolean isMessagesWithItemNamesAsDefault, BusinessViolation violation,
+      boolean showsItemNameAsDefault, BusinessViolation violation,
       MessageParameters messageParameters) {
-    boolean isMessageWithItemName =
-        resolveIsMessageWithItemName(messageParameters, isMessagesWithItemNamesAsDefault);
+    boolean showsItemName =
+        resolveShowsItemName(messageParameters, showsItemNameAsDefault);
 
     String msgKey = violation.getMessageId();
     Object[] msgArgs = (Object[]) violation.getMessageArgs();
 
-    // {item_name} is resolved regardless of isMessageWithItemName, the same as the
+    // {item_name} is resolved regardless of showsItemName, the same as the
     // ConstraintViolation message path, where {0}-to-itemName substitution runs
     // unconditionally once the resolved message contains the placeholder. This lets a message
     // embed {item_name} directly in messages.properties without requiring a separate
@@ -551,7 +570,7 @@ public class ExceptionUtil {
       namedArgs.put("item_name", itemName);
     }
 
-    String message = isMessageWithItemName
+    String message = showsItemName
         ? PropertiesFileUtil.getMessageWithItemName(locale, msgKey, namedArgs, msgArgs)
         : PropertiesFileUtil.getMessage(locale, msgKey, namedArgs, msgArgs);
 

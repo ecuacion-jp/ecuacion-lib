@@ -66,6 +66,8 @@ public class ReflectionUtil {
    * @return new instance
    */
   public static Object newInstance(String className) {
+    Objects.requireNonNull(className);
+
     try {
       Class<?> cls = Class.forName(className);
       return cls.getConstructor().newInstance();
@@ -86,24 +88,26 @@ public class ReflectionUtil {
    * <p>Search ends when it finds the first annotation.
    *     Even if there is another annotation of the same class,
    *     it ignores it and returns the first found annotation.</p>
+   *
+   * @throws NullPointerException when {@code classOfTargetInstance}
+   *     or {@code annotationClass} is {@code null}
    */
-  @SuppressWarnings("null")
-  public static <A extends Annotation> @NonNull Optional<@NonNull A> searchAnnotationPlacedAtClass(
+  public static <A extends Annotation> Optional<@NonNull A> searchAnnotationPlacedAtClass(
       Class<?> classOfTargetInstance, Class<A> annotationClass) {
-    while (true) {
-      // No more ancestors
-      // Equals to null when it's an anonymous class created directly from Interface.
-      if (classOfTargetInstance == null || classOfTargetInstance == Object.class) {
-        return Optional.empty();
-      }
+    Objects.requireNonNull(classOfTargetInstance);
+    Objects.requireNonNull(annotationClass);
 
-      A an = (A) classOfTargetInstance.getAnnotation(annotationClass);
+    // getSuperclass() returns null for interfaces and primitive types,
+    // which means there are no more ancestors to search.
+    for (Class<?> c = classOfTargetInstance; c != null && c != Object.class;
+        c = c.getSuperclass()) {
+      A an = c.getAnnotation(annotationClass);
       if (an != null) {
         return Optional.of(an);
       }
-
-      classOfTargetInstance = Objects.requireNonNull(classOfTargetInstance.getSuperclass());
     }
+
+    return Optional.empty();
   }
 
   /**
@@ -115,8 +119,16 @@ public class ReflectionUtil {
    * @param cls starting class
    * @param simpleFieldName field name without path notation
    * @return {@link Field}
+   * @throws IllegalArgumentException when {@code simpleFieldName} is empty
    */
   public static Field getDeclaredField(Class<?> cls, String simpleFieldName) {
+    Objects.requireNonNull(cls);
+    Objects.requireNonNull(simpleFieldName);
+
+    if (simpleFieldName.isEmpty()) {
+      throw new IllegalArgumentException("fieldName must not be empty.");
+    }
+
     if (simpleFieldName.contains("[")) {
       throw new RuntimeException(
           "fieldName with index (like value[0]) not acceptable. fieldName: " + simpleFieldName);
@@ -155,10 +167,19 @@ public class ReflectionUtil {
    * @param cls starting class
    * @param simplePropertyName property name without path notation
    * @return {@link BeanProperty}
+   * @throws IllegalArgumentException when {@code simplePropertyName} is empty
    * @throws RuntimeException with {@link NoSuchFieldException} as its cause
    *     when neither the field nor the getter is found
    */
   public static BeanProperty getBeanProperty(Class<?> cls, String simplePropertyName) {
+    Objects.requireNonNull(cls);
+    Objects.requireNonNull(simplePropertyName);
+
+    // An empty name would resolve "get()" or "is()" as a getter.
+    if (simplePropertyName.isEmpty()) {
+      throw new IllegalArgumentException("propertyName must not be empty.");
+    }
+
     if (simplePropertyName.contains("[")) {
       throw new RuntimeException("propertyName with index (like value[0]) not acceptable. "
           + "propertyName: " + simplePropertyName);

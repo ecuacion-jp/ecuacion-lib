@@ -24,6 +24,16 @@ MailUtil.sendTextMail(List.of("admin@example.com"), null, "Subject", "Body");
 MailUtil.sendHtmlMail(null, List.of("cc@example.com"), "Subject", "<b>Body</b>");
 ```
 
+`sendTextMail` / `sendHtmlMail` can send with only one of TO and CC (set the other to `null` or an empty list).
+If `null` is passed as the body (`content`), the email is sent with an empty body.
+
+So as not to get in the way of error handling, `sendErrorMail` / `sendWarnMail` only log exceptions that occur while sending, and do not throw them.
+However, configuration mistakes such as a missing key in `application.properties` are thrown as a `RuntimeException`.
+Also, `null` can be passed as the `throwable` of `sendErrorMail`.
+`sendTextMail` / `sendHtmlMail` log exceptions that occur while sending, and then throw them.
+
+Each method also has an overload that takes the settings as a `MailUtilConfig` instead of `application.properties`.
+
 ---
 
 ## application.properties Configuration
@@ -40,14 +50,21 @@ All keys have the prefix `jp.ecuacion.lib.core.mail.`. The prefix is omitted in 
 | `smtp.password` | SMTP password (for Gmail, use an app password) | `xxxx xxxx xxxx xxxx` |
 | `smtp.authentication` | Whether SMTP authentication is used (`true` / `false`) | `true` |
 
-*1 `MailUtil` always verifies that the TLS certificate presented by the server matches
-the hostname it connected to (`mail.smtp.ssl.checkserveridentity`; there is no setting
-to disable this check). If your own domain (e.g. `mail.example.com`) doesn't have its
-own TLS certificate — common on shared hosting, where the mail server presents a
-certificate for the hosting provider's shared domain instead — connecting with your own
-domain name will fail. In that case, set `smtp.server` to the original hostname the
-certificate was actually issued for (check with your hosting provider, e.g. via
-`openssl s_client -starttls smtp -connect <host>:587`), not your own domain.
+#### *1 TLS certificate hostname verification
+
+`MailUtil` always verifies that the server's TLS certificate matches the hostname it connects to
+(`mail.smtp.ssl.checkserveridentity`; there is no setting to disable this check).
+
+If your own domain (e.g. `mail.example.com`) has no certificate of its own, as is common on shared hosting,
+connecting with your own domain name will fail.
+In that case, set `smtp.server` to the hostname the certificate was actually issued for
+(the hosting provider's hostname).
+
+You can check the certificate's hostname with your hosting provider, or check its CN with the following command:
+
+```bash
+openssl s_client -starttls smtp -connect <host>:587
+```
 
 ### Optional
 
@@ -63,7 +80,7 @@ certificate was actually issued for (check with your hosting provider, e.g. via
 | Key (prefix omitted) | Description | Example |
 | --- | --- | --- |
 | `title-prefix` | String prepended to the email subject | `[MyApp: staging]` |
-| `address-csv-on-system-error` | Recipients for `sendErrorMail` (comma-separated for multiple) *2 | `admin@example.com,ops@example.com` |
+| `address-csv-on-system-error` | Recipients for `sendErrorMail` (comma-separated for multiple; whitespace around each address and empty elements are ignored, and nothing is sent if there are no recipients) *2 | `admin@example.com,ops@example.com` |
 
 *2 Not needed for `sendWarnMail` / `sendTextMail` / `sendHtmlMail`, as recipients are specified as arguments.
 

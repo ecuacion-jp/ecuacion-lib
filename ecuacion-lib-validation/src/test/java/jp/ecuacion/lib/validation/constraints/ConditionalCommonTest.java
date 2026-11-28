@@ -55,16 +55,16 @@ public class ConditionalCommonTest {
   }
 
   @Test
-  public void validatesWhenConditionNotSatisfiedTest() {
+  public void oppositeWhenConditionNotSatisfiedTest() {
 
     // true
     Set<?> setTrue = validator
-        .validate(new ConditionalCommonTestBean.ValidatesWhenConditionNotSatisfied.TrueClass());
+        .validate(new ConditionalCommonTestBean.OppositeWhenConditionNotSatisfied.TrueClass());
     assertThat(setTrue).hasSize(1);
 
     // false
     Set<?> setFalse = validator
-        .validate(new ConditionalCommonTestBean.ValidatesWhenConditionNotSatisfied.FalseClass());
+        .validate(new ConditionalCommonTestBean.OppositeWhenConditionNotSatisfied.FalseClass());
     assertThat(setFalse).isEmpty();
   }
 

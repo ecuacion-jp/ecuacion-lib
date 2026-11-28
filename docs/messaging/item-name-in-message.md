@@ -17,6 +17,8 @@ With item name:
 'name' must not be null
 ```
 
+For details on how to set up messages with item names (`showsItemName`), see [MessageParameters > showsItemName](../validation/message-parameters.md#showsitemname--switching-between-messages-withwithout-item-names).
+
 ---
 
 ## Overall Flow
@@ -32,6 +34,10 @@ Display name (e.g., Full Name)
   ↓  substituted into ValidationMessagesWithItemNames.properties
 Error message (e.g., 'Full Name' must not be null)
 ```
+
+For the message text used in the last step (`ValidationMessagesWithItemNames.properties`), when it is used,
+and how to override it, see
+[Standard Annotation Message Output > Including Item Names in Messages](../validator/standard-annotation-messages.md#including-item-names-in-messages).
 
 ---
 
@@ -68,28 +74,6 @@ userRecord.name=氏名
 
 Since it is managed as the `item_names` file type in `PropertiesFileUtil`,
 locale resolution follows the same rules as Java's standard `ResourceBundle`.
-
----
-
-## ValidationMessagesWithItemNames.properties
-
-A properties file for messages that include item names.
-The item name (e.g., `'Full Name'`) is substituted at the `{0}` position.
-
-```properties
-# ValidationMessagesWithItemNames.properties (ecuacion-lib-core default)
-jakarta.validation.constraints.NotNull.message.base = {0} must not be null
-```
-
-Since ecuacion-lib-core provides defaults for standard annotations,
-you do not need to create this file in your application.
-
-Whether this file is used is determined by the following priority:
-
-1. If `MessageParameters.isMessageWithItemName` is explicitly set, that value is used
-2. If not set, the `isMessagesWithItemNamesAsDefault` flag of `ExceptionUtil.getMessageList()`
-
-Frameworks such as ecuacion-splib-web set this flag to `true` for messages displayed on screen.
 
 ---
 
@@ -139,23 +123,9 @@ For details, see [Violation](../validation/violation.md).
 
 ---
 
-## Overriding Messages in Your Application
-
-To use different messages per annotation, define keys without a suffix in your application's
-`ValidationMessagesWithItemNames.properties`.
-
-```properties
-# ValidationMessagesWithItemNames.properties (application side)
-jakarta.validation.constraints.NotNull.message = {0} is required
-```
-
-Due to `PropertiesFileUtil`'s key priority (`key` > `key.default` > `key.base`),
-the plain key takes priority over ecuacion-lib-core's `.base` default.
-
----
-
 ## Detailed Reference
 
 - Automatic resolution rules for itemNameKey → **[ItemNameKey](../item/item-name-key.md)**
 - Details on ItemContainer → **[ItemContainer](../item/item-container.md)**
 - For collection elements → **[Item Names for List, Set, and Map](collection-item-name.md)**
+- Message text with item names (`ValidationMessagesWithItemNames.properties`) → **[Standard Annotation Message Output](../validator/standard-annotation-messages.md#including-item-names-in-messages)**

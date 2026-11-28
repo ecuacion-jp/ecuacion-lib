@@ -245,6 +245,62 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  @SuppressWarnings({"null", "NullAway"})
+  public void nullArgumentsThrowNullPointerException() {
+    // thrown as it is, not wrapped in another RuntimeException
+    assertThatThrownBy(() -> ReflectionUtil.newInstance(null))
+        .isExactlyInstanceOf(NullPointerException.class);
+
+    // not reported as "field not found"
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(null, "value"))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(AnnotatedClass.class, null))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(null, "value"))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(AnnotatedClass.class, null))
+        .isExactlyInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void emptyNameThrowsIllegalArgumentException() {
+    // An empty name must not resolve "get()" of GetMethodHolder as a getter.
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(GetMethodHolder.class, ""))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(GetMethodHolder.class, ""))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  public static class GetMethodHolder {
+    public String get() {
+      return "value of get()";
+    }
+  }
+
+  @Test
+  public void searchAnnotationPlacedAtClass_interfaceAndPrimitive() {
+    // interfaces and primitive types have no superclass: returns empty instead of throwing
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
+        UnannotatedInterface.class, SampleAnnotation.class)).isEmpty();
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(int.class, SampleAnnotation.class))
+        .isEmpty();
+
+    // annotation on the interface itself
+    assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
+        AnnotatedInterface.class, SampleAnnotation.class)).isPresent();
+  }
+
+  @Test
+  @SuppressWarnings({"null", "NullAway"})
+  public void searchAnnotationPlacedAtClass_nullArgumentThrows() {
+    assertThatThrownBy(
+        () -> ReflectionUtil.searchAnnotationPlacedAtClass(null, SampleAnnotation.class))
+        .isInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.searchAnnotationPlacedAtClass(AnnotatedClass.class,
+        (Class<SampleAnnotation>) null)).isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
   public void getLeafBeanTest() {
     FieldValueRoot root = new FieldValueRoot();
 
@@ -263,6 +319,11 @@ public class ReflectionUtilTest {
 
   @SampleAnnotation
   public static class AnnotatedClass {}
+
+  public interface UnannotatedInterface {}
+
+  @SampleAnnotation
+  public interface AnnotatedInterface {}
 
   public static class AnnotatedSubClass extends AnnotatedClass {}
 

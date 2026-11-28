@@ -73,8 +73,8 @@ public record UserProfile(String name, Dept dept) {}
 propertyPath = UserProfile.Fields.dept + "." + Dept.Fields.name
 ```
 
-この対策は `ecuacion-lib-validation` 自体の変更を必要とせず、あくまでアプリケーション側のコーディング
-規約として導入できます。
+なお、[ecuacion-tool-code-generator](https://github.com/ecuacion-jp/ecuacion-tool-code-generator) で生成した Entity や Record にも、
+Lombok と同様の `Fields` クラスが自動生成されるので、それを使うこともできます（例: `UserRecord.Fields.USER_NAME`）。
 
 ---
 

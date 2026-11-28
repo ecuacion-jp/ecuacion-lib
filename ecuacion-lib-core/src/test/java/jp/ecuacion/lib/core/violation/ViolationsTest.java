@@ -260,5 +260,25 @@ public class ViolationsTest {
       MessageParameters mp = Violations.newMessageParameters().messagePostfix(" [end]");
       assertThat(mp.getMessagePostfix()).isNotNull();
     }
+
+    @Test
+    @DisplayName("showsItemName: defaults to null and stores the given value")
+    void showsItemName() {
+      assertThat(Violations.newMessageParameters().showsItemName()).isNull();
+      assertThat(Violations.newMessageParameters().showsItemName(true).showsItemName()).isTrue();
+      assertThat(Violations.newMessageParameters().showsItemName(false).showsItemName())
+          .isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("removal")
+    @DisplayName("isMessageWithItemName (deprecated): delegates to showsItemName")
+    void isMessageWithItemNameDelegatesToShowsItemName() {
+      assertThat(Violations.newMessageParameters().isMessageWithItemName(true).showsItemName())
+          .isTrue();
+      assertThat(Violations.newMessageParameters().showsItemName(false).isMessageWithItemName())
+          .isFalse();
+      assertThat(Violations.newMessageParameters().isMessageWithItemName()).isNull();
+    }
   }
 }

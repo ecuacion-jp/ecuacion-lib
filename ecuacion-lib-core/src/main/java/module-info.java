@@ -80,6 +80,12 @@ module jp.ecuacion.lib.core {
   uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesBaseProvider;
   uses jp.ecuacion.lib.core.spi.MessagesWithItemNamesCoreProvider;
 
+  // apps: ValidationMessages
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesProvider;
+
+  // apps: ValidationMessagesWithItemNames
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesProvider;
+
   // apps: ValidationMessagesPatternDescriptions
   uses jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsProvider;
 
@@ -95,10 +101,14 @@ module jp.ecuacion.lib.core {
       with jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesLibCoreProviderImpl;
   provides jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibCoreProvider with
       jp.ecuacion.lib.core.spi.impl.internal.ValidationMessagesWithItemNamesLibCoreProviderImpl;
+  provides jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsLibCoreProvider with
+      jp.ecuacion.lib.core.spi.impl.internal
+      .ValidationMessagesPatternDescriptionsLibCoreProviderImpl;
 
   uses jp.ecuacion.lib.core.spi.MessagesLibCoreProvider;
   uses jp.ecuacion.lib.core.spi.ValidationMessagesLibCoreProvider;
   uses jp.ecuacion.lib.core.spi.ValidationMessagesWithItemNamesLibCoreProvider;
+  uses jp.ecuacion.lib.core.spi.ValidationMessagesPatternDescriptionsLibCoreProvider;
 
   // ecuacion-lib-validation
   provides jp.ecuacion.lib.core.spi.MessagesLibValidationProvider

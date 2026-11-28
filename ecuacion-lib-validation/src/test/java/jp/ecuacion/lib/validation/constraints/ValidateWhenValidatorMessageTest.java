@@ -19,15 +19,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
+import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
+import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
+import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionOperator;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValue;
 import jp.ecuacion.lib.validation.constraints.enums.ConditionValueState;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -90,12 +95,83 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new NotStringWhenTest(),
             "needs to not be a specific value when 'condition field' is ON"),
         Arguments.of(new PatternWhenTest(),
-            "needs to match the pattern when 'condition field' is ON"),
+            "needs to match the pattern \"\\d+\" when 'condition field' is ON"),
         Arguments.of(new NotPatternWhenTest(),
-            "needs to not match the pattern when 'condition field' is ON"),
+            "needs to not match the pattern \"\\d+\" when 'condition field' is ON"),
         Arguments.of(new ValueOfPropertyPathWhenTest(),
             "needs to be the value of a specific field when 'condition field' is ON")
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // description of @PatternWhen / @NotPatternWhen (the regexp of the validated value)
+  // -------------------------------------------------------------------------
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("patternDescriptionAndExpectedMessage")
+  @DisplayName("description of @PatternWhen / @NotPatternWhen is shown in the message")
+  void patternDescriptionTest(Object bean, String expectedMessage) {
+    assertThat(getMessage(bean)).isEqualTo(expectedMessage);
+  }
+
+  static Stream<@NonNull Arguments> patternDescriptionAndExpectedMessage() {
+    String postfix = " when 'condition field' is ON";
+    return Stream.of(
+        // description is empty: the regexp itself is shown
+        Arguments.of(new PatternWhenTest(), "needs to match the pattern \"\\d+\"" + postfix),
+        Arguments.of(new NotPatternWhenTest(),
+            "needs to not match the pattern \"\\d+\"" + postfix),
+        // description exists in ValidationMessagesPatternDescriptions: the value is shown
+        Arguments.of(new PatternWhenWithResolvedDescTest(),
+            "needs to match the pattern \"alphanumeric, \".\", \"-\" and \"_\"\"" + postfix),
+        // description does not exist in the properties file: the string itself is shown
+        Arguments.of(new PatternWhenWithDescTest(),
+            "needs to match the pattern \"digits only\"" + postfix),
+        Arguments.of(new NotPatternWhenWithDescTest(),
+            "needs to not match the pattern \"digits only\"" + postfix));
+  }
+
+  @Test
+  @DisplayName("description of @PatternWhen is shown in the message with item names")
+  void patternDescriptionWithItemNameTest() {
+    assertThat(ExceptionUtil
+        .getMessageList(validator.validate(new PatternWhenWithDescTest()), Locale.ENGLISH, true)
+        .get(0)).isEqualTo("'field' needs to match the pattern \"digits only\""
+            + " when 'condition field' is ON.");
+  }
+
+  @Test
+  @DisplayName("braces in the regexp are displayed as they are")
+  void bracesInRegexpTest() {
+    assertThat(getMessage(new PatternWhenWithBracesTest()))
+        .isEqualTo("needs to match the pattern \"\\d{3}\" when 'condition field' is ON");
+    assertThat(ExceptionUtil
+        .getMessageList(validator.validate(new PatternWhenWithBracesTest()), Locale.ENGLISH, true)
+        .get(0)).isEqualTo("'field' needs to match the pattern \"\\d{3}\""
+            + " when 'condition field' is ON.");
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("patternWhenMessageParameterCreators")
+  @DisplayName("description is resolved from ValidationMessagesPatternDescriptions")
+  void patternDescriptionIsResolvedFromPatternDescriptions(Object bean,
+      ValidatorMessageParameterCreator creator) {
+    var cv = validator.validate(bean).iterator().next();
+    var params =
+        creator.create(cv, new HashMap<>(cv.getConstraintDescriptor().getAttributes()));
+
+    assertThat(params.get("description")).isInstanceOfSatisfying(Arg.class, arg -> {
+      assertThat(arg.getFileKinds()).containsExactly(
+          PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS);
+      assertThat(arg.getArgValue()).isEqualTo("digits only");
+    });
+  }
+
+  static Stream<@NonNull Arguments> patternWhenMessageParameterCreators() {
+    return Stream.of(
+        Arguments.of(new PatternWhenWithDescTest(), new PatternWhenMessageParameterCreator()),
+        Arguments.of(new NotPatternWhenWithDescTest(),
+            new NotPatternWhenMessageParameterCreator()));
   }
 
   // -------------------------------------------------------------------------
@@ -231,7 +307,7 @@ public class ValidateWhenValidatorMessageTest {
         Arguments.of(new NullNotEqualToBean(null, "a"), p2 + "is not null"),
         Arguments.of(new NotNullEqualToBean(null, "a"), p2 + "is not null"),
         Arguments.of(new NotNullNotEqualToBean(null, null), p2 + "is null"),
-        // emptyWhenConditionNotSatisfied
+        // oppositeWhenConditionNotSatisfied
         Arguments.of(new EmptyWhenConditionNotSatisfiedBean(null, null),
             p2 + "is empty, and empty when otherwise")
     );
@@ -357,6 +433,42 @@ public class ValidateWhenValidatorMessageTest {
       conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
   @SuppressWarnings("unused")
   private static class NotPatternWhenTest {
+    private String field = "123";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d+", description = "digits only",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithDescTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d{3}",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithBracesTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("PatternWhenTest")
+  @PatternWhen(propertyPath = "field", regexp = "\\d+", description = "embeddedParameter",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class PatternWhenWithResolvedDescTest {
+    private String field = "abc";
+    private boolean conditionField = true;
+  }
+
+  @ItemNameKeyClass("NotPatternWhenTest")
+  @NotPatternWhen(propertyPath = "field", regexp = "\\d+", description = "digits only",
+      conditionPropertyPath = "conditionField", conditionValue = ConditionValue.TRUE)
+  @SuppressWarnings("unused")
+  private static class NotPatternWhenWithDescTest {
     private String field = "123";
     private boolean conditionField = true;
   }
@@ -594,7 +706,7 @@ public class ValidateWhenValidatorMessageTest {
 
   @ItemNameKeyClass("NotEmptyWhenTest")
   @NotEmptyWhen(propertyPath = "value", conditionPropertyPath = "condValue",
-      conditionValue = ConditionValue.EMPTY, emptyWhenConditionNotSatisfied = true)
+      conditionValue = ConditionValue.EMPTY, oppositeWhenConditionNotSatisfied = true)
   public static record EmptyWhenConditionNotSatisfiedBean(@Nullable String value,
       @Nullable String condValue) {}
 

@@ -76,6 +76,12 @@ public class EnumUtilTest {
     void nonExistentCodeReturnsFalse() {
       assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, "Z")).isFalse();
     }
+
+    @Test
+    @DisplayName("null code returns false")
+    void nullCodeReturnsFalse() {
+      assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, null)).isFalse();
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -150,6 +156,44 @@ public class EnumUtilTest {
       assertThatThrownBy(() -> EnumUtil.getListForHtmlSelect(
           TestEnum.class, null, "including=VALUE_A,excluding=VALUE_B"))
           .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    @DisplayName("option key in upper snake case works in the same way as lower camel case")
+    void upperSnakeCaseKey() {
+      var list = EnumUtil.getListForHtmlSelect(TestEnum.class, null, "INCLUDING=VALUE_A|VALUE_C");
+      assertThat(list).extracting(arr -> arr[0]).containsExactly("A", "C");
+
+      list = EnumUtil.getListForHtmlSelect(TestEnum.class, null,
+          "FIRST_CHAR_OF_CODE_GREATER_THAN_OR_EQUAL_TO=B");
+      assertThat(list).extracting(arr -> arr[0]).containsExactly("B", "C");
+    }
+
+    @Test
+    @DisplayName("option without '=' throws IllegalArgumentException with a clear message")
+    void optionWithoutValueThrows() {
+      assertThatThrownBy(() -> EnumUtil.getListForHtmlSelect(TestEnum.class, null, "including"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("not specified").hasMessageContaining("including=value");
+    }
+
+    @Test
+    @DisplayName("empty value of firstCharOfCodeLessThanOrEqualTo / GreaterThanOrEqualTo throws")
+    void emptyValueOfComparisonOptionThrows() {
+      assertThatThrownBy(() -> EnumUtil.getListForHtmlSelect(TestEnum.class, null,
+          "firstCharOfCodeLessThanOrEqualTo="))
+          .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("must not be empty");
+      assertThatThrownBy(() -> EnumUtil.getListForHtmlSelect(TestEnum.class, null,
+          "firstCharOfCodeGreaterThanOrEqualTo="))
+          .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("must not be empty");
+    }
+
+    @Test
+    @DisplayName("empty value of including / excluding is treated as an empty list of names")
+    void emptyValueOfIncludingAndExcluding() {
+      assertThat(EnumUtil.getListForHtmlSelect(TestEnum.class, null, "including=")).isEmpty();
+      assertThat(EnumUtil.getListForHtmlSelect(TestEnum.class, null, "excluding="))
+          .extracting(arr -> arr[0]).containsExactly("A", "B", "C");
     }
   }
 

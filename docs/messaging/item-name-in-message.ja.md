@@ -17,6 +17,8 @@ null は許可されていません
 「名前」にnullは許可されていません
 ```
 
+項目名入りのメッセージにする設定（`showsItemName`）方法の詳細は [MessageParameters > showsItemName](../validation/message-parameters.md#showsitemname--項目名ありなしのメッセージ切り替え) を参照してください。
+
 ---
 
 ## 全体の流れ
@@ -32,6 +34,9 @@ item_names.properties のキー
   ↓  ValidationMessagesWithItemNames.properties に代入
 エラーメッセージ（例: 「名前」にnullは許可されていません）
 ```
+
+最後のステップで使われるメッセージ文（`ValidationMessagesWithItemNames.properties`）の内容・使われる条件・上書き方法は、
+[標準アノテーションのメッセージ出力 > 項目名をメッセージに含める](../validator/standard-annotation-messages.md#項目名をメッセージに含める) を参照してください。
 
 ---
 
@@ -68,28 +73,6 @@ userRecord.name=名前
 
 `PropertiesFileUtil` の `item_names` ファイル種別として管理されるため、
 ロケールの解決は標準の Java ResourceBundle と同じ規則に従います。
-
----
-
-## ValidationMessagesWithItemNames.properties
-
-項目名入りメッセージ用のプロパティファイルです。
-`{0}` の位置に項目名（例: `「名前」`）が代入されます。
-
-```properties
-# ValidationMessagesWithItemNames.properties（ecuacion-lib-core のデフォルト）
-jakarta.validation.constraints.NotNull.message.base = {0}にnullは許可されていません
-```
-
-ecuacion-lib-core が標準アノテーション用のデフォルトを提供しているため、
-アプリ側で新たに作成する必要はありません。
-
-このファイルが使われるかどうかは以下の優先順位で決まります。
-
-1. `MessageParameters.isMessageWithItemName` が明示的に設定されている場合はその値
-2. 未設定の場合は `ExceptionUtil.getMessageList()` の `isMessagesWithItemNamesAsDefault` フラグ
-
-ecuacion-splib-web などのフレームワークは画面表示用メッセージに対してこのフラグを `true` に設定します。
 
 ---
 
@@ -139,23 +122,9 @@ violations.add(new BusinessViolation(
 
 ---
 
-## アプリ側でのメッセージ上書き
-
-アノテーションごとにメッセージを変えたい場合は、アプリの
-`ValidationMessagesWithItemNames.properties` にサフィックスなしのプレーンキーで定義します。
-
-```properties
-# ValidationMessagesWithItemNames.properties（アプリ側）
-jakarta.validation.constraints.NotNull.message = {0}は必須入力です
-```
-
-`PropertiesFileUtil` のキー優先度（`key` > `key.default` > `key.base`）により、
-プレーンキーが ecuacion-lib-core の `.base` デフォルトより優先されます。
-
----
-
 ## 詳細リファレンス
 
 - itemNameKey の自動解決ルール → **[ItemNameKey](../item/item-name-key.md)**
 - ItemContainer の詳細 → **[ItemContainer](../item/item-container.md)**
 - コレクション要素の場合 → **[List・Set・Map の項目名](collection-item-name.md)**
+- 項目名入りメッセージ文（`ValidationMessagesWithItemNames.properties`） → **[標準アノテーションのメッセージ出力](../validator/standard-annotation-messages.md#項目名をメッセージに含める)**

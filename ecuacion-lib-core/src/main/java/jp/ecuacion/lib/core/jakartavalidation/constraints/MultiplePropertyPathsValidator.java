@@ -85,7 +85,9 @@ public abstract class MultiplePropertyPathsValidator<A extends Annotation, T>
   }
 
   @Override
-  public boolean isValid(T value, @SuppressWarnings("null") ConstraintValidatorContext context) {
+  public boolean isValid(T value, @Nullable ConstraintValidatorContext context) {
+    // context is never null at runtime. It's marked @Nullable only to override
+    // the unannotated ConstraintValidator#isValid without Eclipse null analysis errors.
     return isValidCommon(value, Objects.requireNonNull(context));
   }
 

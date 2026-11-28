@@ -42,7 +42,8 @@ public class NullWhenValidator extends ValidateWhenValidator<NullWhen, Object> {
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.conditions(), annotation.notNullWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.oppositeWhenConditionNotSatisfied()
+            || annotation.notNullWhenConditionNotSatisfied());
   }
 
   @Override

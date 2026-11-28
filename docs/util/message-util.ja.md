@@ -61,7 +61,7 @@ Arg arg = MessageUtil.formatValuesWithResolution(String[] values);
 
 各文字列を `messages` → `item_names` → `enum_names` → `constants` の順にプロパティキーとして解決し、
 表示記号で囲んでセパレーターで結合した `Arg` を返します。
-キーが見つからない場合はリテラル文字列として扱われます。
+キーが見つからない場合はリテラル文字列として扱われます。空文字もリテラル文字列として扱われます。
 
 ```java
 // enum_names.properties: status.active=Active, status.inactive=Inactive
@@ -94,3 +94,5 @@ Arg arg = MessageUtil.formatValues(new String[]{"ACTIVE", "INACTIVE"});
 
 `formatValuesWithResolution()` との違いは、プロパティキー解決を行わない点のみです。
 値が既に表示用の最終文字列である場合に使います。
+
+値に含まれる `#{...}`、`{`、`}`、`'` もそのまま表示されるため、利用者の入力値など信頼できない値を渡すこともできます。

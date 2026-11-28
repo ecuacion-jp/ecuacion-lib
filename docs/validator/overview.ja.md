@@ -1,5 +1,9 @@
 # 独自バリデーター 概要
 
+!!! note "ecuacion-lib-validation が必要です"
+    「独自バリデーター」メニュー配下のページで説明している機能を使うには、dependency に `ecuacion-lib-validation` を追加する必要があります（`ecuacion-lib-core` だけでは使えません）。
+    モジュールの構成は [Home](../index.md) を参照してください。
+
 ## 概要
 
 `ecuacion-lib-validation` モジュールは、Jakarta Validation の標準アノテーション（`@NotNull`, `@Size` など）を補完する独自のバリデーターを提供します。
@@ -28,6 +32,7 @@
 
 `propertyPath`・`conditionPropertyPath`・`baselinePropertyPath` などで指定した名前（`"dept.name"` のようなネストしたパスでは各ノード）は、
 まず同名のフィールドとして解決され、フィールドが存在しない場合は getter（`getName()`、またはプリミティブの `boolean` を返す `isName()`。`Boolean` を返す `isName()` は対象外）として解決されます。
+この getter の定義は、Jakarta Validation の仕様（JavaBeans の命名規則に基づく定義）に合わせています。
 Jakarta Validation 標準の制約を getter に付与した場合と同様に、getter の戻り値が検証対象の値になるため、フィールドを持たないプロパティも指定できます。
 
 ```java

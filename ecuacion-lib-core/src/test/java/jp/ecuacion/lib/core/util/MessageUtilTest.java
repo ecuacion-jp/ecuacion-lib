@@ -46,6 +46,31 @@ public class MessageUtilTest {
       assertThat(resolved).contains("world");
     }
 
+    @Test
+    @DisplayName("#{...}, braces and quotes in values are displayed as they are")
+    void literalValues() {
+      System.setProperty("MessageUtilTest.secret", "s3cr3t");
+      try {
+        String resolved = MessageUtil
+            .formatValues(new String[] {"#{application:MessageUtilTest.secret}", "a{b", "{0}",
+                "it's"})
+            .resolveAsString(Locale.ENGLISH);
+        assertThat(resolved).doesNotContain("s3cr3t")
+            .contains("#{application:MessageUtilTest.secret}", "a{b", "{0}", "it's");
+
+      } finally {
+        System.clearProperty("MessageUtilTest.secret");
+      }
+    }
+
+    @Test
+    @DisplayName("the same symbols as formatValuesWithResolution are used")
+    void sameAsFormatValuesWithResolution() {
+      assertThat(MessageUtil.formatValues(new String[] {"ACTIVE", "INACTIVE"})
+          .resolveAsString(Locale.ENGLISH))
+          .isEqualTo(MessageUtil.formatValuesWithResolution(new String[] {"ACTIVE", "INACTIVE"})
+              .resolveAsString(Locale.ENGLISH));
+    }
   }
 
   @Nested
@@ -62,5 +87,13 @@ public class MessageUtilTest {
       assertThat(resolved).contains("message 1.");
     }
 
+    @Test
+    @DisplayName("empty string is used as a literal string")
+    void emptyString() {
+      assertThat(MessageUtil.formatValuesWithResolution(new String[] {"", "MSG1"})
+          .resolveAsString(Locale.ENGLISH))
+          .isEqualTo(MessageUtil.formatValues(new String[] {"", "message 1."})
+              .resolveAsString(Locale.ENGLISH));
+    }
   }
 }

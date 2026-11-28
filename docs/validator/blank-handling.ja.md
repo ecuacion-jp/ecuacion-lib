@@ -38,15 +38,36 @@ Web アプリケーションでは `null` と `""` には意味の違いがあ�
 
 そのため、書式チェック系のバリデータは未入力（`""`）に反応すべきではありません。
 
+この方針は、画面からの入力を検証することを前提にしています。
+REST API のように画面を経由しない入力では、`""` も送り手が意図して送った値なので、invalid として扱いたい場合もあります。
+
+その場合は、`@NotEmpty` などと組み合わせれば空文字を invalid にできます。
+`null` は valid のまま `""` だけを invalid にしたい場合は、`@Size(min = 1)` を組み合わせます。
+
+```java
+@Size(min = 1)
+@PatternWithDescription(regexp = "[0-9]+")
+private String code;  // "" → @Size の違反、null → valid
+```
+
+逆に、空文字を invalid とするバリデータを、空文字を valid としたい状況で使うことはできません。
+空文字を valid としておけば、組み合わせによってどちらの状況にも対応できます。
+
 ---
 
 ## 空文字を valid として扱うバリデータ
 
-`ecuacion-lib-validation` で空文字を invalid とするのは `@NotEmpty` / `@NotBlank` のみです。
-それ以外の書式チェック系バリデータはすべて空文字を valid として扱います。
+`ecuacion-lib-validation` の独自バリデータは、空文字を valid として扱います
+（`@PatternWithDescription`、`@IntegerString`、`@LessThan` など）。
 
-| カテゴリ | 代表的なバリデータ |
-| -------- | ----------------- |
-| 書式チェック系 | `@PatternWithDescription`, `@IntegerString`, `@BooleanString` など |
-| 条件付き系 | `@NotEmptyWhen`, `@TrueWhen` など `@XxxWhen` 系 |
-| 大小比較系 | `@LessThan`, `@GreaterThan` など |
+ただし、条件付きバリデータ（`@XxxWhen`）のうち値そのものを検証するものは、
+条件を満たすときの空の値（`null` と `""`）の扱いが、バリデータごとに異なります。
+
+| バリデータ | 空の値（`null` / `""`） |
+| --- | --- |
+| `@PatternWhen` / `@StringWhen` | invalid |
+| `@NotPatternWhen` / `@NotStringWhen` | valid |
+| `@ValueOfPropertyPathWhen` | 比較先の値と同じなら valid（`null` と `""` は別の値として比べる） |
+| `@NotValueOfPropertyPathWhen` | 比較先の値と違えば valid |
+
+`@NotEmptyWhen` / `@EmptyWhen` などは、空かどうかを検証することが目的なので、ここには含みません。

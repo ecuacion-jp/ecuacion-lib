@@ -15,6 +15,7 @@
  */
 package jp.ecuacion.lib.core.util;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Locale;
@@ -102,8 +103,8 @@ public class StringUtil {
   /**
    * Returns a lowerSnakeCase string from a camel case string.
    * 
-   * @param camelCaseString snakeCaseString, may be null.
-   * @return camel case string, may be null when camelCaseString is null.
+   * @param camelCaseString camel case string
+   * @return lower snake case string
    */
   public static String getLowerSnakeFromCamel(String camelCaseString) {
     // uncapitalized
@@ -121,12 +122,64 @@ public class StringUtil {
   /* ■□■□ number ■□■□ */
 
   /**
+   * Returns the number with grouping separators, like {@code "1,234,567"} for {@code "1234567"}.
+   *
+   * <p>The result does not depend on the default locale.
+   *     It always uses {@code ","} as the grouping separator and {@code "."} as the decimal
+   *     separator. Use {@link #toNumberWithGroupingSeparators(String, Locale)}
+   *     to format it in the way of a specific locale.</p>
+   *
+   * <p>The number of digits after the decimal point is kept as it is in {@code number}
+   *     (for example, {@code "1234.50"} results in {@code "1,234.50"}).</p>
+   *
+   * @param number a string which {@link BigDecimal#BigDecimal(String)} accepts,
+   *     like {@code "1234567"}, {@code "-1234.5"}
+   * @return the number with grouping separators
+   * @throws NumberFormatException when {@code number} is not a valid number
+   */
+  public static String toNumberWithGroupingSeparators(String number) {
+    return toNumberWithGroupingSeparators(number, Locale.ROOT);
+  }
+
+  /**
+   * Returns the number with grouping separators of the designated locale,
+   *     like {@code "1.234.567"} for {@code "1234567"} with {@code Locale.GERMANY}.
+   *
+   * <p>The number of digits after the decimal point is kept as it is in {@code number}
+   *     (for example, {@code "1234.50"} results in {@code "1.234,50"} with
+   *     {@code Locale.GERMANY}).</p>
+   *
+   * @param number a string which {@link BigDecimal#BigDecimal(String)} accepts,
+   *     like {@code "1234567"}, {@code "-1234.5"}
+   * @param locale the locale which determines the grouping separator and the decimal separator
+   * @return the number with grouping separators
+   * @throws NumberFormatException when {@code number} is not a valid number
+   */
+  public static String toNumberWithGroupingSeparators(String number, Locale locale) {
+    Objects.requireNonNull(number);
+    Objects.requireNonNull(locale);
+
+    BigDecimal value = new BigDecimal(number);
+    // NumberFormat rounds to 3 fraction digits by default. Keep the digits of the input instead.
+    int fractionDigits = Math.max(value.scale(), 0);
+
+    NumberFormat formatter = NumberFormat.getNumberInstance(locale);
+    formatter.setMinimumFractionDigits(fractionDigits);
+    formatter.setMaximumFractionDigits(fractionDigits);
+    return formatter.format(value);
+  }
+
+  /**
    * Returns comma-separated number from number.
    *
    * @param number number
    * @return String comma-separated number.
    * @throws NumberFormatException NumberFormatException.
+   * @deprecated Use {@link #toNumberWithGroupingSeparators(String)} instead.
+   *     This method depends on the default locale, accepts integers only,
+   *     and its name suggests a currency symbol which it does not add.
    */
+  @Deprecated(forRemoval = true, since = "16.5.0")
   public static String toCurrencyFormat(String number) {
     Objects.requireNonNull(number);
 
@@ -273,7 +326,7 @@ public class StringUtil {
    * @param array list of string.
    * @return csv with spaces after commas.
    */
-  public static String getCsvWithSpace(String[] array) {
+  public static String getCsvWithSpace(String... array) {
     return getSeparatedValuesString(array, ", ");
   }
 

@@ -4,6 +4,11 @@
 It implements methods that are not provided by Apache Commons Lang's `StringUtils`.
 Use this when you need operations not available in `StringUtils`.
 
+The handling of `null` and empty strings basically aims at the same behavior as `StringUtils`
+(for example, an empty string returns an empty string).
+However, since ecuacion-lib adopts JSpecify and is basically `@NullMarked`, `StringUtil` does not return `null`.
+Therefore, where `StringUtils` would return `null`, `StringUtil` throws a `NullPointerException` when `null` is passed as an argument.
+
 ---
 
 ## Case Conversion
@@ -38,9 +43,23 @@ StringUtil.getLowerSnakeFromCamel("UserName"); // "user_name"
 
 ## Number Formatting
 
+Adds grouping separators to a number string.
+
 ```java
-StringUtil.toCurrencyFormat("1234567"); // "1,234,567"
+StringUtil.toNumberWithGroupingSeparators("1234567");    // "1,234,567"
+StringUtil.toNumberWithGroupingSeparators("1234567.50"); // "1,234,567.50"
+
+StringUtil.toNumberWithGroupingSeparators("1234567.50", Locale.GERMANY); // "1.234.567,50"
 ```
+
+Without a locale, the grouping separator is always `,` and the decimal separator is `.`, regardless of the default locale.
+With a locale, the grouping separator and the decimal separator of that locale are used.
+
+Both integers and decimals are supported, with no limit on the number of digits.
+The digits after the decimal point are kept as they are in the input (not rounded).
+
+The former `toCurrencyFormat` is deprecated.
+Since it depends on the default locale and supports integers (within the range of `int`) only, use `toNumberWithGroupingSeparators` instead.
 
 ---
 

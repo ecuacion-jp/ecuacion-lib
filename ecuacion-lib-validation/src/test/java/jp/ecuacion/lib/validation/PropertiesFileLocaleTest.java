@@ -17,6 +17,7 @@ package jp.ecuacion.lib.validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.Locale;
 import jp.ecuacion.lib.core.util.PropertiesFileUtil;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,6 +60,36 @@ public class PropertiesFileLocaleTest {
 
     assertThat(getFileLocale(Locale.CANADA_FRENCH)).isEqualTo("fr_CA");
     assertThat(getFileLocale(Locale.ROOT)).isEqualTo("none");
+  }
+
+  @Test
+  @DisplayName("switching locales returns the file of each locale, not the one read first")
+  public void switchingLocalesTest() {
+    Locale defaultLocale = Locale.getDefault();
+    try {
+      // The fallback to the default locale must not affect other locales.
+      Locale.setDefault(Locale.JAPANESE);
+      String key = "jp.ecuacion.lib.validation.constraints.PatternWithDescription.message";
+
+      for (int i = 0; i < 2; i++) {
+        assertThat(PropertiesFileUtil.getValidationMessage(Locale.ENGLISH, key, new HashMap<>()))
+            .isEqualTo("must match \"{description}\"");
+        assertThat(PropertiesFileUtil.getValidationMessagePatternDescription(Locale.ENGLISH,
+            "embeddedParameter")).isEqualTo("alphanumeric, \".\", \"-\" and \"_\"");
+
+        assertThat(PropertiesFileUtil.getValidationMessage(Locale.JAPANESE, key, new HashMap<>()))
+            .isEqualTo("「{description}」に合致する値にしてください");
+        assertThat(PropertiesFileUtil.getValidationMessagePatternDescription(Locale.JAPANESE,
+            "embeddedParameter")).isEqualTo("半角英数と\".\"、\"-\"、\"_\"");
+      }
+
+      // A locale without its own file uses the base file, not the default locale's one.
+      assertThat(PropertiesFileUtil.getValidationMessage(Locale.forLanguageTag("sw"), key,
+          new HashMap<>())).isEqualTo("must match \"{description}\"");
+
+    } finally {
+      Locale.setDefault(defaultLocale);
+    }
   }
 
   private String getFileLocale(Locale locale) {

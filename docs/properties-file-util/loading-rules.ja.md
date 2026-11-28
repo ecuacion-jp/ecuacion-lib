@@ -89,22 +89,37 @@ some.key=アプリ独自の値
 
 ---
 
-## application.properties 内の `${...}` プレースホルダーの解決
+## application.properties の取得元の差し替え
 
-パスワードなどの設定値は通常、`application.properties` からプレーンテキストとして読み込まれます。
-このファイルは通常ソース管理にコミットされるため、実際の秘密情報を直接書き込むのは避けるべきです。
-代わりに `${...}` プレースホルダー（例: `some.key=${SOME_ENV_VAR}`）を記述し、外部リゾルバーを登録することで、実行時に環境変数などの外部ソースから値を供給できます。
+`setApplicationResolver(...)` でリゾルバーを登録すると、`application.properties` のキーの取得元をリゾルバーに差し替えられます。
+フレームワークが独自の設定の仕組み（外部ファイル、環境変数、プロファイルなどを独自の優先順位でまとめたもの）を持つ場合に、
+その解決済みの値を ecuacion-lib に渡すための拡張ポイントです。
+`ecuacion-splib` は、Spring の `Environment` を通じて値を返すリゾルバーを自動的に登録します。
 
 ```java
-PropertiesFileUtil.setExternalPlaceholderResolver(value -> System.getenv().getOrDefault(value, value));
+// キーに対応する値を返す。キーが存在しない場合は null を返す
+PropertiesFileUtil.setApplicationResolver(key -> environment.getProperty(key));
 ```
 
-ecuacion-lib 自体は環境変数やフレームワーク固有のプロパティソースについて何も組み込みで知りません。`setExternalPlaceholderResolver(...)` は単なる拡張ポイントです。`ecuacion-splib`
-などのフレームワーク固有モジュールは、Spring の `Environment` を通じて `${...}` を解決するよう自動的に配線します。登録済みのリゾルバーを解除するには `null` を渡します。
+リゾルバーを登録すると、`application.properties` の取得（`getApplication*` / `hasApplication`）は**リゾルバーだけ**を参照します。
 
-この解決処理は `application[_xxx].properties` の値にのみ適用され、`messages.properties` や
-`ValidationMessages.properties` などには影響しません（`ValidationMessages` 系ファイルにおける
-`${...}` EL 式評価については [ValidationMessages](validation-messages.md) を参照してください）。
+- クラスパス上の `application.properties` と JVM システムプロパティは参照しません。
+- リゾルバーが `null` を返したキーは、存在しないものとして扱います。
+
+登録済みのリゾルバーを解除するには `null` を渡します。解除すると、従来どおりクラスパス上の `application.properties`（JVM システムプロパティを優先）から取得します。
+
+`messages.properties` や `ValidationMessages.properties` などには影響しません。
+
+### `${...}` プレースホルダーと秘密情報
+
+ecuacion-lib 自体は、`application.properties` の値に含まれる `${...}` プレースホルダーを解決しません（そのままの文字列を返します）。
+`ecuacion-splib` を使う場合は、Spring の `Environment` が `${...}` を解決した値がリゾルバー経由で返されます。
+
+`application.properties` は通常ソース管理にコミットされるため、パスワードなどの秘密情報は直接書かず、
+`some.key=${SOME_ENV_VAR}` のように記述して、Spring などに環境変数から解決させることをおすすめします。
+ecuacion-lib 単体で使う場合は、JVM システムプロパティ（起動時の `-D`）で値を与える方法もあります（[JVMシステムプロパティは全ファイル種別より優先される](#jvmシステムプロパティは全ファイル種別より優先される) を参照）。
+
+（`ValidationMessages` 系ファイルにおける `${...}` EL 式評価については [ValidationMessages](validation-messages.md) を参照してください。）
 
 ---
 

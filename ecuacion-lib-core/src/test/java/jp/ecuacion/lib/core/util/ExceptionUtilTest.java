@@ -64,10 +64,10 @@ public class ExceptionUtilTest {
   }
 
   // shared helper used by BasicCollectionTypes and CustomObjectsInCollections
-  private static String validateCollection(Object object, boolean isMsgWithItemName,
+  private static String validateCollection(Object object, boolean showsItemName,
       boolean showsItemNamePath) {
     Violations violations = new Violations().validate(object).withMessageParameters(
-        p -> p.isMessageWithItemName(isMsgWithItemName).showsItemNamePath(showsItemNamePath));
+        p -> p.showsItemName(showsItemName).showsItemNamePath(showsItemNamePath));
     return ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true).get(0);
   }
 
@@ -170,11 +170,11 @@ public class ExceptionUtilTest {
   @DisplayName("item name and item name path - non-collection values")
   class NonCollectionValues {
 
-    private String getMsg(Object obj, boolean isMsgWithItemName, boolean showsItemNamePath) {
+    private String getMsg(Object obj, boolean showsItemName, boolean showsItemNamePath) {
       return ExceptionUtil.getMessageList(
           (new Violations().validate(obj)
               .withMessageParameters(p -> p.showsItemNamePath(showsItemNamePath))),
-          Locale.ENGLISH, isMsgWithItemName).get(0);
+          Locale.ENGLISH, showsItemName).get(0);
     }
 
     @Test
@@ -820,6 +820,33 @@ public class ExceptionUtilTest {
     }
 
     @Test
+    @DisplayName("Map key whose toString() contains '.', '[' or ']': key shown as it is")
+    void mapKeyWithPropertyPathSyntaxCharacters() {
+      Map<String, LocalDate> strDateMap = new HashMap<>();
+      String msg = null;
+
+      // propertyPath: strDateMap[1.5].<map value>
+      strDateMap.put("1.5", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [1.5] contained by 'string date map' must not be null.");
+
+      // propertyPath: strDateMap[a]b].<map value>
+      strDateMap.clear();
+      strDateMap.put("a]b", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [a]b] contained by 'string date map' must not be null.");
+
+      // propertyPath: strDateMap[[x]].<map value>
+      strDateMap.clear();
+      strDateMap.put("[x]", null);
+      msg = validateCollection(new ColFieldOfBasicNotNull.StringDateMap(strDateMap), true, false);
+      assertThat(msg).isEqualTo(
+          "Element with key [[x]] contained by 'string date map' must not be null.");
+    }
+
+    @Test
     @DisplayName("nested Set and Map: item path reflects nesting depth")
     void multipleLayersOtherThanList() {
       String msg = null;
@@ -1121,6 +1148,87 @@ public class ExceptionUtilTest {
           .isEqualTo("'target field'" + MSG);
     }
 
+    @Test
+    @DisplayName("itemNamePath: nested object below a collection element")
+    void nestedObjectBelowCollectionElement() {
+      NestedInElement obj = new NestedInElement(List.of(
+          new NestedInElement.Order(new NestedInElement.Address("1")),
+          new NestedInElement.Order(new NestedInElement.Address(null))));
+
+      assertThat(validateCollection(obj, true, false)).isEqualTo("'zip code' must not be null.");
+      assertThat(validateCollection(obj, true, true)).isEqualTo(
+          "'zip code' at element 2 contained by 'order list' > 'address' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: Map value in a nested object")
+    void mapValueInNestedObject() {
+      Map<String, TargetCls> map = new HashMap<>();
+      map.put("key1", new TargetCls(null));
+      MapInChild obj = new MapInChild(new MapInChild.Child(map));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at 'child field' "
+          + "> element with key [key1] contained by 'target map' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: field of a bean Map key")
+    void mapKeyBean() {
+      // toString() of the key (a record) is "TargetCls[field=null]", which contains brackets.
+      SingleMapKey obj = new SingleMapKey();
+      obj.targetMapKey.put(new TargetCls(null), "v");
+
+      assertThat(validateCollection(obj, true, false)).isEqualTo("'target field' must not be null.");
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at some key element "
+          + "of key-value data contained by 'target map key' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: List of beans in a Map value")
+    void listOfBeansInMapValue() {
+      MapOfList obj = new MapOfList();
+      obj.targetMapList.put("key1", List.of(new TargetCls("a"), new TargetCls(null)));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at element with "
+          + "key [key1] > element 2 contained by 'target map list' must not be null.");
+    }
+
+    @Test
+    @DisplayName("itemNamePath: Map key containing '.' in a nested object")
+    void mapKeyWithDotInNestedObject() {
+      DotKeyInChild obj = new DotKeyInChild(new DotKeyInChild.Child());
+      obj.child().targetMapValue.put("1.5", new TargetCls(null));
+
+      assertThat(validateCollection(obj, true, true)).isEqualTo("'target field' at 'child field' "
+          + "> element with key [1.5] contained by 'target map value' must not be null.");
+    }
+
+    public static record NestedInElement(@Valid List<Order> orderList) {
+      public static record Order(@Valid Address address) {}
+
+      public static record Address(@NotNull @Nullable String zip) {}
+    }
+
+    public static record MapInChild(@Valid Child child) {
+      public static record Child(@Valid Map<String, TargetCls> targetMap) {}
+    }
+
+    // The following classes are not records, since @Valid is placed on a type argument
+    // (see the comment on SingleArray).
+    public static class SingleMapKey {
+      final Map<@Valid TargetCls, String> targetMapKey = new HashMap<>();
+    }
+
+    public static class MapOfList {
+      final Map<String, List<@Valid TargetCls>> targetMapList = new HashMap<>();
+    }
+
+    public static record DotKeyInChild(@Valid Child child) {
+      public static class Child {
+        final Map<String, @Valid TargetCls> targetMapValue = new HashMap<>();
+      }
+    }
+
     public static record TargetCls(@NotNull @Nullable String field) {}
 
     @ItemNameKeyClass("itemNameKeyClass")
@@ -1340,7 +1448,7 @@ public class ExceptionUtilTest {
     }
 
     @Test
-    @DisplayName("with isMessagesWithItemNamesAsDefault flag: delegates correctly")
+    @DisplayName("with showsItemNameAsDefault flag: delegates correctly")
     void withFlag() {
       ViolationException ve =
           new ViolationException(new Violations().add(new BusinessViolation("MSG1")));
@@ -1409,18 +1517,18 @@ public class ExceptionUtilTest {
   class MessageFromBusinessViolationBranches {
 
     @Test
-    @DisplayName("isMessagesWithItemNamesAsDefault=true: uses withItemName message lookup")
-    void isMessageWithItemNameTrue() {
+    @DisplayName("showsItemNameAsDefault=true: uses withItemName message lookup")
+    void showsItemNameAsDefaultTrue() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
       assertThat(msgs).containsExactly("message 1.");
     }
 
     @Test
-    @DisplayName("explicit isMessageWithItemName(false): overrides default")
-    void explicitIsMessageWithItemNameFalse() {
+    @DisplayName("explicit showsItemName(false): overrides default")
+    void explicitShowsItemNameFalse() {
       Violations v = new Violations().add(new BusinessViolation("MSG1"))
-          .withMessageParameters(p -> p.isMessageWithItemName(false));
+          .withMessageParameters(p -> p.showsItemName(false));
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, true);
       assertThat(msgs).containsExactly("message 1.");
     }
@@ -1532,16 +1640,25 @@ public class ExceptionUtilTest {
   class MessageListSetEdgeCases {
 
     @Test
-    @DisplayName("throws RuntimeException when constraint violation set is empty")
-    void emptySet_throws() {
-      try {
-        ExceptionUtil.getMessageList(new HashSet<>(), Locale.ENGLISH, false,
-            Violations.newMessageParameters());
-        org.junit.jupiter.api.Assertions.fail();
-      } catch (RuntimeException ex) {
-        assertThat(ex.getMessage()).contains("zero");
-      }
+    @DisplayName("returns an empty list when constraint violation set is empty")
+    void emptySet_returnsEmptyList() {
+      assertThat(ExceptionUtil.getMessageList(new HashSet<>(), Locale.ENGLISH, false,
+          Violations.newMessageParameters())).isEmpty();
     }
+
+    @Test
+    @DisplayName("literal message: {0} is replaced literally, keeping quotes and braces")
+    void literalMessageWithItemNamePlaceholder() {
+      var set = Validation.buildDefaultValidatorFactory().getValidator()
+          .validate(new LiteralMessageBean());
+      assertThat(ExceptionUtil.getMessageList(set, Locale.ENGLISH))
+          .singleElement().asString().endsWith(" can't be null {x}").doesNotContain("{0}");
+    }
+  }
+
+  public static class LiteralMessageBean {
+    @NotNull(message = "{0} can't be null {x}")
+    public @Nullable String value;
   }
 
   // -------------------------------------------------------------------------
@@ -1554,7 +1671,7 @@ public class ExceptionUtilTest {
   class BusinessViolationWithItemNameKeys {
 
     @Test
-    @DisplayName("itemNameKeys are resolved when isMessagesWithItemNamesAsDefault=true")
+    @DisplayName("itemNameKeys are resolved when showsItemNameAsDefault=true")
     void itemNameKeysResolved() {
       BusinessViolation bv = new BusinessViolation(
           new String[]{"singleLayer.field"}, new String[]{}, "MSG1");
@@ -1575,22 +1692,55 @@ public class ExceptionUtilTest {
       // Before the fix, "{0}" in the template was hijacked by the item name (via
       // namedArgs.put("0", itemName)) before messageArgs were ever applied by MessageFormat,
       // so messageArgs[0] ("argValue") could never appear in the message.
-      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+      assertThat(msgs.get(0)).isEqualTo("'test field': argValue");
     }
 
     @Test
-    @DisplayName("{item_name} is resolved even when isMessagesWithItemNamesAsDefault=false")
+    @DisplayName("{item_name} is resolved even when showsItemNameAsDefault=false")
     void itemNameResolvedWithoutItemNameMode() {
       BusinessViolation bv = new BusinessViolation(new String[]{"singleLayer.field"},
           new String[]{}, "MSG_WITH_ITEM_NAME_AND_ARG", "argValue");
       Violations v = new Violations().add(bv);
-      // isMessagesWithItemNamesAsDefault=false: the message is looked up in
+      // showsItemNameAsDefault=false: the message is looked up in
       // messages.properties (not messages_with_item_names.properties), but {item_name} in it
       // must still be resolved, mirroring the ConstraintViolation message path where {0} is
       // replaced by the item name regardless of which message file the text came from.
       List<String> msgs = ExceptionUtil.getMessageList(v, Locale.ENGLISH, false);
       assertThat(msgs).hasSize(1);
-      assertThat(msgs.get(0)).isEqualTo("test field: argValue");
+      assertThat(msgs.get(0)).isEqualTo("'test field': argValue");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Special characters in the values of named placeholders
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("special characters in the values of named placeholders")
+  class SpecialCharactersInNamedPlaceholderValues {
+
+    @ItemNameKeyClass("SingleLayer")
+    public static class PatternWithBraces {
+      @Pattern(regexp = "\\d{3}")
+      private String field = "O'Brien {x}";
+    }
+
+    @Test
+    @DisplayName("ConstraintViolation with item names: ', { and } are displayed as they are")
+    void constraintViolationWithItemName() {
+      assertThat(ExceptionUtil
+          .getMessageList(new Violations().validate(new PatternWithBraces()), Locale.ENGLISH,
+              true)
+          .get(0)).isEqualTo("'test field' must match \"\\d{3}\". (input: O'Brien {x})");
+    }
+
+    @Test
+    @DisplayName("BusinessViolation with message args: ' in {item_name} is displayed as it is")
+    void businessViolationWithMessageArgs() {
+      BusinessViolation bv = new BusinessViolation(new String[] {"singleLayer.field"},
+          new String[] {}, "MSG_WITH_ITEM_NAME_AND_ARG", "it's {0}");
+      assertThat(ExceptionUtil.getMessageList(new Violations().add(bv), Locale.ENGLISH, true)
+          .get(0)).isEqualTo("'test field': it's {0}");
     }
   }
 }

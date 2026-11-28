@@ -26,7 +26,14 @@ It is based on Java's standard `ResourceBundle` with additional features. (Detai
 The 3 `ValidationMessages` variants have a different argument format from the others.
 For details, see [ValidationMessages](validation-messages.md).
 
-For methods with ✓ in the Locale column, if the Locale argument is omitted or `null` is passed, it is treated as `Locale.ROOT`.
+For methods with ✓ in the Locale column, if the Locale argument is omitted or `null` is passed, it is treated as `Locale.ROOT` (the value is obtained from the file without a locale, like `messages.properties`).
+However, arguments such as numbers and dates are formatted with the locale of `LocaleUtil.getFallbackLocale()`.
+
+The existence check by `hasXxx(...)` is done against the files without a locale.
+Files with a locale (like `messages_ja.properties`) are supposed to have the same keys as the file without a locale.
+The only exception is `hasValidationMessage(locale, key)`, which checks the file for the specified locale (`Locale.ROOT` when `null`).
+
+If an empty string is passed as the key, `getXxx(...)` throws an `IllegalArgumentException`, and `hasXxx(...)` returns `false`.
 
 ---
 

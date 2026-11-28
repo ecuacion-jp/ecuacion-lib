@@ -26,8 +26,8 @@ Each method returns the argument as-is after validation, so it can be used in me
 String validated = ObjectsUtil.requireNonEmpty(name);
 ```
 
-Note that there is no annotation corresponding to `ObjectsUtil.requireNonNull()`.
-This method is used to null-check a `@Nullable` value at runtime and return it as `@NonNull`.
+Note that to perform only a null check, use `java.util.Objects.requireNonNull()`.
+`ObjectsUtil` does not provide a method for only a null check, so that IDEs and static analysis tools can recognize it as a null check.
 
 ---
 

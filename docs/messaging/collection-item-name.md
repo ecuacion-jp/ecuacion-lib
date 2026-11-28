@@ -5,11 +5,27 @@
 When a validation error occurs on a field that is an element of a collection (List, Set, or Map),
 information about "which element" is appended to the item name.
 
-Example: When the 1st element of a `tags` list violates `@NotNull`:
+Example: When the 1st element of `tags` (`List<String>`) in `ArticleForm` violates `@NotNull`
+
+```java
+public class ArticleForm {
+    private List<@NotNull String> tags;
+}
+```
+
+```properties
+# item_names.properties
+articleForm.tags=Tags
+```
 
 ```text
-null is not allowed for the 1st element of 'tags'
+Element 1 contained by 'Tags' must not be null.
 ```
+
+The item name shown in quotes (`Tags`) is the display name defined in `item_names.properties`.
+The key (`articleForm.tags`) is the `itemNameKey`, which is normally determined automatically from the class
+name and the field name (see [ItemNameKey](../item/item-name-key.md)).
+If the key is not defined in `item_names.properties`, the key string (`articleForm.tags`) is displayed as is.
 
 ---
 
@@ -20,28 +36,24 @@ and a description is generated using the corresponding keyword.
 
 | Collection Type | Keyword | Default Display (English) |
 | --- | --- | --- |
-| Element of `List<T>` | `order` | `the {n}th element` (1-based) |
-| Element of `Set<T>` | `any` | `any of multiple elements` |
-| Key of `Map<K, V>` | `mapKey` | `any of the key items` |
-| Value of `Map<K, V>` | `mapValue` | `the element with key [{key}]` |
+| Element of `List<T>` | `order` | `element {n}` (1-based) |
+| Element of `Set<T>` | `any` | `some element` |
+| Key of `Map<K, V>` | `mapKey` | `some key element of key-value data` |
+| Value of `Map<K, V>` | `mapValue` | `element with key [{key}]` |
+
+For arrays (arrays of beans with `@Valid`), the item name is displayed with `order`, the same as `List<T>`.
+Constraints on the elements of an array themselves are not validated, so they do not appear in item names either
+(see [propertyPath in Collections > Arrays](../item/collection-property-path.md#arrays)).
 
 ---
 
 ## Concrete Examples
 
+The output messages in the following examples are in English. The first letter of a message is capitalized.
+
 ### Case of List&lt;String&gt; (element itself)
 
-```java
-@Valid
-private List<@NotNull String> tags;
-// itemPropertyPath: "tags[0].<list element>"
-```
-
-Example error message:
-
-```text
-null is not allowed for the 1st element of 'tags'
-```
+As in the "Overview" example above. The propertyPath of the violation is `tags[0].<list element>`.
 
 ### Case of List&lt;T&gt; (field within an element)
 
@@ -65,27 +77,42 @@ public class OrderItemRecord implements ItemContainer {
 }
 ```
 
+```properties
+# item_names.properties
+orderForm.items=Order Items
+items.productCode=Product Code
+```
+
+Note that the `itemNameKey` of `productCode` is `items.productCode`, not `orderItemRecord.productCode`.
+This is because, for a nested path (`items[1].productCode`), the field name of the preceding node (`items`) is
+used as the class part (see [ItemNameKey](../item/item-name-key.md)).
+
 When a `@NotNull` violation occurs at `items[1].productCode`, setting `MessageParameters.showsItemNamePath=true` appends collection position information:
 
 ```text
-null is not allowed for 'productCode' of the 2nd element of 'items'
+'Product Code' at element 2 contained by 'Order Items' must not be null.
 ```
 
-With `showsItemNamePath=false` (default), only `'productCode'` is shown.
+With `showsItemNamePath=false` (default), only `'Product Code'` is shown.
 For details, see [itemNamePath](item-name-path.md).
 
 ### Case of Map
 
 ```java
-@Valid
-private Map<String, @NotNull String> labels;
-// itemPropertyPath: "labels[en].<map value>"
+public class ProductForm {
+    private Map<String, @NotNull String> labels;
+}
 ```
 
-Example error message:
+```properties
+# item_names.properties
+productForm.labels=Labels
+```
+
+When the value for key `en` violates `@NotNull` (propertyPath: `labels[en].<map value>`):
 
 ```text
-null is not allowed for the element with key [en] of 'labels'
+Element with key [en] contained by 'Labels' must not be null.
 ```
 
 ---
@@ -96,11 +123,11 @@ The description text for collection elements can be overridden in `messages.prop
 
 | Key (jp.ecuacion.lib.core.common.itemName.*) | Default Value (en) | Description |
 | --- | --- | --- |
-| `order` | `the {0}th element` | The nth element of a List (`{0}` = 1-based) |
-| `any` | `any of multiple elements` | Set element |
-| `mapKey` | `any of the key items` | Map key |
-| `mapValue` | `the element with key [{0}]` | Map value (`{0}` = key value) |
-| `collectionItemName` | `{1} of {0}` | Pattern for combining field name (`{0}`) and element description (`{1}`) |
+| `order` | `element {0}` | The nth element of a List (`{0}` = 1-based) |
+| `any` | `some element` | Set element |
+| `mapKey` | `some key element of key-value data` | Map key |
+| `mapValue` | `element with key [{0}]` | Map value (`{0}` = key value) |
+| `collectionItemName` | `{1} contained by {0}` | Pattern for combining field name (`{0}`) and element description (`{1}`) |
 
 Customization example:
 

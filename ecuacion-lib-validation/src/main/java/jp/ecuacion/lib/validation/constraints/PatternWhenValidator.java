@@ -46,7 +46,8 @@ public class PatternWhenValidator extends ValidateWhenValidator<PatternWhen, Obj
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.conditions(), annotation.notPatternWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.oppositeWhenConditionNotSatisfied()
+            || annotation.notPatternWhenConditionNotSatisfied());
 
     this.regexp = annotation.regexp();
   }

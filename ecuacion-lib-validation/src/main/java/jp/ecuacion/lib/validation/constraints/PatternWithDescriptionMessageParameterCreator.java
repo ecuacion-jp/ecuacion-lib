@@ -20,14 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import jp.ecuacion.lib.core.jakartavalidation.constraints.ValidatorMessageParameterCreator;
-import jp.ecuacion.lib.core.util.PropertiesFileUtil.Arg;
-import jp.ecuacion.lib.core.util.enums.PropertiesFileUtilFileKindEnum;
-import org.apache.commons.lang3.StringUtils;
+import jp.ecuacion.lib.validation.constraints.internal.PatternDescriptionParameter;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Is a LocalizedMessageParameter creator for PatternWithDescription.
+ *
+ * <p>See {@link PatternDescriptionParameter} for how {@code description} is created.</p>
  */
 public class PatternWithDescriptionMessageParameterCreator
     implements ValidatorMessageParameterCreator {
@@ -38,17 +38,9 @@ public class PatternWithDescriptionMessageParameterCreator
 
     Map<@NonNull String, @Nullable Object> result = new HashMap<>();
 
-    final String key = "description";
-    String description = (String) paramMap.get(key);
-
-    if (StringUtils.isEmpty(description)) {
-      throw new RuntimeException("@PatternWithDescription needs " + key + " value.");
-    }
-
-    result.put("description", Arg.fromFileKinds(
-        new PropertiesFileUtilFileKindEnum[] {
-            PropertiesFileUtilFileKindEnum.VALIDATION_MESSAGES_PATTERN_DESCRIPTIONS},
-        Objects.requireNonNull(description)));
+    result.put("description", PatternDescriptionParameter.of(
+        Objects.requireNonNull((String) paramMap.get("regexp")),
+        Objects.requireNonNullElse((String) paramMap.get("description"), "")));
 
     return result;
   }

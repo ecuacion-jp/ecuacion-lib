@@ -49,7 +49,8 @@ public class NotValueOfPropertyPathWhenValidator
         annotation.conditionOperator(), annotation.conditionValueString(),
         annotation.conditionValuePatternRegexp(), annotation.conditionValuePropertyPath(),
         annotation.conditionValueBoolean(), annotation.conditionValueState(),
-        annotation.conditions(), annotation.valueOfPropertyPathWhenConditionNotSatisfied());
+        annotation.conditions(), annotation.oppositeWhenConditionNotSatisfied()
+            || annotation.valueOfPropertyPathWhenConditionNotSatisfied());
 
     this.valuePropertyPath = annotation.valuePropertyPath();
   }
@@ -70,7 +71,7 @@ public class NotValueOfPropertyPathWhenValidator
     for (int i = 0; i < propertyPaths.length; i++) {
       boolean matches = !isValueInPropertyValues(valuesOfPropertyPaths[i], propertyValues);
       boolean result = satisfiesCondition ? matches
-          : (validatesWhenConditionNotSatisfied ? !matches : true);
+          : (oppositeWhenConditionNotSatisfied ? !matches : true);
 
       if (!result) {
         return false;

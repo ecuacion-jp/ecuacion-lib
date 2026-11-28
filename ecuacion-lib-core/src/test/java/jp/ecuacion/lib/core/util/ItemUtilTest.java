@@ -16,6 +16,7 @@
 package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
@@ -382,6 +383,43 @@ public class ItemUtilTest {
 
       assertThat(item.getPropertyPath()).isEqualTo("child.name");
       assertThat(item.getItemNameKey()).isEqualTo("child.name");
+    }
+  }
+
+  @SuppressWarnings("unused") // fields are read via reflection
+  public static class EmptyKeyClassChild {
+    private String name = "x";
+  }
+
+  @SuppressWarnings("unused") // fields are read via reflection
+  public static class EmptyKeyClassAtFieldRoot {
+    @ItemNameKeyClass("")
+    private EmptyKeyClassChild child = new EmptyKeyClassChild();
+  }
+
+  @ItemNameKeyClass("")
+  @SuppressWarnings("unused") // fields are read via reflection
+  public static class EmptyKeyClassAtClass {
+    private String name = "x";
+  }
+
+  @Nested
+  @DisplayName("@ItemNameKeyClass with an empty value")
+  class EmptyItemNameKeyClass {
+
+    @Test
+    @DisplayName("placed at a field: throws IllegalArgumentException")
+    void atField() {
+      assertThatThrownBy(() -> ItemUtil.resolveItem("child.name", new EmptyKeyClassAtFieldRoot()))
+          .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("#child");
+    }
+
+    @Test
+    @DisplayName("placed at a class: throws IllegalArgumentException")
+    void atClass() {
+      assertThatThrownBy(() -> ItemUtil.resolveItem("name", new EmptyKeyClassAtClass()))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining(EmptyKeyClassAtClass.class.getName());
     }
   }
 }

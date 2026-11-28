@@ -56,11 +56,11 @@ public class ConditionalCommonTestBean {
     }
   }
 
-  public static class ValidatesWhenConditionNotSatisfied {
+  public static class OppositeWhenConditionNotSatisfied {
 
     @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a",
-        notEmptyWhenConditionNotSatisfied = true)
+        oppositeWhenConditionNotSatisfied = true)
     public static class TrueClass {
       private @Nullable String field = null;
       private String condField = "b";
@@ -68,7 +68,7 @@ public class ConditionalCommonTestBean {
 
     @EmptyWhen(propertyPath = "field", conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a",
-        notEmptyWhenConditionNotSatisfied = false)
+        oppositeWhenConditionNotSatisfied = false)
     public static class FalseClass {
       private @Nullable String field = null;
       private String condField = "b";
@@ -103,7 +103,7 @@ public class ConditionalCommonTestBean {
 
     @EmptyWhen(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a",
-        notEmptyWhenConditionNotSatisfied = true)
+        oppositeWhenConditionNotSatisfied = true)
     public static class AllTrueConditionNotSatisfied {
       private @Nullable String field1 = null;
       private String field2 = "";
@@ -112,7 +112,7 @@ public class ConditionalCommonTestBean {
 
     @EmptyWhen(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a",
-        notEmptyWhenConditionNotSatisfied = true)
+        oppositeWhenConditionNotSatisfied = true)
     public static class OneFalseConditionNotSatisfied {
       private @Nullable String field1 = null;
       private String field2 = "X";
@@ -121,7 +121,7 @@ public class ConditionalCommonTestBean {
 
     @EmptyWhen(propertyPath = {"field1", "field2"}, conditionPropertyPath = "condField",
         conditionValue = STRING, conditionValueString = "a",
-        notEmptyWhenConditionNotSatisfied = true)
+        oppositeWhenConditionNotSatisfied = true)
     public static class AllFalseConditionNotSatisfied {
       private String field1 = "X";
       private String field2 = "X";

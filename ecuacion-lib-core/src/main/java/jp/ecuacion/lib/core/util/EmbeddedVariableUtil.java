@@ -45,6 +45,15 @@ public class EmbeddedVariableUtil {
    */
   private EmbeddedVariableUtil() {}
 
+  /**
+   * Holds a found variable and the start symbol it is enclosed by.
+   *
+   * @param startSymbol start symbol
+   * @param name variable name
+   */
+  record FoundVariable(String startSymbol, String name) {
+  }
+
   /*
    * Finds an index of symbol ignoring a symbol with an escape character.
    */
@@ -134,15 +143,12 @@ public class EmbeddedVariableUtil {
    * @param string string
    * @param startSymbols multiple kinds of start symbols
    * @param endSymbol end symbol
-   * @return Pair: start symbol is the left side, and the variable name is the right-side,
+   * @return the found variable and its start symbol,
    *     may be {@code null} when the argument string doesn't contain variables.
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
-
-  @SuppressWarnings("null")
-  static @Nullable Pair<@NonNull String, @Nullable String> getFirstFoundEmbeddedVariable(
-      String string,
-      @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
+  static @Nullable FoundVariable getFirstFoundEmbeddedVariable(String string,
+      @RequireSizeNonZero @RequireElementNonEmpty String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options) {
 
     ObjectsUtil.requireSizeNonZero(startSymbols);
@@ -181,13 +187,12 @@ public class EmbeddedVariableUtil {
       }
 
     } else {
-      String firstFoundStartSymbol = firstFoundParamNameMap.get(firstFoundParamNameList.get(0));
-      @Nullable
-      Pair<@NonNull String, @Nullable String> pair = Pair.of(
-          Objects.requireNonNull(firstFoundParamNameMap.get(firstFoundParamNameList.get(0))),
-          getFirstFoundEmbeddedVariable(string, Objects.requireNonNull(firstFoundStartSymbol),
-              endSymbol, options));
-      return pair;
+      String firstFoundStartSymbol = Objects
+          .requireNonNull(firstFoundParamNameMap.get(firstFoundParamNameList.get(0)));
+      // The variable is surely found since it's found with the start symbol above.
+      String name = Objects.requireNonNull(
+          getFirstFoundEmbeddedVariable(string, firstFoundStartSymbol, endSymbol, options));
+      return new FoundVariable(firstFoundStartSymbol, name);
     }
   }
 
@@ -214,14 +219,12 @@ public class EmbeddedVariableUtil {
    *     It returns list with size zero when the argument string is blank("").
    * @throws StringFormatIncorrectException StringFormatIncorrectException
    */
-  @SuppressWarnings("null")
   public static List<Pair<@Nullable String, String>> getPartList(String string,
       @RequireSizeNonZero @RequireElementNonEmpty @NonNull String[] startSymbols,
       @RequireNonEmpty String endSymbol, @Nullable Options options) {
 
-    // the left side of the pair is startSymbol, and the right variable name.
     @Nullable
-    Pair<@NonNull String, @Nullable String> param = null;
+    FoundVariable param = null;
 
     // search all the variables and put each part to the list.
     List<Pair<@Nullable String, String>> list = new ArrayList<>();
@@ -244,14 +247,15 @@ public class EmbeddedVariableUtil {
         return list;
 
       } else {
-        String firstFoundStartSymbol = param.getLeft();
-        String firstFoundParamName = param.getRight();
+        String firstFoundStartSymbol = param.startSymbol();
+        String firstFoundParamName = param.name();
 
         String variableWithSymbols = firstFoundStartSymbol + firstFoundParamName + endSymbol;
 
         // When a prefix string exists, add it to list
         if (part.indexOf(variableWithSymbols) > 0) {
-          list.add(Pair.of(null, part.substring(0, part.indexOf(variableWithSymbols))));
+          String prefix = part.substring(0, part.indexOf(variableWithSymbols));
+          list.add(Pair.of(null, prefix));
         }
 
         // Add the variable to list
@@ -308,7 +312,8 @@ public class EmbeddedVariableUtil {
    * @throws VariableNotFoundException VariableNotFoundException
    */
   public static String getVariableReplacedString(String string, @RequireNonEmpty String startSymbol,
-      String endSymbol, Function<String, String> valueGetterFromKey, @Nullable Options options) {
+      @RequireNonEmpty String endSymbol, Function<String, String> valueGetterFromKey,
+      @Nullable Options options) {
 
     Objects.requireNonNull(valueGetterFromKey);
 

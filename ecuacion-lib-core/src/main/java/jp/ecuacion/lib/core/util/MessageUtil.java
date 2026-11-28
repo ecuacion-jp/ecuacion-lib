@@ -83,8 +83,11 @@ public class MessageUtil {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < collectionLayerList.size(); i++) {
       String itemNameKeyPart = collectionLayerList.get(i);
-      String tmp = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("["));
-      String index = tmp.substring(1, tmp.indexOf("]"));
+      // Positions are searched in the masked string
+      // so that characters in the toString() value of a map key are not misinterpreted.
+      String maskedPart = PropertyPathUtil.maskBracketContents(itemNameKeyPart);
+      int openPos = maskedPart.lastIndexOf('[');
+      String index = itemNameKeyPart.substring(openPos + 1, maskedPart.indexOf(']', openPos));
 
       KeywordAndIndex ki = determineKeyword(itemNameKeyPart, index);
       String itemNamePath = PropertiesFileUtil.getMessage(locale, ipf + ki.keyword(), ki.index());
@@ -99,18 +102,18 @@ public class MessageUtil {
 
   private static List<@NonNull String> extractCollectionLayers(String rightMostNode) {
     List<@NonNull String> layers = new ArrayList<>();
+    // Positions are searched in the masked string
+    // so that characters in the toString() value of a map key are not misinterpreted.
+    String masked = PropertyPathUtil.maskBracketContents(rightMostNode);
     while (true) {
-      if (rightMostNode.contains("<K>")) {
-        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("<K>")));
-        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("<K>"));
-
-      } else if (rightMostNode.contains("[")) {
-        layers.add(rightMostNode.substring(rightMostNode.lastIndexOf("[")));
-        rightMostNode = rightMostNode.substring(0, rightMostNode.lastIndexOf("["));
-
-      } else {
+      int cutPos = masked.contains("<K>") ? masked.lastIndexOf("<K>") : masked.lastIndexOf('[');
+      if (cutPos < 0) {
         break;
       }
+
+      layers.add(rightMostNode.substring(cutPos));
+      rightMostNode = rightMostNode.substring(0, cutPos);
+      masked = masked.substring(0, cutPos);
     }
     return layers.reversed();
   }
@@ -123,8 +126,9 @@ public class MessageUtil {
       // Map key access via @Valid cascade (e.g., targetMap<K>[keyRep] -> layer "<K>[keyRep]")
       return new KeywordAndIndex("mapKey", index);
 
-    } else if (itemNameKeyPart.contains("<")) {
-      String elType = itemNameKeyPart.substring(itemNameKeyPart.lastIndexOf("<"));
+    } else if (PropertyPathUtil.maskBracketContents(itemNameKeyPart).contains("<")) {
+      String elType = itemNameKeyPart
+          .substring(PropertyPathUtil.maskBracketContents(itemNameKeyPart).lastIndexOf("<"));
       String keyword = switch (elType) {
         case PropertyPathUtil.EL_LIST -> "order";
         case PropertyPathUtil.EL_SET -> "any";
@@ -191,7 +195,9 @@ public class MessageUtil {
    * Wraps each value with display symbols and joins them with a separator.
    *
    * <p>Values are treated as literal strings without any property-key resolution.
-   * Use this when the values themselves are already the final display strings.</p>
+   * Use this when the values themselves are already the final display strings.<br>
+   * {@code #{...}}, braces and quotes in the values are also displayed as they are,
+   * so values from untrusted input (like an end-user-supplied value) can be passed.</p>
    *
    * <p>Example (with English default symbols {@code '...'} and separator {@code ", "}):</p>
    * <pre>
@@ -200,14 +206,32 @@ public class MessageUtil {
    * </pre>
    */
   public static Arg formatValues(String[] values) {
-    return Arg
-        .formattedString(StringUtil.getSeparatedValuesString(Objects.requireNonNull(values),
-            VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL));
+    Objects.requireNonNull(values);
+
+    // Values are passed as arguments, not embedded into the template,
+    // so that #{...}, braces and quotes in them are not interpreted.
+    return Arg.formattedString(placeholderTemplate(values.length), (Object[]) values);
+  }
+
+  /*
+   * Returns the template like 
+   * "#{prependSymbol}{0}#{appendSymbol}#{separator}#{prependSymbol}{1}..."
+   * for the number of values.
+   */
+  private static String placeholderTemplate(int numberOfValues) {
+    List<@NonNull String> placeholders = new ArrayList<>();
+    for (int i = 0; i < numberOfValues; i++) {
+      placeholders.add("{" + i + "}");
+    }
+
+    return StringUtil.getSeparatedValuesString(placeholders.toArray(String[]::new), VALUE_SEPARATOR,
+        VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
   }
 
   /**
    * Resolves each value as a property key, then wraps with display symbols and joins with
    * a separator. If a value is not found as a property key, it is used as a literal string.
+   * An empty string is also used as a literal string (an empty string is not a key).
    *
    * <p>Searches across messages, item_names, enum_names, and constants (in that order).</p>
    *
@@ -228,17 +252,12 @@ public class MessageUtil {
     PropertiesFileUtilFileKindEnum[] fileKinds = new PropertiesFileUtilFileKindEnum[] {
         PropertiesFileUtilFileKindEnum.MESSAGES, PropertiesFileUtilFileKindEnum.ITEM_NAMES,
         PropertiesFileUtilFileKindEnum.ENUM_NAMES, PropertiesFileUtilFileKindEnum.CONSTANTS};
-    List<@NonNull Arg> argList =
-        Arrays.stream(values).map(str -> Arg.fromFileKinds(fileKinds, str)).toList();
+    // An empty string is not a key, so it is passed as a literal string.
+    @Nullable
+    Object[] args = Arrays.stream(Objects.requireNonNull(values))
+        .map(str -> str.isEmpty() ? str : Arg.fromFileKinds(fileKinds, str)).toArray();
 
-    List<@NonNull String> placeholders = new ArrayList<>();
-    for (int i = 0; i < argList.size(); i++) {
-      placeholders.add("{" + i + "}");
-    }
-
-    String template = StringUtil.getSeparatedValuesString(placeholders.toArray(String[]::new),
-        VALUE_SEPARATOR, VALUE_PREPEND_SYMBOL, VALUE_APPEND_SYMBOL);
-    return Arg.formattedString(template, (Object[]) argList.toArray(Arg[]::new));
+    return Arg.formattedString(placeholderTemplate(args.length), args);
   }
 
 }

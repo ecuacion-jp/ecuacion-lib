@@ -7,33 +7,54 @@
 
 ```java
 violations.withMessageParameters(p -> p
-    .isMessageWithItemName(true)
+    .showsItemName(true)
     .messagePrefix("upload.row.prefix"));
 ```
 
-主なユースケースは、画面表示以外（アップロードされたExcelファイルのバリデーション等）でわかりやすいエラーメッセージを組み立てたい場合です。
+同じ設定を複数の `Violations` で使う場合は、`Violations.newMessageParameters()` で作成したインスタンスを
+`messageParameters(...)` で設定することもできます。現在の設定は `messageParameters()` で取得できます。
+
+```java
+Violations.MessageParameters params = Violations.newMessageParameters()
+    .showsItemName(true)
+    .messagePrefix("upload.row.prefix");
+
+new Violations().messageParameters(params).validate(row1).throwIfAny();
+```
+
+`messageParameters(...)` はインスタンスをコピーせずにそのまま保持します。
+そのため、設定後に `withMessageParameters()` などで変更すると、同じインスタンスを設定した他の `Violations` にも反映されます。
 
 ---
 
-## isMessageWithItemName — 項目名あり/なしのメッセージ切り替え
+## showsItemName — 項目名あり/なしのメッセージ切り替え
 
 バリデーションエラーのメッセージを `messages.properties` と
 `messages_with_item_names.properties` のどちらから取得するかを制御します。
 
 | 設定値 | 動作 |
 | ------ | ---- |
-| `null`（デフォルト） | `ExceptionUtil.getMessageList()` の `isMessagesWithItemNamesAsDefault` の値に従う |
+| `null`（デフォルト） | `ExceptionUtil.getMessageList()` の `showsItemNameAsDefault` の値に従う |
 | `true` | 項目名あり版のメッセージを使用 |
 | `false` | 項目名なし版のメッセージを使用 |
 
-`null` の場合のフォールバック先は `ExceptionUtil.getMessageList()` の `isMessagesWithItemNamesAsDefault` パラメータです。
-splib などのフレームワークがこの値をシステムデフォルトとして設定します。
-`isMessageWithItemName` に `true` / `false` を明示した場合は、`isMessagesWithItemNamesAsDefault` の値より優先されます。
+以前の名前の `isMessageWithItemName` は 16.5.0 で非推奨になりました。動作は `showsItemName` と同じです。
+
+`null` の場合のフォールバック先は `ExceptionUtil.getMessageList()` の `showsItemNameAsDefault` パラメータです。
+設定ファイルなどで指定するものではなく、`getMessageList()` を呼び出すときの引数として渡します。
+この引数を持たないオーバーロードを使った場合は `false` として扱われます。
+
+```java
+// showsItemName が null の違反は、項目名あり版のメッセージになる
+List<String> messages = ExceptionUtil.getMessageList(violations, Locale.JAPANESE, true);
+```
+
+`showsItemName` に `true` / `false` を明示した場合は、`showsItemNameAsDefault` の値より優先されます。
 
 詳細は **util &gt; ExceptionUtil** を参照してください。
 
 ```java
-violations.withMessageParameters(p -> p.isMessageWithItemName(true));
+violations.withMessageParameters(p -> p.showsItemName(true));
 ```
 
 **項目名あり版の例:**
@@ -43,7 +64,7 @@ violations.withMessageParameters(p -> p.isMessageWithItemName(true));
 error.required = {item_name}は入力必須です
 ```
 
-`isMessageWithItemName(true)` の場合、`{item_name}` にフィールドの項目名が埋め込まれます。
+`showsItemName(true)` の場合、`{item_name}` にフィールドの項目名が埋め込まれます。
 項目名の解決には Item / ItemUtil が使われます（詳細は util &gt; Item を参照）。
 
 ---
@@ -85,8 +106,8 @@ violations.withMessageParameters(p -> p.messagePrefix("excel.upload.prefix"));
 // → "アップロードされたエクセルファイルにおいて、「氏名」は入力必須です"
 
 // リテラル文字列（キーが見つからないのでそのまま使用）
-violations.withMessageParameters(p -> p.messagePrefix("2行目: "));
-// → "2行目: 「氏名」は入力必須です"
+violations.withMessageParameters(p -> p.messagePrefix("取込データにおいて、"));
+// → "取込データにおいて、「氏名」は入力必須です"
 ```
 
 ### Arg 版 — プレースホルダーを含む動的な値
@@ -138,8 +159,8 @@ jp.ecuacion.ClassValidatorSample.message = {representativePropertyPath}に関連
 | 違反の種類 | 利用可否 |
 | --- | --- |
 | `ConstraintViolation`（`ValidationMessages*.properties`） | `representativePropertyPath`が設定されていれば常に利用可能 |
-| `isMessageWithItemName(true)`の`BusinessViolation`（`messages_with_item_names.properties`） | 利用可能（`{item_name}`と同じ扱い） |
-| `isMessageWithItemName(false)`の`BusinessViolation`（`messages.properties`） | 利用不可 — このファイルは位置引数（`{0}`、`{1}`等）のみを受け取る |
+| `showsItemName(true)`の`BusinessViolation`（`messages_with_item_names.properties`） | 利用可能（`{item_name}`と同じ扱い） |
+| `showsItemName(false)`の`BusinessViolation`（`messages.properties`） | 利用不可 — このファイルは位置引数（`{0}`、`{1}`等）のみを受け取る |
 
 ---
 
@@ -153,7 +174,7 @@ for (int i = 0; i < rows.size(); i++) {
   new Violations()
       .validate(rows.get(i))
       .withMessageParameters(p -> p
-          .isMessageWithItemName(true)
+          .showsItemName(true)
           .showsItemNamePath(true)
           .messagePrefix(rowNum + "行目: "))
       .throwIfAny();

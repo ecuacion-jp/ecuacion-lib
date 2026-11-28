@@ -26,8 +26,8 @@
 String validated = ObjectsUtil.requireNonEmpty(name);
 ```
 
-なお、`ObjectsUtil.requireNonNull()` に対応するアノテーションはありません。
-このメソッドは `@Nullable` な値を実行時に null チェックして `@NonNull` として返す用途で使用します。
+なお、null チェックだけを行う場合は、`java.util.Objects.requireNonNull()` を使用してください。
+IDE や静的解析ツールが null チェックとして認識できるよう、`ObjectsUtil` には null チェックだけのメソッドは用意していません。
 
 ---
 

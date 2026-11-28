@@ -61,7 +61,7 @@ Arg arg = MessageUtil.formatValuesWithResolution(String[] values);
 
 Resolves each string as a property key in the order `messages` → `item_names` → `enum_names` → `constants`,
 wraps them with display symbols, joins them with a separator, and returns the result as an `Arg`.
-If a key is not found, the string is treated as a literal.
+If a key is not found, the string is treated as a literal. An empty string is also treated as a literal.
 
 ```java
 // enum_names.properties: status.active=Active, status.inactive=Inactive
@@ -94,3 +94,5 @@ Arg arg = MessageUtil.formatValues(new String[]{"ACTIVE", "INACTIVE"});
 
 The only difference from `formatValuesWithResolution()` is that property key resolution is not performed.
 Used when the values are already the final strings for display.
+
+`#{...}`, `{`, `}` and `'` in the values are also displayed as they are, so untrusted values such as user input can also be passed.

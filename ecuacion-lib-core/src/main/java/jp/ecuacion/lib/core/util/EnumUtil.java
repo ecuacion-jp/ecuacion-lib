@@ -85,13 +85,19 @@ public class EnumUtil {
 
   /**
    * Returns true if the argument code exists in the enum class.
+   *
+   * <p>It returns {@code false} when {@code code} is {@code null},
+   *     since {@code null} is not a code of any enum value.</p>
    * 
    * @param <T> any enum class
    * @param enumClass enum class
-   * @param code code
-   * @return enum value
+   * @param code code, may be {@code null}
+   * @return {@code true} if the code exists in the enum class
    */
-  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, String code) {
+  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, @Nullable String code) {
+    if (code == null) {
+      return false;
+    }
 
     try {
       T anEnum = getEnumFromCode(enumClass, code);
@@ -165,11 +171,28 @@ public class EnumUtil {
     }
 
     // The following is the case that optionMap.size() == 1
-    String optionKey = optionMap.keySet().stream().toList().get(0);
-    String optionValue = optionMap.get(optionKey);
+    String rawOptionKey = optionMap.keySet().stream().toList().get(0);
+    String optionValue = optionMap.get(rawOptionKey);
+
+    // Option keys are accepted both in lower camel case ("including")
+    // and in upper snake case ("INCLUDING"). matchesOption uses lower camel case.
+    String optionKey = rawOptionKey.equals(rawOptionKey.toUpperCase(Locale.ROOT))
+        ? StringUtil.getLowerCamelFromSnake(rawOptionKey)
+        : rawOptionKey;
+
+    if (optionValue == null) {
+      throw new IllegalArgumentException("The value of the option is not specified. "
+          + "Specify it like '" + rawOptionKey + "=value'. (option: " + rawOptionKey + ")");
+    }
+
+    if (optionValue.isEmpty() && (optionKey.equals("firstCharOfCodeLessThanOrEqualTo")
+        || optionKey.equals("firstCharOfCodeGreaterThanOrEqualTo"))) {
+      throw new IllegalArgumentException(
+          "The value of the option must not be empty. (option: " + rawOptionKey + ")");
+    }
 
     return enumInfo.getValueList().stream()
-        .filter(value -> matchesOption(value, optionKey, Objects.requireNonNull(optionValue)))
+        .filter(value -> matchesOption(value, optionKey, optionValue))
         .map(value -> new String[] {value.getCode(), value.getLabel()})
         .toList();
   }

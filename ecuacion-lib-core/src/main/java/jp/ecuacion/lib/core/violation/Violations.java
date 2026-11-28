@@ -50,9 +50,9 @@ public class Violations {
   private MessageParameters messageParameters = new MessageParameters();
 
   /**
-   * Adds a set of {@link ConstraintViolation}s.
+   * Adds a {@link ConstraintViolation}.
    *
-   * @param violation set of constraint violations to add
+   * @param violation constraint violation to add
    * @return this instance for method chaining
    */
   public Violations add(ConstraintViolation<?> violation) {
@@ -72,24 +72,31 @@ public class Violations {
   }
 
   /**
-   * Constructs a new instance with {@code messageId} and {@code messageArgs}.
+   * Adds a {@link BusinessViolation} constructed with {@code messageId} and {@code messageArgs}.
+   *
+   * <p>It's the same as {@code add(new BusinessViolation(messageId, messageArgs))}.</p>
    *
    * @param messageId message ID
    * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
    *     may be mixed. Each element can be {@code null}.
+   * @return this instance for method chaining
    */
   public Violations add(String messageId, @Nullable Object... messageArgs) {
     return add(new String[] {}, messageId, messageArgs);
   }
 
   /**
-   * Constructs a new instance with {@code itemPropertyPaths},
+   * Adds a {@link BusinessViolation} constructed with {@code itemPropertyPaths},
    *     {@code messageId} and {@code messageArgs}.
+   *
+   * <p>It's the same as
+   *     {@code add(new BusinessViolation(itemPropertyPaths, messageId, messageArgs))}.</p>
    *
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
    * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
    *     may be mixed. Each element can be {@code null}.
+   * @return this instance for method chaining
    */
   public Violations add(@NonNull String[] itemPropertyPaths, String messageId,
       @Nullable Object... messageArgs) {
@@ -97,14 +104,18 @@ public class Violations {
   }
 
   /**
-   * Constructs a new instance with {@code itemNameKeys}, {@code itemPropertyPaths},
-   *     {@code messageId} and {@code messageArgs}.
+   * Adds a {@link BusinessViolation} constructed with {@code itemNameKeys},
+   *     {@code itemPropertyPaths}, {@code messageId} and {@code messageArgs}.
+   *
+   * <p>It's the same as {@code add(new BusinessViolation(itemNameKeys, itemPropertyPaths,
+   *     messageId, messageArgs))}.</p>
    *
    * @param itemNameKeys keys to look up item display names from {@code item_names.properties}
    * @param itemPropertyPaths the itemPropertyPaths related to the violation
    * @param messageId message ID
    * @param messageArgs message Arguments; {@link Arg} instances and plain {@code Object}s
    *     may be mixed. Each element can be {@code null}.
+   * @return this instance for method chaining
    */
   public Violations add(@NonNull String[] itemNameKeys, @NonNull String[] itemPropertyPaths,
       String messageId, @Nullable Object... messageArgs) {
@@ -123,7 +134,7 @@ public class Violations {
   }
 
   /**
-   * Adds a {@link BusinessViolation}.
+   * Adds a list of {@link BusinessViolation}s.
    *
    * @param violationList business violation list to add
    * @return this instance for method chaining
@@ -134,9 +145,13 @@ public class Violations {
   }
 
   /**
-   * Adds a set of {@link ConstraintViolation}s.
+   * Adds all the {@link ConstraintViolation}s and {@link BusinessViolation}s
+   *     held by another {@code Violations}.
    *
-   * @param violations set of constraint violations to add
+   * <p>{@link MessageParameters} of {@code violations} is not taken over;
+   *     the one of this instance is kept.</p>
+   *
+   * @param violations violations to add
    * @return this instance for method chaining
    */
   public Violations addAll(Violations violations) {
@@ -177,6 +192,9 @@ public class Violations {
    * Sets {@link MessageParameters} to apply when constructing messages from
    *     {@link ConstraintViolation}s.
    *
+   * <p>{@code messageParameters} is held as is without being copied,
+   *     so later changes to it are also reflected in this instance.</p>
+   *
    * @param messageParameters message parameters
    * @return this instance for method chaining
    */
@@ -186,15 +204,22 @@ public class Violations {
   }
 
   /**
-   * Sets {@link MessageParameters} to apply when constructing messages from
+   * Returns {@link MessageParameters} to apply when constructing messages from
    *     {@link ConstraintViolation}s.
+   *
+   * @return message parameters
    */
   public MessageParameters messageParameters() {
     return messageParameters;
   }
 
   /**
-   * Returns new MessagepPrameters.
+   * Modifies {@link MessageParameters} of this instance with {@code action}.
+   *
+   * <p>Usage: {@code violations.withMessageParameters(p -> p.showsItemName(true))}</p>
+   *
+   * @param action action that modifies the message parameters
+   * @return this instance for method chaining
    */
   public Violations withMessageParameters(Consumer<MessageParameters> action) {
     action.accept(messageParameters);
@@ -251,9 +276,9 @@ public class Violations {
   }
 
   /**
-   * Throws {@link ViolationException} if any violations have been added.
+   * Throws {@link ViolationWarningException} if any violations have been added.
    *
-   * @throws ViolationException when one or more violations are present
+   * @throws ViolationWarningException when one or more violations are present
    */
   public void throwWarningIfAny() {
     if (!isEmpty()) {
@@ -280,7 +305,9 @@ public class Violations {
   }
 
   /**
-   * Returns new MessagepPrameters.
+   * Returns a new {@link MessageParameters} with the default values.
+   *
+   * @return message parameters
    */
   public static MessageParameters newMessageParameters() {
     return new Violations.MessageParameters();
@@ -293,8 +320,14 @@ public class Violations {
    *     understandable error messages especially for non-display-value validations 
    *     (like validation errors for uploaded excel files).</p>
    * 
-   * <p>{@code isMessageWithItemName}: You'll get message with itemName 
+   * <p>{@code showsItemName}: You'll get message with itemName 
    *     when {@code true} is specified.
+   *     Default value is {@code null}, which means the {@code showsItemNameAsDefault} argument
+   *     of {@code ExceptionUtil.getMessageList(...)} is adopted.</p>
+   * 
+   * <p>{@code showsItemNamePath}: You'll get message with itemNamePath
+   *     (the item names of the parent objects) when {@code true} is specified.
+   *     It works only when the message with itemName is used.
    *     Default value is {@code false}.</p>
    * 
    * <p>{@code messagePrefix} and {@code messagePostfix}: Used
@@ -311,7 +344,7 @@ public class Violations {
    */
   public static class MessageParameters {
 
-    private @Nullable Boolean isMessageWithItemName;
+    private @Nullable Boolean showsItemName;
     private boolean showsItemNamePath = false;
     private @Nullable Arg messagePrefix;
     private @Nullable Arg messagePostfix;
@@ -323,18 +356,46 @@ public class Violations {
     public MessageParameters() {}
 
     /**
-     * Returns isMessageWithItemName.
+     * Returns the value of showsItemName.
+     * 
+     * <p>{@code null} means it's not specified for this instance
+     *     and the system default value is adopted.</p>
      */
-    public @Nullable Boolean isMessageWithItemName() {
-      return isMessageWithItemName;
+    public @Nullable Boolean showsItemName() {
+      return showsItemName;
     }
 
     /**
-     * Sets isMessageWithItemName.
+     * Sets showsItemName and returns this.
+     * 
+     * <p>When {@code true}, the message with itemName is used.
+     *     When {@code null}, the system default value
+     *     ({@code showsItemNameAsDefault} argument of {@code ExceptionUtil.getMessageList(...)})
+     *     is adopted.</p>
      */
-    public MessageParameters isMessageWithItemName(@Nullable Boolean isMessageWithItemName) {
-      this.isMessageWithItemName = isMessageWithItemName;
+    public MessageParameters showsItemName(@Nullable Boolean showsItemName) {
+      this.showsItemName = showsItemName;
       return this;
+    }
+
+    /**
+     * Returns the value of showsItemName.
+     *
+     * @deprecated Use {@link #showsItemName()} instead.
+     */
+    @Deprecated(forRemoval = true, since = "16.5.0")
+    public @Nullable Boolean isMessageWithItemName() {
+      return showsItemName();
+    }
+
+    /**
+     * Sets showsItemName and returns this.
+     *
+     * @deprecated Use {@link #showsItemName(Boolean)} instead.
+     */
+    @Deprecated(forRemoval = true, since = "16.5.0")
+    public MessageParameters isMessageWithItemName(@Nullable Boolean isMessageWithItemName) {
+      return showsItemName(isMessageWithItemName);
     }
 
     /**

@@ -5,7 +5,9 @@
 ecuacion-lib provides dedicated loggers that wrap SLF4J.
 By using these instead of SLF4J loggers directly, you can **make the purpose of logging explicit via type**.
 
-All loggers use `LoggerFactory.getLogger(cls)` internally.
+Each logger uses SLF4J's `LoggerFactory.getLogger(...)` internally.
+The logger name is the caller's class name for `DetailLogger`, and a fixed name for the others
+(see [Operations Using Logger Names](#operations-using-logger-names)).
 
 ---
 
@@ -39,8 +41,14 @@ Intended for use in operations where monitoring services (such as Datadog) filte
 private final ErrorLogger errorLogger = new ErrorLogger();
 
 errorLogger.error("critical system error");
-errorLogger.error(violationException);   // Also records ViolationException details
+
+// Log an exception (class name and message on a single line, without a stack trace)
+errorLogger.logSystemError(throwable);
+errorLogger.logSystemError(throwable, "additional message");
 ```
+
+To log a system error to both `ErrorLogger` and `DetailLogger` at once,
+use `logSystemError` in [LogUtil](../util/log-util.md).
 
 ### SqlLogger — SQL Log
 
@@ -69,26 +77,43 @@ summaryLogger.info("batch completed: processed 1000 records");
 
 ## Constructors
 
-All loggers have the following two types of constructors:
+`DetailLogger` has the following two types of constructors:
 
 ```java
 new DetailLogger(this);           // Pass an instance
-new DetailLogger(getClass());     // Pass a class
+new DetailLogger(getClass());     // Pass a class (when used from a static method)
 ```
 
 Since they are internally converted to `LoggerFactory.getLogger(cls.getName())`,
-log level control by class name is possible in logback / log4j and similar configurations.
+log level control by class (or package) name is possible in logback / log4j and similar configurations.
+
+`ErrorLogger` / `SqlLogger` / `SummaryLogger` have only a no-argument constructor,
+and their logger names are fixed regardless of the caller.
+
+```java
+new ErrorLogger();
+new SqlLogger();
+new SummaryLogger();
+```
 
 ---
 
 ## Operations Using Logger Names
 
-Since the 4 types of loggers each use different logger names, log levels and output destinations
-can be individually controlled in `logback.xml` and similar files.
+The 4 types of loggers use the following logger names:
+
+| Logger | Logger name |
+|---|---|
+| `DetailLogger` | Fully qualified name of the caller class (e.g. `com.example.OrderService`) |
+| `ErrorLogger` | `error-logger` |
+| `SqlLogger` | `sql-logger` |
+| `SummaryLogger` | `summary-logger` |
+
+Therefore, log levels and output destinations can be individually controlled in `logback.xml` and similar files.
 
 ```xml
 <!-- Example: logback.xml -->
-<logger name="jp.ecuacion.lib.core.logging.ErrorLogger" level="WARN" additivity="false">
+<logger name="error-logger" level="WARN" additivity="false">
     <appender-ref ref="ALERT_APPENDER"/>
 </logger>
 ```
