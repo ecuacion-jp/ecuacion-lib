@@ -2,7 +2,7 @@
 
 ## Overview
 
-For an overview, see also [Common Topics > ItemNameKey](../concepts/item-and-name-key.md).
+For an overview, see also [Common Topics > Item and Related Terms](../concepts/item-terms.md#itemnamekey).
 
 `itemNameKey` is a key used to look up the display name of an item from `item_names.properties` and similar files.
 The format is `"classPart.fieldPart"` (e.g., `"user.name"`).
@@ -121,6 +121,8 @@ public class UserDto implements ItemContainer {
     public List<DeptDto> getDeptList() { ... }   // itemNameKey of deptList[0].name: "dept.name"
 }
 ```
+
+If an empty string is specified for `@ItemNameKeyClass`, an `IllegalArgumentException` is thrown when the `itemNameKey` is resolved.
 
 ---
 

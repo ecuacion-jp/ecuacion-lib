@@ -15,6 +15,8 @@ itemNamePath あり:
 「住所」の「郵便番号」にnullは許可されていません
 ```
 
+itemNamePath を表示する設定（`showsItemNamePath`）方法の詳細は [MessageParameters > showsItemNamePath](../validation/message-parameters.md#showsitemnamepath--項目名パスの表示) を参照してください。
+
 ---
 
 ## 仕組み

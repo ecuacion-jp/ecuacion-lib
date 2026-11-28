@@ -93,11 +93,27 @@ Object value = PropertyPathUtil.getValue(bean, "fieldName");
 // Nested path
 Object city = PropertyPathUtil.getValue(bean, "address.city");
 
-// List element (only arrays and List supported, not Set or Map)
+// Element of an array or a List
 Object item = PropertyPathUtil.getValue(bean, "items[0]");
+Object element = PropertyPathUtil.getValue(bean, "strList[0].<list element>");
+
+// Value or key of a Map
+Object value = PropertyPathUtil.getValue(bean, "map[key1].<map value>");
+Object key = PropertyPathUtil.getValue(bean, "map<K>[key1].<map key>");
 ```
 
-Getting values via Set or Map keys throws `ElementOfCollectionCannotBeObtainedException`.
+The same notation as the propertyPath of Jakarta Validation (like `<list element>`) is supported.
+
+The key of a Map is identified by comparing it with `String.valueOf(key)` of each entry
+(since Jakarta Validation uses the `toString()` value of the key in the propertyPath).
+When no key matches, `null` is returned.
+When two or more keys have the same string expression, `ElementOfCollectionCannotBeObtainedException` is thrown.
+
+Collections whose element cannot be identified by the propertyPath (like `set[].<iterable element>`), such as Set,
+throw `ElementOfCollectionCannotBeObtainedException`.
+
+When an intermediate value is `null` (like `address` of `"address.city"`, or `items` of `"items[0]"`), `null` is returned.
+The `propertyPath` of class-level validators (`@XxxWhen`, etc.) is treated in the same way, and validated as `null`.
 
 ### Getting the leafBean
 

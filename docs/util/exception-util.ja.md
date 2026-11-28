@@ -72,6 +72,8 @@ List<String> messages = ExceptionUtil.getMessageList(throwable, Locale.JAPANESE)
 
 `ConstraintViolationException` は複数の違反を持てるため、返値は常に `List` です。
 通常の例外でも `List`（要素1件）で返ります。
+ただし、`getMessage()` が `null` の例外（`new NullPointerException()` など）の場合は空のリストを返します。
+違反が0件の場合（空の `Set` や `Violations` など）も、空のリストを返します。
 
 ---
 
@@ -91,19 +93,20 @@ List<String> messages = ExceptionUtil.getMessageList(constraintViolationSet, Loc
 
 ---
 
-## isMessagesWithItemNamesAsDefault パラメータ
+## showsItemNameAsDefault パラメータ
 
-一部のオーバーロードには `isMessagesWithItemNamesAsDefault` フラグがあります。
+一部のオーバーロードには `showsItemNameAsDefault` フラグがあります。
+このフラグを持たないオーバーロードでは `false` として扱われます。
 
 ```java
-// true にすると messages_with_item_names.properties を優先して参照
+// true にすると項目名入りのメッセージを優先して参照
 List<String> messages = ExceptionUtil.getMessageList(throwable, Locale.JAPANESE, true);
 ```
 
-`true` にすると、バリデーションメッセージの解決に
-`ValidationMessagesWithItemNames.properties` を優先して使用します。
-splib などのフレームワーク側でシステムデフォルトとして設定される値です。
+`true` にすると、メッセージの解決に項目名入りのメッセージファイルを優先して使用します。
+Jakarta Validation の違反には `ValidationMessagesWithItemNames.properties`、
+`BusinessViolation` には `messages_with_item_names.properties` が使われます。
 
-各 Violation に `MessageParameters.isMessageWithItemName` が `true` / `false` で設定されている場合は、
+各 Violation に `MessageParameters.showsItemName` が `true` / `false` で設定されている場合は、
 その値がこのデフォルトより優先されます。
-`isMessageWithItemName` との関係の詳細は **violation &gt; MessageParameters** を参照してください。
+`showsItemName` との関係の詳細は **violation &gt; MessageParameters** を参照してください。

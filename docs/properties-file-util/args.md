@@ -36,6 +36,9 @@ String msg = PropertiesFileUtil.getMessage(Locale.ENGLISH, "amount.label", 12345
 
 Since it's `Object...`, you can pass `String`, `Integer`, `Date`, and more directly.
 
+When there are no arguments, the value is returned as it is without `MessageFormat`.
+So if `'` is written as `''`, it is displayed as `'` with arguments, but as `''` without arguments (the same as the default behavior of Spring's `MessageSource`).
+
 ---
 
 ## Using Arg

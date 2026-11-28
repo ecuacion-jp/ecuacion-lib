@@ -2,7 +2,7 @@
 
 ## 概要
 
-概要説明は [共通事項など > ItemNameKey](../concepts/item-and-name-key.md) もご確認ください。
+概要説明は [共通事項など > Itemと関連用語](../concepts/item-terms.md#itemnamekey) もご確認ください。
 
 `itemNameKey` は、項目の表示名を `item_names.properties` などから引くためのキーです。
 形式は `"クラス部.フィールド部"` （例：`"user.name"`）です。
@@ -121,6 +121,8 @@ public class UserDto implements ItemContainer {
     public List<DeptDto> getDeptList() { ... }   // deptList[0].name の itemNameKey: "dept.name"
 }
 ```
+
+`@ItemNameKeyClass` に空文字を指定すると、`itemNameKey` の解決時に `IllegalArgumentException` がスローされます。
 
 ---
 

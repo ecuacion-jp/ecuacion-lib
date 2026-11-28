@@ -17,7 +17,8 @@ When using `PropertiesFileUtil` in a Java module system environment with `module
 SPI registration is required. `PropertiesFileUtil` internally uses `ResourceBundle` to load
 `.properties` files, and in a module system environment, SPI registration is needed for this loading.
 
-When each module of an application has its own `.properties` files,
+When a module of an application has `.properties` files loaded by `PropertiesFileUtil`
+(such as `messages.properties` and `application.properties`; see the [table below](#types-of-spi-interfaces)),
 you need to register an SPI implementation corresponding to that module.
 
 ---
@@ -40,7 +41,8 @@ An interface is provided for each properties file type.
 
 ## Configuration in module-info.java
 
-When an application module has `.properties` files, the following two things are required.
+When an application module has `.properties` files loaded by `PropertiesFileUtil`
+(such as `messages.properties` and `application.properties` in the table above), the following two things are required.
 
 ### 1. Create an SPI Implementation Class
 

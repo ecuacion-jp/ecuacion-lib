@@ -2,7 +2,7 @@
 
 ## 概要
 
-概要説明は [共通事項など > itemとItemContainer・itemPropertyPath](item-property-path.md) もご確認ください。
+概要説明は [共通事項など > Itemと関連用語](../concepts/item-terms.md) もご確認ください。
 
 `Item`（`jp.ecuacion.lib.core.item.Item`）は、フィールド 1 つ分の属性を保持するクラスです。
 主にバリデーションエラーメッセージ中での項目名や値の表示方法を制御するために使われます。

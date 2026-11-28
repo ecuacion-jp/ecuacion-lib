@@ -7,34 +7,40 @@ It can be configured using `withMessageParameters()` in method chain format.
 
 ```java
 violations.withMessageParameters(p -> p
-    .isMessageWithItemName(true)
+    .showsItemName(true)
     .messagePrefix("upload.row.prefix"));
 ```
 
-The primary use case is when you want to build informative error messages outside of screen display
-(e.g., validating an uploaded Excel file).
-
 ---
 
-## isMessageWithItemName — Switching Between Messages With/Without Item Names
+## showsItemName — Switching Between Messages With/Without Item Names
 
 Controls whether validation error messages are retrieved from `messages.properties` or
 `messages_with_item_names.properties`.
 
 | Value | Behavior |
 | ------ | ---- |
-| `null` (default) | Follows the value of `isMessagesWithItemNamesAsDefault` in `ExceptionUtil.getMessageList()` |
+| `null` (default) | Follows the value of `showsItemNameAsDefault` in `ExceptionUtil.getMessageList()` |
 | `true` | Uses messages with item names |
 | `false` | Uses messages without item names |
 
-When `null`, the fallback is the `isMessagesWithItemNamesAsDefault` parameter of `ExceptionUtil.getMessageList()`.
-Frameworks such as splib set this value as the system default.
-When `isMessageWithItemName` is explicitly set to `true` / `false`, it takes priority over `isMessagesWithItemNamesAsDefault`.
+The former name `isMessageWithItemName` is deprecated as of 16.5.0. It behaves the same as `showsItemName`.
+
+When `null`, the fallback is the `showsItemNameAsDefault` parameter of `ExceptionUtil.getMessageList()`.
+It is not configured in a settings file; you pass it as an argument when calling `getMessageList()`.
+Overloads without this argument treat it as `false`.
+
+```java
+// Violations whose showsItemName is null use messages with item names
+List<String> messages = ExceptionUtil.getMessageList(violations, Locale.ENGLISH, true);
+```
+
+When `showsItemName` is explicitly set to `true` / `false`, it takes priority over `showsItemNameAsDefault`.
 
 For details, see **util > ExceptionUtil**.
 
 ```java
-violations.withMessageParameters(p -> p.isMessageWithItemName(true));
+violations.withMessageParameters(p -> p.showsItemName(true));
 ```
 
 **Example with item names:**
@@ -44,7 +50,7 @@ violations.withMessageParameters(p -> p.isMessageWithItemName(true));
 error.required = {item_name} is required
 ```
 
-When `isMessageWithItemName(true)`, the item name of the field is embedded at `{item_name}`.
+When `showsItemName(true)`, the item name of the field is embedded at `{item_name}`.
 `Item` / `ItemUtil` are used to resolve the item name (see util > Item for details).
 
 ---
@@ -86,8 +92,8 @@ violations.withMessageParameters(p -> p.messagePrefix("excel.upload.prefix"));
 // → "In the uploaded Excel file, 'Full Name' is required"
 
 // Literal string (key not found, used as-is)
-violations.withMessageParameters(p -> p.messagePrefix("Row 2: "));
-// → "Row 2: 'Full Name' is required"
+violations.withMessageParameters(p -> p.messagePrefix("In the imported data, "));
+// → "In the imported data, 'Full Name' is required"
 ```
 
 ### Arg Version — Dynamic Values Including Placeholders
@@ -141,8 +147,8 @@ Availability differs depending on the violation kind:
 | Violation kind | Availability |
 | --- | --- |
 | `ConstraintViolation` (`ValidationMessages*.properties`) | Always available when `representativePropertyPath` is set |
-| `BusinessViolation` with `isMessageWithItemName(true)` (`messages_with_item_names.properties`) | Available, same as `{item_name}` |
-| `BusinessViolation` with `isMessageWithItemName(false)` (`messages.properties`) | Not available — this file only receives positional (`{0}`, `{1}`, ...) arguments |
+| `BusinessViolation` with `showsItemName(true)` (`messages_with_item_names.properties`) | Available, same as `{item_name}` |
+| `BusinessViolation` with `showsItemName(false)` (`messages.properties`) | Not available — this file only receives positional (`{0}`, `{1}`, ...) arguments |
 
 ---
 
@@ -156,7 +162,7 @@ for (int i = 0; i < rows.size(); i++) {
   new Violations()
       .validate(rows.get(i))
       .withMessageParameters(p -> p
-          .isMessageWithItemName(true)
+          .showsItemName(true)
           .showsItemNamePath(true)
           .messagePrefix(rowNum + ": "))
       .throwIfAny();

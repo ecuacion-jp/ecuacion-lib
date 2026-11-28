@@ -38,15 +38,37 @@ but then you could no longer distinguish between a field left empty on the scree
 
 Therefore, format-checking validators should not react to empty input (`""`).
 
+This policy assumes that the input comes from a screen.
+For input that does not go through a screen, such as a REST API, `""` is a value the sender sent intentionally, so you may want to treat it as invalid.
+
+In that case, you can make empty strings invalid by combining the validator with `@NotEmpty` or a similar constraint.
+If you want only `""` to be invalid while keeping `null` valid, combine it with `@Size(min = 1)`.
+
+```java
+@Size(min = 1)
+@PatternWithDescription(regexp = "[0-9]+")
+private String code;  // "" → violation of @Size, null → valid
+```
+
+Conversely, a validator that treats empty strings as invalid cannot be used where you want empty strings to be valid.
+Treating empty strings as valid lets you handle both situations through combinations.
+
 ---
 
 ## Validators That Treat Empty Strings as Valid
 
-In `ecuacion-lib-validation`, only `@NotEmpty` / `@NotBlank` treat empty strings as invalid.
-All other format-checking validators treat empty strings as valid.
+The custom validators of `ecuacion-lib-validation` treat empty strings as valid
+(`@PatternWithDescription`, `@IntegerString`, `@LessThan`, etc.).
 
-| Category | Representative Validators |
-| -------- | ----------------- |
-| Format-checking | `@PatternWithDescription`, `@IntegerString`, `@BooleanString`, etc. |
-| Conditional | `@NotEmptyWhen`, `@TrueWhen`, and other `@XxxWhen` variants |
-| Comparison | `@LessThan`, `@GreaterThan`, etc. |
+However, among the conditional validators (`@XxxWhen`), the ones that validate the value itself
+handle empty values (`null` and `""`) differently from one validator to another
+when the condition is satisfied.
+
+| Validator | Empty values (`null` / `""`) |
+| --- | --- |
+| `@PatternWhen` / `@StringWhen` | invalid |
+| `@NotPatternWhen` / `@NotStringWhen` | valid |
+| `@ValueOfPropertyPathWhen` | valid when equal to the compared value (`null` and `""` are compared as different values) |
+| `@NotValueOfPropertyPathWhen` | valid when different from the compared value |
+
+`@NotEmptyWhen` / `@EmptyWhen` and the like are not included here, since their purpose is to check whether the value is empty.

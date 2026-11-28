@@ -2,7 +2,7 @@
 
 ## 概要
 
-概要説明は [共通事項など > itemとItemContainer・itemPropertyPath](item-property-path.md) もご確認ください。
+概要説明は [共通事項など > Itemと関連用語](../concepts/item-terms.md) もご確認ください。
 
 `ItemContainer`（`jp.ecuacion.lib.core.item.ItemContainer`）は、
 フィールドの表示属性をカスタマイズした `Item` を保持するインターフェースです。
@@ -98,7 +98,11 @@ public class EditUserRecord extends UserRecord {
 
 ## mergeItems()
 
-共通の `Item[]` と Record 固有の `Item[]` を結合するユーティリティメソッドです。
+2 つの `Item[]` をマージ（連結）して、1 つの `Item[]` として返すユーティリティメソッドです。
+戻り値の配列には、第 1 引数の `Item` に続いて第 2 引数の `Item` が並びます。
+
+主な用途は、複数の `ItemContainer` で共通して使う `Item[]`（作成日時・更新日時など）と、その `ItemContainer` 固有の `Item[]` を組み合わせて `customizedItems()` の戻り値にすることです。
+以下は、共通の `Item[]` と Record 固有の `Item[]` を結合する例です。
 
 ```java
 public class UserRecord implements ItemContainer {

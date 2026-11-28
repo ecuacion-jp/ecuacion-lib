@@ -2,7 +2,7 @@
 
 ## Overview
 
-For an overview, see also [Common Topics > item, ItemContainer and itemPropertyPath](item-property-path.md).
+For an overview, see also [Common Topics > Item and Related Terms](../concepts/item-terms.md).
 
 `Item` (`jp.ecuacion.lib.core.item.Item`) is a class that holds the attributes of a single field.
 It is primarily used to control how item names and field values are displayed in validation error messages.

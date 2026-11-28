@@ -93,11 +93,24 @@ Object value = PropertyPathUtil.getValue(bean, "fieldName");
 // ネストしたパス
 Object city = PropertyPathUtil.getValue(bean, "address.city");
 
-// リスト要素（配列・List のみ対応、Set・Map 非対応）
+// 配列・List の要素
 Object item = PropertyPathUtil.getValue(bean, "items[0]");
+Object element = PropertyPathUtil.getValue(bean, "strList[0].<list element>");
+
+// Map の値・キー
+Object value = PropertyPathUtil.getValue(bean, "map[key1].<map value>");
+Object key = PropertyPathUtil.getValue(bean, "map<K>[key1].<map key>");
 ```
 
-Set や Map のキーを経由した取得は `ElementOfCollectionCannotBeObtainedException` をスローします。
+Jakarta Validation の propertyPath と同じ書き方（`<list element>` など）に対応しています。
+
+Map のキーは、各エントリのキーの `String.valueOf(key)` と比較して特定します（Jakarta Validation が propertyPath にキーの `toString()` を使うため）。
+一致するキーがない場合は `null` を返し、同じ文字列表現のキーが複数ある場合は `ElementOfCollectionCannotBeObtainedException` をスローします。
+
+Set など、propertyPath（`set[].<iterable element>` など）から要素を特定できないコレクションは、`ElementOfCollectionCannotBeObtainedException` をスローします。
+
+途中の値が `null` の場合（`"address.city"` の `address`、`"items[0]"` の `items` が `null` など）は、`null` を返します。
+クラスレベルバリデータ（`@XxxWhen` など）の `propertyPath` も同じ扱いで、値が `null` として検証されます。
 
 ### leafBean の取得
 

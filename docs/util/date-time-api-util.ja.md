@@ -77,6 +77,9 @@ DateTimeApiUtil.getLocalDateTime("2024-01-15 10:30:00.123");
 ```java
 DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00+09:00");
 DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00 +09:00");
+DateTimeApiUtil.getOffsetDateTime("2024-01-15 10:30:00-05:00");
+DateTimeApiUtil.getOffsetDateTime("2024-01-15T01:30:00Z");
 ```
 
-LocalDateTime のすべての対応フォーマットに、オフセット部分（`+09:00` 等）を付加した形式に対応しています。オフセットの前にスペースがある形式も許容します。
+LocalDateTime のすべての対応フォーマットに、オフセット部分を付加した形式に対応しています。オフセットの前にスペースがある形式も許容します。
+オフセットは `+09:00` のようなプラス、`-05:00` のようなマイナス、UTC を表す `Z` のいずれも使えます。

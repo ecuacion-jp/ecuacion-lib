@@ -26,7 +26,13 @@ Java 標準の `ResourceBundle` をベースに、各種機能を追加してい
 `ValidationMessages` 系の3種類は引数の形式が他と異なります。
 詳細は [ValidationMessages](validation-messages.md) を参照してください。
 
-Locale 列に ✓ があるメソッドは、Locale 引数を省略するか `null` を渡した場合、`Locale.ROOT` として扱われます。
+Locale 列に ✓ があるメソッドは、Locale 引数を省略するか `null` を渡した場合、`Locale.ROOT` として扱われます（`messages.properties` のようなロケールなしのファイルから取得します）。
+ただし、引数の数値・日付などのフォーマットには `LocaleUtil.getFallbackLocale()` のロケールが使われます。
+
+`hasXxx(...)` によるキーの存在確認は、ロケールなしのファイルに対して行います。
+ロケール付きのファイル（`messages_ja.properties` など）は、ロケールなしのファイルと同じキーを持つ前提です。
+
+キーに空文字を渡すと、`getXxx(...)` は `IllegalArgumentException` をスローし、`hasXxx(...)` は `false` を返します。
 
 ---
 

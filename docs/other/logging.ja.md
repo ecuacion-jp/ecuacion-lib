@@ -5,7 +5,8 @@
 ecuacion-lib は SLF4J をラップした専用ロガーを提供します。
 SLF4J ロガーをそのまま使う代わりにこれらを使うことで、**ログの用途を型で明示**できます。
 
-すべてのロガーは内部で `LoggerFactory.getLogger(cls)` を使います。
+各ロガーは内部で SLF4J の `LoggerFactory.getLogger(...)` を使います。
+ロガー名は、`DetailLogger` は呼び出し元クラス名、それ以外は固定名です（[ロガー名による運用](#ロガー名による運用) 参照）。
 
 ---
 
@@ -39,8 +40,14 @@ logger.error(throwable, "additional message");
 private final ErrorLogger errorLogger = new ErrorLogger();
 
 errorLogger.error("critical system error");
-errorLogger.error(violationException);   // ViolationException の詳細も記録
+
+// 例外を記録（例外クラス名とメッセージを1行で出力。スタックトレースは含まない）
+errorLogger.logSystemError(throwable);
+errorLogger.logSystemError(throwable, "additional message");
 ```
+
+システムエラー発生時に `ErrorLogger` と `DetailLogger` の両方へ出力したい場合は
+[LogUtil](../util/log-util.md) の `logSystemError` を使うと便利です。
 
 ### SqlLogger — SQL ログ
 
@@ -69,25 +76,43 @@ summaryLogger.info("batch completed: processed 1000 records");
 
 ## コンストラクタ
 
-すべてのロガーは以下の2種類のコンストラクタを持ちます。
+`DetailLogger` は以下の2種類のコンストラクタを持ちます。
 
 ```java
 new DetailLogger(this);           // インスタンスを渡す
-new DetailLogger(getClass());     // クラスを渡す
+new DetailLogger(getClass());     // クラスを渡す（static メソッドから使う場合）
 ```
 
 内部では `LoggerFactory.getLogger(cls.getName())` に変換されるため、
-logback / log4j 等の設定でクラス名によるログレベル制御が可能です。
+logback / log4j 等の設定でクラス名（パッケージ名）によるログレベル制御が可能です。
+
+`ErrorLogger` / `SqlLogger` / `SummaryLogger` は引数なしのコンストラクタのみを持ち、
+ロガー名は呼び出し元に関係なく固定です。
+
+```java
+new ErrorLogger();
+new SqlLogger();
+new SummaryLogger();
+```
 
 ---
 
 ## ロガー名による運用
 
-4種類のロガーはそれぞれ異なるロガー名を使うため、`logback.xml` 等でログレベルや出力先を個別に制御できます。
+4種類のロガーはそれぞれ以下のロガー名を使います。
+
+| ロガー | ロガー名 |
+|---|---|
+| `DetailLogger` | 呼び出し元クラスの完全修飾名（例: `com.example.OrderService`） |
+| `ErrorLogger` | `error-logger` |
+| `SqlLogger` | `sql-logger` |
+| `SummaryLogger` | `summary-logger` |
+
+このため、`logback.xml` 等でログレベルや出力先を個別に制御できます。
 
 ```xml
 <!-- 例: logback.xml -->
-<logger name="jp.ecuacion.lib.core.logging.ErrorLogger" level="WARN" additivity="false">
+<logger name="error-logger" level="WARN" additivity="false">
     <appender-ref ref="ALERT_APPENDER"/>
 </logger>
 ```

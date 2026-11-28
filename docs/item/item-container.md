@@ -2,7 +2,7 @@
 
 ## Overview
 
-For an overview, see also [Common Topics > item, ItemContainer and itemPropertyPath](item-property-path.md).
+For an overview, see also [Common Topics > Item and Related Terms](../concepts/item-terms.md).
 
 `ItemContainer` (`jp.ecuacion.lib.core.item.ItemContainer`) is an interface that holds `Item` instances
 with customized display attributes for fields.
@@ -98,7 +98,12 @@ the parent class settings are simply used as-is.
 
 ## mergeItems()
 
-A utility method that combines a common `Item[]` with a Record-specific `Item[]`.
+A utility method that merges (concatenates) two `Item[]` arrays and returns them as a single `Item[]`.
+The returned array contains the `Item`s of the first argument followed by those of the second argument.
+
+A typical use is to combine an `Item[]` shared by multiple `ItemContainer`s (such as created/updated
+timestamps) with an `Item[]` specific to that `ItemContainer`, and return the result from
+`customizedItems()`. The following example combines a common `Item[]` with a Record-specific `Item[]`.
 
 ```java
 public class UserRecord implements ItemContainer {

@@ -5,50 +5,20 @@
 When系アノテーションは、「`conditionPropertyPath` が特定の状態のとき、`propertyPath` は〇〇でなければならない」という条件付きルールを表現します。クラスレベルのアノテーションです。
 
 ```java
-@TrueWhen(
-    propertyPath = "agreedToTerms",
-    conditionPropertyPath = "accountType",
-    conditionValueState = ConditionValueState.NOT_EMPTY
+// 法人として申し込むとき（corporate が true のとき）、companyName は空でないこと
+@NotEmptyWhen(
+    propertyPath = "companyName",
+    conditionPropertyPath = "corporate",
+    conditionValueBoolean = true
 )
-public class RegistrationForm { ... }
+public class ApplicationForm { ... }
 ```
 
 ---
 
-## アノテーション一覧
-
-### 基本条件（値そのものを持たない条件）
-
-| アノテーション | `propertyPath` が満たすべき条件 |
-| ------------- | ------------------------------- |
-| `@TrueWhen` | `true` であること |
-| `@FalseWhen` | `false` であること |
-| `@NullWhen` | `null` であること |
-| `@NotNullWhen` | `null` でないこと |
-| `@EmptyWhen` | 空（null または空文字）であること |
-| `@NotEmptyWhen` | 空でないこと |
-
-### パターン・文字列・値参照条件
-
-これらのアノテーションは `conditionValue` に加え、固有のパラメータを持ちます。
-
-| アノテーション | `propertyPath` が満たすべき条件 | 固有パラメータ |
-| ------------- | ------------------------------- | ------------- |
-| `@PatternWhen` | 正規表現にマッチすること | `regexp` |
-| `@NotPatternWhen` | 正規表現にマッチしないこと | `regexp` |
-| `@StringWhen` | 指定した文字列のいずれかであること | `string[]` |
-| `@NotStringWhen` | 指定した文字列のいずれでもないこと | `string[]` |
-| `@ValueOfPropertyPathWhen` | 別フィールドと同値であること | `valuePropertyPath` |
-| `@NotValueOfPropertyPathWhen` | 別フィールドと異なること | `valuePropertyPath` |
-
-> **Note:** `@PatternWhen` / `@NotPatternWhen` の `regexp`、および `conditionValuePatternRegexp`
-> （下記 [conditionValue](#conditionvalue--条件の種類) を参照）は、エンドユーザー入力に由来しうる値に対して
-> マッチングされます。ネストした量指定子（例：`(a+)+`）のような、破滅的バックトラッキングを起こしやすい
-> パターンは避けてください。細工した入力に対してマッチングが指数時間かかることがあります。
-
----
-
 ## 主要属性
+
+すべての When系アノテーションに共通する、必須の属性です。
 
 ### propertyPath — 検証対象フィールド
 
@@ -60,87 +30,287 @@ propertyPath = {"startDate", "endDate"}   // 複数フィールドを同じル�
 ### conditionPropertyPath — 条件フィールド
 
 条件の判定に使うフィールド名です。ネストしたフィールドも指定できます。
-条件を複数指定したい場合は、代わりに `conditions`（下記参照）を使います。
+条件を複数指定したい場合は、代わりに `conditions`（[複数条件](#conditions--複数条件and) を参照）を使います。
 
 ```java
 conditionPropertyPath = "accountType"
 conditionPropertyPath = "address.country"
 ```
 
-### conditionValue — 条件の種類
+### conditionValueXxx — 条件値
 
-`conditionPropertyPath` のフィールドがどういう状態のときにバリデーションを実行するかを指定します。
+`conditionPropertyPath` のフィールドがどういう状態のときにバリデーションを実行するかを、
+`conditionValueXxx` という名前の属性で指定します
+（`conditionPropertyPath` が `true` のときに検証したい場合は `conditionValueBoolean = true` など）。
+詳細は [条件値の指定](#条件値の指定) で説明します。
 
-| `ConditionValue` | 意味 | それを決める属性 |
-| ---------------- | ---- | --------------- |
-| `NULL` | `null` であること | `conditionValueState = ConditionValueState.NULL` |
-| `NOT_NULL` | `null` でないこと | `conditionValueState = ConditionValueState.NOT_NULL` |
-| `EMPTY` | 空（null または空文字）であること | `conditionValueState = ConditionValueState.EMPTY` |
-| `NOT_EMPTY` | 空でないこと | `conditionValueState = ConditionValueState.NOT_EMPTY` |
-| `TRUE` | `true` であること | `conditionValueBoolean = true` |
-| `FALSE` | `false` であること | `conditionValueBoolean = false` |
-| `STRING` | 指定文字列のいずれかであること | `conditionValueString` |
-| `PATTERN` | 正規表現にマッチすること | `conditionValuePatternRegexp` |
-| `VALUE_OF_PROPERTY_PATH` | 別フィールドと同値であること | `conditionValuePropertyPath` |
+---
 
-`STRING` / `PATTERN` / `VALUE_OF_PROPERTY_PATH` は追加で `conditionValueDisplayStringPropertyPath`
-（下記参照）も指定でき、`PATTERN` はさらに `conditionValuePatternDescription` も指定できます。
+## バリデータ一覧と使用例
 
-> **Note:** `conditionValue` 自体は基本的に省略できます。`conditionValueString`、
-> `conditionValuePatternRegexp`、`conditionValuePropertyPath`、`conditionValueBoolean`、
-> `conditionValueState` のうちどれか1つだけを設定すれば一意に決まるため、実際には
-> `conditionValue = ...` を書く必要はなく、意図する条件に対応する属性を1つ設定するだけで済みます。
-> これら5つの属性を複数同時に設定した場合や、いずれも設定しなかった場合はエラーになります。
-> これらの属性に加えて `conditionValue` を明示的に指定することも可能で、その場合は指定した属性の値と
-> 整合するかがチェックされます（例：`conditionValue = TRUE` と `conditionValueBoolean = false` を
-> 同時に指定するとエラーになります）。
+### バリデータ一覧
 
-### conditionOperator — 条件演算子
+When系アノテーションには、次のものがあります。`propertyPath` に対する検証の内容が異なります。
 
-| `ConditionOperator` | 意味 |
-| ------------------- | ---- |
-| `EQUAL_TO`（デフォルト） | 条件が成立するとき validte する |
-| `NOT_EQUAL_TO` | 条件が成立しないとき validate する |
+| アノテーション | `propertyPath` が満たすべき条件 | 固有の属性 |
+| ------------- | ------------------------------- | --------- |
+| `@TrueWhen` | `true` であること | なし |
+| `@FalseWhen` | `false` であること | なし |
+| `@NullWhen` | `null` であること | なし |
+| `@NotNullWhen` | `null` でないこと | なし |
+| `@EmptyWhen` | 空（null または空文字）であること | なし |
+| `@NotEmptyWhen` | 空でないこと | なし |
+| `@PatternWhen` | 正規表現に合致すること | `regexp`、`description` |
+| `@NotPatternWhen` | 正規表現に合致しないこと | `regexp`、`description` |
+| `@StringWhen` | 指定した文字列のいずれかであること | `string` |
+| `@NotStringWhen` | 指定した文字列のいずれでもないこと | `string` |
+| `@ValueOfPropertyPathWhen` | 別フィールドと同値であること | `valuePropertyPath` |
+| `@NotValueOfPropertyPathWhen` | 別フィールドと異なること | `valuePropertyPath` |
 
-### conditionValuePatternDescription
+### 使用例
 
-`conditionValue = PATTERN` のとき、`conditionValuePatternRegexp` に設定した正規表現の代わりにエラーメッセージへ表示する人間向けの説明文を指定します。省略すると正規表現がそのまま表示されます。
+肯定・否定で対になっているもの（`@TrueWhen` と `@FalseWhen` など）は、まとめて1つの例を示します。
+否定側は、検証の内容が逆になるだけで、書き方は同じです。
+条件値には、簡単な `conditionValueBoolean` / `conditionValueState` を使います（条件値の詳細は [条件値の指定](#条件値の指定) を参照）。
+
+#### @TrueWhen / @FalseWhen
 
 ```java
-// conditionValuePatternDescription なし
-// → 「電話番号」が「^(070|080|090).*」に合致する場合は〜
+// クーポンコードを入力したとき、クーポン利用規約への同意（agreedToCouponTerms）は true であること
+@TrueWhen(
+    propertyPath = "agreedToCouponTerms",
+    conditionPropertyPath = "couponCode",
+    conditionValueState = ConditionValueState.NOT_EMPTY
+)
+public class OrderForm { ... }
+```
 
-// conditionValuePatternDescription あり
+#### @NullWhen / @NotNullWhen
+
+```java
+// 配送を希望するとき（needsDelivery が true のとき）、配送希望日（deliveryDate）は null でないこと
+@NotNullWhen(
+    propertyPath = "deliveryDate",
+    conditionPropertyPath = "needsDelivery",
+    conditionValueBoolean = true
+)
+public class OrderForm { ... }
+```
+
+#### @EmptyWhen / @NotEmptyWhen
+
+```java
+// 個人として申し込むとき（corporate が false のとき）、companyName は空であること
+@EmptyWhen(
+    propertyPath = "companyName",
+    conditionPropertyPath = "corporate",
+    conditionValueBoolean = false
+)
+public class ApplicationForm { ... }
+```
+
+#### @PatternWhen / @NotPatternWhen
+
+```java
+// 国内の住所のとき（domestic が true のとき）、postalCode は7桁の数字であること
+@PatternWhen(
+    propertyPath = "postalCode",
+    regexp = "\\d{7}",
+    description = "7桁の数字",
+    conditionPropertyPath = "domestic",
+    conditionValueBoolean = true
+)
+public class AddressForm { ... }
+```
+
+`description` を指定すると、エラーメッセージに正規表現の代わりにその文言が表示されます。
+文言は `ValidationMessagesPatternDescriptions.properties` から探し、キーがなければ指定した文字列をそのまま表示します。
+省略した場合は、正規表現がそのまま表示されます。
+
+`regexp` はエンドユーザー入力に由来しうる値に対してマッチングされます。ネストした量指定子（例：`(a+)+`）のような、
+破滅的バックトラッキングを起こしやすいパターンは避けてください。細工した入力に対してマッチングが指数時間かかることがあります。
+
+#### @StringWhen / @NotStringWhen
+
+```java
+// 法人として申し込むとき（corporate が true のとき）、plan は "BUSINESS" または "ENTERPRISE" であること
+@StringWhen(
+    propertyPath = "plan",
+    string = {"BUSINESS", "ENTERPRISE"},
+    conditionPropertyPath = "corporate",
+    conditionValueBoolean = true
+)
+public class ApplicationForm { ... }
+```
+
+#### @ValueOfPropertyPathWhen / @NotValueOfPropertyPathWhen
+
+```java
+// パスワードを変更するとき（changesPassword が true のとき）、confirmPassword は newPassword と同じ値であること
+@ValueOfPropertyPathWhen(
+    propertyPath = "confirmPassword",
+    valuePropertyPath = "newPassword",
+    conditionPropertyPath = "changesPassword",
+    conditionValueBoolean = true
+)
+public class AccountSettingsForm { ... }
+```
+
+---
+
+## 条件値の指定
+
+`conditionPropertyPath` のフィールドがどういう状態のときにバリデーションを実行するかを、
+次の属性のうちどれか1つで指定します。
+
+| 条件 | 指定する属性 |
+| ---- | ----------- |
+| `null` であること | `conditionValueState = ConditionValueState.NULL` |
+| `null` でないこと | `conditionValueState = ConditionValueState.NOT_NULL` |
+| 空（null または空文字）であること | `conditionValueState = ConditionValueState.EMPTY` |
+| 空でないこと | `conditionValueState = ConditionValueState.NOT_EMPTY` |
+| `true` であること | `conditionValueBoolean = true` |
+| `false` であること | `conditionValueBoolean = false` |
+| 指定文字列のいずれかであること | `conditionValueString` |
+| 正規表現に合致すること | `conditionValuePatternRegexp` |
+| 別フィールドと同値であること | `conditionValuePropertyPath` |
+
+これらの属性を複数同時に設定した場合や、いずれも設定しなかった場合はエラーになります。
+
+### conditionValueState — null・空かどうか
+
+```java
+// note が空のとき、noteReason は空であること
+@EmptyWhen(
+    propertyPath = "noteReason",
+    conditionPropertyPath = "note",
+    conditionValueState = ConditionValueState.EMPTY
+)
+```
+
+### conditionValueBoolean — true・false
+
+`conditionPropertyPath` のフィールドは `boolean` / `Boolean` である必要があります。
+`Boolean` の `null` は、`true` でも `false` でもない値として扱います（`conditionValueBoolean = true` なら条件を満たさず、
+`conditionOperator = NOT_EQUAL_TO` を組み合わせると条件を満たします）。`null` であることを条件にする場合は `conditionValueState = ConditionValueState.NULL` を使います。
+
+```java
+// sendsMail が true のとき、mailAddress は空でないこと
+@NotEmptyWhen(
+    propertyPath = "mailAddress",
+    conditionPropertyPath = "sendsMail",
+    conditionValueBoolean = true
+)
+```
+
+### conditionValueString — 指定文字列
+
+指定した文字列と一致したときに条件が成立します。複数の文字列を指定すると、いずれかに一致したときに成立します。
+`conditionPropertyPath` のフィールドは文字列である必要があります。
+
+```java
+// role が "ADMIN" のとき、adminCode は空でないこと
+@NotEmptyWhen(
+    propertyPath = "adminCode",
+    conditionPropertyPath = "role",
+    conditionValueString = "ADMIN"
+)
+
+// role が "ADMIN" または "OPERATOR" のとき、adminCode は空でないこと
+@NotEmptyWhen(
+    propertyPath = "adminCode",
+    conditionPropertyPath = "role",
+    conditionValueString = {"ADMIN", "OPERATOR"}
+)
+```
+
+### conditionValuePatternRegexp — 正規表現
+
+`conditionPropertyPath` のフィールドは文字列である必要があります。
+
+```java
+// phone が携帯電話番号のとき、smsConsentAgreed は true であること
 @TrueWhen(
     propertyPath = "smsConsentAgreed",
     conditionPropertyPath = "phone",
     conditionValuePatternRegexp = "^(070|080|090).*",
-    conditionValuePatternDescription = "携帯電話番号"  // メッセージに使う説明
+    conditionValuePatternDescription = "携帯電話番号"
 )
 // → 「電話番号」が「携帯電話番号」に合致する場合は〜
 ```
 
-### conditionValueDisplayStringPropertyPath
+`conditionValuePatternDescription` には、エラーメッセージに正規表現の代わりに表示する利用者向けの説明文を指定します。
+省略すると正規表現がそのまま表示されます（上の例なら「電話番号」が「^(070|080|090).*」に合致する場合は〜）。
+役割は `@PatternWithDescription` の `description` と同じです。
 
-`STRING` / `PATTERN` / `VALUE_OF_PROPERTY_PATH` のとき、エラーメッセージに表示する「条件値の表示名」を別フィールドの itemNameKey から解決する際に指定します。省略すると条件値の実値（文字列・正規表現・フィールド値）がそのまま表示されます。
+`regexp` と同じく、破滅的バックトラッキングを起こしやすいパターンは避けてください
+（[@PatternWhen / @NotPatternWhen](#patternwhen--notpatternwhen) を参照）。
 
-### conditionValueBoolean / conditionValueState
+### conditionValuePropertyPath — 別フィールドの値
 
-値そのものを持たない6つの条件（自明な区別材料がないもの）は、これら2つの属性を使うことで
-`conditionValue` を明示せずに指定できます。
+別のフィールドの値と一致したときに条件が成立します。別のフィールドが配列の場合は、いずれかの要素と一致したときに成立します。
 
 ```java
-conditionValueBoolean = true                              // conditionValue = TRUE
-conditionValueBoolean = false                              // conditionValue = FALSE
-conditionValueState = ConditionValueState.NULL             // conditionValue = NULL
-conditionValueState = ConditionValueState.NOT_NULL         // conditionValue = NOT_NULL
-conditionValueState = ConditionValueState.EMPTY            // conditionValue = EMPTY
-conditionValueState = ConditionValueState.NOT_EMPTY        // conditionValue = NOT_EMPTY
+// 利用開始日（startDate）が申込日（applicationDate）と同じとき（申込当日から利用を開始するとき）、
+// 即日開始への同意（agreedToSameDayStart）は true であること
+@TrueWhen(
+    propertyPath = "agreedToSameDayStart",
+    conditionPropertyPath = "startDate",
+    conditionValuePropertyPath = "applicationDate"
+)
 ```
 
-### falseWhenConditionNotSatisfied
+---
 
-`true` にすると、条件が成立しないときに逆のルールを適用します（`@TrueWhen` なら、条件不成立のとき `false` であることを検証）。デフォルトは `false`。
+## その他の機能
+
+### conditionOperator — 条件の反転
+
+| `ConditionOperator` | 意味 |
+| ------------------- | ---- |
+| `EQUAL_TO`（デフォルト） | 条件が成立するとき validate する |
+| `NOT_EQUAL_TO` | 条件が成立しないとき validate する |
+
+```java
+// confirmed が true でないとき、reason は空でないこと
+@NotEmptyWhen(
+    propertyPath = "reason",
+    conditionPropertyPath = "confirmed",
+    conditionValueBoolean = true,
+    conditionOperator = ConditionOperator.NOT_EQUAL_TO
+)
+```
+
+### oppositeWhenConditionNotSatisfied — 条件不成立時に反対の検証を行う
+
+`oppositeWhenConditionNotSatisfied` を `true` にすると、条件が成立しないときに、反対の内容を検証します。
+デフォルトは `false` で、条件が成立しないときは検証しません。
+
+| アノテーション | 条件が成立しないときの検証 |
+| ------------- | -------------------------- |
+| `@TrueWhen` | `false` であること |
+| `@FalseWhen` | `true` であること |
+| `@NullWhen` | `null` でないこと |
+| `@NotNullWhen` | `null` であること |
+| `@EmptyWhen` | 空でないこと |
+| `@NotEmptyWhen` | 空であること |
+| `@PatternWhen` | 正規表現に合致しないこと |
+| `@NotPatternWhen` | 正規表現に合致すること |
+| `@StringWhen` | 指定文字列のいずれでもないこと |
+| `@NotStringWhen` | 指定文字列のいずれかであること |
+| `@ValueOfPropertyPathWhen` | 別フィールドと異なること |
+| `@NotValueOfPropertyPathWhen` | 別フィールドと同値であること |
+
+```java
+// sendsMail が true のとき mailAddress は空でなく、それ以外のときは空であること
+@NotEmptyWhen(
+    propertyPath = "mailAddress",
+    conditionPropertyPath = "sendsMail",
+    conditionValueBoolean = true,
+    oppositeWhenConditionNotSatisfied = true
+)
+// → 「メールアドレス」は、「メール送信」が選択された場合は空欄以外、それ以外の値の場合は空欄にしてください
+```
 
 ### conditions — 複数条件（AND）
 
@@ -162,93 +332,27 @@ conditionValueState = ConditionValueState.NOT_EMPTY        // conditionValue = N
   いずれも指定しなかった場合もエラーです。
 - OR 条件は指定できません（Java のアノテーションは自分自身を入れ子にできないため、任意の論理式は表現できません）。
   OR にしたい場合は、When系アノテーションを複数付けてください。
-- `falseWhenConditionNotSatisfied` などを `true` にした場合、「すべての条件が成立した」以外のとき
-  （いずれか1つでも不成立のとき）に逆のルールが適用されます。
+- `oppositeWhenConditionNotSatisfied` を `true` にした場合、「すべての条件が成立した」以外のとき
+  （いずれか1つでも不成立のとき）に反対の内容を検証します。
 
----
+### conditionValueDisplayStringPropertyPath — 条件値の表示名
 
-## 使用例
+`conditionValueString` / `conditionValuePropertyPath` を使う場合に、エラーメッセージに表示する条件値の代わりに、
+別のフィールドの値を表示します。省略すると、条件値（指定した文字列や別フィールドの値）がそのまま表示されます。
 
-### 基本例 — 条件付き必須
-
-```java
-// accountType が入力済みのとき、agreedToTerms は true でなければならない
-// conditionValue は conditionValueState から NOT_EMPTY と推論されるため省略可能
-@TrueWhen(
-    propertyPath = "agreedToTerms",
-    conditionPropertyPath = "accountType",
-    conditionValueState = ConditionValueState.NOT_EMPTY
-)
-public class RegistrationForm { ... }
-```
-
-### STRING 条件 — 特定の値のとき
+表示する値は、`messages` / `item_names` / `enum_names` / `constants` の properties ファイルからキーとして探し、
+キーがなければ値をそのまま表示します。
 
 ```java
-// role が "ADMIN" のとき、adminCode は空でないこと
-// conditionValue は conditionValueString から STRING と推論されるため省略可能
 @NotEmptyWhen(
-    propertyPath = "adminCode",
-    conditionPropertyPath = "role",
-    conditionValueString = {"ADMIN"}
+    propertyPath = "cancelReason",
+    conditionPropertyPath = "status",
+    conditionValueString = "9",
+    conditionValueDisplayStringPropertyPath = "cancelledStatusName"  // 値は "取消"
 )
-public class UserForm { ... }
+// 省略時 → 「ステータス」が「9」の場合は〜
+// 指定時 → 「ステータス」が「取消」の場合は〜
 ```
 
-### NOT_EQUAL_TO — 条件不成立時に検証
-
-```java
-// 送信確認フラグが true でないとき、reason は空でないこと
-// conditionValue は conditionValueBoolean から TRUE と推論されるため省略可能
-@NotEmptyWhen(
-    propertyPath = "reason",
-    conditionPropertyPath = "confirmed",
-    conditionValueBoolean = true,
-    conditionOperator = ConditionOperator.NOT_EQUAL_TO
-)
-public class CancelForm { ... }
-```
-
-### @PatternWhen — 正規表現で検証（regexp）
-
-```java
-// type が "POSTAL" のとき、code は7桁の数字であること
-// conditionValue は conditionValueString から STRING と推論されるため省略可能
-@PatternWhen(
-    propertyPath = "code",
-    regexp = "\\d{7}",
-    conditionPropertyPath = "type",
-    conditionValueString = {"POSTAL"}
-)
-public class AddressForm { ... }
-```
-
-`description` を指定すると、エラーメッセージに正規表現の代わりにその文言が表示されます。
-文言は `ValidationMessagesPatternDescriptions.properties` から探し、キーがなければ指定した文字列をそのまま表示します。
-省略した場合は、正規表現がそのまま表示されます。
-
-### @StringWhen — 特定の文字列であることを検証（string[]）
-
-```java
-// role が NOT_EMPTY のとき、accountType は "ADMIN" または "OPERATOR" であること
-@StringWhen(
-    propertyPath = "accountType",
-    string = {"ADMIN", "OPERATOR"},
-    conditionPropertyPath = "role",
-    conditionValueState = ConditionValueState.NOT_EMPTY
-)
-public class UserForm { ... }
-```
-
-### @ValueOfPropertyPathWhen — 別フィールドと同値であることを検証（valuePropertyPath）
-
-```java
-// confirmed が true のとき、confirmPassword は password と同じ値であること
-@ValueOfPropertyPathWhen(
-    propertyPath = "confirmPassword",
-    valuePropertyPath = "password",
-    conditionPropertyPath = "confirmed",
-    conditionValueBoolean = true
-)
-public class PasswordForm { ... }
-```
+条件値が複数ある場合は、表示名のフィールドを条件値と同じ数・同じ順番の配列にします。
+複数の条件値をまとめた表示名を 1 つだけ表示したい場合は、配列にせず 1 つの値にすることもできます。
