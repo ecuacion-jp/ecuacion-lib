@@ -41,7 +41,7 @@ public class ExceptionLogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   *     which is treated as {@code Locale.ENGLISH}.
    * @return error log string
    */
   public static String getErrLogString(@Nullable Throwable throwable,
@@ -59,7 +59,7 @@ public class ExceptionLogUtil {
    *     may be {@code null} if no {@code additionalMessage} is needed.
    *     In the case of {@code null} no additional message is output.
    * @param locale locale, may be {@code null}
-   *     which is treated as {@code Locale.ROOT}.
+   *     which is treated as {@code Locale.ENGLISH}.
    * @param packagesShown number of package levels shown in stack traces.
    *     This is used when the log displaying area is small.
    *     {@code 0} shows no packages like {@code "at ..main(ExceptionUtil.java:468)"}.
@@ -126,7 +126,7 @@ public class ExceptionLogUtil {
    *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ENGLISH}
    */
   public static void getMessageAndStackTraceStringRecursively(StringBuilder sb,
       @Nullable Throwable th, @Nullable Locale locale) {
@@ -139,7 +139,7 @@ public class ExceptionLogUtil {
    *
    * @param sb StringBuilder
    * @param th throwable
-   * @param locale locale, may be null
+   * @param locale locale, may be {@code null} which is treated as {@code Locale.ENGLISH}
    * @param packagesShown number of package levels shown in stack traces.
    *     See {@link #getErrLogString(Throwable, String, Locale, int)} for details.
    */
