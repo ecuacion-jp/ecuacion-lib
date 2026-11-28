@@ -86,10 +86,16 @@ public class ReflectionUtil {
    * <p>Search ends when it finds the first annotation.
    *     Even if there is another annotation of the same class,
    *     it ignores it and returns the first found annotation.</p>
+   *
+   * @throws NullPointerException when {@code classOfTargetInstance}
+   *     or {@code annotationClass} is {@code null}
    */
   @SuppressWarnings("null")
   public static <A extends Annotation> @NonNull Optional<@NonNull A> searchAnnotationPlacedAtClass(
       Class<?> classOfTargetInstance, Class<A> annotationClass) {
+    Objects.requireNonNull(classOfTargetInstance);
+    Objects.requireNonNull(annotationClass);
+
     while (true) {
       // No more ancestors
       // Equals to null when it's an anonymous class created directly from Interface.

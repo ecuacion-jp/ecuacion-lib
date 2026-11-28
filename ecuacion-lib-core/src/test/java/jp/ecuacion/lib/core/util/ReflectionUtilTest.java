@@ -245,6 +245,16 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  @SuppressWarnings({"null", "NullAway"})
+  public void searchAnnotationPlacedAtClass_nullArgumentThrows() {
+    assertThatThrownBy(
+        () -> ReflectionUtil.searchAnnotationPlacedAtClass(null, SampleAnnotation.class))
+        .isInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.searchAnnotationPlacedAtClass(AnnotatedClass.class,
+        (Class<SampleAnnotation>) null)).isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
   public void getLeafBeanTest() {
     FieldValueRoot root = new FieldValueRoot();
 
