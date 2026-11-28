@@ -158,7 +158,6 @@ public class ObjectsUtil {
    *     but its elements may be {@code null} (they are checked).
    * @return the argument
    */
-  @SuppressWarnings("null")
   public static String[] requireElementNonEmpty(
       @RequireElementNonEmpty @Nullable String[] strings) {
 
@@ -181,7 +180,7 @@ public class ObjectsUtil {
    *     but its elements may be {@code null} (they are checked).
    * @return the argument
    */
-  @SuppressWarnings({"null", "unchecked"})
+  @SuppressWarnings("unchecked")
   public static Collection<String> requireElementNonEmpty(
       @RequireElementNonEmpty Collection<? extends @Nullable String> collection) {
     requireElementNonEmpty(collection.toArray(new @Nullable String[0]));

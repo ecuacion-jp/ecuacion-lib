@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import jp.ecuacion.lib.core.exception.ViolationException;
+import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.FoundVariable;
 import jp.ecuacion.lib.core.util.EmbeddedVariableUtil.Options;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jspecify.annotations.NonNull;
@@ -92,9 +93,9 @@ public class EmbeddedVariableUtilTest {
     assertThatThrownBy(() -> getVar("a}bc${")).isInstanceOf(ViolationException.class);
   }
 
-  private @Nullable Pair<@NonNull String, String> getVarWithMultipleStartSymbols(String string) {
+  private @Nullable FoundVariable getVarWithMultipleStartSymbols(String string) {
     return EmbeddedVariableUtil.getFirstFoundEmbeddedVariable(string,
-        new @NonNull String[]{"${+", "${-"}, "}", null);
+        new String[]{"${+", "${-"}, "}", null);
   }
 
   @Test
@@ -104,15 +105,22 @@ public class EmbeddedVariableUtilTest {
     assertThat(getVarWithMultipleStartSymbols("abc")).isNull();
 
     // parameter 1
-    assertThat(getVarWithMultipleStartSymbols("${+abc}")).isEqualTo(Pair.of("${+", "abc"));
+    assertThat(getVarWithMultipleStartSymbols("${+abc}"))
+        .isEqualTo(new FoundVariable("${+", "abc"));
 
     // parameter 2
-    assertThat(getVarWithMultipleStartSymbols("${+a}${-b}")).isEqualTo(Pair.of("${+", "a"));
-    assertThat(getVarWithMultipleStartSymbols("${+a}${+b}")).isEqualTo(Pair.of("${+", "a"));
-    assertThat(getVarWithMultipleStartSymbols("${+ab}${-cd}")).isEqualTo(Pair.of("${+", "ab"));
-    assertThat(getVarWithMultipleStartSymbols("${+ab}${+cd}")).isEqualTo(Pair.of("${+", "ab"));
-    assertThat(getVarWithMultipleStartSymbols("a${+b}c${-d}e")).isEqualTo(Pair.of("${+", "b"));
-    assertThat(getVarWithMultipleStartSymbols("a${+b}c${+d}e")).isEqualTo(Pair.of("${+", "b"));
+    assertThat(getVarWithMultipleStartSymbols("${+a}${-b}"))
+        .isEqualTo(new FoundVariable("${+", "a"));
+    assertThat(getVarWithMultipleStartSymbols("${+a}${+b}"))
+        .isEqualTo(new FoundVariable("${+", "a"));
+    assertThat(getVarWithMultipleStartSymbols("${+ab}${-cd}"))
+        .isEqualTo(new FoundVariable("${+", "ab"));
+    assertThat(getVarWithMultipleStartSymbols("${+ab}${+cd}"))
+        .isEqualTo(new FoundVariable("${+", "ab"));
+    assertThat(getVarWithMultipleStartSymbols("a${+b}c${-d}e"))
+        .isEqualTo(new FoundVariable("${+", "b"));
+    assertThat(getVarWithMultipleStartSymbols("a${+b}c${+d}e"))
+        .isEqualTo(new FoundVariable("${+", "b"));
 
     // wrong format
     assertThatThrownBy(() -> getVarWithMultipleStartSymbols("a}c${+d}e"))
