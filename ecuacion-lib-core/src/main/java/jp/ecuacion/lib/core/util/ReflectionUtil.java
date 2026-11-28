@@ -66,6 +66,8 @@ public class ReflectionUtil {
    * @return new instance
    */
   public static Object newInstance(String className) {
+    Objects.requireNonNull(className);
+
     try {
       Class<?> cls = Class.forName(className);
       return cls.getConstructor().newInstance();
@@ -120,6 +122,9 @@ public class ReflectionUtil {
    * @return {@link Field}
    */
   public static Field getDeclaredField(Class<?> cls, String simpleFieldName) {
+    Objects.requireNonNull(cls);
+    Objects.requireNonNull(simpleFieldName);
+
     if (simpleFieldName.contains("[")) {
       throw new RuntimeException(
           "fieldName with index (like value[0]) not acceptable. fieldName: " + simpleFieldName);
@@ -162,6 +167,9 @@ public class ReflectionUtil {
    *     when neither the field nor the getter is found
    */
   public static BeanProperty getBeanProperty(Class<?> cls, String simplePropertyName) {
+    Objects.requireNonNull(cls);
+    Objects.requireNonNull(simplePropertyName);
+
     if (simplePropertyName.contains("[")) {
       throw new RuntimeException("propertyName with index (like value[0]) not acceptable. "
           + "propertyName: " + simplePropertyName);

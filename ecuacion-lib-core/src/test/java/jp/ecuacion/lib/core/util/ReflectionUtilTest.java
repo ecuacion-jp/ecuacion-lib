@@ -245,6 +245,24 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  @SuppressWarnings({"null", "NullAway"})
+  public void nullArgumentsThrowNullPointerException() {
+    // thrown as it is, not wrapped in another RuntimeException
+    assertThatThrownBy(() -> ReflectionUtil.newInstance(null))
+        .isExactlyInstanceOf(NullPointerException.class);
+
+    // not reported as "field not found"
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(null, "value"))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(AnnotatedClass.class, null))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(null, "value"))
+        .isExactlyInstanceOf(NullPointerException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(AnnotatedClass.class, null))
+        .isExactlyInstanceOf(NullPointerException.class);
+  }
+
+  @Test
   public void searchAnnotationPlacedAtClass_interfaceAndPrimitive() {
     // interfaces and primitive types have no superclass: returns empty instead of throwing
     assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
