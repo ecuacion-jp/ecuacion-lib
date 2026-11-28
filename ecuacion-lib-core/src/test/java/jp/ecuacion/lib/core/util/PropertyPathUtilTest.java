@@ -18,6 +18,7 @@ package jp.ecuacion.lib.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -348,6 +349,55 @@ public class PropertyPathUtilTest {
       assertThat(PropertyPathUtil.toFieldPath("bean.map[1.5]." + MV)).isEqualTo("bean.map");
       assertThat(PropertyPathUtil.toFieldPath("map<K>[jp.example.User@1a2b].name"))
           .isEqualTo("map.name");
+    }
+  }
+
+  @Nested
+  @DisplayName("getValue with a null intermediate value")
+  class GetValueWithNullIntermediateValue {
+
+    public static class Dept {
+      private String name = "dept1";
+    }
+
+    public static class Emp {
+      private @Nullable Dept dept;
+      private @Nullable List<Dept> deptList;
+      private @Nullable Dept @Nullable [] deptArray;
+    }
+
+    @Test
+    @DisplayName("intermediate bean is null: returns null")
+    void intermediateBeanIsNull() {
+      assertThat(PropertyPathUtil.getValue(new Emp(), "dept.name")).isNull();
+    }
+
+    @Test
+    @DisplayName("List or array is null: returns null")
+    void collectionIsNull() {
+      assertThat(PropertyPathUtil.getValue(new Emp(), "deptList[0]")).isNull();
+      assertThat(PropertyPathUtil.getValue(new Emp(), "deptList[0].name")).isNull();
+      assertThat(PropertyPathUtil.getValue(new Emp(), "deptArray[0].name")).isNull();
+    }
+
+    @Test
+    @DisplayName("element of List is null: returns null")
+    void elementIsNull() {
+      Emp emp = new Emp();
+      List<Dept> list = new java.util.ArrayList<>();
+      list.add(null);
+      emp.deptList = list;
+      assertThat(PropertyPathUtil.getValue(emp, "deptList[0].name")).isNull();
+    }
+
+    @Test
+    @DisplayName("no null in the path: returns the value")
+    void noNull() {
+      Emp emp = new Emp();
+      emp.dept = new Dept();
+      emp.deptList = List.of(new Dept());
+      assertThat(PropertyPathUtil.getValue(emp, "dept.name")).isEqualTo("dept1");
+      assertThat(PropertyPathUtil.getValue(emp, "deptList[0].name")).isEqualTo("dept1");
     }
   }
 }

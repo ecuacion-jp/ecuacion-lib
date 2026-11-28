@@ -509,54 +509,61 @@ public class PropertyPathUtil {
    * <p>Each node is resolved to a field, or to a getter when no field of the name exists.
    *     See {@link ReflectionUtil#getBeanProperty(Class, String)}.</p>
    *
+   * <p>When an intermediate value of the path is {@code null}
+   *     (e.g. {@code dept} of {@code "dept.name"}, or {@code list} of {@code "list[0]"}),
+   *     {@code null} is returned, since the target property does not have a value either.</p>
+   *
    * @param object root object
    * @param propertyPath path from root object to the target property
-   * @return property value, or {@code null} if the property holds {@code null}
+   * @return property value, or {@code null} if the property or an intermediate value of the path
+   *     holds {@code null}
    */
   public static @Nullable Object getValue(Object object, String propertyPath) {
-    while (true) {
-      int firstDotPos = maskBracketContents(propertyPath).indexOf('.');
-      if (firstDotPos >= 0) {
-        @NonNull
-        String leftMostOfPropertyPath = propertyPath.substring(0, firstDotPos);
-        @NonNull
-        String theRestOfPropertyPath = propertyPath.substring(firstDotPos + 1);
+    int firstDotPos = maskBracketContents(propertyPath).indexOf('.');
+    if (firstDotPos >= 0) {
+      @NonNull
+      String leftMostOfPropertyPath = propertyPath.substring(0, firstDotPos);
+      @NonNull
+      String theRestOfPropertyPath = propertyPath.substring(firstDotPos + 1);
 
-        return getValue(Objects.requireNonNull(getValue(object, leftMostOfPropertyPath)),
-            theRestOfPropertyPath);
+      Object intermediateValue = getValue(object, leftMostOfPropertyPath);
+      return intermediateValue == null ? null
+          : getValue(intermediateValue, theRestOfPropertyPath);
 
-      } else {
-        if (propertyPath.contains("[")) {
-          String fieldName = toFieldPathFromNode(propertyPath);
-          // It's string because it can be non-number value when the validated object is Map.
-          String index = extractIndex(propertyPath);
+    } else {
+      if (propertyPath.contains("[")) {
+        String fieldName = toFieldPathFromNode(propertyPath);
+        // It's string because it can be non-number value when the validated object is Map.
+        String index = extractIndex(propertyPath);
 
-          Object objs =
-              ReflectionUtil.getBeanProperty(object.getClass(), fieldName).getValue(object);
+        Object objs =
+            ReflectionUtil.getBeanProperty(object.getClass(), fieldName).getValue(object);
+        if (objs == null) {
+          return null;
+        }
 
-          // Resolve the field for array or List.
-          // Occur an exception for any other collections
-          // because it's impossible to specify the element in Set
-          // (since the propertyPath is like "childSet[]")
-          // and Map (since the propertyPath is like "childMap[test]"
-          // where test is the key of them map entry. Any type can be key and
-          // it's impossible to resolve it).
-          if (objs instanceof Object[] arr) {
-            return arr[Integer.parseInt(index)];
+        // Resolve the field for array or List.
+        // Occur an exception for any other collections
+        // because it's impossible to specify the element in Set
+        // (since the propertyPath is like "childSet[]")
+        // and Map (since the propertyPath is like "childMap[test]"
+        // where test is the key of them map entry. Any type can be key and
+        // it's impossible to resolve it).
+        if (objs instanceof Object[] arr) {
+          return arr[Integer.parseInt(index)];
 
-          } else if (objs instanceof List<?> list) {
-            return list.get(Integer.parseInt(index));
-
-          } else {
-            throw new ElementOfCollectionCannotBeObtainedException(
-                "Multiple value types other than array and List "
-                    + "are not supported. The type of value: "
-                    + Objects.requireNonNull(objs).getClass().getCanonicalName());
-          }
+        } else if (objs instanceof List<?> list) {
+          return list.get(Integer.parseInt(index));
 
         } else {
-          return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath).getValue(object);
+          throw new ElementOfCollectionCannotBeObtainedException(
+              "Multiple value types other than array and List "
+                  + "are not supported. The type of value: "
+                  + objs.getClass().getCanonicalName());
         }
+
+      } else {
+        return ReflectionUtil.getBeanProperty(object.getClass(), propertyPath).getValue(object);
       }
     }
   }
