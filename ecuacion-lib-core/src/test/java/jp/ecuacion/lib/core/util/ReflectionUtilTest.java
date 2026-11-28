@@ -263,6 +263,21 @@ public class ReflectionUtilTest {
   }
 
   @Test
+  public void emptyNameThrowsIllegalArgumentException() {
+    // An empty name must not resolve "get()" of GetMethodHolder as a getter.
+    assertThatThrownBy(() -> ReflectionUtil.getBeanProperty(GetMethodHolder.class, ""))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> ReflectionUtil.getDeclaredField(GetMethodHolder.class, ""))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  public static class GetMethodHolder {
+    public String get() {
+      return "value of get()";
+    }
+  }
+
+  @Test
   public void searchAnnotationPlacedAtClass_interfaceAndPrimitive() {
     // interfaces and primitive types have no superclass: returns empty instead of throwing
     assertThat(ReflectionUtil.searchAnnotationPlacedAtClass(
