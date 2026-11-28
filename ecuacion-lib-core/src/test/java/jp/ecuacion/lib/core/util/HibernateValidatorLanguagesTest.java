@@ -79,7 +79,7 @@ public class HibernateValidatorLanguagesTest {
   @DisplayName("ValidationMessages_lib_core_xx exists only for languages Hibernate Validator"
       + " does not support")
   void libCoreMessagesOnlyForUnsupportedLanguages() throws IOException {
-    Set<String> hvLanguages = getHibernateValidatorLanguages().stream()
+    var hvLanguages = getHibernateValidatorLanguages().stream()
         .map(l -> l.replaceFirst("_.*", "")).collect(Collectors.toSet());
 
     Set<String> libCoreLanguages;

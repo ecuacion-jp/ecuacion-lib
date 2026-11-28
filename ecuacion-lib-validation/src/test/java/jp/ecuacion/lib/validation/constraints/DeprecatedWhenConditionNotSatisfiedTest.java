@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 import jp.ecuacion.lib.core.annotation.ItemNameKeyClass;
 import jp.ecuacion.lib.core.util.ExceptionUtil;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,11 +45,11 @@ public class DeprecatedWhenConditionNotSatisfiedTest {
 
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
-  private List<String> messages(Object bean) {
+  private List<@NonNull String> messages(Object bean) {
     return ExceptionUtil.getMessageList(validator.validate(bean), Locale.ENGLISH);
   }
 
-  static Stream<Arguments> deprecatedAndNewBeans() {
+  static Stream<@NonNull Arguments> deprecatedAndNewBeans() {
     return Stream.of(
         Arguments.of(new TrueOld(true, false), new TrueNew(true, false)),
         Arguments.of(new FalseOld(false, false), new FalseNew(false, false)),
@@ -68,8 +69,8 @@ public class DeprecatedWhenConditionNotSatisfiedTest {
   @MethodSource("deprecatedAndNewBeans")
   @DisplayName("deprecated parameter validates the opposite with the same message")
   public void deprecatedParameterWorksAsNewParameter(Object deprecatedBean, Object newBean) {
-    List<String> deprecatedMessages = messages(deprecatedBean);
-    List<String> newMessages = messages(newBean);
+    var deprecatedMessages = messages(deprecatedBean);
+    var newMessages = messages(newBean);
 
     assertThat(newMessages).hasSize(1);
     assertThat(newMessages.get(0)).contains("when otherwise");

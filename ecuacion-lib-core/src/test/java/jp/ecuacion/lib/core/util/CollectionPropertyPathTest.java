@@ -17,7 +17,6 @@ package jp.ecuacion.lib.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -107,7 +106,7 @@ public class CollectionPropertyPathTest {
   }
 
   private static String validateAndGetPath(Target bean) {
-    Set<ConstraintViolation<Target>> set = validator.validate(bean);
+    var set = validator.validate(bean);
     assertThat(set).hasSize(1);
     return set.iterator().next().getPropertyPath().toString();
   }
@@ -300,6 +299,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class UserMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<@Valid User, String> userMap = map(new User(null), "v");
 
       UserMap() {
@@ -308,6 +308,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class NestedMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<Map<@Pattern(regexp = "[0-9]*") String, String>, String> nestedMap =
           map(map("key2", "v"), "v");
 
@@ -317,6 +318,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class NestedUserMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<Map<@Valid User, String>, String> nestedMap = map(map(new User(null), "v"), "v");
 
       NestedUserMap() {
@@ -374,6 +376,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class UserMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, @Valid User> userMap = map("key1", new User(null));
 
       UserMap() {
@@ -382,6 +385,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class NestedMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, Map<String, @NotNull String>> nestedMap = map("key1", map("key2", null));
 
       NestedMap() {
@@ -390,6 +394,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class NestedUserMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, Map<String, @Valid User>> nestedMap = map("key1", map("key2", new User(null)));
 
       NestedUserMap() {
@@ -433,6 +438,7 @@ public class CollectionPropertyPathTest {
   class CombinedPatterns {
 
     static class MapOfUserList extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, List<@Valid User>> map = map("key1", List.of(new User("a"), new User(null)));
 
       MapOfUserList() {
@@ -457,6 +463,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class MapOfMapOfUserList extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, Map<String, List<@Valid User>>> map =
           map("key1", map("key2", List.of(new User("a"), new User(null))));
 
@@ -527,7 +534,7 @@ public class CollectionPropertyPathTest {
     @Test
     @DisplayName("@Size on an array checks the length of the array, not its elements")
     void sizeIsArrayLength() {
-      Set<ConstraintViolation<SizeArray>> set = validator.validate(new SizeArray());
+      var set = validator.validate(new SizeArray());
       assertThat(set).hasSize(1);
       assertThat(set.iterator().next().getPropertyPath().toString()).isEqualTo("sizeArray");
     }
@@ -548,6 +555,7 @@ public class CollectionPropertyPathTest {
   class SpecialKeys {
 
     static class DotKeyMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<String, @Valid User> map = map("1.5", new User(null));
 
       DotKeyMap() {
@@ -564,6 +572,7 @@ public class CollectionPropertyPathTest {
     }
 
     static class ListKeyMap extends Target {
+      @SuppressWarnings("null") // the type arguments are for validation
       Map<List<@NotNull String>, String> map = map(Arrays.asList("x", null), "v");
 
       ListKeyMap() {

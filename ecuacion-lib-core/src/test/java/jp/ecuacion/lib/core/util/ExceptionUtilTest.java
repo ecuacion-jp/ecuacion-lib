@@ -1649,9 +1649,8 @@ public class ExceptionUtilTest {
     @Test
     @DisplayName("literal message: {0} is replaced literally, keeping quotes and braces")
     void literalMessageWithItemNamePlaceholder() {
-      Set<ConstraintViolation<LiteralMessageBean>> set =
-          Validation.buildDefaultValidatorFactory().getValidator()
-              .validate(new LiteralMessageBean());
+      var set = Validation.buildDefaultValidatorFactory().getValidator()
+          .validate(new LiteralMessageBean());
       assertThat(ExceptionUtil.getMessageList(set, Locale.ENGLISH))
           .singleElement().asString().endsWith(" can't be null {x}").doesNotContain("{0}");
     }

@@ -147,15 +147,15 @@ public class MessagePropertiesFilesTest {
       }
 
       for (Map.Entry<String, Properties> entry : bundle.getValue().entrySet()) {
-        Set<String> expected = defaultProps.stringPropertyNames();
-        Set<String> actual = entry.getValue().stringPropertyNames();
+        var expected = defaultProps.stringPropertyNames();
+        var actual = entry.getValue().stringPropertyNames();
         String file = bundle.getKey() + "_" + entry.getKey();
 
-        Set<String> missingKeys = new TreeSet<>(expected);
+        var missingKeys = new TreeSet<>(expected);
         missingKeys.removeAll(actual);
         missingKeys.forEach(k -> errors.add(file + ": missing key " + k));
 
-        Set<String> extraKeys = new TreeSet<>(actual);
+        var extraKeys = new TreeSet<>(actual);
         extraKeys.removeAll(expected);
         extraKeys.forEach(k -> errors.add(file + ": unknown key " + k));
       }

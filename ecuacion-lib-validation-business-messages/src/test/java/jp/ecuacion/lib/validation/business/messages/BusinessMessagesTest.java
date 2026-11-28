@@ -51,7 +51,6 @@ public class BusinessMessagesTest {
         .isEqualTo(expectedJa);
   }
 
-  @SuppressWarnings("null")
   static Stream<Arguments> beanAndExpectedMessages() {
     return Stream.of(
         Arguments.of(new NotNullWhenBean(),
