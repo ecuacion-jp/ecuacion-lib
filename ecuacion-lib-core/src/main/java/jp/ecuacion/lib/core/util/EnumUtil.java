@@ -85,21 +85,25 @@ public class EnumUtil {
 
   /**
    * Returns true if the argument code exists in the enum class.
-   * 
+   *
+   * <p>{@code null} code returns false: null is not a code of any enum value. Programming and
+   * configuration mistakes are not hidden: {@code null} enumClass throws {@link
+   * NullPointerException}, a non-enum class throws {@link IllegalArgumentException}, and an enum
+   * without {@code getCode()} / {@code getDisplayName(Locale)} throws {@link RuntimeException},
+   * the same as {@link #getEnumInfo(Class)}.</p>
+   *
    * @param <T> any enum class
    * @param enumClass enum class
    * @param code code
-   * @return enum value
+   * @return true if the code exists in the enum class
    */
-  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, String code) {
-
-    try {
-      T anEnum = getEnumFromCode(enumClass, code);
-      return anEnum != null;
-
-    } catch (RuntimeException ex) {
-      return false;
+  public static <T> boolean hasEnumFromCode(Class<@NonNull T> enumClass, @Nullable String code) {
+    for (EnumValueInfo<T> enumValue : getEnumInfo(enumClass).valueList) {
+      if (enumValue.getCode().equals(code)) {
+        return true;
+      }
     }
+    return false;
   }
 
   /**

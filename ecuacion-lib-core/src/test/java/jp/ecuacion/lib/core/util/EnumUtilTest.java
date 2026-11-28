@@ -76,6 +76,34 @@ public class EnumUtilTest {
     void nonExistentCodeReturnsFalse() {
       assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, "Z")).isFalse();
     }
+
+    @Test
+    @DisplayName("null code returns false")
+    void nullCodeReturnsFalse() {
+      assertThat(EnumUtil.hasEnumFromCode(TestEnum.class, null)).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("NullAway")
+    @DisplayName("null enum class throws NullPointerException")
+    void nullEnumClassThrows() {
+      assertThatThrownBy(() -> EnumUtil.hasEnumFromCode(null, "A"))
+          .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    @DisplayName("non-enum class throws IllegalArgumentException")
+    void nonEnumClassThrows() {
+      assertThatThrownBy(() -> EnumUtil.hasEnumFromCode(String.class, "A"))
+          .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("enum without getCode throws RuntimeException")
+    void enumWithoutGetCodeThrows() {
+      assertThatThrownBy(() -> EnumUtil.hasEnumFromCode(PlainEnum.class, "A"))
+          .isInstanceOf(RuntimeException.class);
+    }
   }
 
   // -------------------------------------------------------------------------
@@ -173,5 +201,10 @@ public class EnumUtilTest {
     public String getDisplayName(Locale locale) {
       return name();
     }
+  }
+
+  /** Enum without getCode() / getDisplayName(Locale), to pin the error of a misconfigured enum. */
+  public enum PlainEnum {
+    VALUE_A
   }
 }
