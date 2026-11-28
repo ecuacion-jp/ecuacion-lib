@@ -86,8 +86,8 @@ public class DateTimeApiUtil {
   /**
    *  Returns filename LocalDateTime format string : {@code yyyy-MM-dd-HH-mm-ss-SSSSSS}.
    *  
-   * @param dateTime offsetDateTime
-   * @return localDateTime string
+   * @param dateTime localDateTime
+   * @return localDateTime string: {@code yyyy-MM-dd-HH-mm-ss-SSSSSS}
    */
   public static String getTimestampStringForFilename(LocalDateTime dateTime) {
     return Objects.requireNonNull(dateTime)
