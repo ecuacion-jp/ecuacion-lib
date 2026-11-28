@@ -225,6 +225,13 @@ public class StringUtilTest {
     void csvWithSpace() {
       assertThat(StringUtil.getCsvWithSpace(new String[]{"a", "b", "c"})).isEqualTo("a, b, c");
     }
+
+    @Test
+    @DisplayName("getCsvWithSpace accepts variable arguments")
+    void csvWithSpaceVarargs() {
+      assertThat(StringUtil.getCsvWithSpace("a", "b", "c")).isEqualTo("a, b, c");
+      assertThat(StringUtil.getCsvWithSpace("x")).isEqualTo("x");
+    }
   }
 
 }
