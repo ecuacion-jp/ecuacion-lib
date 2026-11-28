@@ -33,6 +33,7 @@ public class StringUtilTest {
 
   @Nested
   @DisplayName("toCurrencyFormat")
+  @SuppressWarnings("removal")
   class ToCurrencyFormat {
 
     @Test
@@ -54,6 +55,89 @@ public class StringUtilTest {
     void nonNumericThrows() {
       assertThatThrownBy(() -> StringUtil.toCurrencyFormat("abc"))
           .isInstanceOf(NumberFormatException.class);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // toNumberWithGroupingSeparators
+  // -------------------------------------------------------------------------
+
+  @Nested
+  @DisplayName("toNumberWithGroupingSeparators")
+  class ToNumberWithGroupingSeparators {
+
+    @Test
+    @DisplayName("integer string is formatted with comma separator")
+    void integer() {
+      assertThat(StringUtil.toNumberWithGroupingSeparators("0")).isEqualTo("0");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("123")).isEqualTo("123");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234567")).isEqualTo("1,234,567");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("-1234567")).isEqualTo("-1,234,567");
+    }
+
+    @Test
+    @DisplayName("number beyond the range of int and long is accepted")
+    void largeNumber() {
+      assertThat(StringUtil.toNumberWithGroupingSeparators("12345678901"))
+          .isEqualTo("12,345,678,901");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("12345678901234567890"))
+          .isEqualTo("12,345,678,901,234,567,890");
+    }
+
+    @Test
+    @DisplayName("digits after the decimal point are kept as they are")
+    void decimal() {
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234.5678")).isEqualTo("1,234.5678");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234.50")).isEqualTo("1,234.50");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("0.001")).isEqualTo("0.001");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("-0.5")).isEqualTo("-0.5");
+    }
+
+    @Test
+    @DisplayName("result does not depend on the default locale")
+    void notDependOnDefaultLocale() {
+      Locale prev = Locale.getDefault();
+      try {
+        Locale.setDefault(Locale.GERMANY);
+        assertThat(StringUtil.toNumberWithGroupingSeparators("1234567.89"))
+            .isEqualTo("1,234,567.89");
+      } finally {
+        Locale.setDefault(prev);
+      }
+    }
+
+    @Test
+    @DisplayName("designated locale determines the separators")
+    void withLocale() {
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234567.50", Locale.GERMANY))
+          .isEqualTo("1.234.567,50");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234567.50", Locale.US))
+          .isEqualTo("1,234,567.50");
+      assertThat(StringUtil.toNumberWithGroupingSeparators("1234567", Locale.JAPAN))
+          .isEqualTo("1,234,567");
+    }
+
+    @Test
+    @DisplayName("non-numeric string throws NumberFormatException")
+    void nonNumericThrows() {
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators("abc"))
+          .isInstanceOf(NumberFormatException.class);
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators(""))
+          .isInstanceOf(NumberFormatException.class);
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators("1,234"))
+          .isInstanceOf(NumberFormatException.class);
+    }
+
+    @Test
+    @DisplayName("null arguments throw NullPointerException")
+    @SuppressWarnings({"null", "NullAway"})
+    void nullThrows() {
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators((String) null))
+          .isInstanceOf(NullPointerException.class);
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators((String) null, Locale.US))
+          .isInstanceOf(NullPointerException.class);
+      assertThatThrownBy(() -> StringUtil.toNumberWithGroupingSeparators("1", (Locale) null))
+          .isInstanceOf(NullPointerException.class);
     }
   }
 
